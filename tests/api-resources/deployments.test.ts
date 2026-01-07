@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import Kernel, { toFile } from '@onkernel/sdk';
+import Kernel from '@onkernel/sdk';
 
 const client = new Kernel({
   apiKey: 'My API Key',
@@ -8,12 +8,9 @@ const client = new Kernel({
 });
 
 describe('resource deployments', () => {
-  // skipped: tests are disabled for the time being
-  test.skip('create: only required params', async () => {
-    const responsePromise = client.deployments.create({
-      entrypoint_rel_path: 'src/app.py',
-      file: await toFile(Buffer.from('# my file contents'), 'README.md'),
-    });
+  // Prism tests are disabled
+  test.skip('create', async () => {
+    const responsePromise = client.deployments.create({});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -23,19 +20,7 @@ describe('resource deployments', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
-  test.skip('create: required and optional params', async () => {
-    const response = await client.deployments.create({
-      entrypoint_rel_path: 'src/app.py',
-      file: await toFile(Buffer.from('# my file contents'), 'README.md'),
-      env_vars: { foo: 'string' },
-      force: false,
-      region: 'aws.us-east-1a',
-      version: '1.0.0',
-    });
-  });
-
-  // skipped: tests are disabled for the time being
+  // Prism tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.deployments.retrieve('id');
     const rawResponse = await responsePromise.asResponse();
@@ -47,7 +32,7 @@ describe('resource deployments', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
+  // Prism tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.deployments.list();
     const rawResponse = await responsePromise.asResponse();
@@ -59,15 +44,22 @@ describe('resource deployments', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
+  // Prism tests are disabled
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.deployments.list({ app_name: 'app_name' }, { path: '/_stainless_unknown_path' }),
+      client.deployments.list(
+        {
+          app_name: 'app_name',
+          limit: 1,
+          offset: 0,
+        },
+        { path: '/_stainless_unknown_path' },
+      ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail
+  // Prism doesn't support text/event-stream responses
   test.skip('follow', async () => {
     const responsePromise = client.deployments.follow('id');
     const rawResponse = await responsePromise.asResponse();
@@ -79,7 +71,7 @@ describe('resource deployments', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail
+  // Prism doesn't support text/event-stream responses
   test.skip('follow: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(

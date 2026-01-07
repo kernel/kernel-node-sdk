@@ -176,9 +176,27 @@ const addFormValue = async (form: FormData, key: string, value: unknown): Promis
   } else if (Array.isArray(value)) {
     await Promise.all(value.map((entry) => addFormValue(form, key + '[]', entry)));
   } else if (typeof value === 'object') {
-    await Promise.all(
-      Object.entries(value).map(([name, prop]) => addFormValue(form, `${key}[${name}]`, prop)),
-    );
+    // Special case: env_vars should always be flattened for backward compatibility
+    // with APIs that expect env_vars[KEY] format
+    const shouldAlwaysFlatten = key === 'env_vars';
+    // If the object doesn't contain any uploadable values,
+    // serialize it as JSON instead of flattening it into bracketed keys.
+    // This handles fields with contentType: application/json in the OpenAPI spec.
+    if (!shouldAlwaysFlatten && !hasUploadableValue(value)) {
+      // Filter out undefined values to check if object has any actual content
+      const entries = Object.entries(value).filter(([_, v]) => v !== undefined);
+      if (entries.length > 0) {
+        form.append(key, JSON.stringify(value));
+      }
+      // If all properties are undefined, don't add anything to the form
+    } else {
+      // Flatten objects that:
+      // - Contain uploadable values (files/blobs), or
+      // - Are explicitly marked to always flatten (like env_vars)
+      await Promise.all(
+        Object.entries(value).map(([name, prop]) => addFormValue(form, `${key}[${name}]`, prop)),
+      );
+    }
   } else {
     throw new TypeError(
       `Invalid value given to form, expected a string, number, boolean, object, Array, File or Blob but got ${value} instead`,

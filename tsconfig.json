@@ -7,10 +7,9 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "baseUrl": "./",
     "paths": {
-      "@onkernel/sdk/*": ["src/*"],
-      "@onkernel/sdk": ["src/index.ts"]
+      "@onkernel/sdk/*": ["./src/*"],
+      "@onkernel/sdk": ["./src/index.ts"]
     },
     "noEmit": true,
 

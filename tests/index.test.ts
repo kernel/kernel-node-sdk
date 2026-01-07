@@ -26,13 +26,13 @@ describe('instantiate client', () => {
       apiKey: 'My API Key',
     });
 
-    test('they are used in the request', () => {
-      const { req } = client.buildRequest({ path: '/foo', method: 'post' });
+    test('they are used in the request', async () => {
+      const { req } = await client.buildRequest({ path: '/foo', method: 'post' });
       expect(req.headers.get('x-my-default-header')).toEqual('2');
     });
 
-    test('can ignore `undefined` and leave the default', () => {
-      const { req } = client.buildRequest({
+    test('can ignore `undefined` and leave the default', async () => {
+      const { req } = await client.buildRequest({
         path: '/foo',
         method: 'post',
         headers: { 'X-My-Default-Header': undefined },
@@ -40,8 +40,8 @@ describe('instantiate client', () => {
       expect(req.headers.get('x-my-default-header')).toEqual('2');
     });
 
-    test('can be removed with `null`', () => {
-      const { req } = client.buildRequest({
+    test('can be removed with `null`', async () => {
+      const { req } = await client.buildRequest({
         path: '/foo',
         method: 'post',
         headers: { 'X-My-Default-Header': null },
@@ -87,7 +87,11 @@ describe('instantiate client', () => {
         error: jest.fn(),
       };
 
-      const client = new Kernel({ logger: logger, logLevel: 'debug', apiKey: 'My API Key' });
+      const client = new Kernel({
+        logger: logger,
+        logLevel: 'debug',
+        apiKey: 'My API Key',
+      });
 
       await forceAPIResponseForClient(client);
       expect(debugMock).toHaveBeenCalled();
@@ -107,7 +111,11 @@ describe('instantiate client', () => {
         error: jest.fn(),
       };
 
-      const client = new Kernel({ logger: logger, logLevel: 'info', apiKey: 'My API Key' });
+      const client = new Kernel({
+        logger: logger,
+        logLevel: 'info',
+        apiKey: 'My API Key',
+      });
 
       await forceAPIResponseForClient(client);
       expect(debugMock).not.toHaveBeenCalled();
@@ -157,7 +165,11 @@ describe('instantiate client', () => {
       };
 
       process.env['KERNEL_LOG'] = 'debug';
-      const client = new Kernel({ logger: logger, logLevel: 'off', apiKey: 'My API Key' });
+      const client = new Kernel({
+        logger: logger,
+        logLevel: 'off',
+        apiKey: 'My API Key',
+      });
 
       await forceAPIResponseForClient(client);
       expect(debugMock).not.toHaveBeenCalled();
@@ -173,7 +185,11 @@ describe('instantiate client', () => {
       };
 
       process.env['KERNEL_LOG'] = 'not a log level';
-      const client = new Kernel({ logger: logger, logLevel: 'debug', apiKey: 'My API Key' });
+      const client = new Kernel({
+        logger: logger,
+        logLevel: 'debug',
+        apiKey: 'My API Key',
+      });
       expect(client.logLevel).toBe('debug');
       expect(warnMock).not.toHaveBeenCalled();
     });
@@ -267,7 +283,11 @@ describe('instantiate client', () => {
       return new Response(JSON.stringify({}), { headers: { 'Content-Type': 'application/json' } });
     };
 
-    const client = new Kernel({ baseURL: 'http://localhost:5000/', apiKey: 'My API Key', fetch: testFetch });
+    const client = new Kernel({
+      baseURL: 'http://localhost:5000/',
+      apiKey: 'My API Key',
+      fetch: testFetch,
+    });
 
     await client.patch('/foo');
     expect(capturedRequest?.method).toEqual('PATCH');
@@ -320,7 +340,11 @@ describe('instantiate client', () => {
         `"Ambiguous URL; The \`baseURL\` option (or KERNEL_BASE_URL env var) and the \`environment\` option are given. If you want to use the environment you must pass baseURL: null"`,
       );
 
-      const client = new Kernel({ apiKey: 'My API Key', baseURL: null, environment: 'production' });
+      const client = new Kernel({
+        apiKey: 'My API Key',
+        baseURL: null,
+        environment: 'production',
+      });
       expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
@@ -357,8 +381,12 @@ describe('instantiate client', () => {
   });
 
   describe('withOptions', () => {
-    test('creates a new client with overridden options', () => {
-      const client = new Kernel({ baseURL: 'http://localhost:5000/', maxRetries: 3, apiKey: 'My API Key' });
+    test('creates a new client with overridden options', async () => {
+      const client = new Kernel({
+        baseURL: 'http://localhost:5000/',
+        maxRetries: 3,
+        apiKey: 'My API Key',
+      });
 
       const newClient = client.withOptions({
         maxRetries: 5,
@@ -378,7 +406,7 @@ describe('instantiate client', () => {
       expect(newClient.constructor).toBe(client.constructor);
     });
 
-    test('inherits options from the parent client', () => {
+    test('inherits options from the parent client', async () => {
       const client = new Kernel({
         baseURL: 'http://localhost:5000/',
         defaultHeaders: { 'X-Test-Header': 'test-value' },
@@ -393,12 +421,16 @@ describe('instantiate client', () => {
       // Test inherited options remain the same
       expect(newClient.buildURL('/foo', null)).toEqual('http://localhost:5001/foo?test-param=test-value');
 
-      const { req } = newClient.buildRequest({ path: '/foo', method: 'get' });
+      const { req } = await newClient.buildRequest({ path: '/foo', method: 'get' });
       expect(req.headers.get('x-test-header')).toEqual('test-value');
     });
 
     test('respects runtime property changes when creating new client', () => {
-      const client = new Kernel({ baseURL: 'http://localhost:5000/', timeout: 1000, apiKey: 'My API Key' });
+      const client = new Kernel({
+        baseURL: 'http://localhost:5000/',
+        timeout: 1000,
+        apiKey: 'My API Key',
+      });
 
       // Modify the client properties directly after creation
       client.baseURL = 'http://localhost:6000/';
@@ -443,8 +475,8 @@ describe('request building', () => {
   const client = new Kernel({ apiKey: 'My API Key' });
 
   describe('custom headers', () => {
-    test('handles undefined', () => {
-      const { req } = client.buildRequest({
+    test('handles undefined', async () => {
+      const { req } = await client.buildRequest({
         path: '/foo',
         method: 'post',
         body: { value: 'hello' },
@@ -479,8 +511,8 @@ describe('default encoder', () => {
     }
   }
   for (const jsonValue of [{}, [], { __proto__: null }, new Serializable(), new Collection(['item'])]) {
-    test(`serializes ${util.inspect(jsonValue)} as json`, () => {
-      const { req } = client.buildRequest({
+    test(`serializes ${util.inspect(jsonValue)} as json`, async () => {
+      const { req } = await client.buildRequest({
         path: '/foo',
         method: 'post',
         body: jsonValue,
@@ -503,7 +535,7 @@ describe('default encoder', () => {
     asyncIterable,
   ]) {
     test(`converts ${util.inspect(streamValue)} to ReadableStream`, async () => {
-      const { req } = client.buildRequest({
+      const { req } = await client.buildRequest({
         path: '/foo',
         method: 'post',
         body: streamValue,
@@ -516,7 +548,7 @@ describe('default encoder', () => {
   }
 
   test(`can set content-type for ReadableStream`, async () => {
-    const { req } = client.buildRequest({
+    const { req } = await client.buildRequest({
       path: '/foo',
       method: 'post',
       body: new Response('a\nb\nc\n').body,
@@ -544,7 +576,11 @@ describe('retries', () => {
       return new Response(JSON.stringify({ a: 1 }), { headers: { 'Content-Type': 'application/json' } });
     };
 
-    const client = new Kernel({ apiKey: 'My API Key', timeout: 10, fetch: testFetch });
+    const client = new Kernel({
+      apiKey: 'My API Key',
+      timeout: 10,
+      fetch: testFetch,
+    });
 
     expect(await client.request({ path: '/foo', method: 'get' })).toEqual({ a: 1 });
     expect(count).toEqual(2);
@@ -574,7 +610,11 @@ describe('retries', () => {
       return new Response(JSON.stringify({ a: 1 }), { headers: { 'Content-Type': 'application/json' } });
     };
 
-    const client = new Kernel({ apiKey: 'My API Key', fetch: testFetch, maxRetries: 4 });
+    const client = new Kernel({
+      apiKey: 'My API Key',
+      fetch: testFetch,
+      maxRetries: 4,
+    });
 
     expect(await client.request({ path: '/foo', method: 'get' })).toEqual({ a: 1 });
 
@@ -598,7 +638,11 @@ describe('retries', () => {
       capturedRequest = init;
       return new Response(JSON.stringify({ a: 1 }), { headers: { 'Content-Type': 'application/json' } });
     };
-    const client = new Kernel({ apiKey: 'My API Key', fetch: testFetch, maxRetries: 4 });
+    const client = new Kernel({
+      apiKey: 'My API Key',
+      fetch: testFetch,
+      maxRetries: 4,
+    });
 
     expect(
       await client.request({
@@ -660,7 +704,11 @@ describe('retries', () => {
       capturedRequest = init;
       return new Response(JSON.stringify({ a: 1 }), { headers: { 'Content-Type': 'application/json' } });
     };
-    const client = new Kernel({ apiKey: 'My API Key', fetch: testFetch, maxRetries: 4 });
+    const client = new Kernel({
+      apiKey: 'My API Key',
+      fetch: testFetch,
+      maxRetries: 4,
+    });
 
     expect(
       await client.request({

@@ -62,7 +62,49 @@ describe('form data validation', () => {
       },
       fetch,
     );
-    expect(Array.from(form2.entries())).toEqual([['bar[foo]', 'string']]);
+    // Objects without uploadable values are now serialized as JSON
+    expect(Array.from(form2.entries())).toEqual([['bar', '{"foo":"string"}']]);
+  });
+
+  test('env_vars are always flattened for backward compatibility', async () => {
+    const form = await createForm(
+      {
+        env_vars: {
+          API_KEY: 'secret',
+          DEBUG: 'true',
+        },
+      },
+      fetch,
+    );
+    // env_vars should be flattened, not JSON-serialized
+    expect(Array.from(form.entries())).toEqual([
+      ['env_vars[API_KEY]', 'secret'],
+      ['env_vars[DEBUG]', 'true'],
+    ]);
+  });
+
+  test('source field is JSON-serialized', async () => {
+    const form = await createForm(
+      {
+        source: {
+          type: 'github',
+          url: 'https://github.com/user/repo',
+          ref: 'main',
+          entrypoint: 'app.py',
+        },
+      },
+      fetch,
+    );
+    // source should be JSON-serialized per OpenAPI spec
+    const entries = Array.from(form.entries());
+    expect(entries.length).toBe(1);
+    expect(entries[0]![0]).toBe('source');
+    expect(JSON.parse(entries[0]![1] as string)).toEqual({
+      type: 'github',
+      url: 'https://github.com/user/repo',
+      ref: 'main',
+      entrypoint: 'app.py',
+    });
   });
 
   test('nested undefined array item is stripped', async () => {

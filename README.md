@@ -27,14 +27,9 @@ const client = new Kernel({
   environment: 'development', // defaults to 'production'
 });
 
-const deployment = await client.apps.deployments.create({
-  entrypoint_rel_path: 'main.ts',
-  file: fs.createReadStream('path/to/file'),
-  env_vars: { OPENAI_API_KEY: 'x' },
-  version: '1.0.0',
-});
+const browser = await client.browsers.create({ stealth: true });
 
-console.log(deployment.apps);
+console.log(browser.session_id);
 ```
 
 ### Request & Response types
@@ -50,10 +45,7 @@ const client = new Kernel({
   environment: 'development', // defaults to 'production'
 });
 
-const params: Kernel.BrowserCreateParams = {
-  invocation_id: 'REPLACE_ME',
-  persistence: { id: 'browser-for-user-1234' },
-};
+const params: Kernel.BrowserCreateParams = { stealth: true };
 const browser: Kernel.BrowserCreateResponse = await client.browsers.create(params);
 ```
 
@@ -75,32 +67,17 @@ import Kernel, { toFile } from '@onkernel/sdk';
 const client = new Kernel();
 
 // If you have access to Node `fs` we recommend using `fs.createReadStream()`:
-await client.apps.deployments.create({
-  entrypoint_rel_path: 'src/app.py',
-  file: fs.createReadStream('/path/to/file'),
-});
+await client.deployments.create({ file: fs.createReadStream('/path/to/file') });
 
 // Or if you have the web `File` API you can pass a `File` instance:
-await client.apps.deployments.create({
-  entrypoint_rel_path: 'src/app.py',
-  file: new File(['my bytes'], 'file'),
-});
+await client.deployments.create({ file: new File(['my bytes'], 'file') });
 
 // You can also pass a `fetch` `Response`:
-await client.apps.deployments.create({
-  entrypoint_rel_path: 'src/app.py',
-  file: await fetch('https://somesite/file'),
-});
+await client.deployments.create({ file: await fetch('https://somesite/file') });
 
 // Finally, if none of the above are convenient, you can use our `toFile` helper:
-await client.apps.deployments.create({
-  entrypoint_rel_path: 'src/app.py',
-  file: await toFile(Buffer.from('my bytes'), 'file'),
-});
-await client.apps.deployments.create({
-  entrypoint_rel_path: 'src/app.py',
-  file: await toFile(new Uint8Array([0, 1, 2]), 'file'),
-});
+await client.deployments.create({ file: await toFile(Buffer.from('my bytes'), 'file') });
+await client.deployments.create({ file: await toFile(new Uint8Array([0, 1, 2]), 'file') });
 ```
 
 ## Handling errors
@@ -111,17 +88,15 @@ a subclass of `APIError` will be thrown:
 
 <!-- prettier-ignore -->
 ```ts
-const browser = await client.browsers
-  .create({ invocation_id: 'REPLACE_ME', persistence: { id: 'browser-for-user-1234' } })
-  .catch(async (err) => {
-    if (err instanceof Kernel.APIError) {
-      console.log(err.status); // 400
-      console.log(err.name); // BadRequestError
-      console.log(err.headers); // {server: 'nginx', ...}
-    } else {
-      throw err;
-    }
-  });
+const browser = await client.browsers.create({ stealth: true }).catch(async (err) => {
+  if (err instanceof Kernel.APIError) {
+    console.log(err.status); // 400
+    console.log(err.name); // BadRequestError
+    console.log(err.headers); // {server: 'nginx', ...}
+  } else {
+    throw err;
+  }
+});
 ```
 
 Error codes are as follows:
@@ -153,7 +128,7 @@ const client = new Kernel({
 });
 
 // Or, configure per-request:
-await client.browsers.create({ invocation_id: 'REPLACE_ME', persistence: { id: 'browser-for-user-1234' } }, {
+await client.browsers.create({ stealth: true }, {
   maxRetries: 5,
 });
 ```
@@ -170,7 +145,7 @@ const client = new Kernel({
 });
 
 // Override per-request:
-await client.browsers.create({ invocation_id: 'REPLACE_ME', persistence: { id: 'browser-for-user-1234' } }, {
+await client.browsers.create({ stealth: true }, {
   timeout: 5 * 1000,
 });
 ```
@@ -178,6 +153,40 @@ await client.browsers.create({ invocation_id: 'REPLACE_ME', persistence: { id: '
 On timeout, an `APIConnectionTimeoutError` is thrown.
 
 Note that requests which time out will be [retried twice by default](#retries).
+
+## Auto-pagination
+
+List methods in the Kernel API are paginated.
+You can use the `for await … of` syntax to iterate through items across all pages:
+
+```ts
+async function fetchAllDeploymentListResponses(params) {
+  const allDeploymentListResponses = [];
+  // Automatically fetches more pages as needed.
+  for await (const deploymentListResponse of client.deployments.list({
+    app_name: 'YOUR_APP',
+    limit: 2,
+  })) {
+    allDeploymentListResponses.push(deploymentListResponse);
+  }
+  return allDeploymentListResponses;
+}
+```
+
+Alternatively, you can request a single page at a time:
+
+```ts
+let page = await client.deployments.list({ app_name: 'YOUR_APP', limit: 2 });
+for (const deploymentListResponse of page.items) {
+  console.log(deploymentListResponse);
+}
+
+// Convenience methods are provided for manually paginating:
+while (page.hasNextPage()) {
+  page = await page.getNextPage();
+  // ...
+}
+```
 
 ## Advanced Usage
 
@@ -193,14 +202,12 @@ Unlike `.asResponse()` this method consumes the body, returning once it is parse
 ```ts
 const client = new Kernel();
 
-const response = await client.browsers
-  .create({ invocation_id: 'REPLACE_ME', persistence: { id: 'browser-for-user-1234' } })
-  .asResponse();
+const response = await client.browsers.create({ stealth: true }).asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
 const { data: browser, response: raw } = await client.browsers
-  .create({ invocation_id: 'REPLACE_ME', persistence: { id: 'browser-for-user-1234' } })
+  .create({ stealth: true })
   .withResponse();
 console.log(raw.headers.get('X-My-Header'));
 console.log(browser.session_id);
@@ -283,7 +290,7 @@ parameter. This library doesn't validate at runtime that the request matches the
 send will be sent as-is.
 
 ```ts
-client.apps.deployments.create({
+client.browsers.create({
   // ...
   // @ts-expect-error baz is not yet public
   baz: 'undocumented option',

@@ -1,5 +1,406 @@
 # Changelog
 
+## 0.25.0 (2026-01-07)
+
+Full Changelog: [v0.24.0...v0.25.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.24.0...v0.25.0)
+
+### Features
+
+* **api:** add health check endpoint for proxies ([999dfe5](https://github.com/onkernel/kernel-node-sdk/commit/999dfe58dbdfae072207e03d83efea58eb914a32))
+* **auth:** add auto_login credential flow ([3f4eb01](https://github.com/onkernel/kernel-node-sdk/commit/3f4eb01bb73f679828e195a74f41214d69c01453))
+* Enhance AuthAgentInvocation with step and last activity tracking ([8380eb6](https://github.com/onkernel/kernel-node-sdk/commit/8380eb6cef2c8229bee4e263bcd0637f9fcb1480))
+
+
+### Chores
+
+* break long lines in snippets into multiline ([c546f46](https://github.com/onkernel/kernel-node-sdk/commit/c546f46485ea1e853347db59c4abc5d8c9389b6c))
+* **internal:** codegen related update ([00a9097](https://github.com/onkernel/kernel-node-sdk/commit/00a9097ee42022b917f90fa6dd33938a3f1a9866))
+
+## 0.24.0 (2025-12-17)
+
+Full Changelog: [v0.23.0...v0.24.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.23.0...v0.24.0)
+
+### Features
+
+* Enhance AuthAgentInvocationCreateResponse to include already_authenti… ([70cd6d6](https://github.com/onkernel/kernel-node-sdk/commit/70cd6d6c44fa9f90a5bfad3e6268bd6264a9f83b))
+* Fix browser pool sdk types ([e4b773f](https://github.com/onkernel/kernel-node-sdk/commit/e4b773f9923b1bf4fcda5bd2c9832cbb291981bd))
+
+## 0.23.0 (2025-12-11)
+
+Full Changelog: [v0.22.0...v0.23.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.22.0...v0.23.0)
+
+### Features
+
+* [wip] Browser pools polish pass ([7c8a464](https://github.com/onkernel/kernel-node-sdk/commit/7c8a4641cb87a76a3248e2d1df713df929957262))
+* enhance agent authentication API with new endpoints and request… ([0ef28fd](https://github.com/onkernel/kernel-node-sdk/commit/0ef28fddbf7c7d03b24a56d4157d1eb3966c0a7f))
+* Enhance agent authentication with optional login page URL and auth ch… ([7ea4b07](https://github.com/onkernel/kernel-node-sdk/commit/7ea4b076cc5255f76945ae370a8f686349a28a30))
+* Enhance AuthAgent model with last_auth_check_at field ([29d43d1](https://github.com/onkernel/kernel-node-sdk/commit/29d43d10a026f25cf1a1de2579c06f90ca246054))
+
+
+### Bug Fixes
+
+* **mcp:** correct code tool API endpoint ([4f60927](https://github.com/onkernel/kernel-node-sdk/commit/4f6092702503c6dafb0d310c8123bf8dccce60e1))
+* **mcp:** return correct lines on typescript errors ([8ccaae1](https://github.com/onkernel/kernel-node-sdk/commit/8ccaae1b63ee9ca371c4f32033486e6e9ba1c351))
+
+
+### Chores
+
+* **internal:** codegen related update ([3ffeaa7](https://github.com/onkernel/kernel-node-sdk/commit/3ffeaa72b3cb5c7cd5baea0ddeaf5fad60979235))
+* **internal:** codegen related update ([c9461e7](https://github.com/onkernel/kernel-node-sdk/commit/c9461e7e02592559c3592f8916bf1351d32cce9a))
+
+
+### Refactors
+
+* **browser:** remove persistence option UI ([f3fdc89](https://github.com/onkernel/kernel-node-sdk/commit/f3fdc89088feeb32983da39700e47e922f767126))
+
+## 0.22.0 (2025-12-05)
+
+Full Changelog: [v0.21.0...v0.22.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.21.0...v0.22.0)
+
+### Features
+
+* Add `async_timeout_seconds` to PostInvocations ([b6ecd9b](https://github.com/onkernel/kernel-node-sdk/commit/b6ecd9be250a191df92238b1ac6610518a69d251))
+
+
+### Chores
+
+* **internal:** upgrade eslint ([15e301b](https://github.com/onkernel/kernel-node-sdk/commit/15e301b3db576725b69f9dea97e4f46a97404dda))
+
+## 0.21.0 (2025-12-02)
+
+Full Changelog: [v0.20.0...v0.21.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.20.0...v0.21.0)
+
+### Features
+
+* Browser pools sdk release ([0fca0c8](https://github.com/onkernel/kernel-node-sdk/commit/0fca0c8145e7a9938a9ebe20eeac19eb9d3e4e82))
+* Mason/agent auth api ([963aaf2](https://github.com/onkernel/kernel-node-sdk/commit/963aaf27f6449d4bcd39f9f3340b5d5a68ae49e8))
+
+
+### Chores
+
+* **client:** fix logger property type ([426b7b4](https://github.com/onkernel/kernel-node-sdk/commit/426b7b4d79357fcae88807aad49718c26eb02044))
+
+## 0.20.0 (2025-11-19)
+
+Full Changelog: [v0.19.2...v0.20.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.19.2...v0.20.0)
+
+### Features
+
+* Add pagination to list browsers method and allow it to include deleted browsers when `include_deleted = true` ([115aa05](https://github.com/onkernel/kernel-node-sdk/commit/115aa05556536a505610e80152dc40f03f4dfada))
+
+## 0.19.2 (2025-11-17)
+
+Full Changelog: [v0.19.1...v0.19.2](https://github.com/onkernel/kernel-node-sdk/compare/v0.19.1...v0.19.2)
+
+### Features
+
+* Feat increase max timeout to 72h ([a2496da](https://github.com/onkernel/kernel-node-sdk/commit/a2496daa6609a55c75934584cc764344db5a4098))
+
+## 0.19.1 (2025-11-13)
+
+Full Changelog: [v0.19.0...v0.19.1](https://github.com/onkernel/kernel-node-sdk/compare/v0.19.0...v0.19.1)
+
+### Features
+
+* Add support for 1200x800 ([6321644](https://github.com/onkernel/kernel-node-sdk/commit/63216447e56cc6bc3ee706812d8afaf94071308f))
+
+## 0.19.0 (2025-11-12)
+
+Full Changelog: [v0.18.0...v0.19.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.18.0...v0.19.0)
+
+### Features
+
+* feat hide cursor v2 ([b9b6fe9](https://github.com/onkernel/kernel-node-sdk/commit/b9b6fe94de3194fb5a1753f4cab7112b437b8a35))
+
+## 0.18.0 (2025-10-30)
+
+Full Changelog: [v0.17.0...v0.18.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.17.0...v0.18.0)
+
+### Features
+
+* apps: add offset pagination + headers ([7c91210](https://github.com/onkernel/kernel-node-sdk/commit/7c912109b90c18481e45a5c6d5f367afca039d23))
+
+## 0.17.0 (2025-10-27)
+
+Full Changelog: [v0.16.0...v0.17.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.16.0...v0.17.0)
+
+### Features
+
+* Make country flag optional for DC and ISP proxies ([8fb8abb](https://github.com/onkernel/kernel-node-sdk/commit/8fb8abbfb9d399e19db2ec8ca7464f536c808252))
+
+## 0.16.0 (2025-10-27)
+
+Full Changelog: [v0.15.0...v0.16.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.15.0...v0.16.0)
+
+### Features
+
+* ad hoc playwright code exec AP| ([1112215](https://github.com/onkernel/kernel-node-sdk/commit/11122155f3745843cb56d19261e97d1df4eaadea))
+
+
+### Bug Fixes
+
+* **client:** incorrect offset pagination check ([63aee26](https://github.com/onkernel/kernel-node-sdk/commit/63aee268f4954577bfdf284f2e6af8adc466712d))
+
+## 0.15.0 (2025-10-17)
+
+Full Changelog: [v0.14.2...v0.15.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.14.2...v0.15.0)
+
+### Features
+
+* click mouse, move mouse, screenshot ([68e527c](https://github.com/onkernel/kernel-node-sdk/commit/68e527cefd5659f579119a39ecd4c170193bbed5))
+* Phani/deploy with GitHub url ([1e97151](https://github.com/onkernel/kernel-node-sdk/commit/1e971513c25cdfe84624c033ad89c5bfdc7fef20))
+
+## 0.14.2 (2025-10-16)
+
+Full Changelog: [v0.14.1...v0.14.2](https://github.com/onkernel/kernel-node-sdk/compare/v0.14.1...v0.14.2)
+
+### Features
+
+* Kiosk mode ([7b9016e](https://github.com/onkernel/kernel-node-sdk/commit/7b9016ef162c9b28569e48aea971220fbc02c7aa))
+
+## 0.14.1 (2025-10-13)
+
+Full Changelog: [v0.14.0...v0.14.1](https://github.com/onkernel/kernel-node-sdk/compare/v0.14.0...v0.14.1)
+
+### Features
+
+* Hide and deprecate mobile proxy type ([54dae63](https://github.com/onkernel/kernel-node-sdk/commit/54dae631f02ce14c75222677ffa171895f4cb0ca))
+* WIP: Configurable Viewport ([2a85d81](https://github.com/onkernel/kernel-node-sdk/commit/2a85d8110a918d62a528401e278758cf5eeb9b82))
+
+## 0.14.0 (2025-10-07)
+
+Full Changelog: [v0.13.0...v0.14.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.13.0...v0.14.0)
+
+### Features
+
+* WIP browser extensions ([77333ab](https://github.com/onkernel/kernel-node-sdk/commit/77333abe7f7ee0c53da495adcec728b2fed7f831))
+
+
+### Chores
+
+* **internal:** use npm pack for build uploads ([aac1084](https://github.com/onkernel/kernel-node-sdk/commit/aac1084dca1bb547f314144891ed277ff82f2c89))
+* **jsdoc:** fix [@link](https://github.com/link) annotations to refer only to parts of the package‘s public interface ([fe32267](https://github.com/onkernel/kernel-node-sdk/commit/fe32267f011df4444169d45787bac50b6249eab4))
+
+## 0.13.0 (2025-10-03)
+
+Full Changelog: [v0.12.0...v0.13.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.12.0...v0.13.0)
+
+### Features
+
+* Http proxy ([a178cc3](https://github.com/onkernel/kernel-node-sdk/commit/a178cc39945833b6cf9300c1828df82b726261f9))
+* Update oAPI and data model for proxy status ([26063c8](https://github.com/onkernel/kernel-node-sdk/commit/26063c82a096ac63ad9de34597c1a1849ab881f4))
+
+
+### Chores
+
+* **internal:** remove .eslintcache ([c7a7e8c](https://github.com/onkernel/kernel-node-sdk/commit/c7a7e8cad9e529906a3d351587ec57ae56e864f3))
+
+## 0.12.0 (2025-09-30)
+
+Full Changelog: [v0.11.5...v0.12.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.5...v0.12.0)
+
+### Features
+
+* Add App Version to Invocation and add filtering on App Version ([b3e109c](https://github.com/onkernel/kernel-node-sdk/commit/b3e109c8117770f911440eddd463672df2be96c4))
+* Return proxy ID in browsers response ([4eaa3ae](https://github.com/onkernel/kernel-node-sdk/commit/4eaa3aea0958f94741be4d4dfbe3e58b96550cd8))
+
+
+### Chores
+
+* **internal:** ignore .eslintcache ([59d069a](https://github.com/onkernel/kernel-node-sdk/commit/59d069a398718d31eb92c2de189257698bdefd2a))
+* **internal:** version bump ([2fd4758](https://github.com/onkernel/kernel-node-sdk/commit/2fd4758c4bd417d8eb5674d1396813674fcaf173))
+
+## 0.11.5 (2025-09-29)
+
+Full Changelog: [v0.11.4...v0.11.5](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.4...v0.11.5)
+
+### Features
+
+* Fix my incorrect grammer ([535963a](https://github.com/onkernel/kernel-node-sdk/commit/535963a0ba0ab69a07af7f9903836e869d7baf8f))
+
+
+### Performance Improvements
+
+* faster formatting ([d55b4d5](https://github.com/onkernel/kernel-node-sdk/commit/d55b4d53e7c2db501dcfbc344695716e2ebee9be))
+
+
+### Chores
+
+* **internal:** codegen related update ([dde7c0a](https://github.com/onkernel/kernel-node-sdk/commit/dde7c0a13e1f20bc95f6a6ab5cea66d6907b30f6))
+* **internal:** fix incremental formatting in some cases ([cf995a4](https://github.com/onkernel/kernel-node-sdk/commit/cf995a47eadf146da7486f59c60e8c245ec64419))
+* **internal:** remove deprecated `compilerOptions.baseUrl` from tsconfig.json ([00ea517](https://github.com/onkernel/kernel-node-sdk/commit/00ea517c0e23bb0e2fc4459d212d4445ed16c1e2))
+
+## 0.11.4 (2025-09-25)
+
+Full Changelog: [v0.11.3...v0.11.4](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.3...v0.11.4)
+
+### Features
+
+* getInvocations endpoint ([5166b00](https://github.com/onkernel/kernel-node-sdk/commit/5166b00297fa06e003ce1314910d870ac4c7ae1f))
+
+## 0.11.3 (2025-09-24)
+
+Full Changelog: [v0.11.2...v0.11.3](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.2...v0.11.3)
+
+### Features
+
+* Per Invocation Logs ([927cab6](https://github.com/onkernel/kernel-node-sdk/commit/927cab6e8a599d9737246220ceb54b245b3d4fc5))
+
+## 0.11.2 (2025-09-24)
+
+Full Changelog: [v0.11.1...v0.11.2](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.1...v0.11.2)
+
+### Features
+
+* Add stainless CI ([63436fa](https://github.com/onkernel/kernel-node-sdk/commit/63436fac84ae5bc88b8713dd5b8b58b4d4989c62))
+
+
+### Chores
+
+* do not install brew dependencies in ./scripts/bootstrap by default ([b902d04](https://github.com/onkernel/kernel-node-sdk/commit/b902d04ed09ff6001eb59ca8c2a9e9bccd629ed4))
+
+## 0.11.1 (2025-09-08)
+
+Full Changelog: [v0.11.0...v0.11.1](https://github.com/onkernel/kernel-node-sdk/compare/v0.11.0...v0.11.1)
+
+### Features
+
+* **api:** add pagination to the deployments endpoint ([b8fa501](https://github.com/onkernel/kernel-node-sdk/commit/b8fa5012dd3b5944e128a5ff629aeea19159362a))
+* **api:** pagination properties added to response (has_more, next_offset) ([49c574e](https://github.com/onkernel/kernel-node-sdk/commit/49c574eeba8413d01cc4528282a59068dfc2150d))
+* **api:** update API spec with pagination headers ([d1169c0](https://github.com/onkernel/kernel-node-sdk/commit/d1169c09fb1222114db878a133ca593479d257fc))
+
+
+### Bug Fixes
+
+* coerce nullable values to undefined ([41cb0ae](https://github.com/onkernel/kernel-node-sdk/commit/41cb0aeb163e00f1e3e2fe41acd3f0c379b64976))
+
+
+### Chores
+
+* ci build action ([790397f](https://github.com/onkernel/kernel-node-sdk/commit/790397fdd2f074f49e70a1eebfa129750174bcb3))
+
+## 0.11.0 (2025-09-04)
+
+Full Changelog: [v0.10.0...v0.11.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.10.0...v0.11.0)
+
+### Features
+
+* **api:** adding support for browser profiles ([e614d58](https://github.com/onkernel/kernel-node-sdk/commit/e614d585a515121a2bba520941ee667f60f1e3ce))
+
+
+### Chores
+
+* **internal:** update global Error reference ([2697844](https://github.com/onkernel/kernel-node-sdk/commit/26978447f89c1fb152ef98ff2cc841ec1b76ad87))
+
+## 0.10.0 (2025-08-27)
+
+Full Changelog: [v0.9.1...v0.10.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.9.1...v0.10.0)
+
+### Features
+
+* **api:** new process, fs, and log endpoints ([0cceb4e](https://github.com/onkernel/kernel-node-sdk/commit/0cceb4e3be5b8e6d267f075f6d9f696f24b1d7f3))
+* **mcp:** add code execution tool ([d3a08a9](https://github.com/onkernel/kernel-node-sdk/commit/d3a08a9e8bccbdf15e2404c9131f0969dc95be24))
+
+
+### Chores
+
+* add package to package.json ([294b1d8](https://github.com/onkernel/kernel-node-sdk/commit/294b1d85cbbe33ce1fd68f4fd879e95922b651c5))
+* **client:** qualify global Blob ([7ac9358](https://github.com/onkernel/kernel-node-sdk/commit/7ac9358a1f9d8d2b12ea1f91cd54c1cb169abab9))
+* **deps:** update dependency @types/node to v20.17.58 ([797f96b](https://github.com/onkernel/kernel-node-sdk/commit/797f96bd96877114412860f63f47e8ac16a7ab6c))
+* **internal:** formatting change ([8a4b4cf](https://github.com/onkernel/kernel-node-sdk/commit/8a4b4cf31f313b0cbe2c8de9eed168519b702dd7))
+* update CI script ([b0aabec](https://github.com/onkernel/kernel-node-sdk/commit/b0aabec18bf5b0f50264e42fd460b80a347db4a1))
+
+## 0.9.1 (2025-08-15)
+
+Full Changelog: [v0.9.0...v0.9.1](https://github.com/onkernel/kernel-node-sdk/compare/v0.9.0...v0.9.1)
+
+### Features
+
+* **api:** add browser timeouts ([a7cf6cd](https://github.com/onkernel/kernel-node-sdk/commit/a7cf6cdc4b35728bbdf85469d4212e90e5241b78))
+
+### Chores
+
+* **internal:** codegen related update ([0665717](https://github.com/onkernel/kernel-node-sdk/commit/0665717e9f8831133ccec9cb24e29a0db800c86f))
+* **internal:** update comment in script ([c435fb5](https://github.com/onkernel/kernel-node-sdk/commit/c435fb5125da065d4a5d36777506a8924c7fb02e))
+* update @stainless-api/prism-cli to v5.15.0 ([391384a](https://github.com/onkernel/kernel-node-sdk/commit/391384a0c5cc64b4bc4f4e8f717e11ae4cf7bce5))
+
+## 0.9.0 (2025-08-08)
+
+Full Changelog: [v0.8.3...v0.9.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.8.3...v0.9.0)
+
+### Features
+
+* **api:** browser instance file i/o ([cc7f07f](https://github.com/onkernel/kernel-node-sdk/commit/cc7f07fedf78492e092dd1e982634a6e142f0dfa))
+
+
+### Bug Fixes
+
+* **methods:** define methods with parameters and binary body correctly ([6c70c14](https://github.com/onkernel/kernel-node-sdk/commit/6c70c147bfca8429aec6c114e42741d405c552b2))
+
+
+### Chores
+
+* **internal:** move publish config ([7662fc0](https://github.com/onkernel/kernel-node-sdk/commit/7662fc06f49f4816b9ff6328bae5aa70964a4143))
+
+## 0.8.3 (2025-08-01)
+
+Full Changelog: [v0.8.2...v0.8.3](https://github.com/onkernel/kernel-node-sdk/compare/v0.8.2...v0.8.3)
+
+### Features
+
+* **api:** lower default timeout to 5s ([743b241](https://github.com/onkernel/kernel-node-sdk/commit/743b24161f294e289a6fe17537d02b8fe35f7b06))
+* **api:** manual updates ([d341269](https://github.com/onkernel/kernel-node-sdk/commit/d3412699e03073534c66912c0ccd607248655202))
+
+
+### Chores
+
+* **internal:** remove redundant imports config ([9da9247](https://github.com/onkernel/kernel-node-sdk/commit/9da92475e2a744e9f3714a83887ffba5c24559ee))
+
+## 0.8.2 (2025-07-23)
+
+Full Changelog: [v0.8.0...v0.8.2](https://github.com/onkernel/kernel-node-sdk/compare/v0.8.0...v0.8.2)
+
+### Features
+
+* **api:** add action name to the response to invoke ([02097a8](https://github.com/onkernel/kernel-node-sdk/commit/02097a886f25ce632ac2ba166b510901fc6693ae))
+
+
+### Chores
+
+* **api:** remove deprecated endpoints ([904ea56](https://github.com/onkernel/kernel-node-sdk/commit/904ea5662e465a5238402427341550c6e7421614))
+* **ts:** reorder package.json imports ([e260997](https://github.com/onkernel/kernel-node-sdk/commit/e260997238b81c3183bbd7ba7f178cd2c4e3a1ac))
+
+## 0.8.0 (2025-07-16)
+
+Full Changelog: [v0.7.1...v0.8.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.7.1...v0.8.0)
+
+### Features
+
+* **api:** manual updates ([d073427](https://github.com/onkernel/kernel-node-sdk/commit/d0734275dd0014d8710a08eaa3a732d4530abe4f))
+
+
+### Chores
+
+* make some internal functions async ([b5d654f](https://github.com/onkernel/kernel-node-sdk/commit/b5d654f72557c9f5949e2067f6e61a5dcd514b03))
+
+## 0.7.1 (2025-07-08)
+
+Full Changelog: [v0.7.0...v0.7.1](https://github.com/onkernel/kernel-node-sdk/compare/v0.7.0...v0.7.1)
+
+### Features
+
+* **api:** manual updates ([a018f17](https://github.com/onkernel/kernel-node-sdk/commit/a018f171c8161b3595fd66c9b2c8ca458e50deec))
+
+
+### Bug Fixes
+
+* avoid console usage ([f37b356](https://github.com/onkernel/kernel-node-sdk/commit/f37b3560b92abc5a85416b9b69f03a70b3ff71cf))
+
+
+### Chores
+
+* add docs to RequestOptions type ([fcb82ff](https://github.com/onkernel/kernel-node-sdk/commit/fcb82ff3d5c14af006bba0e441d57baf318a19cf))
+
 ## 0.7.0 (2025-07-02)
 
 Full Changelog: [v0.6.5...v0.7.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.6.5...v0.7.0)

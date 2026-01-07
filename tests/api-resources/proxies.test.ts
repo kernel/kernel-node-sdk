@@ -7,10 +7,10 @@ const client = new Kernel({
   baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
 });
 
-describe('resource browsers', () => {
-  // skipped: tests are disabled for the time being
-  test.skip('create', async () => {
-    const responsePromise = client.browsers.create();
+describe('resource proxies', () => {
+  // Prism tests are disabled
+  test.skip('create: only required params', async () => {
+    const responsePromise = client.proxies.create({ type: 'datacenter' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -20,25 +20,19 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
-  test.skip('create: request options and params are passed correctly', async () => {
-    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
-    await expect(
-      client.browsers.create(
-        {
-          headless: false,
-          invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
-          persistence: { id: 'my-awesome-browser-for-user-1234' },
-          stealth: true,
-        },
-        { path: '/_stainless_unknown_path' },
-      ),
-    ).rejects.toThrow(Kernel.NotFoundError);
+  // Prism tests are disabled
+  test.skip('create: required and optional params', async () => {
+    const response = await client.proxies.create({
+      type: 'datacenter',
+      config: { country: 'US' },
+      name: 'name',
+      protocol: 'http',
+    });
   });
 
-  // skipped: tests are disabled for the time being
+  // Prism tests are disabled
   test.skip('retrieve', async () => {
-    const responsePromise = client.browsers.retrieve('htzv5orfit78e1m2biiifpbv');
+    const responsePromise = client.proxies.retrieve('id');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -48,9 +42,9 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
+  // Prism tests are disabled
   test.skip('list', async () => {
-    const responsePromise = client.browsers.list();
+    const responsePromise = client.proxies.list();
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -60,9 +54,9 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
-  test.skip('delete: only required params', async () => {
-    const responsePromise = client.browsers.delete({ persistent_id: 'persistent_id' });
+  // Prism tests are disabled
+  test.skip('delete', async () => {
+    const responsePromise = client.proxies.delete('id');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -72,14 +66,9 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // skipped: tests are disabled for the time being
-  test.skip('delete: required and optional params', async () => {
-    const response = await client.browsers.delete({ persistent_id: 'persistent_id' });
-  });
-
-  // skipped: tests are disabled for the time being
-  test.skip('deleteByID', async () => {
-    const responsePromise = client.browsers.deleteByID('htzv5orfit78e1m2biiifpbv');
+  // Prism tests are disabled
+  test.skip('check', async () => {
+    const responsePromise = client.proxies.check('id');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;

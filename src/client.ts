@@ -13,18 +13,34 @@ import * as Shims from './internal/shims';
 import * as Opts from './internal/request-options';
 import { VERSION } from './version';
 import * as Errors from './core/error';
+import * as Pagination from './core/pagination';
+import { AbstractPage, type OffsetPaginationParams, OffsetPaginationResponse } from './core/pagination';
 import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
+import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
-  BrowserCreateParams,
-  BrowserCreateResponse,
-  BrowserDeleteParams,
-  BrowserListResponse,
-  BrowserPersistence,
-  BrowserRetrieveResponse,
-  Browsers,
-} from './resources/browsers';
+  BrowserPool,
+  BrowserPoolAcquireParams,
+  BrowserPoolAcquireResponse,
+  BrowserPoolCreateParams,
+  BrowserPoolDeleteParams,
+  BrowserPoolListResponse,
+  BrowserPoolReleaseParams,
+  BrowserPoolUpdateParams,
+  BrowserPools,
+} from './resources/browser-pools';
+import {
+  CreateCredentialRequest,
+  Credential,
+  CredentialCreateParams,
+  CredentialListParams,
+  CredentialTotpCodeResponse,
+  CredentialUpdateParams,
+  Credentials,
+  CredentialsOffsetPagination,
+  UpdateCredentialRequest,
+} from './resources/credentials';
 import {
   DeploymentCreateParams,
   DeploymentCreateResponse,
@@ -32,22 +48,56 @@ import {
   DeploymentFollowResponse,
   DeploymentListParams,
   DeploymentListResponse,
+  DeploymentListResponsesOffsetPagination,
   DeploymentRetrieveResponse,
   DeploymentStateEvent,
   Deployments,
 } from './resources/deployments';
 import { KernelApp } from './core/app-framework';
 import {
+  ExtensionDownloadFromChromeStoreParams,
+  ExtensionListResponse,
+  ExtensionUploadParams,
+  ExtensionUploadResponse,
+  Extensions,
+} from './resources/extensions';
+import {
   InvocationCreateParams,
   InvocationCreateResponse,
+  InvocationFollowParams,
   InvocationFollowResponse,
+  InvocationListParams,
+  InvocationListResponse,
+  InvocationListResponsesOffsetPagination,
   InvocationRetrieveResponse,
   InvocationStateEvent,
   InvocationUpdateParams,
   InvocationUpdateResponse,
   Invocations,
 } from './resources/invocations';
-import { AppListParams, AppListResponse, Apps } from './resources/apps/apps';
+import { ProfileCreateParams, ProfileListResponse, Profiles } from './resources/profiles';
+import {
+  Proxies,
+  ProxyCheckResponse,
+  ProxyCreateParams,
+  ProxyCreateResponse,
+  ProxyListResponse,
+  ProxyRetrieveResponse,
+} from './resources/proxies';
+import { Agents } from './resources/agents/agents';
+import {
+  BrowserCreateParams,
+  BrowserCreateResponse,
+  BrowserDeleteParams,
+  BrowserListParams,
+  BrowserListResponse,
+  BrowserListResponsesOffsetPagination,
+  BrowserLoadExtensionsParams,
+  BrowserPersistence,
+  BrowserRetrieveResponse,
+  Browsers,
+  Profile,
+} from './resources/browsers/browsers';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -95,6 +145,8 @@ export interface ClientOptions {
    *
    * Note that request timeouts are retried by default, so in a worst-case scenario you may wait
    * much longer than this timeout before the promise succeeds or fails.
+   *
+   * @unit milliseconds
    */
   timeout?: number | undefined;
   /**
@@ -158,7 +210,7 @@ export class Kernel {
   baseURL: string;
   maxRetries: number;
   timeout: number;
-  logger: Logger | undefined;
+  logger: Logger;
   logLevel: LogLevel | undefined;
   fetchOptions: MergedRequestInit | undefined;
 
@@ -185,6 +237,18 @@ export class Kernel {
     apiKey = readEnv('KERNEL_API_KEY'),
     ...opts
   }: ClientOptions = {}) {
+    // Check for Bun runtime in a way that avoids type errors if Bun is not defined
+    if (
+      typeof globalThis !== 'undefined' &&
+      typeof (globalThis as any).Bun !== 'undefined' &&
+      (globalThis as any).Bun.version &&
+      !readEnv('KERNEL_SUPPRESS_BUN_WARNING')
+    ) {
+      loggerFor(this).warn(
+        'The Bun runtime was detected. Playwright may have CDP connection issues, proceed with caution. Suppress this warning by setting the KERNEL_SUPPRESS_BUN_WARNING environment variable to true',
+      );
+    }
+
     if (apiKey === undefined) {
       throw new Errors.KernelError(
         "The KERNEL_API_KEY environment variable is missing or empty; either provide it, or instantiate the Kernel client with an apiKey option, like new Kernel({ apiKey: 'My API Key' }).",
@@ -228,7 +292,7 @@ export class Kernel {
    * Create a new client instance re-using the same options given to the current client with optional overriding.
    */
   withOptions(options: Partial<ClientOptions>): this {
-    return new (this.constructor as any as new (props: ClientOptions) => typeof this)({
+    const client = new (this.constructor as any as new (props: ClientOptions) => typeof this)({
       ...this._options,
       environment: options.environment ? options.environment : undefined,
       baseURL: options.environment ? undefined : this.baseURL,
@@ -241,6 +305,7 @@ export class Kernel {
       apiKey: this.apiKey,
       ...options,
     });
+    return client;
   }
 
   /**
@@ -258,7 +323,7 @@ export class Kernel {
     return;
   }
 
-  protected authHeaders(opts: FinalRequestOptions): NullableHeaders | undefined {
+  protected async authHeaders(opts: FinalRequestOptions): Promise<NullableHeaders | undefined> {
     return buildHeaders([{ Authorization: `Bearer ${this.apiKey}` }]);
   }
 
@@ -390,7 +455,9 @@ export class Kernel {
 
     await this.prepareOptions(options);
 
-    const { req, url, timeout } = this.buildRequest(options, { retryCount: maxRetries - retriesRemaining });
+    const { req, url, timeout } = await this.buildRequest(options, {
+      retryCount: maxRetries - retriesRemaining,
+    });
 
     await this.prepareRequest(req, { url, options });
 
@@ -418,7 +485,7 @@ export class Kernel {
     const response = await this.fetchWithTimeout(url, req, timeout, controller).catch(castToError);
     const headersTime = Date.now();
 
-    if (response instanceof Error) {
+    if (response instanceof globalThis.Error) {
       const retryMessage = `retrying, ${retriesRemaining} attempts remaining`;
       if (options.signal?.aborted) {
         throw new Errors.APIUserAbortError();
@@ -468,7 +535,7 @@ export class Kernel {
     } with status ${response.status} in ${headersTime - startTime}ms`;
 
     if (!response.ok) {
-      const shouldRetry = this.shouldRetry(response);
+      const shouldRetry = await this.shouldRetry(response);
       if (retriesRemaining && shouldRetry) {
         const retryMessage = `retrying, ${retriesRemaining} attempts remaining`;
 
@@ -532,6 +599,25 @@ export class Kernel {
     return { response, options, controller, requestLogID, retryOfRequestLogID, startTime };
   }
 
+  getAPIList<Item, PageClass extends Pagination.AbstractPage<Item> = Pagination.AbstractPage<Item>>(
+    path: string,
+    Page: new (...args: any[]) => PageClass,
+    opts?: RequestOptions,
+  ): Pagination.PagePromise<PageClass, Item> {
+    return this.requestAPIList(Page, { method: 'get', path, ...opts });
+  }
+
+  requestAPIList<
+    Item = unknown,
+    PageClass extends Pagination.AbstractPage<Item> = Pagination.AbstractPage<Item>,
+  >(
+    Page: new (...args: ConstructorParameters<typeof Pagination.AbstractPage>) => PageClass,
+    options: FinalRequestOptions,
+  ): Pagination.PagePromise<PageClass, Item> {
+    const request = this.makeRequest(options, null, undefined);
+    return new Pagination.PagePromise<PageClass, Item>(this as any as Kernel, request, Page);
+  }
+
   async fetchWithTimeout(
     url: RequestInfo,
     init: RequestInit | undefined,
@@ -567,7 +653,7 @@ export class Kernel {
     }
   }
 
-  private shouldRetry(response: Response): boolean {
+  private async shouldRetry(response: Response): Promise<boolean> {
     // Note this is not a standard header.
     const shouldRetryHeader = response.headers.get('x-should-retry');
 
@@ -644,10 +730,10 @@ export class Kernel {
     return sleepSeconds * jitter * 1000;
   }
 
-  buildRequest(
+  async buildRequest(
     inputOptions: FinalRequestOptions,
     { retryCount = 0 }: { retryCount?: number } = {},
-  ): { req: FinalizedRequestInit; url: string; timeout: number } {
+  ): Promise<{ req: FinalizedRequestInit; url: string; timeout: number }> {
     const options = { ...inputOptions };
     const { method, path, query, defaultBaseURL } = options;
 
@@ -655,7 +741,7 @@ export class Kernel {
     if ('timeout' in options) validatePositiveInteger('timeout', options.timeout);
     options.timeout = options.timeout ?? this.timeout;
     const { bodyHeaders, body } = this.buildBody({ options });
-    const reqHeaders = this.buildHeaders({ options: inputOptions, method, bodyHeaders, retryCount });
+    const reqHeaders = await this.buildHeaders({ options: inputOptions, method, bodyHeaders, retryCount });
 
     const req: FinalizedRequestInit = {
       method,
@@ -671,7 +757,7 @@ export class Kernel {
     return { req, url, timeout: options.timeout };
   }
 
-  private buildHeaders({
+  private async buildHeaders({
     options,
     method,
     bodyHeaders,
@@ -681,7 +767,7 @@ export class Kernel {
     method: HTTPMethod;
     bodyHeaders: HeadersLike;
     retryCount: number;
-  }): Headers {
+  }): Promise<Headers> {
     let idempotencyHeaders: HeadersLike = {};
     if (this.idempotencyHeader && method !== 'get') {
       if (!options.idempotencyKey) options.idempotencyKey = this.defaultIdempotencyKey();
@@ -697,7 +783,7 @@ export class Kernel {
         ...(options.timeout ? { 'X-Stainless-Timeout': String(Math.trunc(options.timeout / 1000)) } : {}),
         ...getPlatformHeaders(),
       },
-      this.authHeaders(options),
+      await this.authHeaders(options),
       this._options.defaultHeaders,
       bodyHeaders,
       options.headers,
@@ -725,7 +811,7 @@ export class Kernel {
         // Preserve legacy string encoding behavior for now
         headers.values.has('content-type')) ||
       // `Blob` is superset of `File`
-      body instanceof Blob ||
+      ((globalThis as any).Blob && body instanceof (globalThis as any).Blob) ||
       // `FormData` -> `multipart/form-data`
       body instanceof FormData ||
       // `URLSearchParams` -> `application/x-www-form-urlencoded`
@@ -778,13 +864,33 @@ export class Kernel {
   apps: API.Apps = new API.Apps(this);
   invocations: API.Invocations = new API.Invocations(this);
   browsers: API.Browsers = new API.Browsers(this);
+  profiles: API.Profiles = new API.Profiles(this);
+  proxies: API.Proxies = new API.Proxies(this);
+  extensions: API.Extensions = new API.Extensions(this);
+  browserPools: API.BrowserPools = new API.BrowserPools(this);
+  agents: API.Agents = new API.Agents(this);
+  credentials: API.Credentials = new API.Credentials(this);
 }
+
 Kernel.Deployments = Deployments;
 Kernel.Apps = Apps;
 Kernel.Invocations = Invocations;
 Kernel.Browsers = Browsers;
+Kernel.Profiles = Profiles;
+Kernel.Proxies = Proxies;
+Kernel.Extensions = Extensions;
+Kernel.BrowserPools = BrowserPools;
+Kernel.Agents = Agents;
+Kernel.Credentials = Credentials;
+
 export declare namespace Kernel {
   export type RequestOptions = Opts.RequestOptions;
+
+  export import OffsetPagination = Pagination.OffsetPagination;
+  export {
+    type OffsetPaginationParams as OffsetPaginationParams,
+    type OffsetPaginationResponse as OffsetPaginationResponse,
+  };
 
   export {
     Deployments as Deployments,
@@ -793,12 +899,18 @@ export declare namespace Kernel {
     type DeploymentRetrieveResponse as DeploymentRetrieveResponse,
     type DeploymentListResponse as DeploymentListResponse,
     type DeploymentFollowResponse as DeploymentFollowResponse,
+    type DeploymentListResponsesOffsetPagination as DeploymentListResponsesOffsetPagination,
     type DeploymentCreateParams as DeploymentCreateParams,
     type DeploymentListParams as DeploymentListParams,
     type DeploymentFollowParams as DeploymentFollowParams,
   };
 
-  export { Apps as Apps, type AppListResponse as AppListResponse, type AppListParams as AppListParams };
+  export {
+    Apps as Apps,
+    type AppListResponse as AppListResponse,
+    type AppListResponsesOffsetPagination as AppListResponsesOffsetPagination,
+    type AppListParams as AppListParams,
+  };
 
   export {
     Invocations as Invocations,
@@ -806,22 +918,82 @@ export declare namespace Kernel {
     type InvocationCreateResponse as InvocationCreateResponse,
     type InvocationRetrieveResponse as InvocationRetrieveResponse,
     type InvocationUpdateResponse as InvocationUpdateResponse,
+    type InvocationListResponse as InvocationListResponse,
     type InvocationFollowResponse as InvocationFollowResponse,
+    type InvocationListResponsesOffsetPagination as InvocationListResponsesOffsetPagination,
     type InvocationCreateParams as InvocationCreateParams,
     type InvocationUpdateParams as InvocationUpdateParams,
+    type InvocationListParams as InvocationListParams,
+    type InvocationFollowParams as InvocationFollowParams,
   };
 
   export {
     Browsers as Browsers,
     type BrowserPersistence as BrowserPersistence,
+    type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserListResponse as BrowserListResponse,
+    type BrowserListResponsesOffsetPagination as BrowserListResponsesOffsetPagination,
     type BrowserCreateParams as BrowserCreateParams,
+    type BrowserListParams as BrowserListParams,
     type BrowserDeleteParams as BrowserDeleteParams,
+    type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
+  };
+
+  export {
+    Profiles as Profiles,
+    type ProfileListResponse as ProfileListResponse,
+    type ProfileCreateParams as ProfileCreateParams,
+  };
+
+  export {
+    Proxies as Proxies,
+    type ProxyCreateResponse as ProxyCreateResponse,
+    type ProxyRetrieveResponse as ProxyRetrieveResponse,
+    type ProxyListResponse as ProxyListResponse,
+    type ProxyCheckResponse as ProxyCheckResponse,
+    type ProxyCreateParams as ProxyCreateParams,
+  };
+
+  export {
+    Extensions as Extensions,
+    type ExtensionListResponse as ExtensionListResponse,
+    type ExtensionUploadResponse as ExtensionUploadResponse,
+    type ExtensionDownloadFromChromeStoreParams as ExtensionDownloadFromChromeStoreParams,
+    type ExtensionUploadParams as ExtensionUploadParams,
+  };
+
+  export {
+    BrowserPools as BrowserPools,
+    type BrowserPool as BrowserPool,
+    type BrowserPoolListResponse as BrowserPoolListResponse,
+    type BrowserPoolAcquireResponse as BrowserPoolAcquireResponse,
+    type BrowserPoolCreateParams as BrowserPoolCreateParams,
+    type BrowserPoolUpdateParams as BrowserPoolUpdateParams,
+    type BrowserPoolDeleteParams as BrowserPoolDeleteParams,
+    type BrowserPoolAcquireParams as BrowserPoolAcquireParams,
+    type BrowserPoolReleaseParams as BrowserPoolReleaseParams,
+  };
+
+  export { Agents as Agents };
+
+  export {
+    Credentials as Credentials,
+    type CreateCredentialRequest as CreateCredentialRequest,
+    type Credential as Credential,
+    type UpdateCredentialRequest as UpdateCredentialRequest,
+    type CredentialTotpCodeResponse as CredentialTotpCodeResponse,
+    type CredentialsOffsetPagination as CredentialsOffsetPagination,
+    type CredentialCreateParams as CredentialCreateParams,
+    type CredentialUpdateParams as CredentialUpdateParams,
+    type CredentialListParams as CredentialListParams,
   };
 
   export type AppAction = API.AppAction;
+  export type BrowserExtension = API.BrowserExtension;
+  export type BrowserProfile = API.BrowserProfile;
+  export type BrowserViewport = API.BrowserViewport;
   export type ErrorDetail = API.ErrorDetail;
   export type ErrorEvent = API.ErrorEvent;
   export type ErrorModel = API.ErrorModel;
