@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.25.0 (2026-01-07)
+
+Full Changelog: [v0.24.0...v0.25.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.24.0...v0.25.0)
+
+### Features
+
+* **api:** add health check endpoint for proxies ([999dfe5](https://github.com/onkernel/kernel-node-sdk/commit/999dfe58dbdfae072207e03d83efea58eb914a32))
+* **auth:** add auto_login credential flow ([3f4eb01](https://github.com/onkernel/kernel-node-sdk/commit/3f4eb01bb73f679828e195a74f41214d69c01453))
+* Enhance AuthAgentInvocation with step and last activity tracking ([8380eb6](https://github.com/onkernel/kernel-node-sdk/commit/8380eb6cef2c8229bee4e263bcd0637f9fcb1480))
+
+
+### Chores
+
+* break long lines in snippets into multiline ([c546f46](https://github.com/onkernel/kernel-node-sdk/commit/c546f46485ea1e853347db59c4abc5d8c9389b6c))
+* **internal:** codegen related update ([00a9097](https://github.com/onkernel/kernel-node-sdk/commit/00a9097ee42022b917f90fa6dd33938a3f1a9866))
+
 ## 0.24.0 (2025-12-17)
 
 Full Changelog: [v0.23.0...v0.24.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.23.0...v0.24.0)
