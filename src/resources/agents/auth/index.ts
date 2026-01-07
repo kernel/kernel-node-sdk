@@ -2,7 +2,6 @@
 
 export {
   Auth,
-  type AgentAuthDiscoverResponse,
   type AgentAuthInvocationResponse,
   type AgentAuthSubmitResponse,
   type AuthAgent,
@@ -10,7 +9,6 @@ export {
   type AuthAgentInvocationCreateRequest,
   type AuthAgentInvocationCreateResponse,
   type DiscoveredField,
-  type ReauthResponse,
   type AuthCreateParams,
   type AuthListParams,
   type AuthAgentsOffsetPagination,
@@ -19,7 +17,6 @@ export {
   Invocations,
   type InvocationExchangeResponse,
   type InvocationCreateParams,
-  type InvocationDiscoverParams,
   type InvocationExchangeParams,
   type InvocationSubmitParams,
 } from './invocations';

@@ -4,7 +4,6 @@ import { APIResource } from '../../../core/resource';
 import * as InvocationsAPI from './invocations';
 import {
   InvocationCreateParams,
-  InvocationDiscoverParams,
   InvocationExchangeParams,
   InvocationExchangeResponse,
   InvocationSubmitParams,
@@ -28,8 +27,8 @@ export class Auth extends APIResource {
    * @example
    * ```ts
    * const authAgent = await client.agents.auth.create({
+   *   domain: 'netflix.com',
    *   profile_name: 'user-123',
-   *   target_domain: 'netflix.com',
    * });
    * ```
    */
@@ -51,7 +50,7 @@ export class Auth extends APIResource {
   }
 
   /**
-   * List auth agents with optional filters for profile_name and target_domain.
+   * List auth agents with optional filters for profile_name and domain.
    *
    * @example
    * ```ts
@@ -86,61 +85,9 @@ export class Auth extends APIResource {
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
   }
-
-  /**
-   * Triggers automatic re-authentication for an auth agent using stored credentials.
-   * Requires the auth agent to have a linked credential, stored selectors, and
-   * login_url. Returns immediately with status indicating whether re-auth was
-   * started.
-   *
-   * @example
-   * ```ts
-   * const reauthResponse = await client.agents.auth.reauth(
-   *   'id',
-   * );
-   * ```
-   */
-  reauth(id: string, options?: RequestOptions): APIPromise<ReauthResponse> {
-    return this._client.post(path`/agents/auth/${id}/reauth`, options);
-  }
 }
 
 export type AuthAgentsOffsetPagination = OffsetPagination<AuthAgent>;
-
-/**
- * Response from discover endpoint matching AuthBlueprint schema
- */
-export interface AgentAuthDiscoverResponse {
-  /**
-   * Whether discovery succeeded
-   */
-  success: boolean;
-
-  /**
-   * Error message if discovery failed
-   */
-  error_message?: string;
-
-  /**
-   * Discovered form fields (present when success is true)
-   */
-  fields?: Array<DiscoveredField>;
-
-  /**
-   * Whether user is already logged in
-   */
-  logged_in?: boolean;
-
-  /**
-   * URL of the discovered login page
-   */
-  login_url?: string;
-
-  /**
-   * Title of the login page
-   */
-  page_title?: string;
-}
 
 /**
  * Response from get invocation endpoint
@@ -152,6 +99,11 @@ export interface AgentAuthInvocationResponse {
   app_name: string;
 
   /**
+   * Domain for authentication
+   */
+  domain: string;
+
+  /**
    * When the handoff code expires
    */
   expires_at: string;
@@ -159,58 +111,91 @@ export interface AgentAuthInvocationResponse {
   /**
    * Invocation status
    */
-  status: 'IN_PROGRESS' | 'SUCCESS' | 'EXPIRED' | 'CANCELED';
+  status: 'IN_PROGRESS' | 'SUCCESS' | 'EXPIRED' | 'CANCELED' | 'FAILED';
 
   /**
    * Current step in the invocation workflow
    */
-  step: 'initialized' | 'discovering' | 'awaiting_input' | 'submitting' | 'completed' | 'expired';
+  step:
+    | 'initialized'
+    | 'discovering'
+    | 'awaiting_input'
+    | 'awaiting_external_action'
+    | 'submitting'
+    | 'completed'
+    | 'expired';
 
   /**
-   * Target domain for authentication
+   * The invocation type:
+   *
+   * - login: First-time authentication
+   * - reauth: Re-authentication for previously authenticated agents
+   * - auto_login: Legacy type (no longer created, kept for backward compatibility)
    */
-  target_domain: string;
+  type: 'login' | 'auto_login' | 'reauth';
+
+  /**
+   * Error message explaining why the invocation failed (present when status=FAILED)
+   */
+  error_message?: string | null;
+
+  /**
+   * Instructions for user when external action is required (present when
+   * step=awaiting_external_action)
+   */
+  external_action_message?: string | null;
+
+  /**
+   * Browser live view URL for debugging the invocation
+   */
+  live_view_url?: string | null;
+
+  /**
+   * Fields currently awaiting input (present when step=awaiting_input)
+   */
+  pending_fields?: Array<DiscoveredField> | null;
+
+  /**
+   * SSO buttons available on the page (present when step=awaiting_input)
+   */
+  pending_sso_buttons?: Array<AgentAuthInvocationResponse.PendingSSOButton> | null;
+
+  /**
+   * Names of fields that have been submitted (present when step=submitting or later)
+   */
+  submitted_fields?: Array<string> | null;
+}
+
+export namespace AgentAuthInvocationResponse {
+  /**
+   * An SSO button for signing in with an external identity provider
+   */
+  export interface PendingSSOButton {
+    /**
+     * Visible button text
+     */
+    label: string;
+
+    /**
+     * Identity provider name
+     */
+    provider: string;
+
+    /**
+     * XPath selector for the button
+     */
+    selector: string;
+  }
 }
 
 /**
- * Response from submit endpoint matching SubmitResult schema
+ * Response from submit endpoint - returns immediately after submission is accepted
  */
 export interface AgentAuthSubmitResponse {
   /**
-   * Whether submission succeeded
+   * Whether the submission was accepted for processing
    */
-  success: boolean;
-
-  /**
-   * Additional fields needed (e.g., OTP) - present when needs_additional_auth is
-   * true
-   */
-  additional_fields?: Array<DiscoveredField>;
-
-  /**
-   * App name (only present when logged_in is true)
-   */
-  app_name?: string;
-
-  /**
-   * Error message if submission failed
-   */
-  error_message?: string;
-
-  /**
-   * Whether user is now logged in
-   */
-  logged_in?: boolean;
-
-  /**
-   * Whether additional authentication fields are needed
-   */
-  needs_additional_auth?: boolean;
-
-  /**
-   * Target domain (only present when logged_in is true)
-   */
-  target_domain?: string;
+  accepted: boolean;
 }
 
 /**
@@ -237,6 +222,13 @@ export interface AuthAgent {
    * Current authentication status of the managed profile
    */
   status: 'AUTHENTICATED' | 'NEEDS_AUTH';
+
+  /**
+   * Additional domains that are valid for this auth agent's authentication flow
+   * (besides the primary domain). Useful when login pages redirect to different
+   * domains.
+   */
+  allowed_domains?: Array<string>;
 
   /**
    * Whether automatic re-authentication is possible (has credential_id, selectors,
@@ -270,14 +262,21 @@ export interface AuthAgent {
  */
 export interface AuthAgentCreateRequest {
   /**
+   * Domain for authentication
+   */
+  domain: string;
+
+  /**
    * Name of the profile to use for this auth agent
    */
   profile_name: string;
 
   /**
-   * Target domain for authentication
+   * Additional domains that are valid for this auth agent's authentication flow
+   * (besides the primary domain). Useful when login pages redirect to different
+   * domains.
    */
-  target_domain: string;
+  allowed_domains?: Array<string>;
 
   /**
    * Optional name of an existing credential to use for this auth agent. If provided,
@@ -328,52 +327,37 @@ export interface AuthAgentInvocationCreateRequest {
 }
 
 /**
- * Response when the agent is already authenticated.
+ * Response from creating an invocation. Always returns an invocation_id.
  */
-export type AuthAgentInvocationCreateResponse =
-  | AuthAgentInvocationCreateResponse.AuthAgentAlreadyAuthenticated
-  | AuthAgentInvocationCreateResponse.AuthAgentInvocationCreated;
-
-export namespace AuthAgentInvocationCreateResponse {
+export interface AuthAgentInvocationCreateResponse {
   /**
-   * Response when the agent is already authenticated.
+   * When the handoff code expires.
    */
-  export interface AuthAgentAlreadyAuthenticated {
-    /**
-     * Indicates the agent is already authenticated and no invocation was created.
-     */
-    status: 'ALREADY_AUTHENTICATED';
-  }
+  expires_at: string;
 
   /**
-   * Response when a new invocation was created.
+   * One-time code for handoff.
    */
-  export interface AuthAgentInvocationCreated {
-    /**
-     * When the handoff code expires.
-     */
-    expires_at: string;
+  handoff_code: string;
 
-    /**
-     * One-time code for handoff.
-     */
-    handoff_code: string;
+  /**
+   * URL to redirect user to.
+   */
+  hosted_url: string;
 
-    /**
-     * URL to redirect user to.
-     */
-    hosted_url: string;
+  /**
+   * Unique identifier for the invocation.
+   */
+  invocation_id: string;
 
-    /**
-     * Unique identifier for the invocation.
-     */
-    invocation_id: string;
-
-    /**
-     * Indicates an invocation was created.
-     */
-    status: 'INVOCATION_CREATED';
-  }
+  /**
+   * The invocation type:
+   *
+   * - login: First-time authentication
+   * - reauth: Re-authentication for previously authenticated agents
+   * - auto_login: Legacy type (no longer created, kept for backward compatibility)
+   */
+  type: 'login' | 'auto_login' | 'reauth';
 }
 
 /**
@@ -398,7 +382,7 @@ export interface DiscoveredField {
   /**
    * Field type
    */
-  type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code';
+  type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
 
   /**
    * Field placeholder
@@ -411,36 +395,23 @@ export interface DiscoveredField {
   required?: boolean;
 }
 
-/**
- * Response from triggering re-authentication
- */
-export interface ReauthResponse {
-  /**
-   * Result of the re-authentication attempt
-   */
-  status: 'REAUTH_STARTED' | 'ALREADY_AUTHENTICATED' | 'CANNOT_REAUTH';
-
-  /**
-   * ID of the re-auth invocation if one was created
-   */
-  invocation_id?: string;
-
-  /**
-   * Human-readable description of the result
-   */
-  message?: string;
-}
-
 export interface AuthCreateParams {
+  /**
+   * Domain for authentication
+   */
+  domain: string;
+
   /**
    * Name of the profile to use for this auth agent
    */
   profile_name: string;
 
   /**
-   * Target domain for authentication
+   * Additional domains that are valid for this auth agent's authentication flow
+   * (besides the primary domain). Useful when login pages redirect to different
+   * domains.
    */
-  target_domain: string;
+  allowed_domains?: Array<string>;
 
   /**
    * Optional name of an existing credential to use for this auth agent. If provided,
@@ -475,21 +446,20 @@ export namespace AuthCreateParams {
 
 export interface AuthListParams extends OffsetPaginationParams {
   /**
+   * Filter by domain
+   */
+  domain?: string;
+
+  /**
    * Filter by profile name
    */
   profile_name?: string;
-
-  /**
-   * Filter by target domain
-   */
-  target_domain?: string;
 }
 
 Auth.Invocations = Invocations;
 
 export declare namespace Auth {
   export {
-    type AgentAuthDiscoverResponse as AgentAuthDiscoverResponse,
     type AgentAuthInvocationResponse as AgentAuthInvocationResponse,
     type AgentAuthSubmitResponse as AgentAuthSubmitResponse,
     type AuthAgent as AuthAgent,
@@ -497,7 +467,6 @@ export declare namespace Auth {
     type AuthAgentInvocationCreateRequest as AuthAgentInvocationCreateRequest,
     type AuthAgentInvocationCreateResponse as AuthAgentInvocationCreateResponse,
     type DiscoveredField as DiscoveredField,
-    type ReauthResponse as ReauthResponse,
     type AuthAgentsOffsetPagination as AuthAgentsOffsetPagination,
     type AuthCreateParams as AuthCreateParams,
     type AuthListParams as AuthListParams,
@@ -507,7 +476,6 @@ export declare namespace Auth {
     Invocations as Invocations,
     type InvocationExchangeResponse as InvocationExchangeResponse,
     type InvocationCreateParams as InvocationCreateParams,
-    type InvocationDiscoverParams as InvocationDiscoverParams,
     type InvocationExchangeParams as InvocationExchangeParams,
     type InvocationSubmitParams as InvocationSubmitParams,
   };

@@ -3,7 +3,6 @@
 export { Agents } from './agents';
 export {
   Auth,
-  type AgentAuthDiscoverResponse,
   type AgentAuthInvocationResponse,
   type AgentAuthSubmitResponse,
   type AuthAgent,
@@ -11,7 +10,6 @@ export {
   type AuthAgentInvocationCreateRequest,
   type AuthAgentInvocationCreateResponse,
   type DiscoveredField,
-  type ReauthResponse,
   type AuthCreateParams,
   type AuthListParams,
   type AuthAgentsOffsetPagination,
