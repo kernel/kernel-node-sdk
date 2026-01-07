@@ -37,6 +37,7 @@ export {
   type CreateCredentialRequest,
   type Credential,
   type UpdateCredentialRequest,
+  type CredentialTotpCodeResponse,
   type CredentialCreateParams,
   type CredentialUpdateParams,
   type CredentialListParams,

@@ -3,7 +3,6 @@
 import { APIResource } from '../../core/resource';
 import * as AuthAPI from './auth/auth';
 import {
-  AgentAuthDiscoverResponse,
   AgentAuthInvocationResponse,
   AgentAuthSubmitResponse,
   Auth,
@@ -15,7 +14,6 @@ import {
   AuthCreateParams,
   AuthListParams,
   DiscoveredField,
-  ReauthResponse,
 } from './auth/auth';
 
 export class Agents extends APIResource {
@@ -27,7 +25,6 @@ Agents.Auth = Auth;
 export declare namespace Agents {
   export {
     Auth as Auth,
-    type AgentAuthDiscoverResponse as AgentAuthDiscoverResponse,
     type AgentAuthInvocationResponse as AgentAuthInvocationResponse,
     type AgentAuthSubmitResponse as AgentAuthSubmitResponse,
     type AuthAgent as AuthAgent,
@@ -35,7 +32,6 @@ export declare namespace Agents {
     type AuthAgentInvocationCreateRequest as AuthAgentInvocationCreateRequest,
     type AuthAgentInvocationCreateResponse as AuthAgentInvocationCreateResponse,
     type DiscoveredField as DiscoveredField,
-    type ReauthResponse as ReauthResponse,
     type AuthAgentsOffsetPagination as AuthAgentsOffsetPagination,
     type AuthCreateParams as AuthCreateParams,
     type AuthListParams as AuthListParams,
