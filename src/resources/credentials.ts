@@ -9,8 +9,7 @@ import { path } from '../internal/utils/path';
 
 export class Credentials extends APIResource {
   /**
-   * Create a new credential for storing login information. Values are encrypted at
-   * rest.
+   * Create a new credential for storing login information.
    *
    * @example
    * ```ts
@@ -29,27 +28,32 @@ export class Credentials extends APIResource {
   }
 
   /**
-   * Retrieve a credential by its ID. Credential values are not returned.
+   * Retrieve a credential by its ID or name. Credential values are not returned.
    *
    * @example
    * ```ts
-   * const credential = await client.credentials.retrieve('id');
+   * const credential = await client.credentials.retrieve(
+   *   'id_or_name',
+   * );
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<Credential> {
-    return this._client.get(path`/credentials/${id}`, options);
+  retrieve(idOrName: string, options?: RequestOptions): APIPromise<Credential> {
+    return this._client.get(path`/credentials/${idOrName}`, options);
   }
 
   /**
-   * Update a credential's name or values. Values are encrypted at rest.
+   * Update a credential's name or values. When values are provided, they are merged
+   * with existing values (new keys are added, existing keys are overwritten).
    *
    * @example
    * ```ts
-   * const credential = await client.credentials.update('id');
+   * const credential = await client.credentials.update(
+   *   'id_or_name',
+   * );
    * ```
    */
-  update(id: string, body: CredentialUpdateParams, options?: RequestOptions): APIPromise<Credential> {
-    return this._client.patch(path`/credentials/${id}`, { body, ...options });
+  update(idOrName: string, body: CredentialUpdateParams, options?: RequestOptions): APIPromise<Credential> {
+    return this._client.patch(path`/credentials/${idOrName}`, { body, ...options });
   }
 
   /**
@@ -72,18 +76,34 @@ export class Credentials extends APIResource {
   }
 
   /**
-   * Delete a credential by its ID.
+   * Delete a credential by its ID or name.
    *
    * @example
    * ```ts
-   * await client.credentials.delete('id');
+   * await client.credentials.delete('id_or_name');
    * ```
    */
-  delete(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/credentials/${id}`, {
+  delete(idOrName: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/credentials/${idOrName}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
+  }
+
+  /**
+   * Returns the current 6-digit TOTP code for a credential with a configured
+   * totp_secret. Use this to complete 2FA setup on sites or when you need a fresh
+   * code.
+   *
+   * @example
+   * ```ts
+   * const response = await client.credentials.totpCode(
+   *   'id_or_name',
+   * );
+   * ```
+   */
+  totpCode(idOrName: string, options?: RequestOptions): APIPromise<CredentialTotpCodeResponse> {
+    return this._client.get(path`/credentials/${idOrName}/totp-code`, options);
   }
 }
 
@@ -107,6 +127,20 @@ export interface CreateCredentialRequest {
    * Field name to value mapping (e.g., username, password)
    */
   values: { [key: string]: string };
+
+  /**
+   * If set, indicates this credential should be used with the specified SSO provider
+   * (e.g., google, github, microsoft). When the target site has a matching SSO
+   * button, it will be clicked first before filling credential values on the
+   * identity provider's login page.
+   */
+  sso_provider?: string;
+
+  /**
+   * Base32-encoded TOTP secret for generating one-time passwords. Used for automatic
+   * 2FA during login.
+   */
+  totp_secret?: string;
 }
 
 /**
@@ -137,6 +171,30 @@ export interface Credential {
    * When the credential was last updated
    */
   updated_at: string;
+
+  /**
+   * Whether this credential has a TOTP secret configured for automatic 2FA
+   */
+  has_totp_secret?: boolean;
+
+  /**
+   * If set, indicates this credential should be used with the specified SSO provider
+   * (e.g., google, github, microsoft). When the target site has a matching SSO
+   * button, it will be clicked first before filling credential values on the
+   * identity provider's login page.
+   */
+  sso_provider?: string | null;
+
+  /**
+   * Current 6-digit TOTP code. Only included in create/update responses when
+   * totp_secret was just set.
+   */
+  totp_code?: string;
+
+  /**
+   * When the totp_code expires. Only included when totp_code is present.
+   */
+  totp_code_expires_at?: string;
 }
 
 /**
@@ -149,10 +207,34 @@ export interface UpdateCredentialRequest {
   name?: string;
 
   /**
-   * Field name to value mapping (e.g., username, password). Replaces all existing
-   * values.
+   * If set, indicates this credential should be used with the specified SSO
+   * provider. Set to empty string or null to remove.
+   */
+  sso_provider?: string | null;
+
+  /**
+   * Base32-encoded TOTP secret for generating one-time passwords. Spaces and
+   * formatting are automatically normalized. Set to empty string to remove.
+   */
+  totp_secret?: string;
+
+  /**
+   * Field name to value mapping. Values are merged with existing values (new keys
+   * added, existing keys overwritten).
    */
   values?: { [key: string]: string };
+}
+
+export interface CredentialTotpCodeResponse {
+  /**
+   * Current 6-digit TOTP code
+   */
+  code: string;
+
+  /**
+   * When this code expires (ISO 8601 timestamp)
+   */
+  expires_at: string;
 }
 
 export interface CredentialCreateParams {
@@ -170,6 +252,20 @@ export interface CredentialCreateParams {
    * Field name to value mapping (e.g., username, password)
    */
   values: { [key: string]: string };
+
+  /**
+   * If set, indicates this credential should be used with the specified SSO provider
+   * (e.g., google, github, microsoft). When the target site has a matching SSO
+   * button, it will be clicked first before filling credential values on the
+   * identity provider's login page.
+   */
+  sso_provider?: string;
+
+  /**
+   * Base32-encoded TOTP secret for generating one-time passwords. Used for automatic
+   * 2FA during login.
+   */
+  totp_secret?: string;
 }
 
 export interface CredentialUpdateParams {
@@ -179,8 +275,20 @@ export interface CredentialUpdateParams {
   name?: string;
 
   /**
-   * Field name to value mapping (e.g., username, password). Replaces all existing
-   * values.
+   * If set, indicates this credential should be used with the specified SSO
+   * provider. Set to empty string or null to remove.
+   */
+  sso_provider?: string | null;
+
+  /**
+   * Base32-encoded TOTP secret for generating one-time passwords. Spaces and
+   * formatting are automatically normalized. Set to empty string to remove.
+   */
+  totp_secret?: string;
+
+  /**
+   * Field name to value mapping. Values are merged with existing values (new keys
+   * added, existing keys overwritten).
    */
   values?: { [key: string]: string };
 }
@@ -197,6 +305,7 @@ export declare namespace Credentials {
     type CreateCredentialRequest as CreateCredentialRequest,
     type Credential as Credential,
     type UpdateCredentialRequest as UpdateCredentialRequest,
+    type CredentialTotpCodeResponse as CredentialTotpCodeResponse,
     type CredentialsOffsetPagination as CredentialsOffsetPagination,
     type CredentialCreateParams as CredentialCreateParams,
     type CredentialUpdateParams as CredentialUpdateParams,

@@ -37,6 +37,13 @@ export class Proxies extends APIResource {
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
   }
+
+  /**
+   * Run a health check on the proxy to verify it's working.
+   */
+  check(id: string, options?: RequestOptions): APIPromise<ProxyCheckResponse> {
+    return this._client.post(path`/proxies/${id}/check`, options);
+  }
 }
 
 /**
@@ -703,6 +710,226 @@ export namespace ProxyListResponse {
   }
 }
 
+/**
+ * Configuration for routing traffic through a proxy.
+ */
+export interface ProxyCheckResponse {
+  /**
+   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
+   * worst: `mobile` > `residential` > `isp` > `datacenter`.
+   */
+  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+
+  id?: string;
+
+  /**
+   * Configuration specific to the selected proxy `type`.
+   */
+  config?:
+    | ProxyCheckResponse.DatacenterProxyConfig
+    | ProxyCheckResponse.IspProxyConfig
+    | ProxyCheckResponse.ResidentialProxyConfig
+    | ProxyCheckResponse.MobileProxyConfig
+    | ProxyCheckResponse.CustomProxyConfig;
+
+  /**
+   * Timestamp of the last health check performed on this proxy.
+   */
+  last_checked?: string;
+
+  /**
+   * Readable name of the proxy.
+   */
+  name?: string;
+
+  /**
+   * Protocol to use for the proxy connection.
+   */
+  protocol?: 'http' | 'https';
+
+  /**
+   * Current health status of the proxy.
+   */
+  status?: 'available' | 'unavailable';
+}
+
+export namespace ProxyCheckResponse {
+  /**
+   * Configuration for a datacenter proxy.
+   */
+  export interface DatacenterProxyConfig {
+    /**
+     * ISO 3166 country code. Defaults to US if not provided.
+     */
+    country?: string;
+  }
+
+  /**
+   * Configuration for an ISP proxy.
+   */
+  export interface IspProxyConfig {
+    /**
+     * ISO 3166 country code. Defaults to US if not provided.
+     */
+    country?: string;
+  }
+
+  /**
+   * Configuration for residential proxies.
+   */
+  export interface ResidentialProxyConfig {
+    /**
+     * Autonomous system number. See https://bgp.potaroo.net/cidr/autnums.html
+     */
+    asn?: string;
+
+    /**
+     * City name (no spaces, e.g. `sanfrancisco`). If provided, `country` must also be
+     * provided.
+     */
+    city?: string;
+
+    /**
+     * ISO 3166 country code.
+     */
+    country?: string;
+
+    /**
+     * @deprecated Operating system of the residential device.
+     */
+    os?: 'windows' | 'macos' | 'android';
+
+    /**
+     * Two-letter state code.
+     */
+    state?: string;
+
+    /**
+     * US ZIP code.
+     */
+    zip?: string;
+  }
+
+  /**
+   * Configuration for mobile proxies.
+   */
+  export interface MobileProxyConfig {
+    /**
+     * Autonomous system number. See https://bgp.potaroo.net/cidr/autnums.html
+     */
+    asn?: string;
+
+    /**
+     * Mobile carrier.
+     */
+    carrier?:
+      | 'a1'
+      | 'aircel'
+      | 'airtel'
+      | 'att'
+      | 'celcom'
+      | 'chinamobile'
+      | 'claro'
+      | 'comcast'
+      | 'cox'
+      | 'digi'
+      | 'dt'
+      | 'docomo'
+      | 'dtac'
+      | 'etisalat'
+      | 'idea'
+      | 'kyivstar'
+      | 'meo'
+      | 'megafon'
+      | 'mtn'
+      | 'mtnza'
+      | 'mts'
+      | 'optus'
+      | 'orange'
+      | 'qwest'
+      | 'reliance_jio'
+      | 'robi'
+      | 'sprint'
+      | 'telefonica'
+      | 'telstra'
+      | 'tmobile'
+      | 'tigo'
+      | 'tim'
+      | 'verizon'
+      | 'vimpelcom'
+      | 'vodacomza'
+      | 'vodafone'
+      | 'vivo'
+      | 'zain'
+      | 'vivabo'
+      | 'telenormyanmar'
+      | 'kcelljsc'
+      | 'swisscom'
+      | 'singtel'
+      | 'asiacell'
+      | 'windit'
+      | 'cellc'
+      | 'ooredoo'
+      | 'drei'
+      | 'umobile'
+      | 'cableone'
+      | 'proximus'
+      | 'tele2'
+      | 'mobitel'
+      | 'o2'
+      | 'bouygues'
+      | 'free'
+      | 'sfr'
+      | 'digicel';
+
+    /**
+     * City name (no spaces, e.g. `sanfrancisco`). If provided, `country` must also be
+     * provided.
+     */
+    city?: string;
+
+    /**
+     * ISO 3166 country code
+     */
+    country?: string;
+
+    /**
+     * Two-letter state code.
+     */
+    state?: string;
+
+    /**
+     * US ZIP code.
+     */
+    zip?: string;
+  }
+
+  /**
+   * Configuration for a custom proxy (e.g., private proxy server).
+   */
+  export interface CustomProxyConfig {
+    /**
+     * Proxy host address or IP.
+     */
+    host: string;
+
+    /**
+     * Proxy port.
+     */
+    port: number;
+
+    /**
+     * Whether the proxy has a password.
+     */
+    has_password?: boolean;
+
+    /**
+     * Username for proxy authentication.
+     */
+    username?: string;
+  }
+}
+
 export interface ProxyCreateParams {
   /**
    * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
@@ -913,6 +1140,7 @@ export declare namespace Proxies {
     type ProxyCreateResponse as ProxyCreateResponse,
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
     type ProxyListResponse as ProxyListResponse,
+    type ProxyCheckResponse as ProxyCheckResponse,
     type ProxyCreateParams as ProxyCreateParams,
   };
 }

@@ -28,8 +28,8 @@ export class Invocations extends APIResource {
   }
 
   /**
-   * Returns invocation details including app_name and target_domain. Uses the JWT
-   * returned by the exchange endpoint, or standard API key or JWT authentication.
+   * Returns invocation details including status, app_name, and domain. Supports both
+   * API key and JWT (from exchange endpoint) authentication.
    *
    * @example
    * ```ts
@@ -41,27 +41,6 @@ export class Invocations extends APIResource {
    */
   retrieve(invocationID: string, options?: RequestOptions): APIPromise<AuthAPI.AgentAuthInvocationResponse> {
     return this._client.get(path`/agents/auth/invocations/${invocationID}`, options);
-  }
-
-  /**
-   * Inspects the target site to detect logged-in state or discover required fields.
-   * Returns 200 with success: true when fields are found, or 4xx/5xx for failures.
-   * Requires the JWT returned by the exchange endpoint.
-   *
-   * @example
-   * ```ts
-   * const agentAuthDiscoverResponse =
-   *   await client.agents.auth.invocations.discover(
-   *     'invocation_id',
-   *   );
-   * ```
-   */
-  discover(
-    invocationID: string,
-    body: InvocationDiscoverParams | null | undefined = {},
-    options?: RequestOptions,
-  ): APIPromise<AuthAPI.AgentAuthDiscoverResponse> {
-    return this._client.post(path`/agents/auth/invocations/${invocationID}/discover`, { body, ...options });
   }
 
   /**
@@ -86,8 +65,9 @@ export class Invocations extends APIResource {
   }
 
   /**
-   * Submits field values for the discovered login form and may return additional
-   * auth fields or success. Requires the JWT returned by the exchange endpoint.
+   * Submits field values for the discovered login form. Returns immediately after
+   * submission is accepted. Poll the invocation endpoint to track progress and get
+   * results.
    *
    * @example
    * ```ts
@@ -141,14 +121,6 @@ export interface InvocationCreateParams {
   save_credential_as?: string;
 }
 
-export interface InvocationDiscoverParams {
-  /**
-   * Optional login page URL. If provided, will override the stored login URL for
-   * this discovery invocation and skip Phase 1 discovery.
-   */
-  login_url?: string;
-}
-
 export interface InvocationExchangeParams {
   /**
    * Handoff code from start endpoint
@@ -156,18 +128,28 @@ export interface InvocationExchangeParams {
   code: string;
 }
 
-export interface InvocationSubmitParams {
-  /**
-   * Values for the discovered login fields
-   */
-  field_values: { [key: string]: string };
+export type InvocationSubmitParams = InvocationSubmitParams.Variant0 | InvocationSubmitParams.Variant1;
+
+export declare namespace InvocationSubmitParams {
+  export interface Variant0 {
+    /**
+     * Values for the discovered login fields
+     */
+    field_values: { [key: string]: string };
+  }
+
+  export interface Variant1 {
+    /**
+     * Selector of SSO button to click
+     */
+    sso_button: string;
+  }
 }
 
 export declare namespace Invocations {
   export {
     type InvocationExchangeResponse as InvocationExchangeResponse,
     type InvocationCreateParams as InvocationCreateParams,
-    type InvocationDiscoverParams as InvocationDiscoverParams,
     type InvocationExchangeParams as InvocationExchangeParams,
     type InvocationSubmitParams as InvocationSubmitParams,
   };

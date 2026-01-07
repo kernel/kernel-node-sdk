@@ -30,12 +30,14 @@ describe('resource credentials', () => {
       domain: 'netflix.com',
       name: 'my-netflix-login',
       values: { username: 'user@example.com', password: 'mysecretpassword' },
+      sso_provider: 'google',
+      totp_secret: 'JBSWY3DPEHPK3PXP',
     });
   });
 
   // Prism tests are disabled
   test.skip('retrieve', async () => {
-    const responsePromise = client.credentials.retrieve('id');
+    const responsePromise = client.credentials.retrieve('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -47,7 +49,7 @@ describe('resource credentials', () => {
 
   // Prism tests are disabled
   test.skip('update', async () => {
-    const responsePromise = client.credentials.update('id', {});
+    const responsePromise = client.credentials.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -74,7 +76,11 @@ describe('resource credentials', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.credentials.list(
-        { domain: 'domain', limit: 100, offset: 0 },
+        {
+          domain: 'domain',
+          limit: 100,
+          offset: 0,
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
@@ -82,7 +88,19 @@ describe('resource credentials', () => {
 
   // Prism tests are disabled
   test.skip('delete', async () => {
-    const responsePromise = client.credentials.delete('id');
+    const responsePromise = client.credentials.delete('id_or_name');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
+  test.skip('totpCode', async () => {
+    const responsePromise = client.credentials.totpCode('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;

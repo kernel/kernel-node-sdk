@@ -29,11 +29,19 @@ describe('resource browserPools', () => {
       headless: false,
       kiosk_mode: true,
       name: 'my-pool',
-      profile: { id: 'id', name: 'name', save_changes: true },
+      profile: {
+        id: 'id',
+        name: 'name',
+        save_changes: true,
+      },
       proxy_id: 'proxy_id',
       stealth: true,
       timeout_seconds: 60,
-      viewport: { height: 800, width: 1280, refresh_rate: 60 },
+      viewport: {
+        height: 800,
+        width: 1280,
+        refresh_rate: 60,
+      },
     });
   });
 
@@ -71,11 +79,19 @@ describe('resource browserPools', () => {
       headless: false,
       kiosk_mode: true,
       name: 'my-pool',
-      profile: { id: 'id', name: 'name', save_changes: true },
+      profile: {
+        id: 'id',
+        name: 'name',
+        save_changes: true,
+      },
       proxy_id: 'proxy_id',
       stealth: true,
       timeout_seconds: 60,
-      viewport: { height: 800, width: 1280, refresh_rate: 60 },
+      viewport: {
+        height: 800,
+        width: 1280,
+        refresh_rate: 60,
+      },
     });
   });
 

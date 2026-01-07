@@ -37,6 +37,7 @@ export {
   type CreateCredentialRequest,
   type Credential,
   type UpdateCredentialRequest,
+  type CredentialTotpCodeResponse,
   type CredentialCreateParams,
   type CredentialUpdateParams,
   type CredentialListParams,
@@ -81,5 +82,6 @@ export {
   type ProxyCreateResponse,
   type ProxyRetrieveResponse,
   type ProxyListResponse,
+  type ProxyCheckResponse,
   type ProxyCreateParams,
 } from './proxies';

@@ -35,6 +35,7 @@ import {
   Credential,
   CredentialCreateParams,
   CredentialListParams,
+  CredentialTotpCodeResponse,
   CredentialUpdateParams,
   Credentials,
   CredentialsOffsetPagination,
@@ -77,6 +78,7 @@ import {
 import { ProfileCreateParams, ProfileListResponse, Profiles } from './resources/profiles';
 import {
   Proxies,
+  ProxyCheckResponse,
   ProxyCreateParams,
   ProxyCreateResponse,
   ProxyListResponse,
@@ -950,6 +952,7 @@ export declare namespace Kernel {
     type ProxyCreateResponse as ProxyCreateResponse,
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
     type ProxyListResponse as ProxyListResponse,
+    type ProxyCheckResponse as ProxyCheckResponse,
     type ProxyCreateParams as ProxyCreateParams,
   };
 
@@ -980,6 +983,7 @@ export declare namespace Kernel {
     type CreateCredentialRequest as CreateCredentialRequest,
     type Credential as Credential,
     type UpdateCredentialRequest as UpdateCredentialRequest,
+    type CredentialTotpCodeResponse as CredentialTotpCodeResponse,
     type CredentialsOffsetPagination as CredentialsOffsetPagination,
     type CredentialCreateParams as CredentialCreateParams,
     type CredentialUpdateParams as CredentialUpdateParams,
