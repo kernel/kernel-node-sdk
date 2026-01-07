@@ -163,7 +163,10 @@ You can use the `for await … of` syntax to iterate through items across all pa
 async function fetchAllDeploymentListResponses(params) {
   const allDeploymentListResponses = [];
   // Automatically fetches more pages as needed.
-  for await (const deploymentListResponse of client.deployments.list({ app_name: 'YOUR_APP', limit: 2 })) {
+  for await (const deploymentListResponse of client.deployments.list({
+    app_name: 'YOUR_APP',
+    limit: 2,
+  })) {
     allDeploymentListResponses.push(deploymentListResponse);
   }
   return allDeploymentListResponses;
@@ -203,7 +206,9 @@ const response = await client.browsers.create({ stealth: true }).asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
-const { data: browser, response: raw } = await client.browsers.create({ stealth: true }).withResponse();
+const { data: browser, response: raw } = await client.browsers
+  .create({ stealth: true })
+  .withResponse();
 console.log(raw.headers.get('X-My-Header'));
 console.log(browser.session_id);
 ```

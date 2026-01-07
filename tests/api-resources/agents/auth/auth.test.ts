@@ -63,7 +63,12 @@ describe('resource auth', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.agents.auth.list(
-        { limit: 100, offset: 0, profile_name: 'profile_name', target_domain: 'target_domain' },
+        {
+          limit: 100,
+          offset: 0,
+          profile_name: 'profile_name',
+          target_domain: 'target_domain',
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);

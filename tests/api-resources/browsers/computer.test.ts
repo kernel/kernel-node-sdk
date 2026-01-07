@@ -13,7 +13,14 @@ describe('resource computer', () => {
     await expect(
       client.browsers.computer.captureScreenshot(
         'id',
-        { region: { height: 0, width: 0, x: 0, y: 0 } },
+        {
+          region: {
+            height: 0,
+            width: 0,
+            x: 0,
+            y: 0,
+          },
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
@@ -89,7 +96,11 @@ describe('resource computer', () => {
 
   // Prism tests are disabled
   test.skip('moveMouse: required and optional params', async () => {
-    const response = await client.browsers.computer.moveMouse('id', { x: 0, y: 0, hold_keys: ['string'] });
+    const response = await client.browsers.computer.moveMouse('id', {
+      x: 0,
+      y: 0,
+      hold_keys: ['string'],
+    });
   });
 
   // Prism tests are disabled
