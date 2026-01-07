@@ -49,7 +49,11 @@ describe('resource deployments', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.deployments.list(
-        { app_name: 'app_name', limit: 1, offset: 0 },
+        {
+          app_name: 'app_name',
+          limit: 1,
+          offset: 0,
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);

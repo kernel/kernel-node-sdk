@@ -31,11 +31,19 @@ describe('resource browsers', () => {
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
           persistence: { id: 'my-awesome-browser-for-user-1234' },
-          profile: { id: 'id', name: 'name', save_changes: true },
+          profile: {
+            id: 'id',
+            name: 'name',
+            save_changes: true,
+          },
           proxy_id: 'proxy_id',
           stealth: true,
           timeout_seconds: 10,
-          viewport: { height: 800, width: 1280, refresh_rate: 60 },
+          viewport: {
+            height: 800,
+            width: 1280,
+            refresh_rate: 60,
+          },
         },
         { path: '/_stainless_unknown_path' },
       ),
@@ -71,7 +79,11 @@ describe('resource browsers', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.list(
-        { include_deleted: true, limit: 1, offset: 0 },
+        {
+          include_deleted: true,
+          limit: 1,
+          offset: 0,
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
