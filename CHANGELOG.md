@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.25.0 (2026-01-09)
+
+Full Changelog: [v0.24.0...v0.25.0](https://github.com/kernel/kernel-node-sdk/compare/v0.24.0...v0.25.0)
+
+### Features
+
+* **api:** update production repos ([d18f7de](https://github.com/kernel/kernel-node-sdk/commit/d18f7decf64aa26e70a1c018f5b434af502bd82b))
+
+
+### Chores
+
+* **ci:** update org name from onkernel to kernel ([8197587](https://github.com/kernel/kernel-node-sdk/commit/81975879cc89feaf95334a5bd90ba752bd828453))
+* sync repo ([3d1de59](https://github.com/kernel/kernel-node-sdk/commit/3d1de59c268cd3029370b762af25a7032a7e2699))
+
 ## 0.24.0 (2025-12-17)
 
 Full Changelog: [v0.23.0...v0.24.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.23.0...v0.24.0)
