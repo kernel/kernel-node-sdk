@@ -151,6 +151,12 @@ export interface AgentAuthInvocationResponse {
   live_view_url?: string | null;
 
   /**
+   * MFA method options to choose from (present when step=awaiting_input and MFA
+   * selection is required)
+   */
+  mfa_options?: Array<AgentAuthInvocationResponse.MfaOption> | null;
+
+  /**
    * Fields currently awaiting input (present when step=awaiting_input)
    */
   pending_fields?: Array<DiscoveredField> | null;
@@ -167,6 +173,31 @@ export interface AgentAuthInvocationResponse {
 }
 
 export namespace AgentAuthInvocationResponse {
+  /**
+   * An MFA method option for verification
+   */
+  export interface MfaOption {
+    /**
+     * The visible option text
+     */
+    label: string;
+
+    /**
+     * The MFA delivery method type
+     */
+    type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'security_key';
+
+    /**
+     * Additional instructions from the site
+     */
+    description?: string | null;
+
+    /**
+     * The masked destination (phone/email) if shown
+     */
+    target?: string | null;
+  }
+
   /**
    * An SSO button for signing in with an external identity provider
    */

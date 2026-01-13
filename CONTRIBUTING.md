@@ -55,12 +55,12 @@ $ cd kernel-node-sdk
 # With yarn
 $ yarn link
 $ cd ../my-package
-$ yarn link @onkernel/sdk
+$ yarn link @kernel/sdk
 
 # With pnpm
 $ pnpm link --global
 $ cd ../my-package
-$ pnpm link -—global @onkernel/sdk
+$ pnpm link -—global @kernel/sdk
 ```
 
 ## Running tests
