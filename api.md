@@ -133,6 +133,7 @@ Types:
 
 - <code><a href="./src/resources/browsers/process.ts">ProcessExecResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessKillResponse</a></code>
+- <code><a href="./src/resources/browsers/process.ts">ProcessResizeResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessSpawnResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessStatusResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessStdinResponse</a></code>
@@ -142,6 +143,7 @@ Methods:
 
 - <code title="post /browsers/{id}/process/exec">client.browsers.process.<a href="./src/resources/browsers/process.ts">exec</a>(id, { ...params }) -> ProcessExecResponse</code>
 - <code title="post /browsers/{id}/process/{process_id}/kill">client.browsers.process.<a href="./src/resources/browsers/process.ts">kill</a>(processID, { ...params }) -> ProcessKillResponse</code>
+- <code title="post /browsers/{id}/process/{process_id}/resize">client.browsers.process.<a href="./src/resources/browsers/process.ts">resize</a>(processID, { ...params }) -> ProcessResizeResponse</code>
 - <code title="post /browsers/{id}/process/spawn">client.browsers.process.<a href="./src/resources/browsers/process.ts">spawn</a>(id, { ...params }) -> ProcessSpawnResponse</code>
 - <code title="get /browsers/{id}/process/{process_id}/status">client.browsers.process.<a href="./src/resources/browsers/process.ts">status</a>(processID, { ...params }) -> ProcessStatusResponse</code>
 - <code title="post /browsers/{id}/process/{process_id}/stdin">client.browsers.process.<a href="./src/resources/browsers/process.ts">stdin</a>(processID, { ...params }) -> ProcessStdinResponse</code>

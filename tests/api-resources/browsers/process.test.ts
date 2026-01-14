@@ -57,6 +57,31 @@ describe('resource process', () => {
   });
 
   // Prism tests are disabled
+  test.skip('resize: only required params', async () => {
+    const responsePromise = client.browsers.process.resize('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+      id: 'id',
+      cols: 1,
+      rows: 1,
+    });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
+  test.skip('resize: required and optional params', async () => {
+    const response = await client.browsers.process.resize('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+      id: 'id',
+      cols: 1,
+      rows: 1,
+    });
+  });
+
+  // Prism tests are disabled
   test.skip('spawn: only required params', async () => {
     const responsePromise = client.browsers.process.spawn('id', { command: 'command' });
     const rawResponse = await responsePromise.asResponse();
@@ -72,11 +97,14 @@ describe('resource process', () => {
   test.skip('spawn: required and optional params', async () => {
     const response = await client.browsers.process.spawn('id', {
       command: 'command',
+      allocate_tty: true,
       args: ['string'],
       as_root: true,
       as_user: 'as_user',
+      cols: 1,
       cwd: '/J!',
       env: { foo: 'string' },
+      rows: 1,
       timeout_sec: 0,
     });
   });
