@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { APIPromise } from '@kernel/sdk/core/api-promise';
+import { APIPromise } from '@onkernel/sdk/core/api-promise';
 
 import util from 'node:util';
-import Kernel from '@kernel/sdk';
-import { APIUserAbortError } from '@kernel/sdk';
+import Kernel from '@onkernel/sdk';
+import { APIUserAbortError } from '@onkernel/sdk';
 const defaultFetch = fetch;
 
 describe('instantiate client', () => {
@@ -322,13 +322,13 @@ describe('instantiate client', () => {
     test('empty env variable', () => {
       process.env['KERNEL_BASE_URL'] = ''; // empty
       const client = new Kernel({ apiKey: 'My API Key' });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
     test('blank env variable', () => {
       process.env['KERNEL_BASE_URL'] = '  '; // blank
       const client = new Kernel({ apiKey: 'My API Key' });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
     test('env variable with environment', () => {
@@ -345,7 +345,7 @@ describe('instantiate client', () => {
         baseURL: null,
         environment: 'production',
       });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
     test('in request options', () => {
