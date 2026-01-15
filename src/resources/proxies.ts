@@ -69,6 +69,11 @@ export interface ProxyCreateResponse {
     | ProxyCreateResponse.CustomProxyConfig;
 
   /**
+   * IP address that the proxy uses when making requests.
+   */
+  ip_address?: string;
+
+  /**
    * Timestamp of the last health check performed on this proxy.
    */
   last_checked?: string;
@@ -287,6 +292,11 @@ export interface ProxyRetrieveResponse {
     | ProxyRetrieveResponse.ResidentialProxyConfig
     | ProxyRetrieveResponse.MobileProxyConfig
     | ProxyRetrieveResponse.CustomProxyConfig;
+
+  /**
+   * IP address that the proxy uses when making requests.
+   */
+  ip_address?: string;
 
   /**
    * Timestamp of the last health check performed on this proxy.
@@ -512,6 +522,11 @@ export namespace ProxyListResponse {
       | ProxyListResponseItem.CustomProxyConfig;
 
     /**
+     * IP address that the proxy uses when making requests.
+     */
+    ip_address?: string;
+
+    /**
      * Timestamp of the last health check performed on this proxy.
      */
     last_checked?: string;
@@ -731,6 +746,11 @@ export interface ProxyCheckResponse {
     | ProxyCheckResponse.ResidentialProxyConfig
     | ProxyCheckResponse.MobileProxyConfig
     | ProxyCheckResponse.CustomProxyConfig;
+
+  /**
+   * IP address that the proxy uses when making requests.
+   */
+  ip_address?: string;
 
   /**
    * Timestamp of the last health check performed on this proxy.

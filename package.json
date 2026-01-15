@@ -1,5 +1,5 @@
 {
-  "name": "@onkernel/sdk",
+  "name": "@kernel/sdk",
   "version": "0.24.0",
   "description": "The official TypeScript library for the Kernel API",
   "author": "Kernel <>",
