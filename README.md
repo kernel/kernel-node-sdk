@@ -4,7 +4,7 @@
 
 This library provides convenient access to the Kernel REST API from server-side TypeScript or JavaScript.
 
-The REST API documentation can be found on [docs.kernel.com](https://www.kernel.sh/docs/api-reference). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.onkernel.com](https://www.kernel.sh/docs/api-reference). The full API of this library can be found in [api.md](api.md).
 
 It is generated with [Stainless](https://www.stainless.com/).
 
