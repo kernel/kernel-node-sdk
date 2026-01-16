@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { Kernel } from '@onkernel/sdk';
+import { Kernel } from '@kernel/sdk';
 
 const { stringifyQuery } = Kernel.prototype as any;
 

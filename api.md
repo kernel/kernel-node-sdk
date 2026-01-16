@@ -67,12 +67,14 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserCreateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserRetrieveResponse</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserUpdateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserListResponse</a></code>
 
 Methods:
 
 - <code title="post /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">create</a>({ ...params }) -> BrowserCreateResponse</code>
 - <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id) -> BrowserRetrieveResponse</code>
+- <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
 - <code title="delete /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">delete</a>({ ...params }) -> void</code>
 - <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>
@@ -133,6 +135,7 @@ Types:
 
 - <code><a href="./src/resources/browsers/process.ts">ProcessExecResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessKillResponse</a></code>
+- <code><a href="./src/resources/browsers/process.ts">ProcessResizeResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessSpawnResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessStatusResponse</a></code>
 - <code><a href="./src/resources/browsers/process.ts">ProcessStdinResponse</a></code>
@@ -142,6 +145,7 @@ Methods:
 
 - <code title="post /browsers/{id}/process/exec">client.browsers.process.<a href="./src/resources/browsers/process.ts">exec</a>(id, { ...params }) -> ProcessExecResponse</code>
 - <code title="post /browsers/{id}/process/{process_id}/kill">client.browsers.process.<a href="./src/resources/browsers/process.ts">kill</a>(processID, { ...params }) -> ProcessKillResponse</code>
+- <code title="post /browsers/{id}/process/{process_id}/resize">client.browsers.process.<a href="./src/resources/browsers/process.ts">resize</a>(processID, { ...params }) -> ProcessResizeResponse</code>
 - <code title="post /browsers/{id}/process/spawn">client.browsers.process.<a href="./src/resources/browsers/process.ts">spawn</a>(id, { ...params }) -> ProcessSpawnResponse</code>
 - <code title="get /browsers/{id}/process/{process_id}/status">client.browsers.process.<a href="./src/resources/browsers/process.ts">status</a>(processID, { ...params }) -> ProcessStatusResponse</code>
 - <code title="post /browsers/{id}/process/{process_id}/stdin">client.browsers.process.<a href="./src/resources/browsers/process.ts">stdin</a>(processID, { ...params }) -> ProcessStdinResponse</code>

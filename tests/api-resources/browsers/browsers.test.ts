@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import Kernel, { toFile } from '@onkernel/sdk';
+import Kernel, { toFile } from '@kernel/sdk';
 
 const client = new Kernel({
   apiKey: 'My API Key',
@@ -53,6 +53,18 @@ describe('resource browsers', () => {
   // Prism tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.browsers.retrieve('htzv5orfit78e1m2biiifpbv');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
+  test.skip('update', async () => {
+    const responsePromise = client.browsers.update('htzv5orfit78e1m2biiifpbv', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;

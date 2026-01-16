@@ -43,6 +43,30 @@ export class Process extends APIResource {
   }
 
   /**
+   * Resize a PTY-backed process terminal
+   *
+   * @example
+   * ```ts
+   * const response = await client.browsers.process.resize(
+   *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+   *   {
+   *     id: 'id',
+   *     cols: 1,
+   *     rows: 1,
+   *   },
+   * );
+   * ```
+   */
+  resize(
+    processID: string,
+    params: ProcessResizeParams,
+    options?: RequestOptions,
+  ): APIPromise<ProcessResizeResponse> {
+    const { id, ...body } = params;
+    return this._client.post(path`/browsers/${id}/process/${processID}/resize`, { body, ...options });
+  }
+
+  /**
    * Execute a command asynchronously
    *
    * @example
@@ -150,6 +174,16 @@ export interface ProcessExecResponse {
  * Generic OK response.
  */
 export interface ProcessKillResponse {
+  /**
+   * Indicates success.
+   */
+  ok: boolean;
+}
+
+/**
+ * Generic OK response.
+ */
+export interface ProcessResizeResponse {
   /**
    * Indicates success.
    */
@@ -285,11 +319,33 @@ export interface ProcessKillParams {
   signal: 'TERM' | 'KILL' | 'INT' | 'HUP';
 }
 
+export interface ProcessResizeParams {
+  /**
+   * Path param: Browser session ID
+   */
+  id: string;
+
+  /**
+   * Body param: New terminal columns.
+   */
+  cols: number;
+
+  /**
+   * Body param: New terminal rows.
+   */
+  rows: number;
+}
+
 export interface ProcessSpawnParams {
   /**
    * Executable or shell command to run.
    */
   command: string;
+
+  /**
+   * Allocate a pseudo-terminal (PTY) for interactive shells.
+   */
+  allocate_tty?: boolean;
 
   /**
    * Command arguments.
@@ -307,6 +363,11 @@ export interface ProcessSpawnParams {
   as_user?: string | null;
 
   /**
+   * Initial terminal columns. Only used when allocate_tty is true.
+   */
+  cols?: number;
+
+  /**
    * Working directory (absolute path) to run the command in.
    */
   cwd?: string | null;
@@ -315,6 +376,11 @@ export interface ProcessSpawnParams {
    * Environment variables to set for the process.
    */
   env?: { [key: string]: string };
+
+  /**
+   * Initial terminal rows. Only used when allocate_tty is true.
+   */
+  rows?: number;
 
   /**
    * Maximum execution time in seconds.
@@ -352,12 +418,14 @@ export declare namespace Process {
   export {
     type ProcessExecResponse as ProcessExecResponse,
     type ProcessKillResponse as ProcessKillResponse,
+    type ProcessResizeResponse as ProcessResizeResponse,
     type ProcessSpawnResponse as ProcessSpawnResponse,
     type ProcessStatusResponse as ProcessStatusResponse,
     type ProcessStdinResponse as ProcessStdinResponse,
     type ProcessStdoutStreamResponse as ProcessStdoutStreamResponse,
     type ProcessExecParams as ProcessExecParams,
     type ProcessKillParams as ProcessKillParams,
+    type ProcessResizeParams as ProcessResizeParams,
     type ProcessSpawnParams as ProcessSpawnParams,
     type ProcessStatusParams as ProcessStatusParams,
     type ProcessStdinParams as ProcessStdinParams,

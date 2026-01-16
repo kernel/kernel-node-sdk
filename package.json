@@ -1,12 +1,12 @@
 {
-  "name": "@onkernel/sdk",
-  "version": "0.25.0",
+  "name": "@kernel/sdk",
+  "version": "0.26.0",
   "description": "The official TypeScript library for the Kernel API",
   "author": "Kernel <>",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "type": "commonjs",
-  "repository": "github:onkernel/kernel-node-sdk",
+  "repository": "github:kernel/kernel-node-sdk",
   "license": "Apache-2.0",
   "packageManager": "yarn@1.22.22",
   "files": [

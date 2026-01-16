@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { APIPromise } from '@onkernel/sdk/core/api-promise';
+import { APIPromise } from '@kernel/sdk/core/api-promise';
 
 import util from 'node:util';
-import Kernel from '@onkernel/sdk';
-import { APIUserAbortError } from '@onkernel/sdk';
+import Kernel from '@kernel/sdk';
+import { APIUserAbortError } from '@kernel/sdk';
 const defaultFetch = fetch;
 
 describe('instantiate client', () => {
@@ -228,7 +228,7 @@ describe('instantiate client', () => {
     const client = new Kernel({
       baseURL: 'http://localhost:5000/',
       apiKey: 'My API Key',
-      fetch: (url) => {
+      fetch: (url: string | URL | Request) => {
         return Promise.resolve(
           new Response(JSON.stringify({ url, custom: true }), {
             headers: { 'Content-Type': 'application/json' },
@@ -254,15 +254,9 @@ describe('instantiate client', () => {
     const client = new Kernel({
       baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
       apiKey: 'My API Key',
-      fetch: (...args) => {
-        return new Promise((resolve, reject) =>
-          setTimeout(
-            () =>
-              defaultFetch(...args)
-                .then(resolve)
-                .catch(reject),
-            300,
-          ),
+      fetch: (url: string | URL | Request, init?: RequestInit) => {
+        return new Promise<Response>((resolve, reject) =>
+          setTimeout(() => defaultFetch(url, init).then(resolve).catch(reject), 300),
         );
       },
     });
@@ -588,7 +582,7 @@ describe('retries', () => {
       await client
         .request({ path: '/foo', method: 'get' })
         .asResponse()
-        .then((r) => r.text()),
+        .then((r: Response) => r.text()),
     ).toEqual(JSON.stringify({ a: 1 }));
     expect(count).toEqual(3);
   });
@@ -746,7 +740,7 @@ describe('retries', () => {
       await client
         .request({ path: '/foo', method: 'get' })
         .asResponse()
-        .then((r) => r.text()),
+        .then((r: Response) => r.text()),
     ).toEqual(JSON.stringify({ a: 1 }));
     expect(count).toEqual(3);
   });
@@ -776,7 +770,7 @@ describe('retries', () => {
       await client
         .request({ path: '/foo', method: 'get' })
         .asResponse()
-        .then((r) => r.text()),
+        .then((r: Response) => r.text()),
     ).toEqual(JSON.stringify({ a: 1 }));
     expect(count).toEqual(3);
   });

@@ -128,7 +128,10 @@ export interface InvocationExchangeParams {
   code: string;
 }
 
-export type InvocationSubmitParams = InvocationSubmitParams.Variant0 | InvocationSubmitParams.Variant1;
+export type InvocationSubmitParams =
+  | InvocationSubmitParams.Variant0
+  | InvocationSubmitParams.Variant1
+  | InvocationSubmitParams.Variant2;
 
 export declare namespace InvocationSubmitParams {
   export interface Variant0 {
@@ -143,6 +146,13 @@ export declare namespace InvocationSubmitParams {
      * Selector of SSO button to click
      */
     sso_button: string;
+  }
+
+  export interface Variant2 {
+    /**
+     * The MFA delivery method type
+     */
+    selected_mfa_type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'security_key';
   }
 }
 
