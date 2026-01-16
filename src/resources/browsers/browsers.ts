@@ -110,6 +110,20 @@ export class Browsers extends APIResource {
   }
 
   /**
+   * Update a browser session.
+   *
+   * @example
+   * ```ts
+   * const browser = await client.browsers.update(
+   *   'htzv5orfit78e1m2biiifpbv',
+   * );
+   * ```
+   */
+  update(id: string, body: BrowserUpdateParams, options?: RequestOptions): APIPromise<BrowserUpdateResponse> {
+    return this._client.patch(path`/browsers/${id}`, { body, ...options });
+  }
+
+  /**
    * List all browser sessions with pagination support. Use include_deleted=true to
    * include soft-deleted sessions in the results.
    *
@@ -382,6 +396,82 @@ export interface BrowserRetrieveResponse {
   viewport?: Shared.BrowserViewport;
 }
 
+export interface BrowserUpdateResponse {
+  /**
+   * Websocket URL for Chrome DevTools Protocol connections to the browser session
+   */
+  cdp_ws_url: string;
+
+  /**
+   * When the browser session was created.
+   */
+  created_at: string;
+
+  /**
+   * Whether the browser session is running in headless mode.
+   */
+  headless: boolean;
+
+  /**
+   * Unique identifier for the browser session
+   */
+  session_id: string;
+
+  /**
+   * Whether the browser session is running in stealth mode.
+   */
+  stealth: boolean;
+
+  /**
+   * The number of seconds of inactivity before the browser session is terminated.
+   */
+  timeout_seconds: number;
+
+  /**
+   * Remote URL for live viewing the browser session. Only available for non-headless
+   * browsers.
+   */
+  browser_live_view_url?: string;
+
+  /**
+   * When the browser session was soft-deleted. Only present for deleted sessions.
+   */
+  deleted_at?: string;
+
+  /**
+   * Whether the browser session is running in kiosk mode.
+   */
+  kiosk_mode?: boolean;
+
+  /**
+   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
+   * instead.
+   */
+  persistence?: BrowserPersistence;
+
+  /**
+   * Browser profile metadata.
+   */
+  profile?: Profile;
+
+  /**
+   * ID of the proxy associated with this browser session, if any.
+   */
+  proxy_id?: string;
+
+  /**
+   * Initial browser window size in pixels with optional refresh rate. If omitted,
+   * image defaults apply (1920x1080@25). Only specific viewport configurations are
+   * supported. The server will reject unsupported combinations. Supported
+   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
+   * 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will be
+   * automatically determined from the width and height if they match a supported
+   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
+   * live view browser
+   */
+  viewport?: Shared.BrowserViewport;
+}
+
 export interface BrowserListResponse {
   /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
@@ -528,6 +618,14 @@ export interface BrowserCreateParams {
   viewport?: Shared.BrowserViewport;
 }
 
+export interface BrowserUpdateParams {
+  /**
+   * ID of the proxy to use. Omit to leave unchanged, set to empty string to remove
+   * proxy.
+   */
+  proxy_id?: string | null;
+}
+
 export interface BrowserListParams extends OffsetPaginationParams {
   /**
    * When true, includes soft-deleted browser sessions in the results alongside
@@ -578,9 +676,11 @@ export declare namespace Browsers {
     type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
+    type BrowserUpdateResponse as BrowserUpdateResponse,
     type BrowserListResponse as BrowserListResponse,
     type BrowserListResponsesOffsetPagination as BrowserListResponsesOffsetPagination,
     type BrowserCreateParams as BrowserCreateParams,
+    type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
     type BrowserDeleteParams as BrowserDeleteParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
