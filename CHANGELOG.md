@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.26.0 (2026-01-16)
+
+Full Changelog: [v0.24.0...v0.26.0](https://github.com/kernel/kernel-node-sdk/compare/v0.24.0...v0.26.0)
+
+### Features
+
+* add MFA options to agent authentication workflow ([3e2dd3f](https://github.com/kernel/kernel-node-sdk/commit/3e2dd3f657592d6a2e224f0c0238d58514a548f6))
+* add WebSocket process attach and PTY support ([b18e46d](https://github.com/kernel/kernel-node-sdk/commit/b18e46d414be71e13a43cace1e4b60411908100d))
+* **api:** add IP address logging for residential and custom proxies ([24e37bb](https://github.com/kernel/kernel-node-sdk/commit/24e37bb60de11625aa5a5a67ff4f224977cb8955))
+* **api:** manual updates ([b9715f8](https://github.com/kernel/kernel-node-sdk/commit/b9715f89fbd10b6cf48e0d68168750c807f77004))
+* **api:** update production repos ([d18f7de](https://github.com/kernel/kernel-node-sdk/commit/d18f7decf64aa26e70a1c018f5b434af502bd82b))
+* Support hot swap proxy on a session ([ead291b](https://github.com/kernel/kernel-node-sdk/commit/ead291bff1089bfafe05da4d35a2405f3165f7a7))
+
+
+### Chores
+
+* **ci:** update org name from onkernel to kernel ([8197587](https://github.com/kernel/kernel-node-sdk/commit/81975879cc89feaf95334a5bd90ba752bd828453))
+* **internal:** upgrade babel, qs, js-yaml ([b695aee](https://github.com/kernel/kernel-node-sdk/commit/b695aee782f55865f912f24fc67041718597c98a))
+* sync repo ([3d1de59](https://github.com/kernel/kernel-node-sdk/commit/3d1de59c268cd3029370b762af25a7032a7e2699))
+
 ## 0.24.0 (2025-12-17)
 
 Full Changelog: [v0.23.0...v0.24.0](https://github.com/onkernel/kernel-node-sdk/compare/v0.23.0...v0.24.0)
