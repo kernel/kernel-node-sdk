@@ -49,7 +49,7 @@ Alternatively, to link a local copy of the repo:
 
 ```sh
 # Clone
-$ git clone https://www.github.com/kernel/kernel-node-sdk
+$ git clone https://github.com/kernel/kernel-node-sdk
 $ cd kernel-node-sdk
 
 # With yarn
@@ -99,7 +99,7 @@ the changes aren't made through the automated pipeline, you may want to make rel
 
 ### Publish with a GitHub workflow
 
-You can release to package managers by using [the `Publish NPM` GitHub action](https://www.github.com/kernel/kernel-node-sdk/actions/workflows/publish-npm.yml). This requires a setup organization or repository secret to be set up.
+You can release to package managers by using [the `Publish NPM` GitHub action](https://github.com/kernel/kernel-node-sdk/actions/workflows/publish-npm.yml). This requires a setup organization or repository secret to be set up.
 
 ### Publish manually
 

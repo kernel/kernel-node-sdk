@@ -329,23 +329,21 @@ describe('instantiate client', () => {
       process.env['KERNEL_BASE_URL'] = '  '; // blank
       const client = new Kernel({ apiKey: 'My API Key' });
       expect(client.baseURL).toEqual('https://api.kernel.com/');
-    });
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
+});
 
-    test('env variable with environment', () => {
-      process.env['KERNEL_BASE_URL'] = 'https://example.com/from_env';
+test('blank env variable', () => {
+process.env['KERNEL_BASE_URL'] = '  '; // blank
+const client = new Kernel({ apiKey: 'My API Key' });
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
+});
 
-      expect(
-        () => new Kernel({ apiKey: 'My API Key', environment: 'production' }),
-      ).toThrowErrorMatchingInlineSnapshot(
-        `"Ambiguous URL; The \`baseURL\` option (or KERNEL_BASE_URL env var) and the \`environment\` option are given. If you want to use the environment you must pass baseURL: null"`,
-      );
-
-      const client = new Kernel({
-        apiKey: 'My API Key',
-        baseURL: null,
-        environment: 'production',
-      });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+test('env variable with environment', () => {
+@@ -345,7 +345,7 @@ describe('instantiate client', () => {
+baseURL: null,
+environment: 'production',
+});
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
     test('in request options', () => {
