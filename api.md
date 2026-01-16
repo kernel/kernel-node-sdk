@@ -67,12 +67,14 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserCreateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserRetrieveResponse</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserUpdateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserListResponse</a></code>
 
 Methods:
 
 - <code title="post /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">create</a>({ ...params }) -> BrowserCreateResponse</code>
 - <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id) -> BrowserRetrieveResponse</code>
+- <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
 - <code title="delete /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">delete</a>({ ...params }) -> void</code>
 - <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>

@@ -63,6 +63,18 @@ describe('resource browsers', () => {
   });
 
   // Prism tests are disabled
+  test.skip('update', async () => {
+    const responsePromise = client.browsers.update('htzv5orfit78e1m2biiifpbv', {});
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.browsers.list();
     const rawResponse = await responsePromise.asResponse();
