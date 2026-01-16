@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { APIPromise } from '@kernel/sdk/core/api-promise';
+import { APIPromise } from '@onkernel/sdk/core/api-promise';
 
 import util from 'node:util';
-import Kernel from '@kernel/sdk';
-import { APIUserAbortError } from '@kernel/sdk';
+import Kernel from '@onkernel/sdk';
+import { APIUserAbortError } from '@onkernel/sdk';
 const defaultFetch = fetch;
 
 describe('instantiate client', () => {
@@ -329,20 +329,22 @@ describe('instantiate client', () => {
       process.env['KERNEL_BASE_URL'] = '  '; // blank
       const client = new Kernel({ apiKey: 'My API Key' });
       expect(client.baseURL).toEqual('https://api.onkernel.com/');
-      expect(client.baseURL).toEqual('https://api.onkernel.com/');
-});
+    });
 
-test('blank env variable', () => {
-process.env['KERNEL_BASE_URL'] = '  '; // blank
-const client = new Kernel({ apiKey: 'My API Key' });
-      expect(client.baseURL).toEqual('https://api.onkernel.com/');
-});
+    test('env variable with environment', () => {
+      process.env['KERNEL_BASE_URL'] = 'https://example.com/from_env';
 
-test('env variable with environment', () => {
-@@ -345,7 +345,7 @@ describe('instantiate client', () => {
-baseURL: null,
-environment: 'production',
-});
+      expect(
+        () => new Kernel({ apiKey: 'My API Key', environment: 'production' }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `"Ambiguous URL; The \`baseURL\` option (or KERNEL_BASE_URL env var) and the \`environment\` option are given. If you want to use the environment you must pass baseURL: null"`,
+      );
+
+      const client = new Kernel({
+        apiKey: 'My API Key',
+        baseURL: null,
+        environment: 'production',
+      });
       expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
