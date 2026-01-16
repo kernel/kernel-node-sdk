@@ -286,6 +286,12 @@ export interface AuthAgent {
    * When the last authentication check was performed
    */
   last_auth_check_at?: string;
+
+  /**
+   * URL where the browser landed after successful login. Query parameters and
+   * fragments are stripped for privacy.
+   */
+  post_login_url?: string;
 }
 
 /**
