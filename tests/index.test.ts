@@ -228,7 +228,7 @@ describe('instantiate client', () => {
     const client = new Kernel({
       baseURL: 'http://localhost:5000/',
       apiKey: 'My API Key',
-      fetch: (url: RequestInfo | URL) => {
+      fetch: (url: string | URL | Request) => {
         return Promise.resolve(
           new Response(JSON.stringify({ url, custom: true }), {
             headers: { 'Content-Type': 'application/json' },
@@ -254,15 +254,9 @@ describe('instantiate client', () => {
     const client = new Kernel({
       baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
       apiKey: 'My API Key',
-      fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+      fetch: (url: string | URL | Request, init?: RequestInit) => {
         return new Promise<Response>((resolve, reject) =>
-          setTimeout(
-            () =>
-              defaultFetch(url, init)
-                .then(resolve)
-                .catch(reject),
-            300,
-          ),
+          setTimeout(() => defaultFetch(url, init).then(resolve).catch(reject), 300),
         );
       },
     });
