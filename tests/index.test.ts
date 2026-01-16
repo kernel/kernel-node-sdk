@@ -322,13 +322,13 @@ describe('instantiate client', () => {
     test('empty env variable', () => {
       process.env['KERNEL_BASE_URL'] = ''; // empty
       const client = new Kernel({ apiKey: 'My API Key' });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
     });
 
     test('blank env variable', () => {
       process.env['KERNEL_BASE_URL'] = '  '; // blank
       const client = new Kernel({ apiKey: 'My API Key' });
-      expect(client.baseURL).toEqual('https://api.kernel.com/');
+      expect(client.baseURL).toEqual('https://api.onkernel.com/');
       expect(client.baseURL).toEqual('https://api.onkernel.com/');
 });
 
