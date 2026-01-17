@@ -5,8 +5,8 @@
   "compilerOptions": {
     "rootDir": "./dist/src",
     "paths": {
-      "@kernel/sdk/*": ["./dist/src/*"],
-      "@kernel/sdk": ["./dist/src/index.ts"]
+      "@onkernel/sdk/*": ["./dist/src/*"],
+      "@onkernel/sdk": ["./dist/src/index.ts"]
     },
     "noEmit": false,
     "declaration": true,
