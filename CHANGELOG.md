@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.26.0 (2026-01-17)
+
+Full Changelog: [v0.26.0...v0.26.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.26.0)
+
+### Features
+
+* Auth agents auth check URL ([7c75e74](https://github.com/kernel/kernel-node-sdk/commit/7c75e7439229cb1a699d0eb25fd830ed72053fda))
+
+
+### Bug Fixes
+
+* **stainless:** use @onkernel/sdk package name for TypeScript SDK ([0cf8ce1](https://github.com/kernel/kernel-node-sdk/commit/0cf8ce1528ace2106d2dd4f80cf7722aa871409a))
+
+
+### Chores
+
+* **internal:** update `actions/checkout` version ([1ddf4de](https://github.com/kernel/kernel-node-sdk/commit/1ddf4de47a73022e392459109d17d25f80f38db9))
+
 ## 0.26.0 (2026-01-16)
 
 Full Changelog: [v0.24.0...v0.26.0](https://github.com/kernel/kernel-node-sdk/compare/v0.24.0...v0.26.0)
