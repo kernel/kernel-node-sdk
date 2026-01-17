@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { _iterSSEMessages } from '@kernel/sdk/core/streaming';
-import { ReadableStreamFrom } from '@kernel/sdk/internal/shims';
+import { _iterSSEMessages } from '@onkernel/sdk/core/streaming';
+import { ReadableStreamFrom } from '@onkernel/sdk/internal/shims';
 
 describe('streaming decoding', () => {
   test('basic', async () => {
