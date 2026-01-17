@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import Kernel, { toFile } from '@kernel/sdk';
+import Kernel, { toFile } from '@onkernel/sdk';
 
 const client = new Kernel({
   apiKey: 'My API Key',

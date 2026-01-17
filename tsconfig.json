@@ -8,8 +8,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "paths": {
-      "@kernel/sdk/*": ["./src/*"],
-      "@kernel/sdk": ["./src/index.ts"]
+      "@onkernel/sdk/*": ["./src/*"],
+      "@onkernel/sdk": ["./src/index.ts"]
     },
     "noEmit": true,
 
