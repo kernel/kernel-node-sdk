@@ -9,6 +9,7 @@ export {
   type BrowserUpdateResponse,
   type BrowserListResponse,
   type BrowserCreateParams,
+  type BrowserRetrieveParams,
   type BrowserUpdateParams,
   type BrowserListParams,
   type BrowserDeleteParams,
