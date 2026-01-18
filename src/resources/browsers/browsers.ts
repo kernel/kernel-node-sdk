@@ -105,8 +105,12 @@ export class Browsers extends APIResource {
    * );
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<BrowserRetrieveResponse> {
-    return this._client.get(path`/browsers/${id}`, options);
+  retrieve(
+    id: string,
+    query: BrowserRetrieveParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<BrowserRetrieveResponse> {
+    return this._client.get(path`/browsers/${id}`, { query, ...options });
   }
 
   /**
@@ -124,8 +128,8 @@ export class Browsers extends APIResource {
   }
 
   /**
-   * List all browser sessions with pagination support. Use include_deleted=true to
-   * include soft-deleted sessions in the results.
+   * List all browser sessions with pagination support. Use status parameter to
+   * filter by session state.
    *
    * @example
    * ```ts
@@ -618,6 +622,13 @@ export interface BrowserCreateParams {
   viewport?: Shared.BrowserViewport;
 }
 
+export interface BrowserRetrieveParams {
+  /**
+   * When true, includes soft-deleted browser sessions in the lookup.
+   */
+  include_deleted?: boolean;
+}
+
 export interface BrowserUpdateParams {
   /**
    * ID of the proxy to use. Omit to leave unchanged, set to empty string to remove
@@ -628,10 +639,16 @@ export interface BrowserUpdateParams {
 
 export interface BrowserListParams extends OffsetPaginationParams {
   /**
-   * When true, includes soft-deleted browser sessions in the results alongside
-   * active sessions.
+   * Deprecated: Use status=all instead. When true, includes soft-deleted browser
+   * sessions in the results alongside active sessions.
    */
   include_deleted?: boolean;
+
+  /**
+   * Filter sessions by status. "active" returns only active sessions (default),
+   * "deleted" returns only soft-deleted sessions, "all" returns both.
+   */
+  status?: 'active' | 'deleted' | 'all';
 }
 
 export interface BrowserDeleteParams {
@@ -680,6 +697,7 @@ export declare namespace Browsers {
     type BrowserListResponse as BrowserListResponse,
     type BrowserListResponsesOffsetPagination as BrowserListResponsesOffsetPagination,
     type BrowserCreateParams as BrowserCreateParams,
+    type BrowserRetrieveParams as BrowserRetrieveParams,
     type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
     type BrowserDeleteParams as BrowserDeleteParams,

@@ -63,6 +63,18 @@ describe('resource browsers', () => {
   });
 
   // Prism tests are disabled
+  test.skip('retrieve: request options and params are passed correctly', async () => {
+    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
+    await expect(
+      client.browsers.retrieve(
+        'htzv5orfit78e1m2biiifpbv',
+        { include_deleted: true },
+        { path: '/_stainless_unknown_path' },
+      ),
+    ).rejects.toThrow(Kernel.NotFoundError);
+  });
+
+  // Prism tests are disabled
   test.skip('update', async () => {
     const responsePromise = client.browsers.update('htzv5orfit78e1m2biiifpbv', {});
     const rawResponse = await responsePromise.asResponse();
@@ -95,6 +107,7 @@ describe('resource browsers', () => {
           include_deleted: true,
           limit: 1,
           offset: 0,
+          status: 'active',
         },
         { path: '/_stainless_unknown_path' },
       ),

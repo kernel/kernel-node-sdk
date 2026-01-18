@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.27.0 (2026-01-18)
+
+Full Changelog: [v0.26.0...v0.27.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.27.0)
+
+### Features
+
+* **dashboard:** add browser replays support for past browsers ([7df0d1b](https://github.com/kernel/kernel-node-sdk/commit/7df0d1b630bd87d6a8fc1999d33214f9434646fb))
+
 ## 0.26.0 (2026-01-17)
 
 Full Changelog: [v0.26.0...v0.26.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.26.0)

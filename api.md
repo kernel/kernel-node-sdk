@@ -73,7 +73,7 @@ Types:
 Methods:
 
 - <code title="post /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">create</a>({ ...params }) -> BrowserCreateResponse</code>
-- <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id) -> BrowserRetrieveResponse</code>
+- <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id, { ...params }) -> BrowserRetrieveResponse</code>
 - <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
 - <code title="delete /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">delete</a>({ ...params }) -> void</code>
