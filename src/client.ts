@@ -31,6 +31,16 @@ import {
   BrowserPools,
 } from './resources/browser-pools';
 import {
+  CreateCredentialProviderRequest,
+  CredentialProvider,
+  CredentialProviderCreateParams,
+  CredentialProviderListResponse,
+  CredentialProviderTestResult,
+  CredentialProviderUpdateParams,
+  CredentialProviders,
+  UpdateCredentialProviderRequest,
+} from './resources/credential-providers';
+import {
   CreateCredentialRequest,
   Credential,
   CredentialCreateParams,
@@ -873,6 +883,7 @@ export class Kernel {
   browserPools: API.BrowserPools = new API.BrowserPools(this);
   agents: API.Agents = new API.Agents(this);
   credentials: API.Credentials = new API.Credentials(this);
+  credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
 }
 
 Kernel.Deployments = Deployments;
@@ -885,6 +896,7 @@ Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
 Kernel.Agents = Agents;
 Kernel.Credentials = Credentials;
+Kernel.CredentialProviders = CredentialProviders;
 
 export declare namespace Kernel {
   export type RequestOptions = Opts.RequestOptions;
@@ -994,6 +1006,17 @@ export declare namespace Kernel {
     type CredentialCreateParams as CredentialCreateParams,
     type CredentialUpdateParams as CredentialUpdateParams,
     type CredentialListParams as CredentialListParams,
+  };
+
+  export {
+    CredentialProviders as CredentialProviders,
+    type CreateCredentialProviderRequest as CreateCredentialProviderRequest,
+    type CredentialProvider as CredentialProvider,
+    type CredentialProviderTestResult as CredentialProviderTestResult,
+    type UpdateCredentialProviderRequest as UpdateCredentialProviderRequest,
+    type CredentialProviderListResponse as CredentialProviderListResponse,
+    type CredentialProviderCreateParams as CredentialProviderCreateParams,
+    type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
   };
 
   export type AppAction = API.AppAction;
