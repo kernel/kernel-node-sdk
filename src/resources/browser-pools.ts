@@ -181,7 +181,9 @@ export namespace BrowserPool {
    */
   export interface BrowserPoolConfig {
     /**
-     * Number of browsers to create in the pool
+     * Number of browsers to maintain in the pool. The maximum size is determined by
+     * your organization's pooled sessions limit (the sum of all pool sizes cannot
+     * exceed your limit).
      */
     size: number;
 
@@ -330,7 +332,9 @@ export interface BrowserPoolAcquireResponse {
 
 export interface BrowserPoolCreateParams {
   /**
-   * Number of browsers to create in the pool
+   * Number of browsers to maintain in the pool. The maximum size is determined by
+   * your organization's pooled sessions limit (the sum of all pool sizes cannot
+   * exceed your limit).
    */
   size: number;
 
@@ -400,7 +404,9 @@ export interface BrowserPoolCreateParams {
 
 export interface BrowserPoolUpdateParams {
   /**
-   * Number of browsers to create in the pool
+   * Number of browsers to maintain in the pool. The maximum size is determined by
+   * your organization's pooled sessions limit (the sum of all pool sizes cannot
+   * exceed your limit).
    */
   size: number;
 
