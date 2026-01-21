@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.27.0 (2026-01-21)
+
+Full Changelog: [v0.26.0...v0.27.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.27.0)
+
+### Features
+
+* **agent-auth:** add 1Password integration for credential providers ([b0fb58d](https://github.com/kernel/kernel-node-sdk/commit/b0fb58ddd6adb4ac70cd981557433a4af9f9675c))
+* **dashboard:** add browser replays support for past browsers ([7df0d1b](https://github.com/kernel/kernel-node-sdk/commit/7df0d1b630bd87d6a8fc1999d33214f9434646fb))
+* Update browser pool org limits ([9475083](https://github.com/kernel/kernel-node-sdk/commit/94750833811e4842b29b7be918894e1d1458067a))
+
+
+### Refactors
+
+* **agentauth:** enhance discover and submit modules with improve… ([6554724](https://github.com/kernel/kernel-node-sdk/commit/655472432e7241daf996b406ef842c4d63e0f7a2))
+
 ## 0.26.0 (2026-01-17)
 
 Full Changelog: [v0.26.0...v0.26.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.26.0)
