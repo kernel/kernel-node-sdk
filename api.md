@@ -300,3 +300,22 @@ Methods:
 - <code title="get /credentials">client.credentials.<a href="./src/resources/credentials.ts">list</a>({ ...params }) -> CredentialsOffsetPagination</code>
 - <code title="delete /credentials/{id_or_name}">client.credentials.<a href="./src/resources/credentials.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /credentials/{id_or_name}/totp-code">client.credentials.<a href="./src/resources/credentials.ts">totpCode</a>(idOrName) -> CredentialTotpCodeResponse</code>
+
+# CredentialProviders
+
+Types:
+
+- <code><a href="./src/resources/credential-providers.ts">CreateCredentialProviderRequest</a></code>
+- <code><a href="./src/resources/credential-providers.ts">CredentialProvider</a></code>
+- <code><a href="./src/resources/credential-providers.ts">CredentialProviderTestResult</a></code>
+- <code><a href="./src/resources/credential-providers.ts">UpdateCredentialProviderRequest</a></code>
+- <code><a href="./src/resources/credential-providers.ts">CredentialProviderListResponse</a></code>
+
+Methods:
+
+- <code title="post /org/credential-providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">create</a>({ ...params }) -> CredentialProvider</code>
+- <code title="get /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">retrieve</a>(id) -> CredentialProvider</code>
+- <code title="patch /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">update</a>(id, { ...params }) -> CredentialProvider</code>
+- <code title="get /org/credential-providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">list</a>() -> CredentialProviderListResponse</code>
+- <code title="delete /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">delete</a>(id) -> void</code>
+- <code title="post /org/credential-providers/{id}/test">client.credentialProviders.<a href="./src/resources/credential-providers.ts">test</a>(id) -> CredentialProviderTestResult</code>
