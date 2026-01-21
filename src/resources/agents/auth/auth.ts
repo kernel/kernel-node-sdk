@@ -167,6 +167,11 @@ export interface AgentAuthInvocationResponse {
   pending_sso_buttons?: Array<AgentAuthInvocationResponse.PendingSSOButton> | null;
 
   /**
+   * SSO provider being used for authentication (e.g., google, github, microsoft)
+   */
+  sso_provider?: string | null;
+
+  /**
    * Names of fields that have been submitted (present when step=submitting or later)
    */
   submitted_fields?: Array<string> | null;
