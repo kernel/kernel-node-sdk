@@ -631,10 +631,21 @@ export interface BrowserRetrieveParams {
 
 export interface BrowserUpdateParams {
   /**
+   * Profile to load into the browser session. Only allowed if the session does not
+   * already have a profile loaded.
+   */
+  profile?: Shared.BrowserProfile;
+
+  /**
    * ID of the proxy to use. Omit to leave unchanged, set to empty string to remove
    * proxy.
    */
   proxy_id?: string | null;
+
+  /**
+   * Viewport configuration to apply to the browser session.
+   */
+  viewport?: Shared.BrowserViewport;
 }
 
 export interface BrowserListParams extends OffsetPaginationParams {
