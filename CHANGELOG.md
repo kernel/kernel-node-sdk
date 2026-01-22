@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.28.0 (2026-01-22)
+
+Full Changelog: [v0.27.0...v0.28.0](https://github.com/kernel/kernel-node-sdk/compare/v0.27.0...v0.28.0)
+
+### Features
+
+* Allow hot loading profiles into sessions ([3a46405](https://github.com/kernel/kernel-node-sdk/commit/3a464057165045b2fe3c3b7ffb176d6800b4b673))
+
 ## 0.27.0 (2026-01-21)
 
 Full Changelog: [v0.26.0...v0.27.0](https://github.com/kernel/kernel-node-sdk/compare/v0.26.0...v0.27.0)
