@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.29.0 (2026-01-29)
+
+Full Changelog: [v0.28.0...v0.29.0](https://github.com/kernel/kernel-node-sdk/compare/v0.28.0...v0.29.0)
+
+### Features
+
+* add support for 1280x800@60 viewport ([87e91f2](https://github.com/kernel/kernel-node-sdk/commit/87e91f2bb76ed63ca56e69a936b479632a452be4))
+
+
+### Chores
+
+* **ci:** upgrade `actions/github-script` ([e56d4bf](https://github.com/kernel/kernel-node-sdk/commit/e56d4bffb8850fba35517ada61b54cd0fd6c6e3b))
+
 ## 0.28.0 (2026-01-22)
 
 Full Changelog: [v0.27.0...v0.28.0](https://github.com/kernel/kernel-node-sdk/compare/v0.27.0...v0.28.0)
