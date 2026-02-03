@@ -83,6 +83,7 @@ export {
   type InvocationUpdateResponse,
   type InvocationListResponse,
   type InvocationFollowResponse,
+  type InvocationListBrowsersResponse,
   type InvocationCreateParams,
   type InvocationUpdateParams,
   type InvocationListParams,

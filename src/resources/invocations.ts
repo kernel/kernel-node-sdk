@@ -2,6 +2,7 @@
 
 import { APIResource } from '../core/resource';
 import * as Shared from './shared';
+import * as BrowsersAPI from './browsers/browsers';
 import { APIPromise } from '../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { Stream } from '../core/streaming';
@@ -117,6 +118,20 @@ export class Invocations extends APIResource {
       headers: buildHeaders([{ Accept: 'text/event-stream' }, options?.headers]),
       stream: true,
     }) as APIPromise<Stream<InvocationFollowResponse>>;
+  }
+
+  /**
+   * Returns all active browser sessions created within the specified invocation.
+   *
+   * @example
+   * ```ts
+   * const response = await client.invocations.listBrowsers(
+   *   'id',
+   * );
+   * ```
+   */
+  listBrowsers(id: string, options?: RequestOptions): APIPromise<InvocationListBrowsersResponse> {
+    return this._client.get(path`/invocations/${id}/browsers`, options);
   }
 }
 
@@ -394,6 +409,88 @@ export type InvocationFollowResponse =
   | Shared.ErrorEvent
   | Shared.HeartbeatEvent;
 
+export interface InvocationListBrowsersResponse {
+  browsers: Array<InvocationListBrowsersResponse.Browser>;
+}
+
+export namespace InvocationListBrowsersResponse {
+  export interface Browser {
+    /**
+     * Websocket URL for Chrome DevTools Protocol connections to the browser session
+     */
+    cdp_ws_url: string;
+
+    /**
+     * When the browser session was created.
+     */
+    created_at: string;
+
+    /**
+     * Whether the browser session is running in headless mode.
+     */
+    headless: boolean;
+
+    /**
+     * Unique identifier for the browser session
+     */
+    session_id: string;
+
+    /**
+     * Whether the browser session is running in stealth mode.
+     */
+    stealth: boolean;
+
+    /**
+     * The number of seconds of inactivity before the browser session is terminated.
+     */
+    timeout_seconds: number;
+
+    /**
+     * Remote URL for live viewing the browser session. Only available for non-headless
+     * browsers.
+     */
+    browser_live_view_url?: string;
+
+    /**
+     * When the browser session was soft-deleted. Only present for deleted sessions.
+     */
+    deleted_at?: string;
+
+    /**
+     * Whether the browser session is running in kiosk mode.
+     */
+    kiosk_mode?: boolean;
+
+    /**
+     * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
+     * instead.
+     */
+    persistence?: BrowsersAPI.BrowserPersistence;
+
+    /**
+     * Browser profile metadata.
+     */
+    profile?: BrowsersAPI.Profile;
+
+    /**
+     * ID of the proxy associated with this browser session, if any.
+     */
+    proxy_id?: string;
+
+    /**
+     * Initial browser window size in pixels with optional refresh rate. If omitted,
+     * image defaults apply (1920x1080@25). Only specific viewport configurations are
+     * supported. The server will reject unsupported combinations. Supported
+     * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
+     * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
+     * be automatically determined from the width and height if they match a supported
+     * configuration exactly. Note: Higher resolutions may affect the responsiveness of
+     * live view browser
+     */
+    viewport?: Shared.BrowserViewport;
+  }
+}
+
 export interface InvocationCreateParams {
   /**
    * Name of the action to invoke
@@ -488,6 +585,7 @@ export declare namespace Invocations {
     type InvocationUpdateResponse as InvocationUpdateResponse,
     type InvocationListResponse as InvocationListResponse,
     type InvocationFollowResponse as InvocationFollowResponse,
+    type InvocationListBrowsersResponse as InvocationListBrowsersResponse,
     type InvocationListResponsesOffsetPagination as InvocationListResponsesOffsetPagination,
     type InvocationCreateParams as InvocationCreateParams,
     type InvocationUpdateParams as InvocationUpdateParams,
