@@ -49,6 +49,7 @@ Types:
 - <code><a href="./src/resources/invocations.ts">InvocationUpdateResponse</a></code>
 - <code><a href="./src/resources/invocations.ts">InvocationListResponse</a></code>
 - <code><a href="./src/resources/invocations.ts">InvocationFollowResponse</a></code>
+- <code><a href="./src/resources/invocations.ts">InvocationListBrowsersResponse</a></code>
 
 Methods:
 
@@ -58,6 +59,7 @@ Methods:
 - <code title="get /invocations">client.invocations.<a href="./src/resources/invocations.ts">list</a>({ ...params }) -> InvocationListResponsesOffsetPagination</code>
 - <code title="delete /invocations/{id}/browsers">client.invocations.<a href="./src/resources/invocations.ts">deleteBrowsers</a>(id) -> void</code>
 - <code title="get /invocations/{id}/events">client.invocations.<a href="./src/resources/invocations.ts">follow</a>(id, { ...params }) -> InvocationFollowResponse</code>
+- <code title="get /invocations/{id}/browsers">client.invocations.<a href="./src/resources/invocations.ts">listBrowsers</a>(id) -> InvocationListBrowsersResponse</code>
 
 # Browsers
 

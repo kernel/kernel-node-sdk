@@ -132,4 +132,16 @@ describe('resource invocations', () => {
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
+
+  // Prism tests are disabled
+  test.skip('listBrowsers', async () => {
+    const responsePromise = client.invocations.listBrowsers('id');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
 });
