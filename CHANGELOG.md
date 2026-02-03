@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.30.0 (2026-02-03)
+
+Full Changelog: [v0.29.0...v0.30.0](https://github.com/kernel/kernel-node-sdk/compare/v0.29.0...v0.30.0)
+
+### Features
+
+* Neil/kernel 872 templates v3 ([3a73c62](https://github.com/kernel/kernel-node-sdk/commit/3a73c6245590aeb784ab0c840728b486f42e7cd5))
+
+
+### Bug Fixes
+
+* **client:** avoid memory leak with abort signals ([8523597](https://github.com/kernel/kernel-node-sdk/commit/85235970dd1c13e0b1ce5086d74515439453b929))
+
+
+### Chores
+
+* **client:** do not parse responses with empty content-length ([ada489d](https://github.com/kernel/kernel-node-sdk/commit/ada489d63f91567c9740623ede272a5f0763484b))
+
 ## 0.29.0 (2026-01-29)
 
 Full Changelog: [v0.28.0...v0.29.0](https://github.com/kernel/kernel-node-sdk/compare/v0.28.0...v0.29.0)
