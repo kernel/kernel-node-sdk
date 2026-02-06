@@ -34,6 +34,8 @@ import {
   CreateCredentialProviderRequest,
   CredentialProvider,
   CredentialProviderCreateParams,
+  CredentialProviderItem,
+  CredentialProviderListItemsResponse,
   CredentialProviderListResponse,
   CredentialProviderTestResult,
   CredentialProviderUpdateParams,
@@ -95,6 +97,7 @@ import {
   ProxyRetrieveResponse,
 } from './resources/proxies';
 import { Agents } from './resources/agents/agents';
+import { Auth } from './resources/auth/auth';
 import {
   BrowserCreateParams,
   BrowserCreateResponse,
@@ -868,6 +871,7 @@ export class Kernel {
   invocations: API.Invocations = new API.Invocations(this);
   browsers: API.Browsers = new API.Browsers(this);
   profiles: API.Profiles = new API.Profiles(this);
+  auth: API.Auth = new API.Auth(this);
   proxies: API.Proxies = new API.Proxies(this);
   extensions: API.Extensions = new API.Extensions(this);
   browserPools: API.BrowserPools = new API.BrowserPools(this);
@@ -881,6 +885,7 @@ Kernel.Apps = Apps;
 Kernel.Invocations = Invocations;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
+Kernel.Auth = Auth;
 Kernel.Proxies = Proxies;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
@@ -956,6 +961,8 @@ export declare namespace Kernel {
     type ProfileCreateParams as ProfileCreateParams,
   };
 
+  export { Auth as Auth };
+
   export {
     Proxies as Proxies,
     type ProxyCreateResponse as ProxyCreateResponse,
@@ -1003,9 +1010,11 @@ export declare namespace Kernel {
     CredentialProviders as CredentialProviders,
     type CreateCredentialProviderRequest as CreateCredentialProviderRequest,
     type CredentialProvider as CredentialProvider,
+    type CredentialProviderItem as CredentialProviderItem,
     type CredentialProviderTestResult as CredentialProviderTestResult,
     type UpdateCredentialProviderRequest as UpdateCredentialProviderRequest,
     type CredentialProviderListResponse as CredentialProviderListResponse,
+    type CredentialProviderListItemsResponse as CredentialProviderListItemsResponse,
     type CredentialProviderCreateParams as CredentialProviderCreateParams,
     type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
   };

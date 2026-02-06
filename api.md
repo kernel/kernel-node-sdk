@@ -203,6 +203,30 @@ Methods:
 - <code title="delete /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /profiles/{id_or_name}/download">client.profiles.<a href="./src/resources/profiles.ts">download</a>(idOrName) -> Response</code>
 
+# Auth
+
+## Connections
+
+Types:
+
+- <code><a href="./src/resources/auth/connections.ts">LoginRequest</a></code>
+- <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>
+- <code><a href="./src/resources/auth/connections.ts">SubmitFieldsRequest</a></code>
+- <code><a href="./src/resources/auth/connections.ts">SubmitFieldsResponse</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ConnectionFollowResponse</a></code>
+
+Methods:
+
+- <code title="post /auth/connections">client.auth.connections.<a href="./src/resources/auth/connections.ts">create</a>({ ...params }) -> ManagedAuth</code>
+- <code title="get /auth/connections/{id}">client.auth.connections.<a href="./src/resources/auth/connections.ts">retrieve</a>(id) -> ManagedAuth</code>
+- <code title="get /auth/connections">client.auth.connections.<a href="./src/resources/auth/connections.ts">list</a>({ ...params }) -> ManagedAuthsOffsetPagination</code>
+- <code title="delete /auth/connections/{id}">client.auth.connections.<a href="./src/resources/auth/connections.ts">delete</a>(id) -> void</code>
+- <code title="get /auth/connections/{id}/events">client.auth.connections.<a href="./src/resources/auth/connections.ts">follow</a>(id) -> ConnectionFollowResponse</code>
+- <code title="post /auth/connections/{id}/login">client.auth.connections.<a href="./src/resources/auth/connections.ts">login</a>(id, { ...params }) -> LoginResponse</code>
+- <code title="post /auth/connections/{id}/submit">client.auth.connections.<a href="./src/resources/auth/connections.ts">submit</a>(id, { ...params }) -> SubmitFieldsResponse</code>
+
 # Proxies
 
 Types:
@@ -312,15 +336,18 @@ Types:
 
 - <code><a href="./src/resources/credential-providers.ts">CreateCredentialProviderRequest</a></code>
 - <code><a href="./src/resources/credential-providers.ts">CredentialProvider</a></code>
+- <code><a href="./src/resources/credential-providers.ts">CredentialProviderItem</a></code>
 - <code><a href="./src/resources/credential-providers.ts">CredentialProviderTestResult</a></code>
 - <code><a href="./src/resources/credential-providers.ts">UpdateCredentialProviderRequest</a></code>
 - <code><a href="./src/resources/credential-providers.ts">CredentialProviderListResponse</a></code>
+- <code><a href="./src/resources/credential-providers.ts">CredentialProviderListItemsResponse</a></code>
 
 Methods:
 
-- <code title="post /org/credential-providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">create</a>({ ...params }) -> CredentialProvider</code>
-- <code title="get /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">retrieve</a>(id) -> CredentialProvider</code>
-- <code title="patch /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">update</a>(id, { ...params }) -> CredentialProvider</code>
-- <code title="get /org/credential-providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">list</a>() -> CredentialProviderListResponse</code>
-- <code title="delete /org/credential-providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">delete</a>(id) -> void</code>
-- <code title="post /org/credential-providers/{id}/test">client.credentialProviders.<a href="./src/resources/credential-providers.ts">test</a>(id) -> CredentialProviderTestResult</code>
+- <code title="post /org/credential_providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">create</a>({ ...params }) -> CredentialProvider</code>
+- <code title="get /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">retrieve</a>(id) -> CredentialProvider</code>
+- <code title="patch /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">update</a>(id, { ...params }) -> CredentialProvider</code>
+- <code title="get /org/credential_providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">list</a>() -> CredentialProviderListResponse</code>
+- <code title="delete /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">delete</a>(id) -> void</code>
+- <code title="get /org/credential_providers/{id}/items">client.credentialProviders.<a href="./src/resources/credential-providers.ts">listItems</a>(id) -> CredentialProviderListItemsResponse</code>
+- <code title="post /org/credential_providers/{id}/test">client.credentialProviders.<a href="./src/resources/credential-providers.ts">test</a>(id) -> CredentialProviderTestResult</code>

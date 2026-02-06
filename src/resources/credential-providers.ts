@@ -16,12 +16,13 @@ export class CredentialProviders extends APIResource {
    * const credentialProvider =
    *   await client.credentialProviders.create({
    *     token: 'ops_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+   *     name: 'my-1password',
    *     provider_type: 'onepassword',
    *   });
    * ```
    */
   create(body: CredentialProviderCreateParams, options?: RequestOptions): APIPromise<CredentialProvider> {
-    return this._client.post('/org/credential-providers', { body, ...options });
+    return this._client.post('/org/credential_providers', { body, ...options });
   }
 
   /**
@@ -34,7 +35,7 @@ export class CredentialProviders extends APIResource {
    * ```
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<CredentialProvider> {
-    return this._client.get(path`/org/credential-providers/${id}`, options);
+    return this._client.get(path`/org/credential_providers/${id}`, options);
   }
 
   /**
@@ -51,7 +52,7 @@ export class CredentialProviders extends APIResource {
     body: CredentialProviderUpdateParams,
     options?: RequestOptions,
   ): APIPromise<CredentialProvider> {
-    return this._client.patch(path`/org/credential-providers/${id}`, { body, ...options });
+    return this._client.patch(path`/org/credential_providers/${id}`, { body, ...options });
   }
 
   /**
@@ -64,7 +65,7 @@ export class CredentialProviders extends APIResource {
    * ```
    */
   list(options?: RequestOptions): APIPromise<CredentialProviderListResponse> {
-    return this._client.get('/org/credential-providers', options);
+    return this._client.get('/org/credential_providers', options);
   }
 
   /**
@@ -76,10 +77,25 @@ export class CredentialProviders extends APIResource {
    * ```
    */
   delete(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/org/credential-providers/${id}`, {
+    return this._client.delete(path`/org/credential_providers/${id}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
+  }
+
+  /**
+   * Returns available credential items (e.g., 1Password login items) from the
+   * provider.
+   *
+   * @example
+   * ```ts
+   * const response = await client.credentialProviders.listItems(
+   *   'id',
+   * );
+   * ```
+   */
+  listItems(id: string, options?: RequestOptions): APIPromise<CredentialProviderListItemsResponse> {
+    return this._client.get(path`/org/credential_providers/${id}/items`, options);
   }
 
   /**
@@ -92,7 +108,7 @@ export class CredentialProviders extends APIResource {
    * ```
    */
   test(id: string, options?: RequestOptions): APIPromise<CredentialProviderTestResult> {
-    return this._client.post(path`/org/credential-providers/${id}/test`, options);
+    return this._client.post(path`/org/credential_providers/${id}/test`, options);
   }
 }
 
@@ -104,6 +120,11 @@ export interface CreateCredentialProviderRequest {
    * Service account token for the provider (e.g., 1Password service account token)
    */
   token: string;
+
+  /**
+   * Human-readable name for this provider instance (unique per org)
+   */
+  name: string;
 
   /**
    * Type of credential provider
@@ -137,6 +158,11 @@ export interface CredentialProvider {
   enabled: boolean;
 
   /**
+   * Human-readable name for this provider instance
+   */
+  name: string;
+
+  /**
    * Priority order for credential lookups (lower numbers are checked first)
    */
   priority: number;
@@ -150,6 +176,41 @@ export interface CredentialProvider {
    * When the credential provider was last updated
    */
   updated_at: string;
+}
+
+/**
+ * A credential item from an external provider (e.g., a 1Password login item)
+ */
+export interface CredentialProviderItem {
+  /**
+   * Unique identifier for the item within the provider
+   */
+  id: string;
+
+  /**
+   * Path to reference this item (VaultName/ItemTitle format)
+   */
+  path: string;
+
+  /**
+   * Display name of the credential item
+   */
+  title: string;
+
+  /**
+   * ID of the vault containing this item
+   */
+  vault_id: string;
+
+  /**
+   * Name of the vault containing this item
+   */
+  vault_name: string;
+
+  /**
+   * URLs associated with this credential
+   */
+  urls?: Array<string>;
 }
 
 /**
@@ -206,6 +267,11 @@ export interface UpdateCredentialProviderRequest {
   enabled?: boolean;
 
   /**
+   * Human-readable name for this provider instance
+   */
+  name?: string;
+
+  /**
    * Priority order for credential lookups (lower numbers are checked first)
    */
   priority?: number;
@@ -213,11 +279,20 @@ export interface UpdateCredentialProviderRequest {
 
 export type CredentialProviderListResponse = Array<CredentialProvider>;
 
+export interface CredentialProviderListItemsResponse {
+  items?: Array<CredentialProviderItem>;
+}
+
 export interface CredentialProviderCreateParams {
   /**
    * Service account token for the provider (e.g., 1Password service account token)
    */
   token: string;
+
+  /**
+   * Human-readable name for this provider instance (unique per org)
+   */
+  name: string;
 
   /**
    * Type of credential provider
@@ -247,6 +322,11 @@ export interface CredentialProviderUpdateParams {
   enabled?: boolean;
 
   /**
+   * Human-readable name for this provider instance
+   */
+  name?: string;
+
+  /**
    * Priority order for credential lookups (lower numbers are checked first)
    */
   priority?: number;
@@ -256,9 +336,11 @@ export declare namespace CredentialProviders {
   export {
     type CreateCredentialProviderRequest as CreateCredentialProviderRequest,
     type CredentialProvider as CredentialProvider,
+    type CredentialProviderItem as CredentialProviderItem,
     type CredentialProviderTestResult as CredentialProviderTestResult,
     type UpdateCredentialProviderRequest as UpdateCredentialProviderRequest,
     type CredentialProviderListResponse as CredentialProviderListResponse,
+    type CredentialProviderListItemsResponse as CredentialProviderListItemsResponse,
     type CredentialProviderCreateParams as CredentialProviderCreateParams,
     type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
   };
