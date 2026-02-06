@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.31.1 (2026-02-06)
+
+Full Changelog: [v0.31.0...v0.31.1](https://github.com/kernel/kernel-node-sdk/compare/v0.31.0...v0.31.1)
+
+### Chores
+
+* add Managed Auth API planning doc ([a6cb845](https://github.com/kernel/kernel-node-sdk/commit/a6cb845a2bc963459dd5f7d04a11650c20064d6f))
+
 ## 0.31.0 (2026-02-06)
 
 Full Changelog: [v0.30.0...v0.31.0](https://github.com/kernel/kernel-node-sdk/compare/v0.30.0...v0.31.0)
