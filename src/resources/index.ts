@@ -8,6 +8,7 @@ export {
   type AppListParams,
   type AppListResponsesOffsetPagination,
 } from './apps';
+export { Auth } from './auth/auth';
 export {
   BrowserPools,
   type BrowserPool,
@@ -39,9 +40,11 @@ export {
   CredentialProviders,
   type CreateCredentialProviderRequest,
   type CredentialProvider,
+  type CredentialProviderItem,
   type CredentialProviderTestResult,
   type UpdateCredentialProviderRequest,
   type CredentialProviderListResponse,
+  type CredentialProviderListItemsResponse,
   type CredentialProviderCreateParams,
   type CredentialProviderUpdateParams,
 } from './credential-providers';

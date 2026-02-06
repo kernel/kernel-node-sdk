@@ -8,17 +8,11 @@ import { path } from '../../../internal/utils/path';
 
 export class Invocations extends APIResource {
   /**
-   * Creates a new authentication invocation for the specified auth agent. This
-   * starts the auth flow and returns a hosted URL for the user to complete
-   * authentication.
+   * **Deprecated: Use POST /auth/connections/{id}/login instead.** Creates a new
+   * authentication invocation for the specified auth agent. This starts the auth
+   * flow and returns a hosted URL for the user to complete authentication.
    *
-   * @example
-   * ```ts
-   * const authAgentInvocationCreateResponse =
-   *   await client.agents.auth.invocations.create({
-   *     auth_agent_id: 'abc123xyz',
-   *   });
-   * ```
+   * @deprecated
    */
   create(
     body: InvocationCreateParams,
@@ -28,33 +22,22 @@ export class Invocations extends APIResource {
   }
 
   /**
-   * Returns invocation details including status, app_name, and domain. Supports both
-   * API key and JWT (from exchange endpoint) authentication.
+   * **Deprecated: Use GET /auth/connections/{id} instead.** Returns invocation
+   * details including status, app_name, and domain. Supports both API key and JWT
+   * (from exchange endpoint) authentication.
    *
-   * @example
-   * ```ts
-   * const agentAuthInvocationResponse =
-   *   await client.agents.auth.invocations.retrieve(
-   *     'invocation_id',
-   *   );
-   * ```
+   * @deprecated
    */
   retrieve(invocationID: string, options?: RequestOptions): APIPromise<AuthAPI.AgentAuthInvocationResponse> {
     return this._client.get(path`/agents/auth/invocations/${invocationID}`, options);
   }
 
   /**
-   * Validates the handoff code and returns a JWT token for subsequent requests. No
-   * authentication required (the handoff code serves as the credential).
+   * **Deprecated: Use POST /auth/connections/{id}/exchange instead.** Validates the
+   * handoff code and returns a JWT token for subsequent requests. No authentication
+   * required (the handoff code serves as the credential).
    *
-   * @example
-   * ```ts
-   * const response =
-   *   await client.agents.auth.invocations.exchange(
-   *     'invocation_id',
-   *     { code: 'abc123xyz' },
-   *   );
-   * ```
+   * @deprecated
    */
   exchange(
     invocationID: string,
@@ -65,23 +48,11 @@ export class Invocations extends APIResource {
   }
 
   /**
-   * Submits field values for the discovered login form. Returns immediately after
-   * submission is accepted. Poll the invocation endpoint to track progress and get
-   * results.
+   * **Deprecated: Use POST /auth/connections/{id}/submit instead.** Submits field
+   * values for the discovered login form. Returns immediately after submission is
+   * accepted. Poll the invocation endpoint to track progress and get results.
    *
-   * @example
-   * ```ts
-   * const agentAuthSubmitResponse =
-   *   await client.agents.auth.invocations.submit(
-   *     'invocation_id',
-   *     {
-   *       field_values: {
-   *         email: 'user@example.com',
-   *         password: '********',
-   *       },
-   *     },
-   *   );
-   * ```
+   * @deprecated
    */
   submit(
     invocationID: string,
@@ -150,9 +121,9 @@ export declare namespace InvocationSubmitParams {
 
   export interface Variant2 {
     /**
-     * The MFA delivery method type
+     * The MFA delivery method type (includes password for auth method selection pages)
      */
-    selected_mfa_type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'security_key';
+    selected_mfa_type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password';
   }
 }
 

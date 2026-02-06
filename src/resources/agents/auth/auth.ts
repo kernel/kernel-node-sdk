@@ -19,46 +19,33 @@ export class Auth extends APIResource {
   invocations: InvocationsAPI.Invocations = new InvocationsAPI.Invocations(this._client);
 
   /**
-   * Creates a new auth agent for the specified domain and profile combination, or
-   * returns an existing one if it already exists. This is idempotent - calling with
-   * the same domain and profile will return the same agent. Does NOT start an
-   * invocation - use POST /agents/auth/invocations to start an auth flow.
+   * **Deprecated: Use POST /auth/connections instead.** Creates a new auth agent for
+   * the specified domain and profile combination, or returns an existing one if it
+   * already exists. This is idempotent - calling with the same domain and profile
+   * will return the same agent. Does NOT start an invocation - use POST
+   * /agents/auth/invocations to start an auth flow.
    *
-   * @example
-   * ```ts
-   * const authAgent = await client.agents.auth.create({
-   *   domain: 'netflix.com',
-   *   profile_name: 'user-123',
-   * });
-   * ```
+   * @deprecated
    */
   create(body: AuthCreateParams, options?: RequestOptions): APIPromise<AuthAgent> {
     return this._client.post('/agents/auth', { body, ...options });
   }
 
   /**
-   * Retrieve an auth agent by its ID. Returns the current authentication status of
-   * the managed profile.
+   * **Deprecated: Use GET /auth/connections/{id} instead.** Retrieve an auth agent
+   * by its ID. Returns the current authentication status of the managed profile.
    *
-   * @example
-   * ```ts
-   * const authAgent = await client.agents.auth.retrieve('id');
-   * ```
+   * @deprecated
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<AuthAgent> {
     return this._client.get(path`/agents/auth/${id}`, options);
   }
 
   /**
-   * List auth agents with optional filters for profile_name and domain.
+   * **Deprecated: Use GET /auth/connections instead.** List auth agents with
+   * optional filters for profile_name and domain.
    *
-   * @example
-   * ```ts
-   * // Automatically fetches more pages as needed.
-   * for await (const authAgent of client.agents.auth.list()) {
-   *   // ...
-   * }
-   * ```
+   * @deprecated
    */
   list(
     query: AuthListParams | null | undefined = {},
@@ -68,16 +55,14 @@ export class Auth extends APIResource {
   }
 
   /**
-   * Deletes an auth agent and terminates its workflow. This will:
+   * **Deprecated: Use DELETE /auth/connections/{id} instead.** Deletes an auth agent
+   * and terminates its workflow. This will:
    *
    * - Soft delete the auth agent record
    * - Gracefully terminate the agent's Temporal workflow
    * - Cancel any in-progress invocations
    *
-   * @example
-   * ```ts
-   * await client.agents.auth.delete('id');
-   * ```
+   * @deprecated
    */
   delete(id: string, options?: RequestOptions): APIPromise<void> {
     return this._client.delete(path`/agents/auth/${id}`, {
@@ -126,13 +111,12 @@ export interface AgentAuthInvocationResponse {
     | 'expired';
 
   /**
-   * The invocation type:
+   * The session type:
    *
-   * - login: First-time authentication
-   * - reauth: Re-authentication for previously authenticated agents
-   * - auto_login: Legacy type (no longer created, kept for backward compatibility)
+   * - login: User-initiated authentication
+   * - reauth: System-triggered re-authentication (via health check)
    */
-  type: 'login' | 'auto_login' | 'reauth';
+  type: 'login' | 'reauth';
 
   /**
    * Error message explaining why the invocation failed (present when status=FAILED)
@@ -188,9 +172,9 @@ export namespace AgentAuthInvocationResponse {
     label: string;
 
     /**
-     * The MFA delivery method type
+     * The MFA delivery method type (includes password for auth method selection pages)
      */
-    type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'security_key';
+    type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password';
 
     /**
      * Additional instructions from the site
@@ -263,6 +247,21 @@ export interface AuthAgent {
    * Additional domains that are valid for this auth agent's authentication flow
    * (besides the primary domain). Useful when login pages redirect to different
    * domains.
+   *
+   * The following SSO/OAuth provider domains are automatically allowed by default
+   * and do not need to be specified:
+   *
+   * - Google: accounts.google.com
+   * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+   * - Okta: _.okta.com, _.oktapreview.com
+   * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+   * - Apple: appleid.apple.com
+   * - GitHub: github.com
+   * - Facebook/Meta: www.facebook.com
+   * - LinkedIn: www.linkedin.com
+   * - Amazon Cognito: \*.amazoncognito.com
+   * - OneLogin: \*.onelogin.com
+   * - Ping Identity: _.pingone.com, _.pingidentity.com
    */
   allowed_domains?: Array<string>;
 
@@ -273,14 +272,19 @@ export interface AuthAgent {
   can_reauth?: boolean;
 
   /**
-   * ID of the linked credential for automatic re-authentication
+   * Reference to credentials for managed auth. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
    */
-  credential_id?: string;
+  credential?: AuthAgent.Credential;
 
   /**
-   * Name of the linked credential for automatic re-authentication
+   * ID of the linked Kernel credential for automatic re-authentication (deprecated,
+   * use credential)
    */
-  credential_name?: string;
+  credential_id?: string;
 
   /**
    * Whether this auth agent has stored selectors for deterministic re-authentication
@@ -297,6 +301,37 @@ export interface AuthAgent {
    * fragments are stripped for privacy.
    */
   post_login_url?: string;
+}
+
+export namespace AuthAgent {
+  /**
+   * Reference to credentials for managed auth. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
+   */
+  export interface Credential {
+    /**
+     * If true, lookup by domain from the specified provider
+     */
+    auto?: boolean;
+
+    /**
+     * Kernel credential name
+     */
+    name?: string;
+
+    /**
+     * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+     */
+    path?: string;
+
+    /**
+     * External provider name (e.g., "my-1p")
+     */
+    provider?: string;
+  }
 }
 
 /**
@@ -317,6 +352,21 @@ export interface AuthAgentCreateRequest {
    * Additional domains that are valid for this auth agent's authentication flow
    * (besides the primary domain). Useful when login pages redirect to different
    * domains.
+   *
+   * The following SSO/OAuth provider domains are automatically allowed by default
+   * and do not need to be specified:
+   *
+   * - Google: accounts.google.com
+   * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+   * - Okta: _.okta.com, _.oktapreview.com
+   * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+   * - Apple: appleid.apple.com
+   * - GitHub: github.com
+   * - Facebook/Meta: www.facebook.com
+   * - LinkedIn: www.linkedin.com
+   * - Amazon Cognito: \*.amazoncognito.com
+   * - OneLogin: \*.onelogin.com
+   * - Ping Identity: _.pingone.com, _.pingidentity.com
    */
   allowed_domains?: Array<string>;
 
@@ -393,13 +443,12 @@ export interface AuthAgentInvocationCreateResponse {
   invocation_id: string;
 
   /**
-   * The invocation type:
+   * The session type:
    *
-   * - login: First-time authentication
-   * - reauth: Re-authentication for previously authenticated agents
-   * - auto_login: Legacy type (no longer created, kept for backward compatibility)
+   * - login: User-initiated authentication
+   * - reauth: System-triggered re-authentication (via health check)
    */
-  type: 'login' | 'auto_login' | 'reauth';
+  type: 'login' | 'reauth';
 }
 
 /**
@@ -427,6 +476,12 @@ export interface DiscoveredField {
   type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
 
   /**
+   * If this field is associated with an MFA option, the type of that option (e.g.,
+   * password field linked to "Enter password" option)
+   */
+  linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | null;
+
+  /**
    * Field placeholder
    */
   placeholder?: string;
@@ -452,6 +507,21 @@ export interface AuthCreateParams {
    * Additional domains that are valid for this auth agent's authentication flow
    * (besides the primary domain). Useful when login pages redirect to different
    * domains.
+   *
+   * The following SSO/OAuth provider domains are automatically allowed by default
+   * and do not need to be specified:
+   *
+   * - Google: accounts.google.com
+   * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+   * - Okta: _.okta.com, _.oktapreview.com
+   * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+   * - Apple: appleid.apple.com
+   * - GitHub: github.com
+   * - Facebook/Meta: www.facebook.com
+   * - LinkedIn: www.linkedin.com
+   * - Amazon Cognito: \*.amazoncognito.com
+   * - OneLogin: \*.onelogin.com
+   * - Ping Identity: _.pingone.com, _.pingidentity.com
    */
   allowed_domains?: Array<string>;
 
