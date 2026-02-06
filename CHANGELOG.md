@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.31.2 (2026-02-06)
+
+Full Changelog: [v0.31.1...v0.31.2](https://github.com/kernel/kernel-node-sdk/compare/v0.31.1...v0.31.2)
+
+### Bug Fixes
+
+* publish to npm registry directly instead of Yarn proxy ([52a9c5d](https://github.com/kernel/kernel-node-sdk/commit/52a9c5db07b1e3ee5adac09ebaa64a2d05301fad))
+
 ## 0.31.1 (2026-02-06)
 
 Full Changelog: [v0.31.0...v0.31.1](https://github.com/kernel/kernel-node-sdk/compare/v0.31.0...v0.31.1)
