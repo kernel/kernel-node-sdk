@@ -163,13 +163,16 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/computer.ts">ComputerGetMousePositionResponse</a></code>
 - <code><a href="./src/resources/browsers/computer.ts">ComputerSetCursorVisibilityResponse</a></code>
 
 Methods:
 
+- <code title="post /browsers/{id}/computer/batch">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">batch</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/screenshot">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">captureScreenshot</a>(id, { ...params }) -> Response</code>
 - <code title="post /browsers/{id}/computer/click_mouse">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">clickMouse</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/drag_mouse">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">dragMouse</a>(id, { ...params }) -> void</code>
+- <code title="post /browsers/{id}/computer/get_mouse_position">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">getMousePosition</a>(id) -> ComputerGetMousePositionResponse</code>
 - <code title="post /browsers/{id}/computer/move_mouse">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">moveMouse</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/press_key">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">pressKey</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/scroll">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">scroll</a>(id, { ...params }) -> void</code>
