@@ -8,6 +8,68 @@ const client = new Kernel({
 });
 
 describe('resource computer', () => {
+  // Prism tests are disabled
+  test.skip('batch: only required params', async () => {
+    const responsePromise = client.browsers.computer.batch('id', { actions: [{ type: 'click_mouse' }] });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
+  test.skip('batch: required and optional params', async () => {
+    const response = await client.browsers.computer.batch('id', {
+      actions: [
+        {
+          type: 'click_mouse',
+          click_mouse: {
+            x: 0,
+            y: 0,
+            button: 'left',
+            click_type: 'down',
+            hold_keys: ['string'],
+            num_clicks: 0,
+          },
+          drag_mouse: {
+            path: [
+              [0, 0],
+              [0, 0],
+            ],
+            button: 'left',
+            delay: 0,
+            hold_keys: ['string'],
+            step_delay_ms: 0,
+            steps_per_segment: 1,
+          },
+          move_mouse: {
+            x: 0,
+            y: 0,
+            hold_keys: ['string'],
+          },
+          press_key: {
+            keys: ['string'],
+            duration: 0,
+            hold_keys: ['string'],
+          },
+          scroll: {
+            x: 0,
+            y: 0,
+            delta_x: 0,
+            delta_y: 0,
+            hold_keys: ['string'],
+          },
+          set_cursor: { hidden: true },
+          sleep: { duration_ms: 0 },
+          type_text: { text: 'text', delay: 0 },
+        },
+      ],
+    });
+  });
+
   test('captureScreenshot: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -80,6 +142,18 @@ describe('resource computer', () => {
       step_delay_ms: 0,
       steps_per_segment: 1,
     });
+  });
+
+  // Prism tests are disabled
+  test.skip('getMousePosition', async () => {
+    const responsePromise = client.browsers.computer.getMousePosition('id');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
   });
 
   // Prism tests are disabled

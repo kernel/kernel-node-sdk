@@ -18,7 +18,9 @@ export {
 } from './browsers';
 export {
   Computer,
+  type ComputerGetMousePositionResponse,
   type ComputerSetCursorVisibilityResponse,
+  type ComputerBatchParams,
   type ComputerCaptureScreenshotParams,
   type ComputerClickMouseParams,
   type ComputerDragMouseParams,

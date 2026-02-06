@@ -5,9 +5,11 @@ import * as Shared from '../shared';
 import * as ComputerAPI from './computer';
 import {
   Computer,
+  ComputerBatchParams,
   ComputerCaptureScreenshotParams,
   ComputerClickMouseParams,
   ComputerDragMouseParams,
+  ComputerGetMousePositionResponse,
   ComputerMoveMouseParams,
   ComputerPressKeyParams,
   ComputerScrollParams,
@@ -764,7 +766,9 @@ export declare namespace Browsers {
 
   export {
     Computer as Computer,
+    type ComputerGetMousePositionResponse as ComputerGetMousePositionResponse,
     type ComputerSetCursorVisibilityResponse as ComputerSetCursorVisibilityResponse,
+    type ComputerBatchParams as ComputerBatchParams,
     type ComputerCaptureScreenshotParams as ComputerCaptureScreenshotParams,
     type ComputerClickMouseParams as ComputerClickMouseParams,
     type ComputerDragMouseParams as ComputerDragMouseParams,

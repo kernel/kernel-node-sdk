@@ -8,6 +8,26 @@ import { path } from '../../internal/utils/path';
 
 export class Computer extends APIResource {
   /**
+   * Send an array of computer actions to execute in order on the browser instance.
+   * Execution stops on the first error. This reduces network latency compared to
+   * sending individual action requests.
+   *
+   * @example
+   * ```ts
+   * await client.browsers.computer.batch('id', {
+   *   actions: [{ type: 'click_mouse' }],
+   * });
+   * ```
+   */
+  batch(id: string, body: ComputerBatchParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${id}/computer/batch`, {
+      body,
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
    * Capture a screenshot of the browser instance
    *
    * @example
@@ -70,6 +90,19 @@ export class Computer extends APIResource {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
+  }
+
+  /**
+   * Get the current mouse cursor position on the browser instance
+   *
+   * @example
+   * ```ts
+   * const response =
+   *   await client.browsers.computer.getMousePosition('id');
+   * ```
+   */
+  getMousePosition(id: string, options?: RequestOptions): APIPromise<ComputerGetMousePositionResponse> {
+    return this._client.post(path`/browsers/${id}/computer/get_mouse_position`, options);
   }
 
   /**
@@ -163,6 +196,18 @@ export class Computer extends APIResource {
   }
 }
 
+export interface ComputerGetMousePositionResponse {
+  /**
+   * X coordinate of the cursor
+   */
+  x: number;
+
+  /**
+   * Y coordinate of the cursor
+   */
+  y: number;
+}
+
 /**
  * Generic OK response.
  */
@@ -171,6 +216,216 @@ export interface ComputerSetCursorVisibilityResponse {
    * Indicates success.
    */
   ok: boolean;
+}
+
+export interface ComputerBatchParams {
+  /**
+   * Ordered list of actions to execute. Execution stops on the first error.
+   */
+  actions: Array<ComputerBatchParams.Action>;
+}
+
+export namespace ComputerBatchParams {
+  /**
+   * A single computer action to execute as part of a batch. The `type` field selects
+   * which action to perform, and the corresponding field contains the action
+   * parameters. Exactly one action field matching the type must be provided.
+   */
+  export interface Action {
+    /**
+     * The type of action to perform.
+     */
+    type:
+      | 'click_mouse'
+      | 'move_mouse'
+      | 'type_text'
+      | 'press_key'
+      | 'scroll'
+      | 'drag_mouse'
+      | 'set_cursor'
+      | 'sleep';
+
+    click_mouse?: Action.ClickMouse;
+
+    drag_mouse?: Action.DragMouse;
+
+    move_mouse?: Action.MoveMouse;
+
+    press_key?: Action.PressKey;
+
+    scroll?: Action.Scroll;
+
+    set_cursor?: Action.SetCursor;
+
+    /**
+     * Pause execution for a specified duration.
+     */
+    sleep?: Action.Sleep;
+
+    type_text?: Action.TypeText;
+  }
+
+  export namespace Action {
+    export interface ClickMouse {
+      /**
+       * X coordinate of the click position
+       */
+      x: number;
+
+      /**
+       * Y coordinate of the click position
+       */
+      y: number;
+
+      /**
+       * Mouse button to interact with
+       */
+      button?: 'left' | 'right' | 'middle' | 'back' | 'forward';
+
+      /**
+       * Type of click action
+       */
+      click_type?: 'down' | 'up' | 'click';
+
+      /**
+       * Modifier keys to hold during the click
+       */
+      hold_keys?: Array<string>;
+
+      /**
+       * Number of times to repeat the click
+       */
+      num_clicks?: number;
+    }
+
+    export interface DragMouse {
+      /**
+       * Ordered list of [x, y] coordinate pairs to move through while dragging. Must
+       * contain at least 2 points.
+       */
+      path: Array<Array<number>>;
+
+      /**
+       * Mouse button to drag with
+       */
+      button?: 'left' | 'middle' | 'right';
+
+      /**
+       * Delay in milliseconds between button down and starting to move along the path.
+       */
+      delay?: number;
+
+      /**
+       * Modifier keys to hold during the drag
+       */
+      hold_keys?: Array<string>;
+
+      /**
+       * Delay in milliseconds between relative steps while dragging (not the initial
+       * delay).
+       */
+      step_delay_ms?: number;
+
+      /**
+       * Number of relative move steps per segment in the path. Minimum 1.
+       */
+      steps_per_segment?: number;
+    }
+
+    export interface MoveMouse {
+      /**
+       * X coordinate to move the cursor to
+       */
+      x: number;
+
+      /**
+       * Y coordinate to move the cursor to
+       */
+      y: number;
+
+      /**
+       * Modifier keys to hold during the move
+       */
+      hold_keys?: Array<string>;
+    }
+
+    export interface PressKey {
+      /**
+       * List of key symbols to press. Each item should be a key symbol supported by
+       * xdotool (see X11 keysym definitions). Examples include "Return", "Shift",
+       * "Ctrl", "Alt", "F5". Items in this list could also be combinations, e.g.
+       * "Ctrl+t" or "Ctrl+Shift+Tab".
+       */
+      keys: Array<string>;
+
+      /**
+       * Duration to hold the keys down in milliseconds. If omitted or 0, keys are
+       * tapped.
+       */
+      duration?: number;
+
+      /**
+       * Optional modifier keys to hold during the key press sequence.
+       */
+      hold_keys?: Array<string>;
+    }
+
+    export interface Scroll {
+      /**
+       * X coordinate at which to perform the scroll
+       */
+      x: number;
+
+      /**
+       * Y coordinate at which to perform the scroll
+       */
+      y: number;
+
+      /**
+       * Horizontal scroll amount. Positive scrolls right, negative scrolls left.
+       */
+      delta_x?: number;
+
+      /**
+       * Vertical scroll amount. Positive scrolls down, negative scrolls up.
+       */
+      delta_y?: number;
+
+      /**
+       * Modifier keys to hold during the scroll
+       */
+      hold_keys?: Array<string>;
+    }
+
+    export interface SetCursor {
+      /**
+       * Whether the cursor should be hidden or visible
+       */
+      hidden: boolean;
+    }
+
+    /**
+     * Pause execution for a specified duration.
+     */
+    export interface Sleep {
+      /**
+       * Duration to sleep in milliseconds.
+       */
+      duration_ms: number;
+    }
+
+    export interface TypeText {
+      /**
+       * Text to type on the browser instance
+       */
+      text: string;
+
+      /**
+       * Delay in milliseconds between keystrokes
+       */
+      delay?: number;
+    }
+  }
 }
 
 export interface ComputerCaptureScreenshotParams {
@@ -353,7 +608,9 @@ export interface ComputerTypeTextParams {
 
 export declare namespace Computer {
   export {
+    type ComputerGetMousePositionResponse as ComputerGetMousePositionResponse,
     type ComputerSetCursorVisibilityResponse as ComputerSetCursorVisibilityResponse,
+    type ComputerBatchParams as ComputerBatchParams,
     type ComputerCaptureScreenshotParams as ComputerCaptureScreenshotParams,
     type ComputerClickMouseParams as ComputerClickMouseParams,
     type ComputerDragMouseParams as ComputerDragMouseParams,
