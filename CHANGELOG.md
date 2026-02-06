@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.31.0 (2026-02-06)
+
+Full Changelog: [v0.30.0...v0.31.0](https://github.com/kernel/kernel-node-sdk/compare/v0.30.0...v0.31.0)
+
+### Features
+
+* add batch computer action proxy endpoint ([56f8c33](https://github.com/kernel/kernel-node-sdk/commit/56f8c3303f7c1ac4082bffd756bc4b1ea4836ab1))
+
+
+### Bug Fixes
+
+* **client:** avoid removing abort listener too early ([4e4c9df](https://github.com/kernel/kernel-node-sdk/commit/4e4c9df0cf07d7f4e457b28c16431389b5cf7fd1))
+
+
+### Chores
+
+* **client:** restructure abort controller binding ([d12c7fa](https://github.com/kernel/kernel-node-sdk/commit/d12c7fae75a9ed3346dc423d21c8c19aa65c0b3f))
+* **internal:** fix pagination internals not accepting option promises ([5c52149](https://github.com/kernel/kernel-node-sdk/commit/5c521491092a3ea0386daa75d3552f9ddf88aad2))
+
 ## 0.30.0 (2026-02-03)
 
 Full Changelog: [v0.29.0...v0.30.0](https://github.com/kernel/kernel-node-sdk/compare/v0.29.0...v0.30.0)
