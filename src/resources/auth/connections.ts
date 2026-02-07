@@ -12,8 +12,8 @@ import { path } from '../../internal/utils/path';
 
 export class Connections extends APIResource {
   /**
-   * Creates managed authentication for a profile and domain combination. Returns 409
-   * Conflict if managed auth already exists for the given profile and domain.
+   * Creates an auth connection for a profile and domain combination. Returns 409
+   * Conflict if an auth connection already exists for the given profile and domain.
    *
    * @example
    * ```ts
@@ -28,8 +28,8 @@ export class Connections extends APIResource {
   }
 
   /**
-   * Retrieve managed auth by its ID. Includes current flow state if a login is in
-   * progress.
+   * Retrieve an auth connection by its ID. Includes current flow state if a login is
+   * in progress.
    *
    * @example
    * ```ts
@@ -43,7 +43,7 @@ export class Connections extends APIResource {
   }
 
   /**
-   * List managed auths with optional filters for profile_name and domain.
+   * List auth connections with optional filters for profile_name and domain.
    *
    * @example
    * ```ts
@@ -61,9 +61,9 @@ export class Connections extends APIResource {
   }
 
   /**
-   * Deletes managed auth and terminates its workflow. This will:
+   * Deletes an auth connection and terminates its workflow. This will:
    *
-   * - Delete the managed auth record
+   * - Delete the auth connection record
    * - Terminate the Temporal workflow
    * - Cancel any in-progress login flows
    *
@@ -98,8 +98,8 @@ export class Connections extends APIResource {
   }
 
   /**
-   * Starts a login flow for the managed auth. Returns immediately with a hosted URL
-   * for the user to complete authentication, or triggers automatic re-auth if
+   * Starts a login flow for the auth connection. Returns immediately with a hosted
+   * URL for the user to complete authentication, or triggers automatic re-auth if
    * credentials are stored.
    *
    * @example
@@ -118,8 +118,8 @@ export class Connections extends APIResource {
   }
 
   /**
-   * Submits field values for the login form. Poll the managed auth to track progress
-   * and get results.
+   * Submits field values for the login form. Poll the auth connection to track
+   * progress and get results.
    *
    * @example
    * ```ts
@@ -158,7 +158,7 @@ export interface LoginRequest {
  */
 export interface LoginResponse {
   /**
-   * Managed auth ID
+   * Auth connection ID
    */
   id: string;
 
@@ -195,7 +195,7 @@ export interface LoginResponse {
  */
 export interface ManagedAuth {
   /**
-   * Unique identifier for the managed auth
+   * Unique identifier for the auth connection
    */
   id: string;
 
@@ -205,7 +205,7 @@ export interface ManagedAuth {
   domain: string;
 
   /**
-   * Name of the profile associated with this managed auth
+   * Name of the profile associated with this auth connection
    */
   profile_name: string;
 
@@ -247,7 +247,7 @@ export interface ManagedAuth {
   can_reauth_reason?: string;
 
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -350,7 +350,7 @@ export interface ManagedAuth {
 
 export namespace ManagedAuth {
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -425,7 +425,7 @@ export namespace ManagedAuth {
 }
 
 /**
- * Request to create managed auth for a profile and domain
+ * Request to create an auth connection for a profile and domain
  */
 export interface ManagedAuthCreateRequest {
   /**
@@ -460,7 +460,7 @@ export interface ManagedAuthCreateRequest {
   allowed_domains?: Array<string>;
 
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -489,7 +489,7 @@ export interface ManagedAuthCreateRequest {
 
 export namespace ManagedAuthCreateRequest {
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -726,7 +726,7 @@ export interface ConnectionCreateParams {
   allowed_domains?: Array<string>;
 
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -755,7 +755,7 @@ export interface ConnectionCreateParams {
 
 export namespace ConnectionCreateParams {
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
