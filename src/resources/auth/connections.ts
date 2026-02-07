@@ -242,6 +242,11 @@ export interface ManagedAuth {
   can_reauth?: boolean;
 
   /**
+   * Reason why automatic re-authentication is or is not possible
+   */
+  can_reauth_reason?: string;
+
+  /**
    * Reference to credentials for managed auth. Use one of:
    *
    * - { name } for Kernel credentials
