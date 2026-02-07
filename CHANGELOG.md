@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.32.0 (2026-02-07)
+
+Full Changelog: [v0.31.2...v0.32.0](https://github.com/kernel/kernel-node-sdk/compare/v0.31.2...v0.32.0)
+
+### Features
+
+* **auth:** add reauth circuit breaker logic ([917dc3d](https://github.com/kernel/kernel-node-sdk/commit/917dc3d4ed691b16b969fb4f723d45dc0324d896))
+
+
+### Chores
+
+* switch npm publish to OIDC auth in stainless config ([403d222](https://github.com/kernel/kernel-node-sdk/commit/403d2223481c5217fa5cd126c41b2182b0a23f4a))
+
 ## 0.31.2 (2026-02-06)
 
 Full Changelog: [v0.31.1...v0.31.2](https://github.com/kernel/kernel-node-sdk/compare/v0.31.1...v0.31.2)
