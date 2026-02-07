@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.33.0 (2026-02-07)
+
+Full Changelog: [v0.32.0...v0.33.0](https://github.com/kernel/kernel-node-sdk/compare/v0.32.0...v0.33.0)
+
+### Features
+
+* Browser API endpoint grouping ([063a950](https://github.com/kernel/kernel-node-sdk/commit/063a950e3111a3ea560bbd8ae23b1062f9ddc646))
+
 ## 0.32.0 (2026-02-07)
 
 Full Changelog: [v0.31.2...v0.32.0](https://github.com/kernel/kernel-node-sdk/compare/v0.31.2...v0.32.0)
