@@ -277,7 +277,7 @@ export interface AuthAgent {
   can_reauth_reason?: string;
 
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
@@ -310,7 +310,7 @@ export interface AuthAgent {
 
 export namespace AuthAgent {
   /**
-   * Reference to credentials for managed auth. Use one of:
+   * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
    * - { provider, path } for external provider item
