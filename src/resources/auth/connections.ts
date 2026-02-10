@@ -2,7 +2,6 @@
 
 import { APIResource } from '../../core/resource';
 import * as Shared from '../shared';
-import * as AuthAPI from '../agents/auth/auth';
 import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
 import { Stream } from '../../core/streaming';
@@ -258,7 +257,7 @@ export interface ManagedAuth {
   /**
    * Fields awaiting input (present when flow_step=awaiting_input)
    */
-  discovered_fields?: Array<AuthAPI.DiscoveredField> | null;
+  discovered_fields?: Array<ManagedAuth.DiscoveredField> | null;
 
   /**
    * Error message (present when flow_status=failed)
@@ -376,6 +375,47 @@ export namespace ManagedAuth {
      * External provider name (e.g., "my-1p")
      */
     provider?: string;
+  }
+
+  /**
+   * A discovered form field
+   */
+  export interface DiscoveredField {
+    /**
+     * Field label
+     */
+    label: string;
+
+    /**
+     * Field name
+     */
+    name: string;
+
+    /**
+     * CSS selector for the field
+     */
+    selector: string;
+
+    /**
+     * Field type
+     */
+    type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
+
+    /**
+     * If this field is associated with an MFA option, the type of that option (e.g.,
+     * password field linked to "Enter password" option)
+     */
+    linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | null;
+
+    /**
+     * Field placeholder
+     */
+    placeholder?: string;
+
+    /**
+     * Whether field is required
+     */
+    required?: boolean;
   }
 
   /**
@@ -594,7 +634,7 @@ export namespace ConnectionFollowResponse {
     /**
      * Fields awaiting input (present when flow_step=AWAITING_INPUT).
      */
-    discovered_fields?: Array<AuthAPI.DiscoveredField>;
+    discovered_fields?: Array<ManagedAuthStateEvent.DiscoveredField>;
 
     /**
      * Error message (present when flow_status=FAILED).
@@ -646,6 +686,47 @@ export namespace ConnectionFollowResponse {
   }
 
   export namespace ManagedAuthStateEvent {
+    /**
+     * A discovered form field
+     */
+    export interface DiscoveredField {
+      /**
+       * Field label
+       */
+      label: string;
+
+      /**
+       * Field name
+       */
+      name: string;
+
+      /**
+       * CSS selector for the field
+       */
+      selector: string;
+
+      /**
+       * Field type
+       */
+      type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
+
+      /**
+       * If this field is associated with an MFA option, the type of that option (e.g.,
+       * password field linked to "Enter password" option)
+       */
+      linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | null;
+
+      /**
+       * Field placeholder
+       */
+      placeholder?: string;
+
+      /**
+       * Whether field is required
+       */
+      required?: boolean;
+    }
+
     /**
      * An MFA method option for verification
      */
