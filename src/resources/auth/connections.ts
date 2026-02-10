@@ -147,9 +147,33 @@ export type ManagedAuthsOffsetPagination = OffsetPagination<ManagedAuth>;
  */
 export interface LoginRequest {
   /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  proxy?: LoginRequest.Proxy;
+
+  /**
    * If provided, saves credentials under this name upon successful login
    */
   save_credential_as?: string;
+}
+
+export namespace LoginRequest {
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  export interface Proxy {
+    /**
+     * Proxy ID
+     */
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
+  }
 }
 
 /**
@@ -522,7 +546,8 @@ export interface ManagedAuthCreateRequest {
   login_url?: string;
 
   /**
-   * Optional proxy configuration
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
    */
   proxy?: ManagedAuthCreateRequest.Proxy;
 }
@@ -558,13 +583,19 @@ export namespace ManagedAuthCreateRequest {
   }
 
   /**
-   * Optional proxy configuration
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
    */
   export interface Proxy {
     /**
-     * ID of the proxy to use
+     * Proxy ID
      */
-    proxy_id?: string;
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
   }
 }
 
@@ -829,7 +860,8 @@ export interface ConnectionCreateParams {
   login_url?: string;
 
   /**
-   * Optional proxy configuration
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
    */
   proxy?: ConnectionCreateParams.Proxy;
 }
@@ -865,13 +897,19 @@ export namespace ConnectionCreateParams {
   }
 
   /**
-   * Optional proxy configuration
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
    */
   export interface Proxy {
     /**
-     * ID of the proxy to use
+     * Proxy ID
      */
-    proxy_id?: string;
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
   }
 }
 
@@ -889,9 +927,33 @@ export interface ConnectionListParams extends OffsetPaginationParams {
 
 export interface ConnectionLoginParams {
   /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  proxy?: ConnectionLoginParams.Proxy;
+
+  /**
    * If provided, saves credentials under this name upon successful login
    */
   save_credential_as?: string;
+}
+
+export namespace ConnectionLoginParams {
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  export interface Proxy {
+    /**
+     * Proxy ID
+     */
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
+  }
 }
 
 export interface ConnectionSubmitParams {
