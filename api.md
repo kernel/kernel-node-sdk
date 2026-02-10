@@ -278,40 +278,6 @@ Methods:
 - <code title="post /browser_pools/{id_or_name}/flush">client.browserPools.<a href="./src/resources/browser-pools.ts">flush</a>(idOrName) -> void</code>
 - <code title="post /browser_pools/{id_or_name}/release">client.browserPools.<a href="./src/resources/browser-pools.ts">release</a>(idOrName, { ...params }) -> void</code>
 
-# Agents
-
-## Auth
-
-Types:
-
-- <code><a href="./src/resources/agents/auth/auth.ts">AgentAuthInvocationResponse</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">AgentAuthSubmitResponse</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">AuthAgent</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">AuthAgentCreateRequest</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">AuthAgentInvocationCreateRequest</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">AuthAgentInvocationCreateResponse</a></code>
-- <code><a href="./src/resources/agents/auth/auth.ts">DiscoveredField</a></code>
-
-Methods:
-
-- <code title="post /agents/auth">client.agents.auth.<a href="./src/resources/agents/auth/auth.ts">create</a>({ ...params }) -> AuthAgent</code>
-- <code title="get /agents/auth/{id}">client.agents.auth.<a href="./src/resources/agents/auth/auth.ts">retrieve</a>(id) -> AuthAgent</code>
-- <code title="get /agents/auth">client.agents.auth.<a href="./src/resources/agents/auth/auth.ts">list</a>({ ...params }) -> AuthAgentsOffsetPagination</code>
-- <code title="delete /agents/auth/{id}">client.agents.auth.<a href="./src/resources/agents/auth/auth.ts">delete</a>(id) -> void</code>
-
-### Invocations
-
-Types:
-
-- <code><a href="./src/resources/agents/auth/invocations.ts">InvocationExchangeResponse</a></code>
-
-Methods:
-
-- <code title="post /agents/auth/invocations">client.agents.auth.invocations.<a href="./src/resources/agents/auth/invocations.ts">create</a>({ ...params }) -> AuthAgentInvocationCreateResponse</code>
-- <code title="get /agents/auth/invocations/{invocation_id}">client.agents.auth.invocations.<a href="./src/resources/agents/auth/invocations.ts">retrieve</a>(invocationID) -> AgentAuthInvocationResponse</code>
-- <code title="post /agents/auth/invocations/{invocation_id}/exchange">client.agents.auth.invocations.<a href="./src/resources/agents/auth/invocations.ts">exchange</a>(invocationID, { ...params }) -> InvocationExchangeResponse</code>
-- <code title="post /agents/auth/invocations/{invocation_id}/submit">client.agents.auth.invocations.<a href="./src/resources/agents/auth/invocations.ts">submit</a>(invocationID, { ...params }) -> AgentAuthSubmitResponse</code>
-
 # Credentials
 
 Types:

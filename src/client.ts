@@ -96,7 +96,6 @@ import {
   ProxyListResponse,
   ProxyRetrieveResponse,
 } from './resources/proxies';
-import { Agents } from './resources/agents/agents';
 import { Auth } from './resources/auth/auth';
 import {
   BrowserCreateParams,
@@ -875,7 +874,6 @@ export class Kernel {
   proxies: API.Proxies = new API.Proxies(this);
   extensions: API.Extensions = new API.Extensions(this);
   browserPools: API.BrowserPools = new API.BrowserPools(this);
-  agents: API.Agents = new API.Agents(this);
   credentials: API.Credentials = new API.Credentials(this);
   credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
 }
@@ -889,7 +887,6 @@ Kernel.Auth = Auth;
 Kernel.Proxies = Proxies;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
-Kernel.Agents = Agents;
 Kernel.Credentials = Credentials;
 Kernel.CredentialProviders = CredentialProviders;
 
@@ -991,8 +988,6 @@ export declare namespace Kernel {
     type BrowserPoolAcquireParams as BrowserPoolAcquireParams,
     type BrowserPoolReleaseParams as BrowserPoolReleaseParams,
   };
-
-  export { Agents as Agents };
 
   export {
     Credentials as Credentials,
