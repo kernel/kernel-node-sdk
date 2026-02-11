@@ -123,12 +123,7 @@ export class Connections extends APIResource {
    * @example
    * ```ts
    * const submitFieldsResponse =
-   *   await client.auth.connections.submit('id', {
-   *     fields: {
-   *       email: 'user@example.com',
-   *       password: 'secret',
-   *     },
-   *   });
+   *   await client.auth.connections.submit('id');
    * ```
    */
   submit(
@@ -141,40 +136,6 @@ export class Connections extends APIResource {
 }
 
 export type ManagedAuthsOffsetPagination = OffsetPagination<ManagedAuth>;
-
-/**
- * Request to start a login flow
- */
-export interface LoginRequest {
-  /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
-   */
-  proxy?: LoginRequest.Proxy;
-
-  /**
-   * If provided, saves credentials under this name upon successful login
-   */
-  save_credential_as?: string;
-}
-
-export namespace LoginRequest {
-  /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
-   */
-  export interface Proxy {
-    /**
-     * Proxy ID
-     */
-    id?: string;
-
-    /**
-     * Proxy name
-     */
-    name?: string;
-  }
-}
 
 /**
  * Response from starting a login flow
@@ -231,6 +192,12 @@ export interface ManagedAuth {
    * Name of the profile associated with this auth connection
    */
   profile_name: string;
+
+  /**
+   * Whether credentials are saved after every successful login. One-time codes
+   * (TOTP, SMS, etc.) are not saved.
+   */
+  save_credentials: boolean;
 
   /**
    * Current authentication status of the managed profile
@@ -359,6 +326,11 @@ export interface ManagedAuth {
    * URL where the browser landed after successful login
    */
   post_login_url?: string;
+
+  /**
+   * ID of the proxy associated with this connection, if any.
+   */
+  proxy_id?: string;
 
   /**
    * SSO provider being used (e.g., google, github, microsoft)
@@ -552,6 +524,12 @@ export interface ManagedAuthCreateRequest {
    * caller's org.
    */
   proxy?: ManagedAuthCreateRequest.Proxy;
+
+  /**
+   * Whether to save credentials after every successful login. Defaults to true.
+   * One-time codes (TOTP, SMS, etc.) are not saved.
+   */
+  save_credentials?: boolean;
 }
 
 export namespace ManagedAuthCreateRequest {
@@ -602,13 +580,14 @@ export namespace ManagedAuthCreateRequest {
 }
 
 /**
- * Request to submit field values for login
+ * Request to submit field values, click an SSO button, or select an MFA method.
+ * Provide exactly one of fields, sso_button_selector, or mfa_option_id.
  */
 export interface SubmitFieldsRequest {
   /**
    * Map of field name to value
    */
-  fields: { [key: string]: string };
+  fields?: { [key: string]: string };
 
   /**
    * Optional MFA option ID if user selected an MFA method
@@ -867,6 +846,12 @@ export interface ConnectionCreateParams {
    * caller's org.
    */
   proxy?: ConnectionCreateParams.Proxy;
+
+  /**
+   * Whether to save credentials after every successful login. Defaults to true.
+   * One-time codes (TOTP, SMS, etc.) are not saved.
+   */
+  save_credentials?: boolean;
 }
 
 export namespace ConnectionCreateParams {
@@ -934,11 +919,6 @@ export interface ConnectionLoginParams {
    * caller's org.
    */
   proxy?: ConnectionLoginParams.Proxy;
-
-  /**
-   * If provided, saves credentials under this name upon successful login
-   */
-  save_credential_as?: string;
 }
 
 export namespace ConnectionLoginParams {
@@ -963,7 +943,7 @@ export interface ConnectionSubmitParams {
   /**
    * Map of field name to value
    */
-  fields: { [key: string]: string };
+  fields?: { [key: string]: string };
 
   /**
    * Optional MFA option ID if user selected an MFA method
@@ -978,7 +958,6 @@ export interface ConnectionSubmitParams {
 
 export declare namespace Connections {
   export {
-    type LoginRequest as LoginRequest,
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,
