@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.33.0 (2026-02-11)
+
+Full Changelog: [v0.32.0...v0.33.0](https://github.com/kernel/kernel-node-sdk/compare/v0.32.0...v0.33.0)
+
+### Features
+
+* **auth:** add save_credentials support ([dd391f8](https://github.com/kernel/kernel-node-sdk/commit/dd391f87c9b7f8ecc59df1e94e9174ade9013ffd))
+* **auth:** plan-based min health check intervals ([6b8cede](https://github.com/kernel/kernel-node-sdk/commit/6b8cede21e2040ad7c7c184369d36f409f53fa00))
+* Browser API endpoint grouping ([063a950](https://github.com/kernel/kernel-node-sdk/commit/063a950e3111a3ea560bbd8ae23b1062f9ddc646))
+
+
+### Refactors
+
+* **api:** remove deprecated agent-auth endpoints from stainless.… ([fd445dd](https://github.com/kernel/kernel-node-sdk/commit/fd445dd9d345fb084758b7217a7d0af2232d3b51))
+* **auth:** simplify proxy configuration in OpenAPI schema ([8184e98](https://github.com/kernel/kernel-node-sdk/commit/8184e981e3d36c57e58428eee67fbd96342e74a2))
+
 ## 0.32.0 (2026-02-07)
 
 Full Changelog: [v0.31.2...v0.32.0](https://github.com/kernel/kernel-node-sdk/compare/v0.31.2...v0.32.0)
