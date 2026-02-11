@@ -9,7 +9,6 @@ import {
   ConnectionLoginParams,
   ConnectionSubmitParams,
   Connections,
-  LoginRequest,
   LoginResponse,
   ManagedAuth,
   ManagedAuthCreateRequest,
@@ -27,7 +26,6 @@ Auth.Connections = Connections;
 export declare namespace Auth {
   export {
     Connections as Connections,
-    type LoginRequest as LoginRequest,
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,

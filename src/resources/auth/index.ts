@@ -3,7 +3,6 @@
 export { Auth } from './auth';
 export {
   Connections,
-  type LoginRequest,
   type LoginResponse,
   type ManagedAuth,
   type ManagedAuthCreateRequest,

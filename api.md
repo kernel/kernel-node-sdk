@@ -209,7 +209,6 @@ Methods:
 
 Types:
 
-- <code><a href="./src/resources/auth/connections.ts">LoginRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>

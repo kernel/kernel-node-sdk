@@ -38,6 +38,7 @@ describe('resource connections', () => {
       health_check_interval: 3600,
       login_url: 'https://netflix.com/login',
       proxy: { id: 'id', name: 'name' },
+      save_credentials: true,
     });
   });
 
@@ -123,20 +124,15 @@ describe('resource connections', () => {
     await expect(
       client.auth.connections.login(
         'id',
-        {
-          proxy: { id: 'id', name: 'name' },
-          save_credential_as: 'my-netflix-login',
-        },
+        { proxy: { id: 'id', name: 'name' } },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
   // Prism tests are disabled
-  test.skip('submit: only required params', async () => {
-    const responsePromise = client.auth.connections.submit('id', {
-      fields: { email: 'user@example.com', password: 'secret' },
-    });
+  test.skip('submit', async () => {
+    const responsePromise = client.auth.connections.submit('id', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -144,14 +140,5 @@ describe('resource connections', () => {
     const dataAndResponse = await responsePromise.withResponse();
     expect(dataAndResponse.data).toBe(response);
     expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Prism tests are disabled
-  test.skip('submit: required and optional params', async () => {
-    const response = await client.auth.connections.submit('id', {
-      fields: { email: 'user@example.com', password: 'secret' },
-      mfa_option_id: 'sms',
-      sso_button_selector: "xpath=//button[contains(text(), 'Continue with Google')]",
-    });
   });
 });

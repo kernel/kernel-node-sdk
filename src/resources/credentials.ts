@@ -178,6 +178,11 @@ export interface Credential {
   has_totp_secret?: boolean;
 
   /**
+   * Whether this credential has stored values (email, password, etc.)
+   */
+  has_values?: boolean;
+
+  /**
    * If set, indicates this credential should be used with the specified SSO provider
    * (e.g., google, github, microsoft). When the target site has a matching SSO
    * button, it will be clicked first before filling credential values on the
