@@ -251,6 +251,11 @@ export interface ManagedAuth {
   discovered_fields?: Array<ManagedAuth.DiscoveredField> | null;
 
   /**
+   * Machine-readable error code (present when flow_status=failed)
+   */
+  error_code?: string | null;
+
+  /**
    * Error message (present when flow_status=failed)
    */
   error_message?: string | null;
@@ -647,6 +652,11 @@ export namespace ConnectionFollowResponse {
      * Fields awaiting input (present when flow_step=AWAITING_INPUT).
      */
     discovered_fields?: Array<ManagedAuthStateEvent.DiscoveredField>;
+
+    /**
+     * Machine-readable error code (present when flow_status=FAILED).
+     */
+    error_code?: string;
 
     /**
      * Error message (present when flow_status=FAILED).
