@@ -315,13 +315,13 @@ export interface BrowserCreateResponse {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Only specific viewport configurations are
-   * supported. The server will reject unsupported combinations. Supported
-   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
-   * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
-   * be automatically determined from the width and height if they match a supported
-   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
-   * live view browser
+   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
+   * but the following configurations are known-good and fully tested: 2560x1440@10,
+   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * Viewports outside this list may exhibit unstable live view or recording
+   * behavior. If refresh_rate is not provided, it will be automatically determined
+   * based on the resolution (higher resolutions use lower refresh rates to keep
+   * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
 }
@@ -391,13 +391,13 @@ export interface BrowserRetrieveResponse {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Only specific viewport configurations are
-   * supported. The server will reject unsupported combinations. Supported
-   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
-   * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
-   * be automatically determined from the width and height if they match a supported
-   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
-   * live view browser
+   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
+   * but the following configurations are known-good and fully tested: 2560x1440@10,
+   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * Viewports outside this list may exhibit unstable live view or recording
+   * behavior. If refresh_rate is not provided, it will be automatically determined
+   * based on the resolution (higher resolutions use lower refresh rates to keep
+   * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
 }
@@ -467,13 +467,13 @@ export interface BrowserUpdateResponse {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Only specific viewport configurations are
-   * supported. The server will reject unsupported combinations. Supported
-   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
-   * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
-   * be automatically determined from the width and height if they match a supported
-   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
-   * live view browser
+   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
+   * but the following configurations are known-good and fully tested: 2560x1440@10,
+   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * Viewports outside this list may exhibit unstable live view or recording
+   * behavior. If refresh_rate is not provided, it will be automatically determined
+   * based on the resolution (higher resolutions use lower refresh rates to keep
+   * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
 }
@@ -543,13 +543,13 @@ export interface BrowserListResponse {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Only specific viewport configurations are
-   * supported. The server will reject unsupported combinations. Supported
-   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
-   * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
-   * be automatically determined from the width and height if they match a supported
-   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
-   * live view browser
+   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
+   * but the following configurations are known-good and fully tested: 2560x1440@10,
+   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * Viewports outside this list may exhibit unstable live view or recording
+   * behavior. If refresh_rate is not provided, it will be automatically determined
+   * based on the resolution (higher resolutions use lower refresh rates to keep
+   * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
 }
@@ -613,13 +613,13 @@ export interface BrowserCreateParams {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Only specific viewport configurations are
-   * supported. The server will reject unsupported combinations. Supported
-   * resolutions are: 2560x1440@10, 1920x1080@25, 1920x1200@25, 1440x900@25,
-   * 1280x800@60, 1024x768@60, 1200x800@60 If refresh_rate is not provided, it will
-   * be automatically determined from the width and height if they match a supported
-   * configuration exactly. Note: Higher resolutions may affect the responsiveness of
-   * live view browser
+   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
+   * but the following configurations are known-good and fully tested: 2560x1440@10,
+   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * Viewports outside this list may exhibit unstable live view or recording
+   * behavior. If refresh_rate is not provided, it will be automatically determined
+   * based on the resolution (higher resolutions use lower refresh rates to keep
+   * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
 }
