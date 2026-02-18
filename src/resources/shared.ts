@@ -8,6 +8,18 @@ export interface AppAction {
    * Name of the action
    */
   name: string;
+
+  /**
+   * JSON Schema (draft-07) describing the expected input payload. Null if schema
+   * could not be automatically generated.
+   */
+  input_schema?: { [key: string]: unknown } | null;
+
+  /**
+   * JSON Schema (draft-07) describing the expected output payload. Null if schema
+   * could not be automatically generated.
+   */
+  output_schema?: { [key: string]: unknown } | null;
 }
 
 /**
