@@ -297,6 +297,11 @@ export interface BrowserPoolAcquireResponse {
   deleted_at?: string;
 
   /**
+   * Whether the browser session has hardware-accelerated GPU rendering.
+   */
+  gpu?: boolean;
+
+  /**
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
