@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.34.0 (2026-02-18)
+
+Full Changelog: [v0.33.0...v0.34.0](https://github.com/kernel/kernel-node-sdk/compare/v0.33.0...v0.34.0)
+
+### Features
+
+* Add error_code field to ManagedAuthSession and related components ([1adbca7](https://github.com/kernel/kernel-node-sdk/commit/1adbca7f07a5f2b0af05fa5c4c3a284b68f36455))
+* Allow arbitrary viewport dimensions ([7860190](https://github.com/kernel/kernel-node-sdk/commit/7860190991d770a0299b188720e47e5eb2745626))
+* Neil/kernel 873 templates v4 ([73b1b98](https://github.com/kernel/kernel-node-sdk/commit/73b1b98c01eca471f7d44b18158e8d8f0c33af19))
+
+
+### Chores
+
+* **internal/client:** fix form-urlencoded requests ([cc9982c](https://github.com/kernel/kernel-node-sdk/commit/cc9982c53e6be0c151de0eb8a0e9a5d148b7c535))
+* **internal:** avoid type checking errors with ts-reset ([8ca1d54](https://github.com/kernel/kernel-node-sdk/commit/8ca1d5422ec00b6042ee742c5d306f1ef81d0503))
+
 ## 0.33.0 (2026-02-11)
 
 Full Changelog: [v0.32.0...v0.33.0](https://github.com/kernel/kernel-node-sdk/compare/v0.32.0...v0.33.0)
