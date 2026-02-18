@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.35.0 (2026-02-18)
+
+Full Changelog: [v0.34.0...v0.35.0](https://github.com/kernel/kernel-node-sdk/compare/v0.34.0...v0.35.0)
+
+### Features
+
+* GPU pools ([64d61d9](https://github.com/kernel/kernel-node-sdk/commit/64d61d9f994493b89061292358f70e3386aa3551))
+
 ## 0.34.0 (2026-02-18)
 
 Full Changelog: [v0.33.0...v0.34.0](https://github.com/kernel/kernel-node-sdk/compare/v0.33.0...v0.34.0)
