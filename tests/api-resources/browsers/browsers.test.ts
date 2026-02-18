@@ -27,6 +27,7 @@ describe('resource browsers', () => {
       client.browsers.create(
         {
           extensions: [{ id: 'id', name: 'name' }],
+          gpu: false,
           headless: false,
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
