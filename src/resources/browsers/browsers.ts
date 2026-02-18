@@ -293,6 +293,11 @@ export interface BrowserCreateResponse {
   deleted_at?: string;
 
   /**
+   * Whether the browser session has hardware-accelerated GPU rendering.
+   */
+  gpu?: boolean;
+
+  /**
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
@@ -367,6 +372,11 @@ export interface BrowserRetrieveResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Whether the browser session has hardware-accelerated GPU rendering.
+   */
+  gpu?: boolean;
 
   /**
    * Whether the browser session is running in kiosk mode.
@@ -445,6 +455,11 @@ export interface BrowserUpdateResponse {
   deleted_at?: string;
 
   /**
+   * Whether the browser session has hardware-accelerated GPU rendering.
+   */
+  gpu?: boolean;
+
+  /**
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
@@ -521,6 +536,11 @@ export interface BrowserListResponse {
   deleted_at?: string;
 
   /**
+   * Whether the browser session has hardware-accelerated GPU rendering.
+   */
+  gpu?: boolean;
+
+  /**
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
@@ -559,6 +579,12 @@ export interface BrowserCreateParams {
    * List of browser extensions to load into the session. Provide each by id or name.
    */
   extensions?: Array<Shared.BrowserExtension>;
+
+  /**
+   * If true, launches a hardware-accelerated browser with GPU rendering. Requires
+   * Start-Up or Enterprise plan.
+   */
+  gpu?: boolean;
 
   /**
    * If true, launches the browser using a headless image (no VNC/GUI). Defaults to
