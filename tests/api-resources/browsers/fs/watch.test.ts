@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource watch', () => {
-  // Prism doesn't support text/event-stream responses
+  // Mock server doesn't support text/event-stream responses
   test.skip('events: only required params', async () => {
     const responsePromise = client.browsers.fs.watch.events('watch_id', { id: 'id' });
     const rawResponse = await responsePromise.asResponse();
@@ -20,12 +20,12 @@ describe('resource watch', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism doesn't support text/event-stream responses
+  // Mock server doesn't support text/event-stream responses
   test.skip('events: required and optional params', async () => {
     const response = await client.browsers.fs.watch.events('watch_id', { id: 'id' });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('start: only required params', async () => {
     const responsePromise = client.browsers.fs.watch.start('id', { path: 'path' });
     const rawResponse = await responsePromise.asResponse();
@@ -37,12 +37,12 @@ describe('resource watch', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('start: required and optional params', async () => {
     const response = await client.browsers.fs.watch.start('id', { path: 'path', recursive: true });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('stop: only required params', async () => {
     const responsePromise = client.browsers.fs.watch.stop('watch_id', { id: 'id' });
     const rawResponse = await responsePromise.asResponse();
@@ -54,7 +54,7 @@ describe('resource watch', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('stop: required and optional params', async () => {
     const response = await client.browsers.fs.watch.stop('watch_id', { id: 'id' });
   });

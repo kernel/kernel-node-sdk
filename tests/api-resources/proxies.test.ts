@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource proxies', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: only required params', async () => {
     const responsePromise = client.proxies.create({ type: 'datacenter' });
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource proxies', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.proxies.create({
       type: 'datacenter',
@@ -30,7 +30,7 @@ describe('resource proxies', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.proxies.retrieve('id');
     const rawResponse = await responsePromise.asResponse();
@@ -42,7 +42,7 @@ describe('resource proxies', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.proxies.list();
     const rawResponse = await responsePromise.asResponse();
@@ -54,7 +54,7 @@ describe('resource proxies', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete', async () => {
     const responsePromise = client.proxies.delete('id');
     const rawResponse = await responsePromise.asResponse();
@@ -66,7 +66,7 @@ describe('resource proxies', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('check', async () => {
     const responsePromise = client.proxies.check('id');
     const rawResponse = await responsePromise.asResponse();

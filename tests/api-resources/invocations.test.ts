@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource invocations', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: only required params', async () => {
     const responsePromise = client.invocations.create({
       action_name: 'analyze',
@@ -24,7 +24,7 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.invocations.create({
       action_name: 'analyze',
@@ -36,7 +36,7 @@ describe('resource invocations', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.invocations.retrieve('rr33xuugxj9h0bkf1rdt2bet');
     const rawResponse = await responsePromise.asResponse();
@@ -48,7 +48,7 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('update: only required params', async () => {
     const responsePromise = client.invocations.update('id', { status: 'succeeded' });
     const rawResponse = await responsePromise.asResponse();
@@ -60,12 +60,12 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('update: required and optional params', async () => {
     const response = await client.invocations.update('id', { status: 'succeeded', output: 'output' });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.invocations.list();
     const rawResponse = await responsePromise.asResponse();
@@ -77,7 +77,7 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -97,7 +97,7 @@ describe('resource invocations', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('deleteBrowsers', async () => {
     const responsePromise = client.invocations.deleteBrowsers('id');
     const rawResponse = await responsePromise.asResponse();
@@ -109,7 +109,7 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism doesn't support text/event-stream responses
+  // Mock server doesn't support text/event-stream responses
   test.skip('follow', async () => {
     const responsePromise = client.invocations.follow('id');
     const rawResponse = await responsePromise.asResponse();
@@ -121,7 +121,7 @@ describe('resource invocations', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism doesn't support text/event-stream responses
+  // Mock server doesn't support text/event-stream responses
   test.skip('follow: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -133,7 +133,7 @@ describe('resource invocations', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('listBrowsers', async () => {
     const responsePromise = client.invocations.listBrowsers('id');
     const rawResponse = await responsePromise.asResponse();

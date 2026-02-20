@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource credentialProviders', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: only required params', async () => {
     const responsePromise = client.credentialProviders.create({
       token: 'ops_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -24,7 +24,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.credentialProviders.create({
       token: 'ops_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -34,7 +34,7 @@ describe('resource credentialProviders', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.credentialProviders.retrieve('id');
     const rawResponse = await responsePromise.asResponse();
@@ -46,7 +46,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('update', async () => {
     const responsePromise = client.credentialProviders.update('id', {});
     const rawResponse = await responsePromise.asResponse();
@@ -58,7 +58,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.credentialProviders.list();
     const rawResponse = await responsePromise.asResponse();
@@ -70,7 +70,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete', async () => {
     const responsePromise = client.credentialProviders.delete('id');
     const rawResponse = await responsePromise.asResponse();
@@ -82,7 +82,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('listItems', async () => {
     const responsePromise = client.credentialProviders.listItems('id');
     const rawResponse = await responsePromise.asResponse();
@@ -94,7 +94,7 @@ describe('resource credentialProviders', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('test', async () => {
     const responsePromise = client.credentialProviders.test('id');
     const rawResponse = await responsePromise.asResponse();

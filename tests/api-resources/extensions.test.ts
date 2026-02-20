@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource extensions', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.extensions.list();
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource extensions', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete', async () => {
     const responsePromise = client.extensions.delete('id_or_name');
     const rawResponse = await responsePromise.asResponse();
@@ -36,7 +36,7 @@ describe('resource extensions', () => {
     const response = await client.extensions.downloadFromChromeStore({ url: 'url', os: 'win' });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('upload: only required params', async () => {
     const responsePromise = client.extensions.upload({
       file: await toFile(Buffer.from('# my file contents'), 'README.md'),
@@ -50,7 +50,7 @@ describe('resource extensions', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('upload: required and optional params', async () => {
     const response = await client.extensions.upload({
       file: await toFile(Buffer.from('# my file contents'), 'README.md'),
