@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource browsers', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create', async () => {
     const responsePromise = client.browsers.create();
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -51,7 +51,7 @@ describe('resource browsers', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.browsers.retrieve('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
@@ -63,7 +63,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -75,7 +75,7 @@ describe('resource browsers', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('update', async () => {
     const responsePromise = client.browsers.update('htzv5orfit78e1m2biiifpbv', {});
     const rawResponse = await responsePromise.asResponse();
@@ -87,7 +87,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.browsers.list();
     const rawResponse = await responsePromise.asResponse();
@@ -99,7 +99,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -115,7 +115,7 @@ describe('resource browsers', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete: only required params', async () => {
     const responsePromise = client.browsers.delete({ persistent_id: 'persistent_id' });
     const rawResponse = await responsePromise.asResponse();
@@ -127,12 +127,12 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete: required and optional params', async () => {
     const response = await client.browsers.delete({ persistent_id: 'persistent_id' });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('deleteByID', async () => {
     const responsePromise = client.browsers.deleteByID('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
@@ -144,7 +144,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('loadExtensions: only required params', async () => {
     const responsePromise = client.browsers.loadExtensions('id', {
       extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('# my file contents'), 'README.md') }],
@@ -158,7 +158,7 @@ describe('resource browsers', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('loadExtensions: required and optional params', async () => {
     const response = await client.browsers.loadExtensions('id', {
       extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('# my file contents'), 'README.md') }],

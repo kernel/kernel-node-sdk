@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource playwright', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('execute: only required params', async () => {
     const responsePromise = client.browsers.playwright.execute('id', { code: 'code' });
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource playwright', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('execute: required and optional params', async () => {
     const response = await client.browsers.playwright.execute('id', { code: 'code', timeout_sec: 1 });
   });

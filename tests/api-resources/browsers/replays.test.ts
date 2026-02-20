@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource replays', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.browsers.replays.list('id');
     const rawResponse = await responsePromise.asResponse();
@@ -24,7 +24,7 @@ describe('resource replays', () => {
     const response = await client.browsers.replays.download('replay_id', { id: 'id' });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('start', async () => {
     const responsePromise = client.browsers.replays.start('id');
     const rawResponse = await responsePromise.asResponse();
@@ -36,7 +36,7 @@ describe('resource replays', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('start: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -48,7 +48,7 @@ describe('resource replays', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('stop: only required params', async () => {
     const responsePromise = client.browsers.replays.stop('replay_id', { id: 'id' });
     const rawResponse = await responsePromise.asResponse();
@@ -60,7 +60,7 @@ describe('resource replays', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('stop: required and optional params', async () => {
     const response = await client.browsers.replays.stop('replay_id', { id: 'id' });
   });
