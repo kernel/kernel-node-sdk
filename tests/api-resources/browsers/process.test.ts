@@ -153,7 +153,7 @@ describe('resource process', () => {
     });
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('stdoutStream: only required params', async () => {
     const responsePromise = client.browsers.process.stdoutStream('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
       id: 'id',
@@ -167,7 +167,7 @@ describe('resource process', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('stdoutStream: required and optional params', async () => {
     const response = await client.browsers.process.stdoutStream('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
       id: 'id',

@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource watch', () => {
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('events: only required params', async () => {
     const responsePromise = client.browsers.fs.watch.events('watch_id', { id: 'id' });
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource watch', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('events: required and optional params', async () => {
     const response = await client.browsers.fs.watch.events('watch_id', { id: 'id' });
   });

@@ -59,7 +59,7 @@ describe('resource deployments', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('follow', async () => {
     const responsePromise = client.deployments.follow('id');
     const rawResponse = await responsePromise.asResponse();
@@ -71,7 +71,7 @@ describe('resource deployments', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('follow: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(

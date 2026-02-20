@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource logs', () => {
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('stream: only required params', async () => {
     const responsePromise = client.browsers.logs.stream('id', { source: 'path' });
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource logs', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('stream: required and optional params', async () => {
     const response = await client.browsers.logs.stream('id', {
       source: 'path',

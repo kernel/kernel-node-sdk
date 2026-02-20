@@ -94,7 +94,7 @@ describe('resource connections', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Mock server doesn't support text/event-stream responses
+  // Mock server tests are disabled
   test.skip('follow', async () => {
     const responsePromise = client.auth.connections.follow('id');
     const rawResponse = await responsePromise.asResponse();
