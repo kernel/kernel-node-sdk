@@ -43,7 +43,7 @@ export class Deployments extends APIResource {
   }
 
   /**
-   * List deployments. Optionally filter by application name.
+   * List deployments. Optionally filter by application name and version.
    *
    * @example
    * ```ts
@@ -461,6 +461,11 @@ export interface DeploymentListParams extends OffsetPaginationParams {
    * Filter results by application name.
    */
   app_name?: string;
+
+  /**
+   * Filter results by application version. Requires app_name to be set.
+   */
+  app_version?: string;
 }
 
 export interface DeploymentFollowParams {

@@ -51,6 +51,7 @@ describe('resource deployments', () => {
       client.deployments.list(
         {
           app_name: 'app_name',
+          app_version: 'app_version',
           limit: 1,
           offset: 0,
         },
