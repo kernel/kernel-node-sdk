@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.36.1 (2026-02-21)
+
+Full Changelog: [v0.36.0...v0.36.1](https://github.com/kernel/kernel-node-sdk/compare/v0.36.0...v0.36.1)
+
+### Features
+
+* Add version filter to GET /deployments endpoint ([b983eeb](https://github.com/kernel/kernel-node-sdk/commit/b983eebd67c079b7e40c53ab5963a960f40f2e1b))
+
 ## 0.36.0 (2026-02-21)
 
 Full Changelog: [v0.35.0...v0.36.0](https://github.com/kernel/kernel-node-sdk/compare/v0.35.0...v0.36.0)
