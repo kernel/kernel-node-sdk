@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.36.0 (2026-02-21)
+
+Full Changelog: [v0.35.0...v0.36.0](https://github.com/kernel/kernel-node-sdk/compare/v0.35.0...v0.36.0)
+
+### Features
+
+* Add DELETE /deployments/{id} API endpoint ([6df842e](https://github.com/kernel/kernel-node-sdk/commit/6df842e5d90124f64c312dd951027f0708a4e74f))
+
+
+### Chores
+
+* **internal:** remove mock server code ([5784a3f](https://github.com/kernel/kernel-node-sdk/commit/5784a3f2b6ebf92c53767128da5712514bd46660))
+* **test:** update skip reason message ([e5d7f07](https://github.com/kernel/kernel-node-sdk/commit/e5d7f07905e39753b164553b85f5439418297f67))
+* update mock server docs ([1c1ae0f](https://github.com/kernel/kernel-node-sdk/commit/1c1ae0f5eaba7b0512dccf2c5e5979e30538d966))
+
 ## 0.35.0 (2026-02-18)
 
 Full Changelog: [v0.34.0...v0.35.0](https://github.com/kernel/kernel-node-sdk/compare/v0.34.0...v0.35.0)
