@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource computer', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('batch: only required params', async () => {
     const responsePromise = client.browsers.computer.batch('id', { actions: [{ type: 'click_mouse' }] });
     const rawResponse = await responsePromise.asResponse();
@@ -20,7 +20,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('batch: required and optional params', async () => {
     const response = await client.browsers.computer.batch('id', {
       actions: [
@@ -70,7 +70,8 @@ describe('resource computer', () => {
     });
   });
 
-  test('captureScreenshot: request options and params are passed correctly', async () => {
+  // Mock server tests are disabled
+  test.skip('captureScreenshot: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.computer.captureScreenshot(
@@ -88,7 +89,7 @@ describe('resource computer', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('clickMouse: only required params', async () => {
     const responsePromise = client.browsers.computer.clickMouse('id', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
@@ -100,7 +101,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('clickMouse: required and optional params', async () => {
     const response = await client.browsers.computer.clickMouse('id', {
       x: 0,
@@ -112,7 +113,7 @@ describe('resource computer', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('dragMouse: only required params', async () => {
     const responsePromise = client.browsers.computer.dragMouse('id', {
       path: [
@@ -129,7 +130,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('dragMouse: required and optional params', async () => {
     const response = await client.browsers.computer.dragMouse('id', {
       path: [
@@ -144,7 +145,7 @@ describe('resource computer', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('getMousePosition', async () => {
     const responsePromise = client.browsers.computer.getMousePosition('id');
     const rawResponse = await responsePromise.asResponse();
@@ -156,7 +157,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('moveMouse: only required params', async () => {
     const responsePromise = client.browsers.computer.moveMouse('id', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
@@ -168,7 +169,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('moveMouse: required and optional params', async () => {
     const response = await client.browsers.computer.moveMouse('id', {
       x: 0,
@@ -177,7 +178,7 @@ describe('resource computer', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('pressKey: only required params', async () => {
     const responsePromise = client.browsers.computer.pressKey('id', { keys: ['string'] });
     const rawResponse = await responsePromise.asResponse();
@@ -189,7 +190,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('pressKey: required and optional params', async () => {
     const response = await client.browsers.computer.pressKey('id', {
       keys: ['string'],
@@ -198,7 +199,7 @@ describe('resource computer', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('scroll: only required params', async () => {
     const responsePromise = client.browsers.computer.scroll('id', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
@@ -210,7 +211,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('scroll: required and optional params', async () => {
     const response = await client.browsers.computer.scroll('id', {
       x: 0,
@@ -221,7 +222,7 @@ describe('resource computer', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('setCursorVisibility: only required params', async () => {
     const responsePromise = client.browsers.computer.setCursorVisibility('id', { hidden: true });
     const rawResponse = await responsePromise.asResponse();
@@ -233,12 +234,12 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('setCursorVisibility: required and optional params', async () => {
     const response = await client.browsers.computer.setCursorVisibility('id', { hidden: true });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('typeText: only required params', async () => {
     const responsePromise = client.browsers.computer.typeText('id', { text: 'text' });
     const rawResponse = await responsePromise.asResponse();
@@ -250,7 +251,7 @@ describe('resource computer', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('typeText: required and optional params', async () => {
     const response = await client.browsers.computer.typeText('id', { text: 'text', delay: 0 });
   });

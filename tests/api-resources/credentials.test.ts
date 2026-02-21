@@ -8,7 +8,7 @@ const client = new Kernel({
 });
 
 describe('resource credentials', () => {
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: only required params', async () => {
     const responsePromise = client.credentials.create({
       domain: 'netflix.com',
@@ -24,7 +24,7 @@ describe('resource credentials', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.credentials.create({
       domain: 'netflix.com',
@@ -35,7 +35,7 @@ describe('resource credentials', () => {
     });
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('retrieve', async () => {
     const responsePromise = client.credentials.retrieve('id_or_name');
     const rawResponse = await responsePromise.asResponse();
@@ -47,7 +47,7 @@ describe('resource credentials', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('update', async () => {
     const responsePromise = client.credentials.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
@@ -59,7 +59,7 @@ describe('resource credentials', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list', async () => {
     const responsePromise = client.credentials.list();
     const rawResponse = await responsePromise.asResponse();
@@ -71,7 +71,7 @@ describe('resource credentials', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
@@ -86,7 +86,7 @@ describe('resource credentials', () => {
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('delete', async () => {
     const responsePromise = client.credentials.delete('id_or_name');
     const rawResponse = await responsePromise.asResponse();
@@ -98,7 +98,7 @@ describe('resource credentials', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  // Prism tests are disabled
+  // Mock server tests are disabled
   test.skip('totpCode', async () => {
     const responsePromise = client.credentials.totpCode('id_or_name');
     const rawResponse = await responsePromise.asResponse();
