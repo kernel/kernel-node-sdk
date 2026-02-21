@@ -60,6 +60,18 @@ describe('resource deployments', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('delete', async () => {
+    const responsePromise = client.deployments.delete('id');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
   test.skip('follow', async () => {
     const responsePromise = client.deployments.follow('id');
     const rawResponse = await responsePromise.asResponse();

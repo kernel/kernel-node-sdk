@@ -64,6 +64,22 @@ export class Deployments extends APIResource {
   }
 
   /**
+   * Stops a running deployment and marks it for deletion. If the deployment is
+   * already in a terminal state (stopped or failed), returns immediately.
+   *
+   * @example
+   * ```ts
+   * await client.deployments.delete('id');
+   * ```
+   */
+  delete(id: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/deployments/${id}`, {
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
    * Establishes a Server-Sent Events (SSE) stream that delivers real-time logs and
    * status updates for a deployment. The stream terminates automatically once the
    * deployment reaches a terminal state.
