@@ -70,7 +70,8 @@ describe('resource computer', () => {
     });
   });
 
-  test('captureScreenshot: request options and params are passed correctly', async () => {
+  // Mock server tests are disabled
+  test.skip('captureScreenshot: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.computer.captureScreenshot(

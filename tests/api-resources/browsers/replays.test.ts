@@ -20,7 +20,8 @@ describe('resource replays', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  test('download: required and optional params', async () => {
+  // Mock server tests are disabled
+  test.skip('download: required and optional params', async () => {
     const response = await client.browsers.replays.download('replay_id', { id: 'id' });
   });
 

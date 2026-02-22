@@ -59,7 +59,8 @@ describe('resource fs', () => {
     const response = await client.browsers.fs.deleteFile('id', { path: '/J!' });
   });
 
-  test('downloadDirZip: required and optional params', async () => {
+  // Mock server tests are disabled
+  test.skip('downloadDirZip: required and optional params', async () => {
     const response = await client.browsers.fs.downloadDirZip('id', { path: '/J!' });
   });
 
@@ -114,7 +115,8 @@ describe('resource fs', () => {
     const response = await client.browsers.fs.move('id', { dest_path: '/J!', src_path: '/J!' });
   });
 
-  test('readFile: required and optional params', async () => {
+  // Mock server tests are disabled
+  test.skip('readFile: required and optional params', async () => {
     const response = await client.browsers.fs.readFile('id', { path: '/J!' });
   });
 

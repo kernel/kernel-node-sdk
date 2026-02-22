@@ -32,7 +32,8 @@ describe('resource extensions', () => {
     expect(dataAndResponse.response).toBe(rawResponse);
   });
 
-  test('downloadFromChromeStore: required and optional params', async () => {
+  // Mock server tests are disabled
+  test.skip('downloadFromChromeStore: required and optional params', async () => {
     const response = await client.extensions.downloadFromChromeStore({ url: 'url', os: 'win' });
   });
 
