@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.37.0 (2026-02-23)
+
+Full Changelog: [v0.36.1...v0.37.0](https://github.com/kernel/kernel-node-sdk/compare/v0.36.1...v0.37.0)
+
+### Features
+
+* Neil/kernel 1017 profile pagination query parameter ([5f46e36](https://github.com/kernel/kernel-node-sdk/commit/5f46e36d3b1f48fcaeaa346acc8fd080dafb1830))
+
 ## 0.36.1 (2026-02-21)
 
 Full Changelog: [v0.36.0...v0.36.1](https://github.com/kernel/kernel-node-sdk/compare/v0.36.0...v0.36.1)
