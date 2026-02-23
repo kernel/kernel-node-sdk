@@ -88,7 +88,7 @@ import {
   InvocationUpdateResponse,
   Invocations,
 } from './resources/invocations';
-import { ProfileCreateParams, ProfileListResponse, Profiles } from './resources/profiles';
+import { ProfileCreateParams, ProfileListParams, Profiles } from './resources/profiles';
 import {
   Proxies,
   ProxyCheckResponse,
@@ -985,8 +985,8 @@ export declare namespace Kernel {
 
   export {
     Profiles as Profiles,
-    type ProfileListResponse as ProfileListResponse,
     type ProfileCreateParams as ProfileCreateParams,
+    type ProfileListParams as ProfileListParams,
   };
 
   export { Auth as Auth };

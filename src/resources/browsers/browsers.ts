@@ -209,6 +209,8 @@ export class Browsers extends APIResource {
 
 export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListResponse>;
 
+export type ProfilesOffsetPagination = OffsetPagination<Profile>;
+
 /**
  * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
  * instead.

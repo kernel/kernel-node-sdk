@@ -33,6 +33,7 @@ export {
   type BrowserListParams,
   type BrowserDeleteParams,
   type BrowserLoadExtensionsParams,
+  type ProfilesOffsetPagination,
   type BrowserListResponsesOffsetPagination,
 } from './browsers/browsers';
 export {
@@ -92,7 +93,7 @@ export {
   type InvocationFollowParams,
   type InvocationListResponsesOffsetPagination,
 } from './invocations';
-export { Profiles, type ProfileListResponse, type ProfileCreateParams } from './profiles';
+export { Profiles, type ProfileCreateParams, type ProfileListParams } from './profiles';
 export {
   Proxies,
   type ProxyCreateResponse,

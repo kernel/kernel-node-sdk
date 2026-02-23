@@ -2,7 +2,9 @@
 
 import { APIResource } from '../core/resource';
 import * as BrowsersAPI from './browsers/browsers';
+import { ProfilesOffsetPagination } from './browsers/browsers';
 import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
@@ -26,8 +28,11 @@ export class Profiles extends APIResource {
   /**
    * List profiles with optional filtering and pagination.
    */
-  list(options?: RequestOptions): APIPromise<ProfileListResponse> {
-    return this._client.get('/profiles', options);
+  list(
+    query: ProfileListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<ProfilesOffsetPagination, BrowsersAPI.Profile> {
+    return this._client.getAPIList('/profiles', OffsetPagination<BrowsersAPI.Profile>, { query, ...options });
   }
 
   /**
@@ -53,8 +58,6 @@ export class Profiles extends APIResource {
   }
 }
 
-export type ProfileListResponse = Array<BrowsersAPI.Profile>;
-
 export interface ProfileCreateParams {
   /**
    * Optional name of the profile. Must be unique within the organization.
@@ -62,6 +65,15 @@ export interface ProfileCreateParams {
   name?: string;
 }
 
-export declare namespace Profiles {
-  export { type ProfileListResponse as ProfileListResponse, type ProfileCreateParams as ProfileCreateParams };
+export interface ProfileListParams extends OffsetPaginationParams {
+  /**
+   * Search profiles by name or ID.
+   */
+  query?: string;
 }
+
+export declare namespace Profiles {
+  export { type ProfileCreateParams as ProfileCreateParams, type ProfileListParams as ProfileListParams };
+}
+
+export { type ProfilesOffsetPagination };
