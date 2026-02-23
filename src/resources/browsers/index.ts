@@ -14,6 +14,7 @@ export {
   type BrowserListParams,
   type BrowserDeleteParams,
   type BrowserLoadExtensionsParams,
+  type ProfilesOffsetPagination,
   type BrowserListResponsesOffsetPagination,
 } from './browsers';
 export {
