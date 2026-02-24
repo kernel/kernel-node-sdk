@@ -60,7 +60,7 @@ $ yarn link @onkernel/sdk
 # With pnpm
 $ pnpm link --global
 $ cd ../my-package
-$ pnpm link -—global @onkernel/sdk
+$ pnpm link --global @onkernel/sdk
 ```
 
 ## Running tests
