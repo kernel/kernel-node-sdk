@@ -686,6 +686,11 @@ export interface BrowserListParams extends OffsetPaginationParams {
   include_deleted?: boolean;
 
   /**
+   * Search browsers by session ID, profile ID, or proxy ID.
+   */
+  query?: string;
+
+  /**
    * Filter sessions by status. "active" returns only active sessions (default),
    * "deleted" returns only soft-deleted sessions, "all" returns both.
    */
