@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.38.0 (2026-02-25)
+
+Full Changelog: [v0.37.0...v0.38.0](https://github.com/kernel/kernel-node-sdk/compare/v0.37.0...v0.38.0)
+
+### Features
+
+* Neil/kernel 1029 past session search ([c417833](https://github.com/kernel/kernel-node-sdk/commit/c417833c9d93b30f03954135921850adfe177616))
+
+
+### Bug Fixes
+
+* **docs/contributing:** correct pnpm link command ([4b4bb6c](https://github.com/kernel/kernel-node-sdk/commit/4b4bb6ceab1759dce8864539ac0e877b00287211))
+
 ## 0.37.0 (2026-02-23)
 
 Full Changelog: [v0.36.1...v0.37.0](https://github.com/kernel/kernel-node-sdk/compare/v0.36.1...v0.37.0)
