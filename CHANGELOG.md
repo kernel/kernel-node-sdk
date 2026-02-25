@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.39.0 (2026-02-25)
+
+Full Changelog: [v0.38.0...v0.39.0](https://github.com/kernel/kernel-node-sdk/compare/v0.38.0...v0.39.0)
+
+### Features
+
+* Add proxy hostname bypass hosts ([c6878d4](https://github.com/kernel/kernel-node-sdk/commit/c6878d4b555e00680709d0778e142439c8990d74))
+
 ## 0.38.0 (2026-02-25)
 
 Full Changelog: [v0.37.0...v0.38.0](https://github.com/kernel/kernel-node-sdk/compare/v0.37.0...v0.38.0)
