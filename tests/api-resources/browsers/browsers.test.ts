@@ -108,6 +108,7 @@ describe('resource browsers', () => {
           include_deleted: true,
           limit: 1,
           offset: 0,
+          query: 'query',
           status: 'active',
         },
         { path: '/_stainless_unknown_path' },
