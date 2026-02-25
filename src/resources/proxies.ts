@@ -59,6 +59,11 @@ export interface ProxyCreateResponse {
   id?: string;
 
   /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
+
+  /**
    * Configuration specific to the selected proxy `type`.
    */
   config?:
@@ -282,6 +287,11 @@ export interface ProxyRetrieveResponse {
   type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
+
+  /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
 
   /**
    * Configuration specific to the selected proxy `type`.
@@ -512,6 +522,11 @@ export namespace ProxyListResponse {
     id?: string;
 
     /**
+     * Hostnames that should bypass the parent proxy and connect directly.
+     */
+    bypass_hosts?: Array<string>;
+
+    /**
      * Configuration specific to the selected proxy `type`.
      */
     config?:
@@ -738,6 +753,11 @@ export interface ProxyCheckResponse {
   id?: string;
 
   /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
+
+  /**
    * Configuration specific to the selected proxy `type`.
    */
   config?:
@@ -956,6 +976,11 @@ export interface ProxyCreateParams {
    * worst: `mobile` > `residential` > `isp` > `datacenter`.
    */
   type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+
+  /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
 
   /**
    * Configuration specific to the selected proxy `type`.

@@ -24,6 +24,7 @@ describe('resource proxies', () => {
   test.skip('create: required and optional params', async () => {
     const response = await client.proxies.create({
       type: 'datacenter',
+      bypass_hosts: ['string'],
       config: { country: 'US' },
       name: 'name',
       protocol: 'http',
