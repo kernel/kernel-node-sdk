@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.40.0 (2026-02-26)
+
+Full Changelog: [v0.39.0...v0.40.0](https://github.com/kernel/kernel-node-sdk/compare/v0.39.0...v0.40.0)
+
+### Features
+
+* show pool browsers in dashboard and API ([f8cf26d](https://github.com/kernel/kernel-node-sdk/commit/f8cf26de9e5a46ea071673419267027e389ef5cb))
+
 ## 0.39.0 (2026-02-25)
 
 Full Changelog: [v0.38.0...v0.39.0](https://github.com/kernel/kernel-node-sdk/compare/v0.38.0...v0.39.0)
