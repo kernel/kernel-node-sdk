@@ -3,6 +3,7 @@
 export {
   Browsers,
   type BrowserPersistence,
+  type BrowserPoolRef,
   type Profile,
   type BrowserCreateResponse,
   type BrowserRetrieveResponse,

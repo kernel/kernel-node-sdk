@@ -223,6 +223,21 @@ export interface BrowserPersistence {
 }
 
 /**
+ * Browser pool this session was acquired from, if any.
+ */
+export interface BrowserPoolRef {
+  /**
+   * Browser pool ID
+   */
+  id: string;
+
+  /**
+   * Browser pool name, if set
+   */
+  name?: string;
+}
+
+/**
  * Browser profile metadata.
  */
 export interface Profile {
@@ -311,6 +326,11 @@ export interface BrowserCreateResponse {
   persistence?: BrowserPersistence;
 
   /**
+   * Browser pool this session was acquired from, if any.
+   */
+  pool?: BrowserPoolRef;
+
+  /**
    * Browser profile metadata.
    */
   profile?: Profile;
@@ -390,6 +410,11 @@ export interface BrowserRetrieveResponse {
    * instead.
    */
   persistence?: BrowserPersistence;
+
+  /**
+   * Browser pool this session was acquired from, if any.
+   */
+  pool?: BrowserPoolRef;
 
   /**
    * Browser profile metadata.
@@ -473,6 +498,11 @@ export interface BrowserUpdateResponse {
   persistence?: BrowserPersistence;
 
   /**
+   * Browser pool this session was acquired from, if any.
+   */
+  pool?: BrowserPoolRef;
+
+  /**
    * Browser profile metadata.
    */
   profile?: Profile;
@@ -552,6 +582,11 @@ export interface BrowserListResponse {
    * instead.
    */
   persistence?: BrowserPersistence;
+
+  /**
+   * Browser pool this session was acquired from, if any.
+   */
+  pool?: BrowserPoolRef;
 
   /**
    * Browser profile metadata.
@@ -736,6 +771,7 @@ Browsers.Playwright = Playwright;
 export declare namespace Browsers {
   export {
     type BrowserPersistence as BrowserPersistence,
+    type BrowserPoolRef as BrowserPoolRef,
     type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,

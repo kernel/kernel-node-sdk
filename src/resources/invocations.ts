@@ -473,6 +473,11 @@ export namespace InvocationListBrowsersResponse {
     persistence?: BrowsersAPI.BrowserPersistence;
 
     /**
+     * Browser pool this session was acquired from, if any.
+     */
+    pool?: BrowsersAPI.BrowserPoolRef;
+
+    /**
      * Browser profile metadata.
      */
     profile?: BrowsersAPI.Profile;

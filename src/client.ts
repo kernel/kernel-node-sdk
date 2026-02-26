@@ -106,6 +106,7 @@ import {
   BrowserListResponsesOffsetPagination,
   BrowserLoadExtensionsParams,
   BrowserPersistence,
+  BrowserPoolRef,
   BrowserRetrieveParams,
   BrowserRetrieveResponse,
   BrowserUpdateParams,
@@ -946,6 +947,7 @@ export declare namespace Kernel {
   export {
     Browsers as Browsers,
     type BrowserPersistence as BrowserPersistence,
+    type BrowserPoolRef as BrowserPoolRef,
     type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
