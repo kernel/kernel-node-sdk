@@ -328,6 +328,11 @@ export interface BrowserPoolAcquireResponse {
   proxy_id?: string;
 
   /**
+   * Session usage metrics.
+   */
+  usage?: BrowsersAPI.BrowserUsage;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
    * but the following configurations are known-good and fully tested: 2560x1440@10,
