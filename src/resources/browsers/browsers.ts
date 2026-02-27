@@ -238,6 +238,16 @@ export interface BrowserPoolRef {
 }
 
 /**
+ * Session usage metrics.
+ */
+export interface BrowserUsage {
+  /**
+   * Time in milliseconds the session was actively running.
+   */
+  uptime_ms: number;
+}
+
+/**
  * Browser profile metadata.
  */
 export interface Profile {
@@ -341,6 +351,11 @@ export interface BrowserCreateResponse {
   proxy_id?: string;
 
   /**
+   * Session usage metrics.
+   */
+  usage?: BrowserUsage;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
    * but the following configurations are known-good and fully tested: 2560x1440@10,
@@ -425,6 +440,11 @@ export interface BrowserRetrieveResponse {
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
+
+  /**
+   * Session usage metrics.
+   */
+  usage?: BrowserUsage;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -513,6 +533,11 @@ export interface BrowserUpdateResponse {
   proxy_id?: string;
 
   /**
+   * Session usage metrics.
+   */
+  usage?: BrowserUsage;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
    * but the following configurations are known-good and fully tested: 2560x1440@10,
@@ -597,6 +622,11 @@ export interface BrowserListResponse {
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
+
+  /**
+   * Session usage metrics.
+   */
+  usage?: BrowserUsage;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -772,6 +802,7 @@ export declare namespace Browsers {
   export {
     type BrowserPersistence as BrowserPersistence,
     type BrowserPoolRef as BrowserPoolRef,
+    type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,

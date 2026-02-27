@@ -112,6 +112,7 @@ import {
   BrowserRetrieveResponse,
   BrowserUpdateParams,
   BrowserUpdateResponse,
+  BrowserUsage,
   Browsers,
   Profile,
 } from './resources/browsers/browsers';
@@ -971,6 +972,7 @@ export declare namespace Kernel {
     Browsers as Browsers,
     type BrowserPersistence as BrowserPersistence,
     type BrowserPoolRef as BrowserPoolRef,
+    type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
