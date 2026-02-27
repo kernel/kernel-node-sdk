@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.41.0 (2026-02-27)
+
+Full Changelog: [v0.40.0...v0.41.0](https://github.com/kernel/kernel-node-sdk/compare/v0.40.0...v0.41.0)
+
+### Features
+
+* Return uptime_ms for deleted browser sessions ([a1569fa](https://github.com/kernel/kernel-node-sdk/commit/a1569fabd84b7b1a16aba3183eb54f73edb5d9e2))
+
 ## 0.40.0 (2026-02-26)
 
 Full Changelog: [v0.39.0...v0.40.0](https://github.com/kernel/kernel-node-sdk/compare/v0.39.0...v0.40.0)
