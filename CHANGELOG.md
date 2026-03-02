@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.42.0 (2026-03-02)
+
+Full Changelog: [v0.41.0...v0.42.0](https://github.com/kernel/kernel-node-sdk/compare/v0.41.0...v0.42.0)
+
+### Features
+
+* Neil/kernel 1052 deployments list endpoint ([ef0293a](https://github.com/kernel/kernel-node-sdk/commit/ef0293a781c384873758b3ac13021e0fadc6c88a))
+
+
+### Chores
+
+* **internal:** move stringifyQuery implementation to internal function ([6c5754b](https://github.com/kernel/kernel-node-sdk/commit/6c5754b181e0f7abf9bcf8b6c5dfc7d7dbfda8ac))
+
 ## 0.41.0 (2026-02-27)
 
 Full Changelog: [v0.40.0...v0.41.0](https://github.com/kernel/kernel-node-sdk/compare/v0.40.0...v0.41.0)
