@@ -29,6 +29,7 @@ describe('resource apps', () => {
           app_name: 'app_name',
           limit: 1,
           offset: 0,
+          query: 'query',
           version: 'version',
         },
         { path: '/_stainless_unknown_path' },
