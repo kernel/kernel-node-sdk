@@ -66,6 +66,11 @@ export interface AppListParams extends OffsetPaginationParams {
   app_name?: string;
 
   /**
+   * Search apps by name.
+   */
+  query?: string;
+
+  /**
    * Filter results by version label.
    */
   version?: string;
