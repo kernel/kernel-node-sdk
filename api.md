@@ -167,6 +167,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/browsers/computer.ts">ComputerGetMousePositionResponse</a></code>
+- <code><a href="./src/resources/browsers/computer.ts">ComputerReadClipboardResponse</a></code>
 - <code><a href="./src/resources/browsers/computer.ts">ComputerSetCursorVisibilityResponse</a></code>
 
 Methods:
@@ -178,9 +179,11 @@ Methods:
 - <code title="post /browsers/{id}/computer/get_mouse_position">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">getMousePosition</a>(id) -> ComputerGetMousePositionResponse</code>
 - <code title="post /browsers/{id}/computer/move_mouse">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">moveMouse</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/press_key">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">pressKey</a>(id, { ...params }) -> void</code>
+- <code title="post /browsers/{id}/computer/clipboard/read">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">readClipboard</a>(id) -> ComputerReadClipboardResponse</code>
 - <code title="post /browsers/{id}/computer/scroll">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">scroll</a>(id, { ...params }) -> void</code>
 - <code title="post /browsers/{id}/computer/cursor">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">setCursorVisibility</a>(id, { ...params }) -> ComputerSetCursorVisibilityResponse</code>
 - <code title="post /browsers/{id}/computer/type">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">typeText</a>(id, { ...params }) -> void</code>
+- <code title="post /browsers/{id}/computer/clipboard/write">client.browsers.computer.<a href="./src/resources/browsers/computer.ts">writeClipboard</a>(id, { ...params }) -> void</code>
 
 ## Playwright
 
