@@ -12,10 +12,12 @@ import {
   ComputerGetMousePositionResponse,
   ComputerMoveMouseParams,
   ComputerPressKeyParams,
+  ComputerReadClipboardResponse,
   ComputerScrollParams,
   ComputerSetCursorVisibilityParams,
   ComputerSetCursorVisibilityResponse,
   ComputerTypeTextParams,
+  ComputerWriteClipboardParams,
 } from './computer';
 import * as LogsAPI from './logs';
 import { LogStreamParams, Logs } from './logs';
@@ -870,6 +872,7 @@ export declare namespace Browsers {
   export {
     Computer as Computer,
     type ComputerGetMousePositionResponse as ComputerGetMousePositionResponse,
+    type ComputerReadClipboardResponse as ComputerReadClipboardResponse,
     type ComputerSetCursorVisibilityResponse as ComputerSetCursorVisibilityResponse,
     type ComputerBatchParams as ComputerBatchParams,
     type ComputerCaptureScreenshotParams as ComputerCaptureScreenshotParams,
@@ -880,6 +883,7 @@ export declare namespace Browsers {
     type ComputerScrollParams as ComputerScrollParams,
     type ComputerSetCursorVisibilityParams as ComputerSetCursorVisibilityParams,
     type ComputerTypeTextParams as ComputerTypeTextParams,
+    type ComputerWriteClipboardParams as ComputerWriteClipboardParams,
   };
 
   export {

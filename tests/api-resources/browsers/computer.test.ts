@@ -200,6 +200,18 @@ describe('resource computer', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('readClipboard', async () => {
+    const responsePromise = client.browsers.computer.readClipboard('id');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
   test.skip('scroll: only required params', async () => {
     const responsePromise = client.browsers.computer.scroll('id', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
@@ -254,5 +266,22 @@ describe('resource computer', () => {
   // Mock server tests are disabled
   test.skip('typeText: required and optional params', async () => {
     const response = await client.browsers.computer.typeText('id', { text: 'text', delay: 0 });
+  });
+
+  // Mock server tests are disabled
+  test.skip('writeClipboard: only required params', async () => {
+    const responsePromise = client.browsers.computer.writeClipboard('id', { text: 'text' });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
+  test.skip('writeClipboard: required and optional params', async () => {
+    const response = await client.browsers.computer.writeClipboard('id', { text: 'text' });
   });
 });

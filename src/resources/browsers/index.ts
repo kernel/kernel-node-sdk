@@ -22,6 +22,7 @@ export {
 export {
   Computer,
   type ComputerGetMousePositionResponse,
+  type ComputerReadClipboardResponse,
   type ComputerSetCursorVisibilityResponse,
   type ComputerBatchParams,
   type ComputerCaptureScreenshotParams,
@@ -32,6 +33,7 @@ export {
   type ComputerScrollParams,
   type ComputerSetCursorVisibilityParams,
   type ComputerTypeTextParams,
+  type ComputerWriteClipboardParams,
 } from './computer';
 export {
   Fs,
