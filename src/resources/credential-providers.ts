@@ -6,6 +6,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Configure external credential providers like 1Password.
+ */
 export class CredentialProviders extends APIResource {
   /**
    * Configure an external credential provider (e.g., 1Password) for automatic

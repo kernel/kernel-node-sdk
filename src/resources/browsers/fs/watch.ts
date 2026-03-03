@@ -7,6 +7,9 @@ import { buildHeaders } from '../../../internal/headers';
 import { RequestOptions } from '../../../internal/request-options';
 import { path } from '../../../internal/utils/path';
 
+/**
+ * Read, write, and manage files on the browser instance.
+ */
 export class Watch extends APIResource {
   /**
    * Stream filesystem events for a watch

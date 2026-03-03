@@ -9,6 +9,9 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Create and manage auth connections for automated credential capture and login.
+ */
 export class Connections extends APIResource {
   /**
    * Creates an auth connection for a profile and domain combination. Returns 409
