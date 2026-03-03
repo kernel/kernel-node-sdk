@@ -74,6 +74,9 @@ import { RequestOptions } from '../../internal/request-options';
 import { multipartFormRequestOptions } from '../../internal/uploads';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Create and manage browser sessions.
+ */
 export class Browsers extends APIResource {
   replays: ReplaysAPI.Replays = new ReplaysAPI.Replays(this._client);
   fs: FsAPI.Fs = new FsAPI.Fs(this._client);

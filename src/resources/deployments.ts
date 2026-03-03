@@ -11,6 +11,9 @@ import { RequestOptions } from '../internal/request-options';
 import { multipartFormRequestOptions } from '../internal/uploads';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create and manage app deployments and stream deployment events.
+ */
 export class Deployments extends APIResource {
   /**
    * Create a new deployment.

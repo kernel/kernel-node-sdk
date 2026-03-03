@@ -7,6 +7,9 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Execute and manage processes on the browser instance.
+ */
 export class Process extends APIResource {
   /**
    * Execute a command synchronously

@@ -7,6 +7,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create and manage credentials for authentication.
+ */
 export class Credentials extends APIResource {
   /**
    * Create a new credential for storing login information.

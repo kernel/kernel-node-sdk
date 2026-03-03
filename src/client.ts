@@ -886,16 +886,46 @@ export class Kernel {
 
   static toFile = Uploads.toFile;
 
+  /**
+   * Create and manage app deployments and stream deployment events.
+   */
   deployments: API.Deployments = new API.Deployments(this);
+  /**
+   * List applications and versions.
+   */
   apps: API.Apps = new API.Apps(this);
+  /**
+   * Invoke actions and stream or query invocation status and events.
+   */
   invocations: API.Invocations = new API.Invocations(this);
+  /**
+   * Create and manage browser sessions.
+   */
   browsers: API.Browsers = new API.Browsers(this);
+  /**
+   * Create, list, retrieve, and delete browser profiles.
+   */
   profiles: API.Profiles = new API.Profiles(this);
   auth: API.Auth = new API.Auth(this);
+  /**
+   * Create and manage proxy configurations for routing browser traffic.
+   */
   proxies: API.Proxies = new API.Proxies(this);
+  /**
+   * Create, list, retrieve, and delete browser extensions.
+   */
   extensions: API.Extensions = new API.Extensions(this);
+  /**
+   * Create and manage browser pools for acquiring and releasing browsers.
+   */
   browserPools: API.BrowserPools = new API.BrowserPools(this);
+  /**
+   * Create and manage credentials for authentication.
+   */
   credentials: API.Credentials = new API.Credentials(this);
+  /**
+   * Configure external credential providers like 1Password.
+   */
   credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
 }
 

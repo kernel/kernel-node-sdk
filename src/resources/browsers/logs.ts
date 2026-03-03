@@ -8,6 +8,9 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Stream logs from the browser instance.
+ */
 export class Logs extends APIResource {
   /**
    * Stream log files on the browser instance via SSE

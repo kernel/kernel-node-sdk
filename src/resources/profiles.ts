@@ -9,6 +9,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create, list, retrieve, and delete browser profiles.
+ */
 export class Profiles extends APIResource {
   /**
    * Create a browser profile that can be used to load state into future browser

@@ -5,6 +5,9 @@ import * as Shared from './shared';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { RequestOptions } from '../internal/request-options';
 
+/**
+ * List applications and versions.
+ */
 export class Apps extends APIResource {
   /**
    * List applications. Optionally filter by app name and/or version label.
