@@ -382,9 +382,20 @@ export namespace ComputerBatchParams {
       y: number;
 
       /**
+       * Target total duration in milliseconds for the mouse movement when smooth=true.
+       * Omit for automatic timing based on distance.
+       */
+      duration_ms?: number;
+
+      /**
        * Modifier keys to hold during the move
        */
       hold_keys?: Array<string>;
+
+      /**
+       * Use human-like Bezier curve path instead of instant mouse movement.
+       */
+      smooth?: boolean;
     }
 
     export interface PressKey {
@@ -572,9 +583,20 @@ export interface ComputerMoveMouseParams {
   y: number;
 
   /**
+   * Target total duration in milliseconds for the mouse movement when smooth=true.
+   * Omit for automatic timing based on distance.
+   */
+  duration_ms?: number;
+
+  /**
    * Modifier keys to hold during the move
    */
   hold_keys?: Array<string>;
+
+  /**
+   * Use human-like Bezier curve path instead of instant mouse movement.
+   */
+  smooth?: boolean;
 }
 
 export interface ComputerPressKeyParams {

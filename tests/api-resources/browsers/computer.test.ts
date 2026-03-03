@@ -48,7 +48,9 @@ describe('resource computer', () => {
           move_mouse: {
             x: 0,
             y: 0,
+            duration_ms: 50,
             hold_keys: ['string'],
+            smooth: true,
           },
           press_key: {
             keys: ['string'],
@@ -174,7 +176,9 @@ describe('resource computer', () => {
     const response = await client.browsers.computer.moveMouse('id', {
       x: 0,
       y: 0,
+      duration_ms: 50,
       hold_keys: ['string'],
+      smooth: true,
     });
   });
 
