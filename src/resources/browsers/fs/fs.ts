@@ -17,6 +17,9 @@ import { RequestOptions } from '../../../internal/request-options';
 import { multipartFormRequestOptions } from '../../../internal/uploads';
 import { path } from '../../../internal/utils/path';
 
+/**
+ * Read, write, and manage files on the browser instance.
+ */
 export class Fs extends APIResource {
   watch: WatchAPI.Watch = new WatchAPI.Watch(this._client);
 

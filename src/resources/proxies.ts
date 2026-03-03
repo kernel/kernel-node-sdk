@@ -6,6 +6,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create and manage proxy configurations for routing browser traffic.
+ */
 export class Proxies extends APIResource {
   /**
    * Create a new proxy configuration for the caller's organization.

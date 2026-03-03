@@ -8,6 +8,9 @@ import { RequestOptions } from '../internal/request-options';
 import { multipartFormRequestOptions } from '../internal/uploads';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create, list, retrieve, and delete browser extensions.
+ */
 export class Extensions extends APIResource {
   /**
    * List extensions owned by the caller's organization.

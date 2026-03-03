@@ -6,6 +6,9 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Record and manage browser session video replays.
+ */
 export class Replays extends APIResource {
   /**
    * List all replays for the specified browser session.

@@ -10,6 +10,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Invoke actions and stream or query invocation status and events.
+ */
 export class Invocations extends APIResource {
   /**
    * Invoke an action.

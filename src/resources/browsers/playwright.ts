@@ -5,6 +5,9 @@ import { APIPromise } from '../../core/api-promise';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Execute Playwright code against the browser instance.
+ */
 export class Playwright extends APIResource {
   /**
    * Execute arbitrary Playwright code in a fresh execution context against the

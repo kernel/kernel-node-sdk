@@ -8,6 +8,9 @@ import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 
+/**
+ * Create and manage browser pools for acquiring and releasing browsers.
+ */
 export class BrowserPools extends APIResource {
   /**
    * Create a new browser pool with the specified configuration and size.
