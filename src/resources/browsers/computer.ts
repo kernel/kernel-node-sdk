@@ -143,6 +143,19 @@ export class Computer extends APIResource {
   }
 
   /**
+   * Read text from the clipboard on the browser instance
+   *
+   * @example
+   * ```ts
+   * const response =
+   *   await client.browsers.computer.readClipboard('id');
+   * ```
+   */
+  readClipboard(id: string, options?: RequestOptions): APIPromise<ComputerReadClipboardResponse> {
+    return this._client.post(path`/browsers/${id}/computer/clipboard/read`, options);
+  }
+
+  /**
    * Scroll the mouse wheel at a position on the host computer
    *
    * @example
@@ -194,6 +207,24 @@ export class Computer extends APIResource {
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
   }
+
+  /**
+   * Write text to the clipboard on the browser instance
+   *
+   * @example
+   * ```ts
+   * await client.browsers.computer.writeClipboard('id', {
+   *   text: 'text',
+   * });
+   * ```
+   */
+  writeClipboard(id: string, body: ComputerWriteClipboardParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${id}/computer/clipboard/write`, {
+      body,
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
 }
 
 export interface ComputerGetMousePositionResponse {
@@ -206,6 +237,13 @@ export interface ComputerGetMousePositionResponse {
    * Y coordinate of the cursor
    */
   y: number;
+}
+
+export interface ComputerReadClipboardResponse {
+  /**
+   * Current clipboard text content
+   */
+  text: string;
 }
 
 /**
@@ -606,9 +644,17 @@ export interface ComputerTypeTextParams {
   delay?: number;
 }
 
+export interface ComputerWriteClipboardParams {
+  /**
+   * Text to write to the system clipboard
+   */
+  text: string;
+}
+
 export declare namespace Computer {
   export {
     type ComputerGetMousePositionResponse as ComputerGetMousePositionResponse,
+    type ComputerReadClipboardResponse as ComputerReadClipboardResponse,
     type ComputerSetCursorVisibilityResponse as ComputerSetCursorVisibilityResponse,
     type ComputerBatchParams as ComputerBatchParams,
     type ComputerCaptureScreenshotParams as ComputerCaptureScreenshotParams,
@@ -619,5 +665,6 @@ export declare namespace Computer {
     type ComputerScrollParams as ComputerScrollParams,
     type ComputerSetCursorVisibilityParams as ComputerSetCursorVisibilityParams,
     type ComputerTypeTextParams as ComputerTypeTextParams,
+    type ComputerWriteClipboardParams as ComputerWriteClipboardParams,
   };
 }
