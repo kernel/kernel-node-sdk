@@ -174,7 +174,7 @@ const addFormValue = async (form: FormData, key: string, value: unknown): Promis
   } else if (isNamedBlob(value)) {
     form.append(key, value, getName(value));
   } else if (Array.isArray(value)) {
-    await Promise.all(value.map((entry) => addFormValue(form, key + '[]', entry)));
+    await Promise.all(value.map((entry, i) => addFormValue(form, `${key}[${i}]`, entry)));
   } else if (typeof value === 'object') {
     // Special case: env_vars should always be flattened for backward compatibility
     // with APIs that expect env_vars[KEY] format
