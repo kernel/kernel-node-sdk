@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.42.1 (2026-03-05)
+
+Full Changelog: [v0.42.0...v0.42.1](https://github.com/kernel/kernel-node-sdk/compare/v0.42.0...v0.42.1)
+
+### Features
+
+* [kernel-1028] add api clipboard support ([1ff017f](https://github.com/kernel/kernel-node-sdk/commit/1ff017f131009649dfc46318e351cb8d8ea07fff))
+* add force flag to viewport resize to bypass live view/recording check ([0a65b3a](https://github.com/kernel/kernel-node-sdk/commit/0a65b3a32d1b3c970580c0673b226c0f4cd63721))
+* expose smooth mouse movement via public API ([070c915](https://github.com/kernel/kernel-node-sdk/commit/070c9156259bfdb5e33f0809adc6f70f7ce1a37e))
+
+
+### Bug Fixes
+
+* use indexed bracket notation for multipart array encoding ([e2a7664](https://github.com/kernel/kernel-node-sdk/commit/e2a766470f90573d351c8507344b8e98c1f13cb6))
+
+
+### Chores
+
+* **internal:** codegen related update ([d55e6f5](https://github.com/kernel/kernel-node-sdk/commit/d55e6f590bf52a54ab1de762eb729fba2ce77c9a))
+
 ## 0.42.0 (2026-03-02)
 
 Full Changelog: [v0.41.0...v0.42.0](https://github.com/kernel/kernel-node-sdk/compare/v0.41.0...v0.42.0)
