@@ -745,7 +745,22 @@ export interface BrowserUpdateParams {
   /**
    * Viewport configuration to apply to the browser session.
    */
-  viewport?: Shared.BrowserViewport;
+  viewport?: BrowserUpdateParams.Viewport;
+}
+
+export namespace BrowserUpdateParams {
+  /**
+   * Viewport configuration to apply to the browser session.
+   */
+  export interface Viewport extends Shared.BrowserViewport {
+    /**
+     * If true, allow the viewport change even when a live view or recording/replay is
+     * active. Active recordings will be gracefully stopped and restarted at the new
+     * resolution as separate segments. If false (default), the resize is refused when
+     * a live view or recording is active.
+     */
+    force?: boolean;
+  }
 }
 
 export interface BrowserListParams extends OffsetPaginationParams {
