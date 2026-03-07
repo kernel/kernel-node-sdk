@@ -145,7 +145,7 @@ describe('resource fs', () => {
   // Mock server tests are disabled
   test.skip('upload: only required params', async () => {
     const responsePromise = client.browsers.fs.upload('id', {
-      files: [{ dest_path: '/J!', file: await toFile(Buffer.from('# my file contents'), 'README.md') }],
+      files: [{ dest_path: '/J!', file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -159,7 +159,7 @@ describe('resource fs', () => {
   // Mock server tests are disabled
   test.skip('upload: required and optional params', async () => {
     const response = await client.browsers.fs.upload('id', {
-      files: [{ dest_path: '/J!', file: await toFile(Buffer.from('# my file contents'), 'README.md') }],
+      files: [{ dest_path: '/J!', file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
   });
 
@@ -167,7 +167,7 @@ describe('resource fs', () => {
   test.skip('uploadZip: only required params', async () => {
     const responsePromise = client.browsers.fs.uploadZip('id', {
       dest_path: '/J!',
-      zip_file: await toFile(Buffer.from('# my file contents'), 'README.md'),
+      zip_file: await toFile(Buffer.from('Example data'), 'README.md'),
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -182,7 +182,7 @@ describe('resource fs', () => {
   test.skip('uploadZip: required and optional params', async () => {
     const response = await client.browsers.fs.uploadZip('id', {
       dest_path: '/J!',
-      zip_file: await toFile(Buffer.from('# my file contents'), 'README.md'),
+      zip_file: await toFile(Buffer.from('Example data'), 'README.md'),
     });
   });
 
@@ -190,7 +190,7 @@ describe('resource fs', () => {
   test.skip('writeFile: only required params', async () => {
     const responsePromise = client.browsers.fs.writeFile(
       'id',
-      await toFile(Buffer.from('# my file contents'), 'README.md'),
+      await toFile(Buffer.from('Example data'), 'README.md'),
       { path: '/J!' },
     );
     const rawResponse = await responsePromise.asResponse();
@@ -206,7 +206,7 @@ describe('resource fs', () => {
   test.skip('writeFile: required and optional params', async () => {
     const response = await client.browsers.fs.writeFile(
       'id',
-      await toFile(Buffer.from('# my file contents'), 'README.md'),
+      await toFile(Buffer.from('Example data'), 'README.md'),
       { path: '/J!', mode: '0611' },
     );
   });
