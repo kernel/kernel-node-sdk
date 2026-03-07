@@ -148,7 +148,7 @@ describe('resource browsers', () => {
   // Mock server tests are disabled
   test.skip('loadExtensions: only required params', async () => {
     const responsePromise = client.browsers.loadExtensions('id', {
-      extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('# my file contents'), 'README.md') }],
+      extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -162,7 +162,7 @@ describe('resource browsers', () => {
   // Mock server tests are disabled
   test.skip('loadExtensions: required and optional params', async () => {
     const response = await client.browsers.loadExtensions('id', {
-      extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('# my file contents'), 'README.md') }],
+      extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
   });
 });
