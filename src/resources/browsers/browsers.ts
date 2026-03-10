@@ -314,6 +314,11 @@ export interface BrowserCreateResponse {
   timeout_seconds: number;
 
   /**
+   * Websocket URL for WebDriver BiDi connections to the browser session
+   */
+  webdriver_ws_url: string;
+
+  /**
    * Remote URL for live viewing the browser session. Only available for non-headless
    * browsers.
    */
@@ -403,6 +408,11 @@ export interface BrowserRetrieveResponse {
    * The number of seconds of inactivity before the browser session is terminated.
    */
   timeout_seconds: number;
+
+  /**
+   * Websocket URL for WebDriver BiDi connections to the browser session
+   */
+  webdriver_ws_url: string;
 
   /**
    * Remote URL for live viewing the browser session. Only available for non-headless
@@ -496,6 +506,11 @@ export interface BrowserUpdateResponse {
   timeout_seconds: number;
 
   /**
+   * Websocket URL for WebDriver BiDi connections to the browser session
+   */
+  webdriver_ws_url: string;
+
+  /**
    * Remote URL for live viewing the browser session. Only available for non-headless
    * browsers.
    */
@@ -585,6 +600,11 @@ export interface BrowserListResponse {
    * The number of seconds of inactivity before the browser session is terminated.
    */
   timeout_seconds: number;
+
+  /**
+   * Websocket URL for WebDriver BiDi connections to the browser session
+   */
+  webdriver_ws_url: string;
 
   /**
    * Remote URL for live viewing the browser session. Only available for non-headless
