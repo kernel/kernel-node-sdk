@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.43.0 (2026-03-10)
+
+Full Changelog: [v0.42.1...v0.43.0](https://github.com/kernel/kernel-node-sdk/compare/v0.42.1...v0.43.0)
+
+### Features
+
+* Add webdriver_ws_url and metro webdriver session proxy ([cff6562](https://github.com/kernel/kernel-node-sdk/commit/cff6562f4488fd3dd4131f8bdac10ccb81173f43))
+
+
+### Bug Fixes
+
+* **client:** preserve URL params already embedded in path ([d7ab66f](https://github.com/kernel/kernel-node-sdk/commit/d7ab66fa9cb44f5b56113ff57f745b86d10e4ba8))
+
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([2e40c24](https://github.com/kernel/kernel-node-sdk/commit/2e40c24ead5d5d2b8a98d0dde705e62d346b63ae))
+* **internal:** codegen related update ([1185eae](https://github.com/kernel/kernel-node-sdk/commit/1185eae6d84aadd098de9429a24192187a00a74c))
+* **internal:** update dependencies to address dependabot vulnerabilities ([51c1411](https://github.com/kernel/kernel-node-sdk/commit/51c14111248aa4d876e829da2f7ef01216238aa5))
+* update placeholder string ([7608d8b](https://github.com/kernel/kernel-node-sdk/commit/7608d8b49713c24693c52d2eee64284f974158af))
+
 ## 0.42.1 (2026-03-05)
 
 Full Changelog: [v0.42.0...v0.42.1](https://github.com/kernel/kernel-node-sdk/compare/v0.42.0...v0.42.1)
