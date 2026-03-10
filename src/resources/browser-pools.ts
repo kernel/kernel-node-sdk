@@ -289,6 +289,11 @@ export interface BrowserPoolAcquireResponse {
   timeout_seconds: number;
 
   /**
+   * Websocket URL for WebDriver BiDi connections to the browser session
+   */
+  webdriver_ws_url: string;
+
+  /**
    * Remote URL for live viewing the browser session. Only available for non-headless
    * browsers.
    */
