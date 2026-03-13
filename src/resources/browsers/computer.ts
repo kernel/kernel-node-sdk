@@ -443,12 +443,14 @@ export namespace ComputerBatchParams {
       y: number;
 
       /**
-       * Horizontal scroll amount. Positive scrolls right, negative scrolls left.
+       * Horizontal scroll amount in xdotool "wheel units." Positive scrolls right,
+       * negative scrolls left.
        */
       delta_x?: number;
 
       /**
-       * Vertical scroll amount. Positive scrolls down, negative scrolls up.
+       * Vertical scroll amount in xdotool "wheel units." Positive scrolls down, negative
+       * scrolls up.
        */
       delta_y?: number;
 
@@ -656,12 +658,14 @@ export interface ComputerScrollParams {
   y: number;
 
   /**
-   * Horizontal scroll amount. Positive scrolls right, negative scrolls left.
+   * Horizontal scroll amount in xdotool "wheel units." Positive scrolls right,
+   * negative scrolls left.
    */
   delta_x?: number;
 
   /**
-   * Vertical scroll amount. Positive scrolls down, negative scrolls up.
+   * Vertical scroll amount in xdotool "wheel units." Positive scrolls down, negative
+   * scrolls up.
    */
   delta_y?: number;
 
