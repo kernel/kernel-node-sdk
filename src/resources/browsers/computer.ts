@@ -354,9 +354,21 @@ export namespace ComputerBatchParams {
       delay?: number;
 
       /**
+       * Target total duration in milliseconds for the entire drag movement when
+       * smooth=true. Omit for automatic timing based on total path length.
+       */
+      duration_ms?: number;
+
+      /**
        * Modifier keys to hold during the drag
        */
       hold_keys?: Array<string>;
+
+      /**
+       * Use human-like Bezier curves between path waypoints instead of linear
+       * interpolation. When true, steps_per_segment and step_delay_ms are ignored.
+       */
+      smooth?: boolean;
 
       /**
        * Delay in milliseconds between relative steps while dragging (not the initial
@@ -431,12 +443,14 @@ export namespace ComputerBatchParams {
       y: number;
 
       /**
-       * Horizontal scroll amount. Positive scrolls right, negative scrolls left.
+       * Horizontal scroll amount in xdotool "wheel units." Positive scrolls right,
+       * negative scrolls left.
        */
       delta_x?: number;
 
       /**
-       * Vertical scroll amount. Positive scrolls down, negative scrolls up.
+       * Vertical scroll amount in xdotool "wheel units." Positive scrolls down, negative
+       * scrolls up.
        */
       delta_y?: number;
 
@@ -555,9 +569,21 @@ export interface ComputerDragMouseParams {
   delay?: number;
 
   /**
+   * Target total duration in milliseconds for the entire drag movement when
+   * smooth=true. Omit for automatic timing based on total path length.
+   */
+  duration_ms?: number;
+
+  /**
    * Modifier keys to hold during the drag
    */
   hold_keys?: Array<string>;
+
+  /**
+   * Use human-like Bezier curves between path waypoints instead of linear
+   * interpolation. When true, steps_per_segment and step_delay_ms are ignored.
+   */
+  smooth?: boolean;
 
   /**
    * Delay in milliseconds between relative steps while dragging (not the initial
@@ -632,12 +658,14 @@ export interface ComputerScrollParams {
   y: number;
 
   /**
-   * Horizontal scroll amount. Positive scrolls right, negative scrolls left.
+   * Horizontal scroll amount in xdotool "wheel units." Positive scrolls right,
+   * negative scrolls left.
    */
   delta_x?: number;
 
   /**
-   * Vertical scroll amount. Positive scrolls down, negative scrolls up.
+   * Vertical scroll amount in xdotool "wheel units." Positive scrolls down, negative
+   * scrolls up.
    */
   delta_y?: number;
 
