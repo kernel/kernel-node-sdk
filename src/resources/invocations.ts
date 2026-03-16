@@ -465,7 +465,7 @@ export namespace InvocationListBrowsersResponse {
     deleted_at?: string;
 
     /**
-     * Whether the browser session has hardware-accelerated GPU rendering.
+     * Whether GPU acceleration is enabled for the browser session.
      */
     gpu?: boolean;
 

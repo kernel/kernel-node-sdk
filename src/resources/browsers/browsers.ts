@@ -330,7 +330,7 @@ export interface BrowserCreateResponse {
   deleted_at?: string;
 
   /**
-   * Whether the browser session has hardware-accelerated GPU rendering.
+   * Whether GPU acceleration is enabled for the browser session.
    */
   gpu?: boolean;
 
@@ -430,7 +430,7 @@ export interface BrowserRetrieveResponse {
   deleted_at?: string;
 
   /**
-   * Whether the browser session has hardware-accelerated GPU rendering.
+   * Whether GPU acceleration is enabled for the browser session.
    */
   gpu?: boolean;
 
@@ -530,7 +530,7 @@ export interface BrowserUpdateResponse {
   deleted_at?: string;
 
   /**
-   * Whether the browser session has hardware-accelerated GPU rendering.
+   * Whether GPU acceleration is enabled for the browser session.
    */
   gpu?: boolean;
 
@@ -630,7 +630,7 @@ export interface BrowserListResponse {
   deleted_at?: string;
 
   /**
-   * Whether the browser session has hardware-accelerated GPU rendering.
+   * Whether GPU acceleration is enabled for the browser session.
    */
   gpu?: boolean;
 
@@ -689,8 +689,8 @@ export interface BrowserCreateParams {
   extensions?: Array<Shared.BrowserExtension>;
 
   /**
-   * If true, launches a hardware-accelerated browser with GPU rendering. Requires
-   * Start-Up or Enterprise plan.
+   * If true, enables GPU acceleration for the browser session. Requires Start-Up or
+   * Enterprise plan.
    */
   gpu?: boolean;
 
