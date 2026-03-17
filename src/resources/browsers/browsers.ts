@@ -330,7 +330,8 @@ export interface BrowserCreateResponse {
   deleted_at?: string;
 
   /**
-   * Whether GPU acceleration is enabled for the browser session.
+   * Whether GPU acceleration is enabled for the browser session (only supported for
+   * headful sessions).
    */
   gpu?: boolean;
 
@@ -430,7 +431,8 @@ export interface BrowserRetrieveResponse {
   deleted_at?: string;
 
   /**
-   * Whether GPU acceleration is enabled for the browser session.
+   * Whether GPU acceleration is enabled for the browser session (only supported for
+   * headful sessions).
    */
   gpu?: boolean;
 
@@ -530,7 +532,8 @@ export interface BrowserUpdateResponse {
   deleted_at?: string;
 
   /**
-   * Whether GPU acceleration is enabled for the browser session.
+   * Whether GPU acceleration is enabled for the browser session (only supported for
+   * headful sessions).
    */
   gpu?: boolean;
 
@@ -630,7 +633,8 @@ export interface BrowserListResponse {
   deleted_at?: string;
 
   /**
-   * Whether GPU acceleration is enabled for the browser session.
+   * Whether GPU acceleration is enabled for the browser session (only supported for
+   * headful sessions).
    */
   gpu?: boolean;
 
@@ -690,7 +694,7 @@ export interface BrowserCreateParams {
 
   /**
    * If true, enables GPU acceleration for the browser session. Requires Start-Up or
-   * Enterprise plan.
+   * Enterprise plan and headless=false.
    */
   gpu?: boolean;
 
