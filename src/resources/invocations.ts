@@ -465,7 +465,8 @@ export namespace InvocationListBrowsersResponse {
     deleted_at?: string;
 
     /**
-     * Whether GPU acceleration is enabled for the browser session.
+     * Whether GPU acceleration is enabled for the browser session (only supported for
+     * headful sessions).
      */
     gpu?: boolean;
 
