@@ -243,9 +243,13 @@ export namespace BrowserPool {
 
     /**
      * Initial browser window size in pixels with optional refresh rate. If omitted,
-     * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
-     * but the following configurations are known-good and fully tested: 2560x1440@10,
-     * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+     * image defaults apply (1920x1080@25). For GPU images, the default is
+     * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+     * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+     * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60. For GPU images, recommended
+     * presets use one of these resolutions with refresh rates 60, 30, 25, or 10:
+     * 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800, 1280x720, 1368x768,
+     * 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250, 768x1024, 800x1600.
      * Viewports outside this list may exhibit unstable live view or recording
      * behavior. If refresh_rate is not provided, it will be automatically determined
      * based on the resolution (higher resolutions use lower refresh rates to keep
@@ -305,7 +309,8 @@ export interface BrowserPoolAcquireResponse {
   deleted_at?: string;
 
   /**
-   * Whether the browser session has hardware-accelerated GPU rendering.
+   * Whether GPU acceleration is enabled for the browser session (only supported for
+   * headful sessions).
    */
   gpu?: boolean;
 
@@ -342,9 +347,13 @@ export interface BrowserPoolAcquireResponse {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
-   * but the following configurations are known-good and fully tested: 2560x1440@10,
-   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * image defaults apply (1920x1080@25). For GPU images, the default is
+   * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+   * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+   * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60. For GPU images, recommended
+   * presets use one of these resolutions with refresh rates 60, 30, 25, or 10:
+   * 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800, 1280x720, 1368x768,
+   * 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250, 768x1024, 800x1600.
    * Viewports outside this list may exhibit unstable live view or recording
    * behavior. If refresh_rate is not provided, it will be automatically determined
    * based on the resolution (higher resolutions use lower refresh rates to keep
@@ -414,9 +423,13 @@ export interface BrowserPoolCreateParams {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
-   * but the following configurations are known-good and fully tested: 2560x1440@10,
-   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * image defaults apply (1920x1080@25). For GPU images, the default is
+   * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+   * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+   * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60. For GPU images, recommended
+   * presets use one of these resolutions with refresh rates 60, 30, 25, or 10:
+   * 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800, 1280x720, 1368x768,
+   * 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250, 768x1024, 800x1600.
    * Viewports outside this list may exhibit unstable live view or recording
    * behavior. If refresh_rate is not provided, it will be automatically determined
    * based on the resolution (higher resolutions use lower refresh rates to keep
@@ -492,9 +505,13 @@ export interface BrowserPoolUpdateParams {
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
-   * image defaults apply (1920x1080@25). Arbitrary viewport dimensions are accepted,
-   * but the following configurations are known-good and fully tested: 2560x1440@10,
-   * 1920x1080@25, 1920x1200@25, 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60.
+   * image defaults apply (1920x1080@25). For GPU images, the default is
+   * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+   * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+   * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60. For GPU images, recommended
+   * presets use one of these resolutions with refresh rates 60, 30, 25, or 10:
+   * 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800, 1280x720, 1368x768,
+   * 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250, 768x1024, 800x1600.
    * Viewports outside this list may exhibit unstable live view or recording
    * behavior. If refresh_rate is not provided, it will be automatically determined
    * based on the resolution (higher resolutions use lower refresh rates to keep
