@@ -45,6 +45,21 @@ export class Connections extends APIResource {
   }
 
   /**
+   * Update an auth connection's configuration. Only the fields provided will be
+   * updated.
+   *
+   * @example
+   * ```ts
+   * const managedAuth = await client.auth.connections.update(
+   *   'id',
+   * );
+   * ```
+   */
+  update(id: string, body: ConnectionUpdateParams, options?: RequestOptions): APIPromise<ManagedAuth> {
+    return this._client.patch(path`/auth/connections/${id}`, { body, ...options });
+  }
+
+  /**
    * List auth connections with optional filters for profile_name and domain.
    *
    * @example
@@ -341,6 +356,12 @@ export interface ManagedAuth {
   proxy_id?: string;
 
   /**
+   * Non-MFA choices presented during the auth flow, such as account selection or org
+   * pickers (present when flow_step=awaiting_input).
+   */
+  sign_in_options?: Array<ManagedAuth.SignInOption> | null;
+
+  /**
    * SSO provider being used (e.g., google, github, microsoft)
    */
   sso_provider?: string | null;
@@ -467,6 +488,27 @@ export namespace ManagedAuth {
      */
     selector: string;
   }
+
+  /**
+   * A non-MFA choice presented during the auth flow (e.g. account selection, org
+   * picker)
+   */
+  export interface SignInOption {
+    /**
+     * Unique identifier for this option (used to submit selection back)
+     */
+    id: string;
+
+    /**
+     * Display text for the option
+     */
+    label: string;
+
+    /**
+     * Additional context such as email address or org name
+     */
+    description?: string | null;
+  }
 }
 
 /**
@@ -588,8 +630,96 @@ export namespace ManagedAuthCreateRequest {
 }
 
 /**
- * Request to submit field values, click an SSO button, or select an MFA method.
- * Provide exactly one of fields, sso_button_selector, or mfa_option_id.
+ * Request to update an auth connection's configuration
+ */
+export interface ManagedAuthUpdateRequest {
+  /**
+   * Additional domains valid for this auth flow (replaces existing list)
+   */
+  allowed_domains?: Array<string>;
+
+  /**
+   * Reference to credentials for the auth connection. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
+   */
+  credential?: ManagedAuthUpdateRequest.Credential;
+
+  /**
+   * Interval in seconds between automatic health checks
+   */
+  health_check_interval?: number;
+
+  /**
+   * Login page URL. Set to empty string to clear.
+   */
+  login_url?: string;
+
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  proxy?: ManagedAuthUpdateRequest.Proxy;
+
+  /**
+   * Whether to save credentials after every successful login
+   */
+  save_credentials?: boolean;
+}
+
+export namespace ManagedAuthUpdateRequest {
+  /**
+   * Reference to credentials for the auth connection. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
+   */
+  export interface Credential {
+    /**
+     * If true, lookup by domain from the specified provider
+     */
+    auto?: boolean;
+
+    /**
+     * Kernel credential name
+     */
+    name?: string;
+
+    /**
+     * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+     */
+    path?: string;
+
+    /**
+     * External provider name (e.g., "my-1p")
+     */
+    provider?: string;
+  }
+
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  export interface Proxy {
+    /**
+     * Proxy ID
+     */
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
+  }
+}
+
+/**
+ * Request to submit field values, click an SSO button, select an MFA method, or
+ * select a sign-in option. Provide exactly one of fields, sso_button_selector,
+ * sso_provider, mfa_option_id, or sign_in_option_id.
  */
 export interface SubmitFieldsRequest {
   /**
@@ -598,14 +728,26 @@ export interface SubmitFieldsRequest {
   fields?: { [key: string]: string };
 
   /**
-   * Optional MFA option ID if user selected an MFA method
+   * The MFA method type to select (when mfa_options were returned)
    */
   mfa_option_id?: string;
 
   /**
-   * Optional XPath selector if user chose to click an SSO button instead
+   * The sign-in option ID to select (when sign_in_options were returned)
+   */
+  sign_in_option_id?: string;
+
+  /**
+   * XPath selector for the SSO button to click (ODA). Use sso_provider instead for
+   * CUA.
    */
   sso_button_selector?: string;
+
+  /**
+   * SSO provider to click, matching the provider field from pending_sso_buttons
+   * (e.g., "google", "github"). Cannot be used with sso_button_selector.
+   */
+  sso_provider?: string;
 }
 
 /**
@@ -704,6 +846,12 @@ export namespace ConnectionFollowResponse {
     post_login_url?: string;
 
     /**
+     * Non-MFA choices presented during the auth flow, such as account selection or org
+     * pickers (present when flow_step=AWAITING_INPUT).
+     */
+    sign_in_options?: Array<ManagedAuthStateEvent.SignInOption>;
+
+    /**
      * Visible error message from the website (e.g., 'Incorrect password'). Present
      * when the website displays an error during login.
      */
@@ -795,6 +943,27 @@ export namespace ConnectionFollowResponse {
        * XPath selector for the button
        */
       selector: string;
+    }
+
+    /**
+     * A non-MFA choice presented during the auth flow (e.g. account selection, org
+     * picker)
+     */
+    export interface SignInOption {
+      /**
+       * Unique identifier for this option (used to submit selection back)
+       */
+      id: string;
+
+      /**
+       * Display text for the option
+       */
+      label: string;
+
+      /**
+       * Additional context such as email address or org name
+       */
+      description?: string | null;
     }
   }
 }
@@ -914,6 +1083,90 @@ export namespace ConnectionCreateParams {
   }
 }
 
+export interface ConnectionUpdateParams {
+  /**
+   * Additional domains valid for this auth flow (replaces existing list)
+   */
+  allowed_domains?: Array<string>;
+
+  /**
+   * Reference to credentials for the auth connection. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
+   */
+  credential?: ConnectionUpdateParams.Credential;
+
+  /**
+   * Interval in seconds between automatic health checks
+   */
+  health_check_interval?: number;
+
+  /**
+   * Login page URL. Set to empty string to clear.
+   */
+  login_url?: string;
+
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  proxy?: ConnectionUpdateParams.Proxy;
+
+  /**
+   * Whether to save credentials after every successful login
+   */
+  save_credentials?: boolean;
+}
+
+export namespace ConnectionUpdateParams {
+  /**
+   * Reference to credentials for the auth connection. Use one of:
+   *
+   * - { name } for Kernel credentials
+   * - { provider, path } for external provider item
+   * - { provider, auto: true } for external provider domain lookup
+   */
+  export interface Credential {
+    /**
+     * If true, lookup by domain from the specified provider
+     */
+    auto?: boolean;
+
+    /**
+     * Kernel credential name
+     */
+    name?: string;
+
+    /**
+     * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+     */
+    path?: string;
+
+    /**
+     * External provider name (e.g., "my-1p")
+     */
+    provider?: string;
+  }
+
+  /**
+   * Proxy selection. Provide either id or name. The proxy must belong to the
+   * caller's org.
+   */
+  export interface Proxy {
+    /**
+     * Proxy ID
+     */
+    id?: string;
+
+    /**
+     * Proxy name
+     */
+    name?: string;
+  }
+}
+
 export interface ConnectionListParams extends OffsetPaginationParams {
   /**
    * Filter by domain
@@ -959,14 +1212,26 @@ export interface ConnectionSubmitParams {
   fields?: { [key: string]: string };
 
   /**
-   * Optional MFA option ID if user selected an MFA method
+   * The MFA method type to select (when mfa_options were returned)
    */
   mfa_option_id?: string;
 
   /**
-   * Optional XPath selector if user chose to click an SSO button instead
+   * The sign-in option ID to select (when sign_in_options were returned)
+   */
+  sign_in_option_id?: string;
+
+  /**
+   * XPath selector for the SSO button to click (ODA). Use sso_provider instead for
+   * CUA.
    */
   sso_button_selector?: string;
+
+  /**
+   * SSO provider to click, matching the provider field from pending_sso_buttons
+   * (e.g., "google", "github"). Cannot be used with sso_button_selector.
+   */
+  sso_provider?: string;
 }
 
 export declare namespace Connections {
@@ -974,11 +1239,13 @@ export declare namespace Connections {
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,
+    type ManagedAuthUpdateRequest as ManagedAuthUpdateRequest,
     type SubmitFieldsRequest as SubmitFieldsRequest,
     type SubmitFieldsResponse as SubmitFieldsResponse,
     type ConnectionFollowResponse as ConnectionFollowResponse,
     type ManagedAuthsOffsetPagination as ManagedAuthsOffsetPagination,
     type ConnectionCreateParams as ConnectionCreateParams,
+    type ConnectionUpdateParams as ConnectionUpdateParams,
     type ConnectionListParams as ConnectionListParams,
     type ConnectionLoginParams as ConnectionLoginParams,
     type ConnectionSubmitParams as ConnectionSubmitParams,

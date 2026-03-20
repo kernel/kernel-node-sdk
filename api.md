@@ -214,6 +214,7 @@ Types:
 - <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuthUpdateRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">SubmitFieldsRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">SubmitFieldsResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ConnectionFollowResponse</a></code>
@@ -222,6 +223,7 @@ Methods:
 
 - <code title="post /auth/connections">client.auth.connections.<a href="./src/resources/auth/connections.ts">create</a>({ ...params }) -> ManagedAuth</code>
 - <code title="get /auth/connections/{id}">client.auth.connections.<a href="./src/resources/auth/connections.ts">retrieve</a>(id) -> ManagedAuth</code>
+- <code title="patch /auth/connections/{id}">client.auth.connections.<a href="./src/resources/auth/connections.ts">update</a>(id, { ...params }) -> ManagedAuth</code>
 - <code title="get /auth/connections">client.auth.connections.<a href="./src/resources/auth/connections.ts">list</a>({ ...params }) -> ManagedAuthsOffsetPagination</code>
 - <code title="delete /auth/connections/{id}">client.auth.connections.<a href="./src/resources/auth/connections.ts">delete</a>(id) -> void</code>
 - <code title="get /auth/connections/{id}/events">client.auth.connections.<a href="./src/resources/auth/connections.ts">follow</a>(id) -> ConnectionFollowResponse</code>
