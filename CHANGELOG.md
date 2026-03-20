@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.44.0 (2026-03-20)
+
+Full Changelog: [v0.43.0...v0.44.0](https://github.com/kernel/kernel-node-sdk/compare/v0.43.0...v0.44.0)
+
+### Features
+
+* Add GPU viewport presets and GPU encoder defaults ([693e4f6](https://github.com/kernel/kernel-node-sdk/commit/693e4f6cdd4d2db7524c2ff22ec99c2013cf6279))
+* Adds description to OAS spec for docs about delta_x, delta_y ([7aa9d1e](https://github.com/kernel/kernel-node-sdk/commit/7aa9d1eed6890de62f92edac3bbccff8565b1d57))
+* Drop headless GPU support and disable pooling ([762670e](https://github.com/kernel/kernel-node-sdk/commit/762670ef4e3c6126a4c541eb67f49b2565504e40))
+* Enhance managed authentication with CUA support and new features ([2d89c68](https://github.com/kernel/kernel-node-sdk/commit/2d89c683d2cb4249dfea19407bc5064dd8bb9131))
+* expose smooth drag mouse movement via public API ([b9911dd](https://github.com/kernel/kernel-node-sdk/commit/b9911dd1c37610192c9ef70e1344f7b93a191f24))
+* Rename hardware acceleration UI/docs wording to GPU acceleration ([1d22910](https://github.com/kernel/kernel-node-sdk/commit/1d22910d61a9baec560384fd0485fc0bb9216371))
+
+
+### Chores
+
+* **internal:** tweak CI branches ([256d3ff](https://github.com/kernel/kernel-node-sdk/commit/256d3ff87c9744a8017a4fa93e21ec05118dbfca))
+
 ## 0.43.0 (2026-03-10)
 
 Full Changelog: [v0.42.1...v0.43.0](https://github.com/kernel/kernel-node-sdk/compare/v0.42.1...v0.43.0)
