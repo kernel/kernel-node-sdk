@@ -24,6 +24,7 @@ describe('resource browserPools', () => {
   test.skip('create: required and optional params', async () => {
     const response = await client.browserPools.create({
       size: 10,
+      chrome_policy: { foo: 'bar' },
       extensions: [{ id: 'id', name: 'name' }],
       fill_rate_per_minute: 0,
       headless: false,
@@ -73,6 +74,7 @@ describe('resource browserPools', () => {
   test.skip('update: required and optional params', async () => {
     const response = await client.browserPools.update('id_or_name', {
       size: 10,
+      chrome_policy: { foo: 'bar' },
       discard_all_idle: false,
       extensions: [{ id: 'id', name: 'name' }],
       fill_rate_per_minute: 0,
