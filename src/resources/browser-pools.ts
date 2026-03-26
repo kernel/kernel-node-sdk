@@ -191,6 +191,14 @@ export namespace BrowserPool {
     size: number;
 
     /**
+     * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
+     * Keys are Chrome enterprise policy names; values must match their expected types.
+     * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
+     * https://chromeenterprise.google/policies/
+     */
+    chrome_policy?: { [key: string]: unknown };
+
+    /**
      * List of browser extensions to load into the session. Provide each by id or name.
      */
     extensions?: Array<Shared.BrowserExtension>;
@@ -371,6 +379,14 @@ export interface BrowserPoolCreateParams {
   size: number;
 
   /**
+   * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
+   * Keys are Chrome enterprise policy names; values must match their expected types.
+   * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
+   * https://chromeenterprise.google/policies/
+   */
+  chrome_policy?: { [key: string]: unknown };
+
+  /**
    * List of browser extensions to load into the session. Provide each by id or name.
    */
   extensions?: Array<Shared.BrowserExtension>;
@@ -445,6 +461,14 @@ export interface BrowserPoolUpdateParams {
    * exceed your limit).
    */
   size: number;
+
+  /**
+   * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
+   * Keys are Chrome enterprise policy names; values must match their expected types.
+   * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
+   * https://chromeenterprise.google/policies/
+   */
+  chrome_policy?: { [key: string]: unknown };
 
   /**
    * Whether to discard all idle browsers and rebuild the pool immediately. Defaults
