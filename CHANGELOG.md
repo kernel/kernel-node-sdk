@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.45.0 (2026-03-30)
+
+Full Changelog: [v0.44.0...v0.45.0](https://github.com/kernel/kernel-node-sdk/compare/v0.44.0...v0.45.0)
+
+### Features
+
+* [kernel-1008] browser pools add custom policy ([4425fd1](https://github.com/kernel/kernel-node-sdk/commit/4425fd17c82a65519212e2abc78fc5e0af432f87))
+* Add disable_default_proxy for stealth browsers ([d45ae2f](https://github.com/kernel/kernel-node-sdk/commit/d45ae2f215032f925ecf493acf61636ec57ac5b4))
+
+
+### Chores
+
+* **ci:** skip lint on metadata-only changes ([4417a72](https://github.com/kernel/kernel-node-sdk/commit/4417a7212f71689e8eb7f31e6fbd14a2b3388cc3))
+* **internal:** codegen related update ([302cab1](https://github.com/kernel/kernel-node-sdk/commit/302cab1ffd51d805a819313dacff719e6268a738))
+* **internal:** update gitignore ([0e536f0](https://github.com/kernel/kernel-node-sdk/commit/0e536f09ab1a8b54da212d3f530602efb5df08cc))
+
 ## 0.44.0 (2026-03-20)
 
 Full Changelog: [v0.43.0...v0.44.0](https://github.com/kernel/kernel-node-sdk/compare/v0.43.0...v0.44.0)
