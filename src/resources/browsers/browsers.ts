@@ -775,6 +775,12 @@ export interface BrowserRetrieveParams {
 
 export interface BrowserUpdateParams {
   /**
+   * If true, stealth browsers connect directly instead of using the default stealth
+   * proxy.
+   */
+  disable_default_proxy?: boolean;
+
+  /**
    * Profile to load into the browser session. Only allowed if the session does not
    * already have a profile loaded.
    */
