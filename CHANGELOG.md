@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.46.0 (2026-04-06)
+
+Full Changelog: [v0.45.0...v0.46.0](https://github.com/kernel/kernel-node-sdk/compare/v0.45.0...v0.46.0)
+
+### Features
+
+* Add optional url parameter to proxy check endpoint ([eb53ca2](https://github.com/kernel/kernel-node-sdk/commit/eb53ca23e7ec879ff93ca9c3b76413f98c6dbd87))
+
+
+### Bug Fixes
+
+* **internal:** gitignore generated `oidc` dir ([2e37932](https://github.com/kernel/kernel-node-sdk/commit/2e3793282c496980415e3fac8cedaaff49d143a5))
+
 ## 0.45.0 (2026-03-30)
 
 Full Changelog: [v0.44.0...v0.45.0](https://github.com/kernel/kernel-node-sdk/compare/v0.44.0...v0.45.0)
