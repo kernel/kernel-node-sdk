@@ -42,10 +42,19 @@ export class Proxies extends APIResource {
   }
 
   /**
-   * Run a health check on the proxy to verify it's working.
+   * Run a health check on the proxy to verify it's working. Optionally specify a URL
+   * to test reachability against a specific target. For ISP and datacenter proxies,
+   * this reliably tests whether the target site is reachable from the proxy's stable
+   * exit IP. For residential and mobile proxies, the exit node varies between
+   * requests, so this validates proxy configuration and connectivity rather than
+   * guaranteeing site-specific reachability.
    */
-  check(id: string, options?: RequestOptions): APIPromise<ProxyCheckResponse> {
-    return this._client.post(path`/proxies/${id}/check`, options);
+  check(
+    id: string,
+    body: ProxyCheckParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<ProxyCheckResponse> {
+    return this._client.post(path`/proxies/${id}/check`, { body, ...options });
   }
 }
 
@@ -1183,6 +1192,22 @@ export namespace ProxyCreateParams {
   }
 }
 
+export interface ProxyCheckParams {
+  /**
+   * An optional URL to test reachability against. If provided, the proxy check will
+   * test connectivity to this URL instead of the default test URLs. Only HTTP and
+   * HTTPS schemes are allowed, and the URL must resolve to a public IP address. For
+   * ISP and datacenter proxies, the exit IP is stable, so a successful check
+   * reliably indicates that subsequent browser sessions will reach the target site
+   * with the same IP. For residential and mobile proxies, the exit node changes
+   * between requests, so a successful check validates proxy configuration but does
+   * not guarantee that a subsequent browser session will use the same exit IP or
+   * reach the same site — it is useful for verifying credentials and connectivity,
+   * not for predicting site-specific behavior.
+   */
+  url?: string;
+}
+
 export declare namespace Proxies {
   export {
     type ProxyCreateResponse as ProxyCreateResponse,
@@ -1190,5 +1215,6 @@ export declare namespace Proxies {
     type ProxyListResponse as ProxyListResponse,
     type ProxyCheckResponse as ProxyCheckResponse,
     type ProxyCreateParams as ProxyCreateParams,
+    type ProxyCheckParams as ProxyCheckParams,
   };
 }

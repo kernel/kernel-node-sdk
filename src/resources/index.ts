@@ -103,4 +103,5 @@ export {
   type ProxyListResponse,
   type ProxyCheckResponse,
   type ProxyCreateParams,
+  type ProxyCheckParams,
 } from './proxies';
