@@ -14,8 +14,9 @@ import { path } from '../../internal/utils/path';
  */
 export class Connections extends APIResource {
   /**
-   * Creates an auth connection for a profile and domain combination. Returns 409
-   * Conflict if an auth connection already exists for the given profile and domain.
+   * Creates an auth connection for a profile and domain combination. If the provided
+   * profile_name does not exist, it is created automatically. Returns 409 Conflict
+   * if an auth connection already exists for the given profile and domain.
    *
    * @example
    * ```ts
@@ -335,6 +336,11 @@ export interface ManagedAuth {
   live_view_url?: string | null;
 
   /**
+   * Optional login page URL to skip discovery
+   */
+  login_url?: string;
+
+  /**
    * MFA method options (present when flow_step=awaiting_input and MFA selection
    * required)
    */
@@ -521,7 +527,8 @@ export interface ManagedAuthCreateRequest {
   domain: string;
 
   /**
-   * Name of the profile to manage authentication for
+   * Name of the profile to manage authentication for. If the profile does not exist,
+   * it is created automatically.
    */
   profile_name: string;
 
@@ -975,7 +982,8 @@ export interface ConnectionCreateParams {
   domain: string;
 
   /**
-   * Name of the profile to manage authentication for
+   * Name of the profile to manage authentication for. If the profile does not exist,
+   * it is created automatically.
    */
   profile_name: string;
 
