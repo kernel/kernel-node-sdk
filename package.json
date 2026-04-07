@@ -1,6 +1,6 @@
 {
   "name": "@onkernel/sdk",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "description": "The official TypeScript library for the Kernel API",
   "author": "Kernel <>",
   "types": "dist/index.d.ts",
