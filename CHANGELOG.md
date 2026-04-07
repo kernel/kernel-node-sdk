@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.47.0 (2026-04-07)
+
+Full Changelog: [v0.46.0...v0.47.0](https://github.com/kernel/kernel-node-sdk/compare/v0.46.0...v0.47.0)
+
+### Features
+
+* Include login_url in managed auth connection response ([8900a89](https://github.com/kernel/kernel-node-sdk/commit/8900a895eaf957e902b7f26752419548fdde224e))
+
 ## 0.46.0 (2026-04-06)
 
 Full Changelog: [v0.45.0...v0.46.0](https://github.com/kernel/kernel-node-sdk/compare/v0.45.0...v0.46.0)
