@@ -319,6 +319,11 @@ export interface BrowserCreateResponse {
   webdriver_ws_url: string;
 
   /**
+   * Metro-API HTTP base URL for this browser session.
+   */
+  base_url?: string;
+
+  /**
    * Remote URL for live viewing the browser session. Only available for non-headless
    * browsers.
    */
@@ -418,6 +423,11 @@ export interface BrowserRetrieveResponse {
    * Websocket URL for WebDriver BiDi connections to the browser session
    */
   webdriver_ws_url: string;
+
+  /**
+   * Metro-API HTTP base URL for this browser session.
+   */
+  base_url?: string;
 
   /**
    * Remote URL for live viewing the browser session. Only available for non-headless
@@ -521,6 +531,11 @@ export interface BrowserUpdateResponse {
   webdriver_ws_url: string;
 
   /**
+   * Metro-API HTTP base URL for this browser session.
+   */
+  base_url?: string;
+
+  /**
    * Remote URL for live viewing the browser session. Only available for non-headless
    * browsers.
    */
@@ -620,6 +635,11 @@ export interface BrowserListResponse {
    * Websocket URL for WebDriver BiDi connections to the browser session
    */
   webdriver_ws_url: string;
+
+  /**
+   * Metro-API HTTP base URL for this browser session.
+   */
+  base_url?: string;
 
   /**
    * Remote URL for live viewing the browser session. Only available for non-headless

@@ -454,6 +454,11 @@ export namespace InvocationListBrowsersResponse {
     webdriver_ws_url: string;
 
     /**
+     * Metro-API HTTP base URL for this browser session.
+     */
+    base_url?: string;
+
+    /**
      * Remote URL for live viewing the browser session. Only available for non-headless
      * browsers.
      */
