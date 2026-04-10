@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.48.0 (2026-04-10)
+
+Full Changelog: [v0.47.0...v0.48.0](https://github.com/kernel/kernel-node-sdk/compare/v0.47.0...v0.48.0)
+
+### Features
+
+* [kernel-1116] add base_url field to browser session response ([50cc800](https://github.com/kernel/kernel-node-sdk/commit/50cc8004d30cb579d1fb789be0092610b0c67d2a))
+
+
+### Chores
+
+* **internal:** codegen related update ([87b21a8](https://github.com/kernel/kernel-node-sdk/commit/87b21a8d12f82d8f88b6a4651954c6a42f09d201))
+* retrigger Stainless codegen for projects resource ([068027a](https://github.com/kernel/kernel-node-sdk/commit/068027a7b58e3234b99c8b87fe7ef4610f33f941))
+
 ## 0.47.0 (2026-04-07)
 
 Full Changelog: [v0.46.0...v0.47.0](https://github.com/kernel/kernel-node-sdk/compare/v0.46.0...v0.47.0)
