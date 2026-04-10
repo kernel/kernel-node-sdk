@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.49.0 (2026-04-10)
+
+Full Changelog: [v0.48.0...v0.49.0](https://github.com/kernel/kernel-node-sdk/compare/v0.48.0...v0.49.0)
+
+### Features
+
+* Neil/kernel 1180 fuzzy matching for browser pools ([3ded8c0](https://github.com/kernel/kernel-node-sdk/commit/3ded8c028fbc1ca0aa3084082e48d026409c1a86))
+* Raise replay framerate limit from 20 to 60 fps ([63c8751](https://github.com/kernel/kernel-node-sdk/commit/63c8751a245012180b37efb77f689a95dadc806a))
+
 ## 0.48.0 (2026-04-10)
 
 Full Changelog: [v0.47.0...v0.48.0](https://github.com/kernel/kernel-node-sdk/compare/v0.47.0...v0.48.0)
