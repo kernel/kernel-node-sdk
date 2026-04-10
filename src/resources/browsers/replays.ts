@@ -143,7 +143,8 @@ export interface ReplayDownloadParams {
 
 export interface ReplayStartParams {
   /**
-   * Recording framerate in fps.
+   * Recording framerate in fps. Values above 20 require GPU to be enabled on the
+   * browser session.
    */
   framerate?: number;
 
