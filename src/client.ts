@@ -118,6 +118,16 @@ import {
   Browsers,
   Profile,
 } from './resources/browsers/browsers';
+import {
+  CreateProjectRequest,
+  Project,
+  ProjectCreateParams,
+  ProjectListParams,
+  ProjectUpdateParams,
+  Projects,
+  ProjectsOffsetPagination,
+  UpdateProjectRequest,
+} from './resources/projects/projects';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -926,6 +936,10 @@ export class Kernel {
    */
   credentials: API.Credentials = new API.Credentials(this);
   /**
+   * Create and manage projects for resource isolation within an organization.
+   */
+  projects: API.Projects = new API.Projects(this);
+  /**
    * Configure external credential providers like 1Password.
    */
   credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
@@ -941,6 +955,7 @@ Kernel.Proxies = Proxies;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
 Kernel.Credentials = Credentials;
+Kernel.Projects = Projects;
 Kernel.CredentialProviders = CredentialProviders;
 
 export declare namespace Kernel {
@@ -1055,6 +1070,17 @@ export declare namespace Kernel {
     type CredentialCreateParams as CredentialCreateParams,
     type CredentialUpdateParams as CredentialUpdateParams,
     type CredentialListParams as CredentialListParams,
+  };
+
+  export {
+    Projects as Projects,
+    type CreateProjectRequest as CreateProjectRequest,
+    type Project as Project,
+    type UpdateProjectRequest as UpdateProjectRequest,
+    type ProjectsOffsetPagination as ProjectsOffsetPagination,
+    type ProjectCreateParams as ProjectCreateParams,
+    type ProjectUpdateParams as ProjectUpdateParams,
+    type ProjectListParams as ProjectListParams,
   };
 
   export {

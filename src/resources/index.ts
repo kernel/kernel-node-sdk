@@ -97,6 +97,16 @@ export {
 } from './invocations';
 export { Profiles, type ProfileCreateParams, type ProfileListParams } from './profiles';
 export {
+  Projects,
+  type CreateProjectRequest,
+  type Project,
+  type UpdateProjectRequest,
+  type ProjectCreateParams,
+  type ProjectUpdateParams,
+  type ProjectListParams,
+  type ProjectsOffsetPagination,
+} from './projects/projects';
+export {
   Proxies,
   type ProxyCreateResponse,
   type ProxyRetrieveResponse,
