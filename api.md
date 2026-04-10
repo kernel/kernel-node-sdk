@@ -299,6 +299,34 @@ Methods:
 - <code title="delete /credentials/{id_or_name}">client.credentials.<a href="./src/resources/credentials.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /credentials/{id_or_name}/totp-code">client.credentials.<a href="./src/resources/credentials.ts">totpCode</a>(idOrName) -> CredentialTotpCodeResponse</code>
 
+# Projects
+
+Types:
+
+- <code><a href="./src/resources/projects/projects.ts">CreateProjectRequest</a></code>
+- <code><a href="./src/resources/projects/projects.ts">Project</a></code>
+- <code><a href="./src/resources/projects/projects.ts">UpdateProjectRequest</a></code>
+
+Methods:
+
+- <code title="post /projects">client.projects.<a href="./src/resources/projects/projects.ts">create</a>({ ...params }) -> Project</code>
+- <code title="get /projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">retrieve</a>(id) -> Project</code>
+- <code title="patch /projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">update</a>(id, { ...params }) -> Project</code>
+- <code title="get /projects">client.projects.<a href="./src/resources/projects/projects.ts">list</a>({ ...params }) -> ProjectsOffsetPagination</code>
+- <code title="delete /projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">delete</a>(id) -> void</code>
+
+## Limits
+
+Types:
+
+- <code><a href="./src/resources/projects/limits.ts">ProjectLimits</a></code>
+- <code><a href="./src/resources/projects/limits.ts">UpdateProjectLimitsRequest</a></code>
+
+Methods:
+
+- <code title="get /projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">retrieve</a>(id) -> ProjectLimits</code>
+- <code title="patch /projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">update</a>(id, { ...params }) -> ProjectLimits</code>
+
 # CredentialProviders
 
 Types:
