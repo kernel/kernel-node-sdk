@@ -454,7 +454,7 @@ export namespace InvocationListBrowsersResponse {
     webdriver_ws_url: string;
 
     /**
-     * Metro-API HTTP base URL for this browser session.
+     * HTTP base URL for routing browser subresource requests to this session's browser VM.
      */
     base_url?: string;
 
