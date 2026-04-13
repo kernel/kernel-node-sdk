@@ -162,7 +162,11 @@ export class KernelBrowserSession {
       processID: string,
       options?: RequestOptions,
     ): APIPromise<Stream<ProcessStdoutStreamResponse>> => {
-      return this.sessionClient.browsers.process.stdoutStream(processID, { id: this.sessionId }, this.opt(options));
+      return this.sessionClient.browsers.process.stdoutStream(
+        processID,
+        { id: this.sessionId },
+        this.opt(options),
+      );
     },
   };
 
@@ -174,7 +178,11 @@ export class KernelBrowserSession {
       body: ComputerCaptureScreenshotParams | null | undefined,
       options?: RequestOptions,
     ): APIPromise<Response> => {
-      return this.sessionClient.browsers.computer.captureScreenshot(this.sessionId, body ?? {}, this.opt(options));
+      return this.sessionClient.browsers.computer.captureScreenshot(
+        this.sessionId,
+        body ?? {},
+        this.opt(options),
+      );
     },
     clickMouse: (body: ComputerClickMouseParams, options?: RequestOptions): APIPromise<void> => {
       return this.sessionClient.browsers.computer.clickMouse(this.sessionId, body, this.opt(options));
@@ -201,7 +209,11 @@ export class KernelBrowserSession {
       body: ComputerSetCursorVisibilityParams,
       options?: RequestOptions,
     ): APIPromise<ComputerSetCursorVisibilityResponse> => {
-      return this.sessionClient.browsers.computer.setCursorVisibility(this.sessionId, body, this.opt(options));
+      return this.sessionClient.browsers.computer.setCursorVisibility(
+        this.sessionId,
+        body,
+        this.opt(options),
+      );
     },
     typeText: (body: ComputerTypeTextParams, options?: RequestOptions): APIPromise<void> => {
       return this.sessionClient.browsers.computer.typeText(this.sessionId, body, this.opt(options));
@@ -231,7 +243,11 @@ export class KernelBrowserSession {
       return this.sessionClient.browsers.replays.list(this.sessionId, this.opt(options));
     },
     download: (replayID: string, options?: RequestOptions): APIPromise<Response> => {
-      return this.sessionClient.browsers.replays.download(replayID, { id: this.sessionId }, this.opt(options));
+      return this.sessionClient.browsers.replays.download(
+        replayID,
+        { id: this.sessionId },
+        this.opt(options),
+      );
     },
     start: (
       body: ReplayStartParams | null | undefined,
@@ -344,16 +360,16 @@ function createBrowserSessionKernel(
         ...(((parent as any)._options?.defaultQuery as Record<string, unknown> | undefined) ?? {}),
         jwt: transport.jwt,
       }
-    : ((parent as any)._options?.defaultQuery ?? undefined);
+    : (parent as any)._options?.defaultQuery ?? undefined;
 
   const sessionClient = parent.withOptions({
     baseURL: transport.defaultBaseURL,
     defaultQuery: defaultQuery as Record<string, string | undefined> | undefined,
   }) as Kernel;
 
-  const originalPrepareOptions = ((sessionClient as any).prepareOptions as
-    | ((options: FinalRequestOptions) => Promise<void>)
-    | undefined)?.bind(sessionClient);
+  const originalPrepareOptions = (
+    (sessionClient as any).prepareOptions as ((options: FinalRequestOptions) => Promise<void>) | undefined
+  )?.bind(sessionClient);
 
   (sessionClient as any).authHeaders = async () => undefined;
   (sessionClient as any).prepareOptions = async (options: FinalRequestOptions) => {
