@@ -23,6 +23,7 @@
     "prepublishOnly": "echo 'to publish, run yarn build && (cd dist; yarn publish)' && exit 1",
     "format": "./scripts/format",
     "prepare": "if ./scripts/utils/check-is-in-git-install.sh; then ./scripts/build && ./scripts/utils/git-swap.sh; fi",
+    "generate:browser-session": "ts-node -T scripts/generate-browser-session.ts",
     "tsn": "ts-node -r tsconfig-paths/register",
     "lint": "./scripts/lint",
     "fix": "./scripts/format"
@@ -45,6 +46,7 @@
     "prettier": "^3.0.0",
     "publint": "^0.2.12",
     "ts-jest": "^29.1.0",
+    "ts-morph": "^28.0.0",
     "ts-node": "^10.5.0",
     "tsc-multi": "https://github.com/stainless-api/tsc-multi/releases/download/v1.1.9/tsc-multi.tgz",
     "tsconfig-paths": "^4.0.0",

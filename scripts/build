@@ -6,6 +6,9 @@ cd "$(dirname "$0")/.."
 
 node scripts/utils/check-version.cjs
 
+./node_modules/.bin/ts-node -T scripts/generate-browser-session.ts
+./node_modules/.bin/prettier --write src/lib/generated/browser-session-bindings.ts >/dev/null
+
 # Build into dist and will publish the package from there,
 # so that src/resources/foo.ts becomes <package root>/resources/foo.js
 # This way importing from `"@onkernel/sdk/resources/foo"` works

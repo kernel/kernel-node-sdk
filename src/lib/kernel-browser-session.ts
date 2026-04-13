@@ -1,70 +1,14 @@
 import type { HeadersInit, RequestInfo, RequestInit } from '../internal/builtin-types';
 import { Kernel } from '../client';
 import { KernelError } from '../core/error';
-import { APIPromise } from '../core/api-promise';
-import type { RequestOptions } from '../internal/request-options';
-import type { FinalRequestOptions } from '../internal/request-options';
+import type { FinalRequestOptions, RequestOptions } from '../internal/request-options';
 import type {
   BrowserCreateResponse,
   BrowserListResponse,
-  BrowserLoadExtensionsParams,
   BrowserRetrieveResponse,
 } from '../resources/browsers/browsers';
-import type {
-  ComputerBatchParams,
-  ComputerCaptureScreenshotParams,
-  ComputerClickMouseParams,
-  ComputerDragMouseParams,
-  ComputerGetMousePositionResponse,
-  ComputerMoveMouseParams,
-  ComputerPressKeyParams,
-  ComputerReadClipboardResponse,
-  ComputerScrollParams,
-  ComputerSetCursorVisibilityParams,
-  ComputerSetCursorVisibilityResponse,
-  ComputerTypeTextParams,
-  ComputerWriteClipboardParams,
-} from '../resources/browsers/computer';
-import type { LogStreamParams } from '../resources/browsers/logs';
-import type { PlaywrightExecuteParams, PlaywrightExecuteResponse } from '../resources/browsers/playwright';
-import type {
-  ProcessExecParams,
-  ProcessExecResponse,
-  ProcessKillParams,
-  ProcessKillResponse,
-  ProcessResizeParams,
-  ProcessResizeResponse,
-  ProcessSpawnParams,
-  ProcessSpawnResponse,
-  ProcessStatusResponse,
-  ProcessStdinParams,
-  ProcessStdinResponse,
-  ProcessStdoutStreamResponse,
-} from '../resources/browsers/process';
-import type {
-  ReplayListResponse,
-  ReplayStartParams,
-  ReplayStartResponse,
-} from '../resources/browsers/replays';
-import type {
-  FCreateDirectoryParams,
-  FDeleteDirectoryParams,
-  FDeleteFileParams,
-  FDownloadDirZipParams,
-  FFileInfoParams,
-  FFileInfoResponse,
-  FListFilesParams,
-  FListFilesResponse,
-  FMoveParams,
-  FReadFileParams,
-  FSetFilePermissionsParams,
-  FUploadParams,
-  FUploadZipParams,
-  FWriteFileParams,
-} from '../resources/browsers/fs/fs';
-import { Stream } from '../core/streaming';
-import type { LogEvent } from '../resources/shared';
 import { buildHeaders } from '../internal/headers';
+import { GeneratedBrowserSessionBindings } from './generated/browser-session-bindings';
 import {
   resolveBrowserTransport,
   type KernelBrowserLike,
@@ -87,221 +31,28 @@ export interface BrowserFetchInit extends RequestInit {
  * through {@link BrowserCreateResponse.base_url} (browser session HTTP base URL for
  * the browser VM edge) with jwt query authentication.
  */
-export class KernelBrowserSession {
-  readonly sessionId: string;
-  private readonly sessionClient: Kernel;
+export class KernelBrowserSession extends GeneratedBrowserSessionBindings {
+  protected override readonly sessionClient: Kernel;
   private readonly transport: ResolvedBrowserTransport;
 
   constructor(kernel: Kernel, browser: KernelBrowserInput) {
-    this.transport = resolveBrowserTransport(browser);
-    this.sessionId = this.transport.sessionId;
-    const baseURL = this.transport.defaultBaseURL;
+    const transport = resolveBrowserTransport(browser);
+    const sessionId = transport.sessionId;
+    const baseURL = transport.defaultBaseURL;
     if (!baseURL) {
       throw new KernelError(
         'kernel.forBrowser requires browser.base_url from the Kernel API. Create or retrieve the browser and pass a response that includes base_url before using the browser session client.',
       );
     }
-    this.sessionClient = createBrowserSessionKernel(kernel, {
-      ...this.transport,
+
+    const sessionClient = createBrowserSessionKernel(kernel, {
+      ...transport,
       defaultBaseURL: baseURL,
     });
+    super(sessionClient, sessionId);
+    this.sessionClient = sessionClient;
+    this.transport = transport;
   }
-
-  private opt(options?: RequestOptions): RequestOptions | undefined {
-    return options;
-  }
-
-  loadExtensions(body: BrowserLoadExtensionsParams, options?: RequestOptions): APIPromise<void> {
-    return this.sessionClient.browsers.loadExtensions(this.sessionId, body, this.opt(options));
-  }
-
-  readonly process = {
-    exec: (body: ProcessExecParams, options?: RequestOptions): APIPromise<ProcessExecResponse> => {
-      return this.sessionClient.browsers.process.exec(this.sessionId, body, this.opt(options));
-    },
-    kill: (
-      processID: string,
-      params: Omit<ProcessKillParams, 'id'>,
-      options?: RequestOptions,
-    ): APIPromise<ProcessKillResponse> => {
-      return this.sessionClient.browsers.process.kill(
-        processID,
-        { ...params, id: this.sessionId },
-        this.opt(options),
-      );
-    },
-    resize: (
-      processID: string,
-      params: Omit<ProcessResizeParams, 'id'>,
-      options?: RequestOptions,
-    ): APIPromise<ProcessResizeResponse> => {
-      return this.sessionClient.browsers.process.resize(
-        processID,
-        { ...params, id: this.sessionId },
-        this.opt(options),
-      );
-    },
-    spawn: (body: ProcessSpawnParams, options?: RequestOptions): APIPromise<ProcessSpawnResponse> => {
-      return this.sessionClient.browsers.process.spawn(this.sessionId, body, this.opt(options));
-    },
-    status: (processID: string, options?: RequestOptions): APIPromise<ProcessStatusResponse> => {
-      return this.sessionClient.browsers.process.status(processID, { id: this.sessionId }, this.opt(options));
-    },
-    stdin: (
-      processID: string,
-      params: Omit<ProcessStdinParams, 'id'>,
-      options?: RequestOptions,
-    ): APIPromise<ProcessStdinResponse> => {
-      return this.sessionClient.browsers.process.stdin(
-        processID,
-        { ...params, id: this.sessionId },
-        this.opt(options),
-      );
-    },
-    stdoutStream: (
-      processID: string,
-      options?: RequestOptions,
-    ): APIPromise<Stream<ProcessStdoutStreamResponse>> => {
-      return this.sessionClient.browsers.process.stdoutStream(
-        processID,
-        { id: this.sessionId },
-        this.opt(options),
-      );
-    },
-  };
-
-  readonly computer = {
-    batch: (body: ComputerBatchParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.batch(this.sessionId, body, this.opt(options));
-    },
-    captureScreenshot: (
-      body: ComputerCaptureScreenshotParams | null | undefined,
-      options?: RequestOptions,
-    ): APIPromise<Response> => {
-      return this.sessionClient.browsers.computer.captureScreenshot(
-        this.sessionId,
-        body ?? {},
-        this.opt(options),
-      );
-    },
-    clickMouse: (body: ComputerClickMouseParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.clickMouse(this.sessionId, body, this.opt(options));
-    },
-    dragMouse: (body: ComputerDragMouseParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.dragMouse(this.sessionId, body, this.opt(options));
-    },
-    getMousePosition: (options?: RequestOptions): APIPromise<ComputerGetMousePositionResponse> => {
-      return this.sessionClient.browsers.computer.getMousePosition(this.sessionId, this.opt(options));
-    },
-    moveMouse: (body: ComputerMoveMouseParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.moveMouse(this.sessionId, body, this.opt(options));
-    },
-    pressKey: (body: ComputerPressKeyParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.pressKey(this.sessionId, body, this.opt(options));
-    },
-    readClipboard: (options?: RequestOptions): APIPromise<ComputerReadClipboardResponse> => {
-      return this.sessionClient.browsers.computer.readClipboard(this.sessionId, this.opt(options));
-    },
-    scroll: (body: ComputerScrollParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.scroll(this.sessionId, body, this.opt(options));
-    },
-    setCursorVisibility: (
-      body: ComputerSetCursorVisibilityParams,
-      options?: RequestOptions,
-    ): APIPromise<ComputerSetCursorVisibilityResponse> => {
-      return this.sessionClient.browsers.computer.setCursorVisibility(
-        this.sessionId,
-        body,
-        this.opt(options),
-      );
-    },
-    typeText: (body: ComputerTypeTextParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.typeText(this.sessionId, body, this.opt(options));
-    },
-    writeClipboard: (body: ComputerWriteClipboardParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.computer.writeClipboard(this.sessionId, body, this.opt(options));
-    },
-  };
-
-  readonly logs = {
-    stream: (query: LogStreamParams, options?: RequestOptions): APIPromise<Stream<LogEvent>> => {
-      return this.sessionClient.browsers.logs.stream(this.sessionId, query, this.opt(options));
-    },
-  };
-
-  readonly playwright = {
-    execute: (
-      body: PlaywrightExecuteParams,
-      options?: RequestOptions,
-    ): APIPromise<PlaywrightExecuteResponse> => {
-      return this.sessionClient.browsers.playwright.execute(this.sessionId, body, this.opt(options));
-    },
-  };
-
-  readonly replays = {
-    list: (options?: RequestOptions): APIPromise<ReplayListResponse> => {
-      return this.sessionClient.browsers.replays.list(this.sessionId, this.opt(options));
-    },
-    download: (replayID: string, options?: RequestOptions): APIPromise<Response> => {
-      return this.sessionClient.browsers.replays.download(
-        replayID,
-        { id: this.sessionId },
-        this.opt(options),
-      );
-    },
-    start: (
-      body: ReplayStartParams | null | undefined,
-      options?: RequestOptions,
-    ): APIPromise<ReplayStartResponse> => {
-      return this.sessionClient.browsers.replays.start(this.sessionId, body ?? {}, this.opt(options));
-    },
-    stop: (replayID: string, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.replays.stop(replayID, { id: this.sessionId }, this.opt(options));
-    },
-  };
-
-  readonly fs = {
-    createDirectory: (body: FCreateDirectoryParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.createDirectory(this.sessionId, body, this.opt(options));
-    },
-    deleteDirectory: (body: FDeleteDirectoryParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.deleteDirectory(this.sessionId, body, this.opt(options));
-    },
-    deleteFile: (body: FDeleteFileParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.deleteFile(this.sessionId, body, this.opt(options));
-    },
-    downloadDirZip: (query: FDownloadDirZipParams, options?: RequestOptions): APIPromise<Response> => {
-      return this.sessionClient.browsers.fs.downloadDirZip(this.sessionId, query, this.opt(options));
-    },
-    fileInfo: (query: FFileInfoParams, options?: RequestOptions): APIPromise<FFileInfoResponse> => {
-      return this.sessionClient.browsers.fs.fileInfo(this.sessionId, query, this.opt(options));
-    },
-    listFiles: (query: FListFilesParams, options?: RequestOptions): APIPromise<FListFilesResponse> => {
-      return this.sessionClient.browsers.fs.listFiles(this.sessionId, query, this.opt(options));
-    },
-    move: (body: FMoveParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.move(this.sessionId, body, this.opt(options));
-    },
-    readFile: (query: FReadFileParams, options?: RequestOptions): APIPromise<Response> => {
-      return this.sessionClient.browsers.fs.readFile(this.sessionId, query, this.opt(options));
-    },
-    setFilePermissions: (body: FSetFilePermissionsParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.setFilePermissions(this.sessionId, body, this.opt(options));
-    },
-    upload: (body: FUploadParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.upload(this.sessionId, body, this.opt(options));
-    },
-    uploadZip: (body: FUploadZipParams, options?: RequestOptions): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.uploadZip(this.sessionId, body, this.opt(options));
-    },
-    writeFile: (
-      contents: string | ArrayBuffer | ArrayBufferView | Blob | DataView,
-      params: FWriteFileParams,
-      options?: RequestOptions,
-    ): APIPromise<void> => {
-      return this.sessionClient.browsers.fs.writeFile(this.sessionId, contents, params, this.opt(options));
-    },
-  };
 
   /**
    * Issue an HTTP request through the browser VM network stack (Chrome), returning
