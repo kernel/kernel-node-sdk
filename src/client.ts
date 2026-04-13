@@ -102,6 +102,8 @@ import { Auth } from './resources/auth/auth';
 import {
   BrowserCreateParams,
   BrowserCreateResponse,
+  BrowserCurlParams,
+  BrowserCurlResponse,
   BrowserDeleteParams,
   BrowserListParams,
   BrowserListResponse,
@@ -990,12 +992,14 @@ export declare namespace Kernel {
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,
     type BrowserListResponse as BrowserListResponse,
+    type BrowserCurlResponse as BrowserCurlResponse,
     type BrowserListResponsesOffsetPagination as BrowserListResponsesOffsetPagination,
     type BrowserCreateParams as BrowserCreateParams,
     type BrowserRetrieveParams as BrowserRetrieveParams,
     type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
     type BrowserDeleteParams as BrowserDeleteParams,
+    type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
   };
 

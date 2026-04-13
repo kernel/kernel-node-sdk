@@ -74,6 +74,7 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserRetrieveResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUpdateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserListResponse</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserCurlResponse</a></code>
 
 Methods:
 
@@ -82,6 +83,7 @@ Methods:
 - <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
 - <code title="delete /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">delete</a>({ ...params }) -> void</code>
+- <code title="post /browsers/{id}/curl">client.browsers.<a href="./src/resources/browsers/browsers.ts">curl</a>(id, { ...params }) -> BrowserCurlResponse</code>
 - <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>
 - <code title="post /browsers/{id}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(id, { ...params }) -> void</code>
 

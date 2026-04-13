@@ -134,6 +134,30 @@ describe('resource browsers', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('curl: only required params', async () => {
+    const responsePromise = client.browsers.curl('id', { url: 'url' });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
+  test.skip('curl: required and optional params', async () => {
+    const response = await client.browsers.curl('id', {
+      url: 'url',
+      body: 'body',
+      headers: { foo: 'string' },
+      method: 'GET',
+      response_encoding: 'utf8',
+      timeout_ms: 1000,
+    });
+  });
+
+  // Mock server tests are disabled
   test.skip('deleteByID', async () => {
     const responsePromise = client.browsers.deleteByID('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
