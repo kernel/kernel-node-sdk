@@ -883,9 +883,9 @@ export class Kernel {
   }
 
   /**
-   * Returns a browser-scoped client: subresource calls omit the session id and,
-   * when the browser response includes base_url, requests are routed through the
-   * metro HTTP base for that session.
+   * Returns a browser-scoped client: subresource calls omit the session id and
+   * are routed through {@link BrowserCreateResponse.base_url} (browser session
+   * HTTP base URL for the browser VM edge). Requires base_url on the browser object.
    */
   public forBrowser(browser: KernelBrowserInput): KernelBrowserSession {
     return new KernelBrowserSession(this, browser);

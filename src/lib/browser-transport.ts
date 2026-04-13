@@ -1,10 +1,10 @@
 import type { RequestOptions } from '../internal/request-options';
 
 /**
- * Resolved HTTP routing for a browser session. Metro requests use defaultBaseURL
- * plus a per-request jwt query param. A future client-wide browser-id → base_url
- * cache can plug in by supplying an alternate resolver before constructing
- * {@link KernelBrowserSession}.
+ * Resolved HTTP routing for a browser session. When {@link ResolvedBrowserTransport.defaultBaseURL}
+ * is set, requests use that browser session base URL plus a per-request jwt query param.
+ * A future client-wide browser-id → base_url cache can plug in by supplying an alternate
+ * resolver before constructing {@link KernelBrowserSession}.
  */
 export type ResolvedBrowserTransport = {
   sessionId: string;

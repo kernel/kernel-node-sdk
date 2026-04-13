@@ -1,5 +1,5 @@
 /**
- * Browser-scoped client: call metro-routed browser APIs without repeating the
+ * Browser-scoped client: call browser VM-routed browser APIs without repeating the
  * session id, and run `fetch`-style HTTP through the browser network stack.
  *
  * Run after `yarn build` so `dist/` matches sources, or import from `src/` via
