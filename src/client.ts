@@ -67,6 +67,7 @@ import {
   Deployments,
 } from './resources/deployments';
 import { KernelApp } from './core/app-framework';
+import { KernelBrowserSession, type KernelBrowserInput } from './lib/kernel-browser-session';
 import {
   ExtensionDownloadFromChromeStoreParams,
   ExtensionListResponse,
@@ -879,6 +880,15 @@ export class Kernel {
    */
   public app(name: string): KernelApp {
     return new KernelApp(name);
+  }
+
+  /**
+   * Returns a browser-scoped client: subresource calls omit the session id and,
+   * when the browser response includes base_url, requests are routed through the
+   * metro HTTP base for that session.
+   */
+  public forBrowser(browser: KernelBrowserInput): KernelBrowserSession {
+    return new KernelBrowserSession(this, browser);
   }
 
   static Kernel = this;
