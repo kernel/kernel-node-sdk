@@ -169,6 +169,22 @@ export class Browsers extends APIResource {
   }
 
   /**
+   * Sends an HTTP request through Chrome's HTTP request stack, inheriting the
+   * browser's TLS fingerprint, cookies, proxy configuration, and headers. Returns a
+   * structured JSON response with status, headers, body, and timing.
+   *
+   * @example
+   * ```ts
+   * const response = await client.browsers.curl('id', {
+   *   url: 'url',
+   * });
+   * ```
+   */
+  curl(id: string, body: BrowserCurlParams, options?: RequestOptions): APIPromise<BrowserCurlResponse> {
+    return this._client.post(path`/browsers/${id}/curl`, { body, ...options });
+  }
+
+  /**
    * Delete a browser session by ID
    *
    * @example
@@ -706,6 +722,31 @@ export interface BrowserListResponse {
   viewport?: Shared.BrowserViewport;
 }
 
+/**
+ * Structured response from the browser curl request.
+ */
+export interface BrowserCurlResponse {
+  /**
+   * Response body (UTF-8 string or base64 depending on request).
+   */
+  body: string;
+
+  /**
+   * Total request duration in milliseconds.
+   */
+  duration_ms: number;
+
+  /**
+   * Response headers (multi-value).
+   */
+  headers: { [key: string]: Array<string> };
+
+  /**
+   * HTTP status code from target.
+   */
+  status: number;
+}
+
 export interface BrowserCreateParams {
   /**
    * List of browser extensions to load into the session. Provide each by id or name.
@@ -859,6 +900,38 @@ export interface BrowserDeleteParams {
   persistent_id: string;
 }
 
+export interface BrowserCurlParams {
+  /**
+   * Target URL (must be http or https).
+   */
+  url: string;
+
+  /**
+   * Request body (for POST/PUT/PATCH).
+   */
+  body?: string;
+
+  /**
+   * Custom headers merged with browser defaults.
+   */
+  headers?: { [key: string]: string };
+
+  /**
+   * HTTP method.
+   */
+  method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
+
+  /**
+   * Encoding for the response body. Use base64 for binary content.
+   */
+  response_encoding?: 'utf8' | 'base64';
+
+  /**
+   * Request timeout in milliseconds.
+   */
+  timeout_ms?: number;
+}
+
 export interface BrowserLoadExtensionsParams {
   /**
    * List of extensions to upload and activate
@@ -898,12 +971,14 @@ export declare namespace Browsers {
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,
     type BrowserListResponse as BrowserListResponse,
+    type BrowserCurlResponse as BrowserCurlResponse,
     type BrowserListResponsesOffsetPagination as BrowserListResponsesOffsetPagination,
     type BrowserCreateParams as BrowserCreateParams,
     type BrowserRetrieveParams as BrowserRetrieveParams,
     type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
     type BrowserDeleteParams as BrowserDeleteParams,
+    type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
   };
 
