@@ -16,8 +16,8 @@ export class Projects extends APIResource {
   limits: LimitsAPI.Limits = new LimitsAPI.Limits(this._client);
 
   /**
-   * Create a new project within the authenticated organization. Requires a paid plan
-   * and the projects feature flag.
+   * Create a new project within the authenticated organization. Requires the
+   * projects feature flag.
    *
    * @example
    * ```ts
