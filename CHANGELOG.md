@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.50.0 (2026-04-20)
+
+Full Changelog: [v0.49.0...v0.50.0](https://github.com/kernel/kernel-node-sdk/compare/v0.49.0...v0.50.0)
+
+### Features
+
+* add POST /browsers/{id}/curl and /curl/raw endpoints ([e60b999](https://github.com/kernel/kernel-node-sdk/commit/e60b999ed881b76a29ba949e691af35793b0e694))
+* remove paid plan gating from project endpoints ([deee93a](https://github.com/kernel/kernel-node-sdk/commit/deee93a6df11b6c0849a24dd888781678bb8379c))
+
+
+### Bug Fixes
+
+* include MFA and sign-in options in CUA SSO-only step response ([516f87b](https://github.com/kernel/kernel-node-sdk/commit/516f87b537e0b84fb5559bfea1c40221003694ec))
+
+
+### Chores
+
+* **internal:** codegen related update ([591019f](https://github.com/kernel/kernel-node-sdk/commit/591019fd1f305d69dd5641fe6c1de39a796e3d94))
+
 ## 0.49.0 (2026-04-10)
 
 Full Changelog: [v0.48.0...v0.49.0](https://github.com/kernel/kernel-node-sdk/compare/v0.48.0...v0.49.0)
