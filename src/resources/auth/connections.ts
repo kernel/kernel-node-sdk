@@ -434,6 +434,12 @@ export namespace ManagedAuth {
     type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
 
     /**
+     * Contextual help text near the field that tells the user what to enter (e.g.,
+     * "Enter the phone ending in (**_) _**-\*\*92")
+     */
+    hint?: string;
+
+    /**
      * If this field is associated with an MFA option, the type of that option (e.g.,
      * password field linked to "Enter password" option)
      */
@@ -889,6 +895,12 @@ export namespace ConnectionFollowResponse {
        * Field type
        */
       type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
+
+      /**
+       * Contextual help text near the field that tells the user what to enter (e.g.,
+       * "Enter the phone ending in (**_) _**-\*\*92")
+       */
+      hint?: string;
 
       /**
        * If this field is associated with an MFA option, the type of that option (e.g.,
