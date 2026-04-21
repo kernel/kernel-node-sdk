@@ -19,6 +19,7 @@ import { AbstractPage, type OffsetPaginationParams, OffsetPaginationResponse } f
 import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
+import { BrowserRouteCache, createRoutingFetch } from './lib/browser-routing';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
   BrowserPool,
@@ -231,6 +232,17 @@ export interface ClientOptions {
    * Defaults to globalThis.console.
    */
   logger?: Logger | undefined;
+
+  /**
+   * Opt in to transparent metro-direct routing for browser subresource calls.
+   * When enabled, calls like `browsers.process.exec(id, ...)` are routed
+   * directly to the metro-api proxy when the SDK has seen a Browser response
+   * for `id` in the current process. Falls back transparently to the public
+   * API on cache miss or on 401/403/404 from metro.
+   *
+   * Demo flag — off by default to keep the default behavior unchanged.
+   */
+  browserRouting?: { enabled?: boolean; cache?: BrowserRouteCache } | undefined;
 }
 
 /**
@@ -247,6 +259,8 @@ export class Kernel {
   fetchOptions: MergedRequestInit | undefined;
 
   private fetch: Fetch;
+  /** Exposed for debugging/demo — inspect or prewarm the metro-direct route cache. */
+  public browserRouteCache?: BrowserRouteCache;
   #encoder: Opts.RequestEncoder;
   protected idempotencyHeader?: string;
   private _options: ClientOptions;
@@ -313,6 +327,14 @@ export class Kernel {
     this.fetchOptions = options.fetchOptions;
     this.maxRetries = options.maxRetries ?? 2;
     this.fetch = options.fetch ?? Shims.getDefaultFetch();
+    if (options.browserRouting?.enabled) {
+      this.browserRouteCache = options.browserRouting.cache ?? new BrowserRouteCache();
+      this.fetch = createRoutingFetch({
+        apiBaseURL: this.baseURL,
+        inner: this.fetch,
+        cache: this.browserRouteCache,
+      });
+    }
     this.#encoder = Opts.FallbackEncoder;
 
     this._options = options;
