@@ -6,11 +6,11 @@ export { type Uploadable, toFile } from './core/uploads';
 export { APIPromise } from './core/api-promise';
 export { Kernel, type ClientOptions } from './client';
 export {
-  KernelBrowserSession,
+  BrowserRouteCache,
   type BrowserFetchInit,
-  type KernelBrowserInput,
-} from './lib/kernel-browser-session';
-export { type KernelBrowserLike, type ResolvedBrowserTransport } from './lib/browser-transport';
+  type BrowserRoute,
+  type BrowserRoutingOptions,
+} from './lib/browser-routing';
 export { PagePromise } from './core/pagination';
 export {
   KernelError,

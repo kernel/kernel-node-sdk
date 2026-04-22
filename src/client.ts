@@ -21,6 +21,11 @@ import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
+  BrowserRouteCache,
+  createRoutingFetch,
+  type BrowserRoutingOptions,
+} from './lib/browser-routing';
+import {
   BrowserPool,
   BrowserPoolAcquireParams,
   BrowserPoolAcquireResponse,
@@ -67,7 +72,6 @@ import {
   Deployments,
 } from './resources/deployments';
 import { KernelApp } from './core/app-framework';
-import { KernelBrowserSession, type KernelBrowserInput } from './lib/kernel-browser-session';
 import {
   ExtensionDownloadFromChromeStoreParams,
   ExtensionListResponse,
@@ -196,6 +200,11 @@ export interface ClientOptions {
   fetch?: Fetch | undefined;
 
   /**
+   * Configure direct-to-VM routing for browser subresource requests.
+   */
+  browserRouting?: BrowserRoutingOptions | undefined;
+
+  /**
    * The maximum number of times that the client will retry a request in case of a
    * temporary failure, like a network error or a 5XX error from the server.
    *
@@ -248,9 +257,11 @@ export class Kernel {
   fetchOptions: MergedRequestInit | undefined;
 
   private fetch: Fetch;
+  private rawFetch: Fetch;
   #encoder: Opts.RequestEncoder;
   protected idempotencyHeader?: string;
   private _options: ClientOptions;
+  public browserRouteCache: BrowserRouteCache;
 
   /**
    * API Client for interfacing with the Kernel API.
@@ -313,7 +324,16 @@ export class Kernel {
       defaultLogLevel;
     this.fetchOptions = options.fetchOptions;
     this.maxRetries = options.maxRetries ?? 2;
-    this.fetch = options.fetch ?? Shims.getDefaultFetch();
+    this.rawFetch = options.fetch ?? Shims.getDefaultFetch();
+    this.browserRouteCache = options.browserRouting?.cache ?? new BrowserRouteCache();
+    this.fetch =
+      options.browserRouting?.enabled ?
+        createRoutingFetch(this.rawFetch, {
+          apiBaseURL: this.baseURL,
+          directToVMSubresources: options.browserRouting.directToVMSubresources ?? [],
+          cache: this.browserRouteCache,
+        })
+      : this.rawFetch;
     this.#encoder = Opts.FallbackEncoder;
 
     this._options = options;
@@ -325,6 +345,23 @@ export class Kernel {
    * Create a new client instance re-using the same options given to the current client with optional overriding.
    */
   withOptions(options: Partial<ClientOptions>): this {
+    const currentRouting = this._options.browserRouting;
+    const nextBrowserRouting =
+      options.browserRouting === undefined ?
+        {
+          ...(currentRouting ?? {}),
+          cache: currentRouting?.cache ?? this.browserRouteCache,
+        }
+      : options.browserRouting.enabled ?
+        {
+          ...options.browserRouting,
+          cache: options.browserRouting.cache ?? this.browserRouteCache,
+        }
+      : {
+          ...options.browserRouting,
+          cache: options.browserRouting.cache ?? this.browserRouteCache,
+        };
+
     const client = new (this.constructor as any as new (props: ClientOptions) => typeof this)({
       ...this._options,
       environment: options.environment ? options.environment : undefined,
@@ -333,10 +370,11 @@ export class Kernel {
       timeout: this.timeout,
       logger: this.logger,
       logLevel: this.logLevel,
-      fetch: this.fetch,
+      fetch: this.rawFetch,
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
       ...options,
+      browserRouting: nextBrowserRouting,
     });
     return client;
   }
@@ -880,15 +918,6 @@ export class Kernel {
    */
   public app(name: string): KernelApp {
     return new KernelApp(name);
-  }
-
-  /**
-   * Returns a browser-scoped client: subresource calls omit the session id and
-   * are routed through {@link BrowserCreateResponse.base_url} (browser session
-   * HTTP base URL for the browser VM edge). Requires base_url on the browser object.
-   */
-  public forBrowser(browser: KernelBrowserInput): KernelBrowserSession {
-    return new KernelBrowserSession(this, browser);
   }
 
   static Kernel = this;

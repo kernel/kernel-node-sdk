@@ -4,13 +4,6 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-echo "==> Regenerating browser session bindings"
-./node_modules/.bin/ts-node -T scripts/generate-browser-session.ts
-./node_modules/.bin/prettier --write src/lib/generated/browser-session-bindings.ts >/dev/null
-
-echo "==> Verifying generated browser session bindings are committed"
-git diff --exit-code -- src/lib/generated/browser-session-bindings.ts
-
 echo "==> Running eslint"
 ./node_modules/.bin/eslint .
 
