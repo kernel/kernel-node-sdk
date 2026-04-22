@@ -104,27 +104,27 @@ describe('browser routing', () => {
     ]);
   });
 
-  test('browser.fetch uses the shared cache and fails clearly on cache miss', async () => {
-    const calls: string[] = [];
+  test('ignores browser responses that do not include a usable jwt', async () => {
     const kernel = new Kernel({
       apiKey: 'k',
       baseURL: 'https://api.example/',
+      browserRouting: {
+        enabled: true,
+        directToVMSubresources: ['process'],
+      },
       fetch: async (input) => {
         const url = normalizeURL(input);
-        calls.push(url);
-        return new Response('ok', { status: 200, headers: { 'content-type': 'text/plain' } });
+        if (url === 'https://api.example/browsers') {
+          return Response.json({
+            session_id: 'sess-1',
+            base_url: 'http://browser-session.test/browser/kernel',
+          });
+        }
+        return Response.json({ exit_code: 0, stdout_b64: '', stderr_b64: '' });
       },
     });
 
-    kernel.browserRouteCache.prime({
-      session_id: 'sess-1',
-      base_url: 'http://browser-session.test/browser/kernel',
-      cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
-    });
-    await kernel.browsers.fetch('sess-1', 'https://example.com/hello');
-    expect(calls[0]).toContain('http://browser-session.test/browser/kernel/curl/raw?');
-
-    kernel.browserRouteCache.delete('sess-1');
-    await expect(kernel.browsers.fetch('sess-1', 'https://example.com/again')).rejects.toThrow(/route cache/);
+    await kernel.browsers.create();
+    expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
   });
 });
