@@ -38,4 +38,3 @@ export function resolveBrowserTransport(browser: KernelBrowserLike): ResolvedBro
     parseJwtFromCdpWsUrl(browser.cdp_ws_url ?? undefined);
   return { sessionId, defaultBaseURL, jwt };
 }
-

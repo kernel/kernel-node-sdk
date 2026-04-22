@@ -20,11 +20,7 @@ import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
-import {
-  BrowserRouteCache,
-  createRoutingFetch,
-  type BrowserRoutingOptions,
-} from './lib/browser-routing';
+import { BrowserRouteCache, createRoutingFetch, type BrowserRoutingOptions } from './lib/browser-routing';
 import {
   BrowserPool,
   BrowserPoolAcquireParams,
