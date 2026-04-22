@@ -1,10 +1,4 @@
-import type { RequestInfo, RequestInit, Fetch } from '../internal/builtin-types';
-import { KernelError } from '../core/error';
-import { buildHeaders } from '../internal/headers';
-import type { FinalRequestOptions, RequestOptions } from '../internal/request-options';
-import type { HTTPMethod } from '../internal/types';
-import { parseJwtFromCdpWsUrl } from './browser-transport';
-import type { Kernel } from '../client';
+import type { Fetch } from '../internal/builtin-types';
 
 export type BrowserRoute = {
   sessionId: string;
@@ -16,10 +10,6 @@ export interface BrowserRoutingOptions {
   enabled?: boolean;
   subresources?: string[] | undefined;
   cache?: BrowserRouteCache | undefined;
-}
-
-export interface BrowserFetchInit extends RequestInit {
-  timeout_ms?: number;
 }
 
 export class BrowserRouteCache {
@@ -63,51 +53,6 @@ export function createRoutingFetch(
     await sniffAndPopulateCache(response, cache);
     return response;
   };
-}
-
-export async function browserFetch(
-  client: Kernel,
-  sessionId: string,
-  input: RequestInfo | URL,
-  init?: BrowserFetchInit,
-): Promise<Response> {
-  const route = client.browserRouteCache.get(sessionId);
-  if (!route) {
-    throw new KernelError(
-      `browser route cache does not contain session ${sessionId}; create, retrieve, or list the browser before calling browser.fetch`,
-    );
-  }
-
-  const { url: targetURL, method, headers, body, signal, duplex, timeout_ms } = splitFetchArgs(input, init);
-  assertHTTPURL(targetURL);
-
-  const query: Record<string, unknown> = {
-    url: targetURL,
-    jwt: route.jwt,
-  };
-  if (timeout_ms !== undefined) {
-    query['timeout_ms'] = timeout_ms;
-  }
-
-  const accept = headers.get('accept');
-  const requestOptions: FinalRequestOptions = {
-    method: normalizeMethod(method),
-    path: joinURL(route.baseURL, '/curl/raw'),
-    query,
-    body: body as RequestOptions['body'],
-    headers: buildHeaders([
-      { Authorization: null },
-      accept ? { Accept: accept } : { Accept: '*/*' },
-      headersToRequestOptionsHeaders(headers),
-    ]),
-    signal: signal ?? null,
-    __binaryResponse: true,
-  };
-  if (duplex) {
-    requestOptions.fetchOptions = { duplex } as NonNullable<RequestOptions['fetchOptions']>;
-  }
-
-  return client.request(requestOptions).asResponse();
 }
 
 function browserRouteFromValue(value: unknown): BrowserRoute | undefined {
@@ -230,125 +175,14 @@ function joinURL(baseURL: string, path: string): string {
   return `${baseURL.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-function normalizeMethod(method: string): HTTPMethod {
-  const methodLower = method.toLowerCase();
-  const allowed = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options']);
-  if (!allowed.has(methodLower)) {
-    throw new KernelError(`browser.fetch unsupported HTTP method: ${method}`);
-  }
-  return methodLower as HTTPMethod;
-}
-
-function splitFetchArgs(
-  input: RequestInfo | URL,
-  init?: BrowserFetchInit,
-): {
-  url: string;
-  method: string;
-  headers: Headers;
-  body?: RequestInit['body'];
-  signal?: AbortSignal | null;
-  duplex?: RequestInit['duplex'];
-  timeout_ms?: number;
-} {
-  const timeoutFromInit = init && 'timeout_ms' in init ? init['timeout_ms'] : undefined;
-
-  if (input instanceof Request) {
-    const merged = new Headers(input.headers);
-    if (init?.headers) {
-      const extra = new Headers(init.headers);
-      extra.forEach((value, key) => {
-        merged.set(key, value);
-      });
-    }
-    const out: {
-      url: string;
-      method: string;
-      headers: Headers;
-      body?: RequestInit['body'];
-      signal?: AbortSignal | null;
-      duplex?: RequestInit['duplex'];
-      timeout_ms?: number;
-    } = {
-      url: input.url,
-      method: (init?.method ?? input.method)?.toUpperCase() || 'GET',
-      headers: merged,
-    };
-    const mergedBody = init?.body ?? input.body;
-    if (mergedBody !== undefined && mergedBody !== null) {
-      out.body = mergedBody;
-    }
-    const mergedSignal = init?.signal ?? input.signal;
-    if (mergedSignal !== undefined) {
-      out.signal = mergedSignal;
-    }
-    if (init?.duplex !== undefined) {
-      out.duplex = init.duplex;
-    }
-    if (timeoutFromInit !== undefined) {
-      out.timeout_ms = timeoutFromInit;
-    }
-    return out;
+function parseJwtFromCdpWsUrl(cdpWsUrl: string | undefined): string | undefined {
+  if (!cdpWsUrl) {
+    return undefined;
   }
 
-  const url = input instanceof URL ? input.href : String(input);
-  const method = (init?.method ?? 'GET').toUpperCase();
-  const headers = new Headers(init?.headers);
-  const out: {
-    url: string;
-    method: string;
-    headers: Headers;
-    body?: RequestInit['body'];
-    signal?: AbortSignal | null;
-    duplex?: RequestInit['duplex'];
-    timeout_ms?: number;
-  } = { url, method, headers };
-  if (init?.body !== undefined) {
-    out.body = init.body;
-  }
-  if (init?.signal !== undefined) {
-    out.signal = init.signal;
-  }
-  if (init?.duplex !== undefined) {
-    out.duplex = init.duplex;
-  }
-  if (timeoutFromInit !== undefined) {
-    out.timeout_ms = timeoutFromInit;
-  }
-  return out;
-}
-
-function assertHTTPURL(url: string): void {
-  let parsed: URL;
   try {
-    parsed = new URL(url);
+    return new URL(cdpWsUrl).searchParams.get('jwt') ?? undefined;
   } catch {
-    throw new KernelError(`browser.fetch target must be an absolute URL; received: ${url}`);
+    return undefined;
   }
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    throw new KernelError(`browser.fetch only supports http(s) URLs; received: ${parsed.protocol}`);
-  }
-}
-
-function headersToRequestOptionsHeaders(headers: Headers): Record<string, string | null | undefined> {
-  const out: Record<string, string | null | undefined> = {};
-  headers.forEach((value, key) => {
-    const lower = key.toLowerCase();
-    if (
-      lower === 'accept' ||
-      lower === 'content-length' ||
-      lower === 'connection' ||
-      lower === 'keep-alive' ||
-      lower === 'proxy-authenticate' ||
-      lower === 'proxy-authorization' ||
-      lower === 'te' ||
-      lower === 'trailers' ||
-      lower === 'transfer-encoding' ||
-      lower === 'upgrade'
-    ) {
-      return;
-    }
-    out[key] = value;
-  });
-  return out;
 }
