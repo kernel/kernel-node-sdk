@@ -1,5 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+import type { RequestInfo } from '../../internal/builtin-types';
 import { APIResource } from '../../core/resource';
 import * as Shared from '../shared';
 import * as ComputerAPI from './computer';
@@ -75,6 +76,7 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { multipartFormRequestOptions } from '../../internal/uploads';
 import { path } from '../../internal/utils/path';
+import { browserFetch, type BrowserFetchInit } from '../../lib/browser-routing';
 
 /**
  * Create and manage browser sessions.
@@ -182,6 +184,14 @@ export class Browsers extends APIResource {
    */
   curl(id: string, body: BrowserCurlParams, options?: RequestOptions): APIPromise<BrowserCurlResponse> {
     return this._client.post(path`/browsers/${id}/curl`, { body, ...options });
+  }
+
+  /**
+   * Issues an HTTP request through the browser VM network stack, routing directly
+   * to the browser's `base_url` using the shared browser route cache.
+   */
+  fetch(id: string, input: RequestInfo | URL, init?: BrowserFetchInit): Promise<Response> {
+    return browserFetch(this._client, id, input, init);
   }
 
   /**

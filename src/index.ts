@@ -7,6 +7,7 @@ export { APIPromise } from './core/api-promise';
 export { Kernel, type ClientOptions } from './client';
 export {
   BrowserRouteCache,
+  type BrowserFetchInit,
   type BrowserRoute,
   type BrowserRoutingOptions,
 } from './lib/browser-routing';
