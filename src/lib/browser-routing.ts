@@ -30,11 +30,7 @@ export class BrowserRouteCache {
   }
 
   set(route: BrowserRoute): void {
-    this.entries.set(route.sessionId, {
-      sessionId: route.sessionId.trim(),
-      baseURL: route.baseURL.trim(),
-      jwt: route.jwt.trim(),
-    });
+    this.entries.set(route.sessionId, route);
   }
 
   delete(sessionId: string): void {
