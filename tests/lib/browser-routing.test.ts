@@ -11,7 +11,7 @@ describe('browser routing', () => {
       baseURL: 'https://api.example/',
       browserRouting: {
         enabled: true,
-        directToVMSubresources: ['process', 'curl'],
+        subresources: ['process', 'curl'],
       },
       fetch: async (input, init?: RequestInit) => {
         const url = normalizeURL(input);
@@ -48,7 +48,7 @@ describe('browser routing', () => {
       baseURL: 'https://api.example/',
       browserRouting: {
         enabled: true,
-        directToVMSubresources: ['computer'],
+        subresources: ['computer'],
       },
       fetch: async (input) => {
         const url = normalizeURL(input);
@@ -77,7 +77,7 @@ describe('browser routing', () => {
       baseURL: 'https://api.example/',
       browserRouting: {
         enabled: true,
-        directToVMSubresources: ['process'],
+        subresources: ['process'],
       },
       fetch: async (input) => {
         const url = normalizeURL(input);
@@ -110,7 +110,7 @@ describe('browser routing', () => {
       baseURL: 'https://api.example/',
       browserRouting: {
         enabled: true,
-        directToVMSubresources: ['process'],
+        subresources: ['process'],
       },
       fetch: async (input) => {
         const url = normalizeURL(input);

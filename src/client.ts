@@ -330,7 +330,7 @@ export class Kernel {
       options.browserRouting?.enabled ?
         createRoutingFetch(this.rawFetch, {
           apiBaseURL: this.baseURL,
-          directToVMSubresources: options.browserRouting.directToVMSubresources ?? [],
+          subresources: options.browserRouting.subresources ?? [],
           cache: this.browserRouteCache,
         })
       : this.rawFetch;
