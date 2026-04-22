@@ -127,4 +127,28 @@ describe('browser routing', () => {
     await kernel.browsers.create();
     expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
   });
+
+  test('browser.fetch uses the shared cache and fails clearly on cache miss', async () => {
+    const calls: string[] = [];
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      fetch: async (input) => {
+        const url = normalizeURL(input);
+        calls.push(url);
+        return new Response('ok', { status: 200, headers: { 'content-type': 'text/plain' } });
+      },
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+    await kernel.browsers.fetch('sess-1', 'https://example.com/hello');
+    expect(calls[0]).toContain('http://browser-session.test/browser/kernel/curl/raw?');
+
+    kernel.browserRouteCache.delete('sess-1');
+    await expect(kernel.browsers.fetch('sess-1', 'https://example.com/again')).rejects.toThrow(/route cache/);
+  });
 });
