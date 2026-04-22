@@ -4,7 +4,7 @@ async function main() {
   const kernel = new Kernel({
     browserRouting: {
       enabled: true,
-      directToVMSubresources: ['computer'],
+      subresources: ['computer'],
     },
   });
 

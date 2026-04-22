@@ -9,7 +9,7 @@ export type BrowserRoute = {
 
 export interface BrowserRoutingOptions {
   enabled?: boolean;
-  directToVMSubresources?: string[] | undefined;
+  subresources?: string[] | undefined;
   cache?: BrowserRouteCache | undefined;
 }
 
@@ -41,15 +41,15 @@ export function createRoutingFetch(
   innerFetch: Fetch,
   {
     apiBaseURL,
-    directToVMSubresources,
+    subresources,
     cache,
   }: {
     apiBaseURL: string;
-    directToVMSubresources: Iterable<string>;
+    subresources: Iterable<string>;
     cache: BrowserRouteCache;
   },
 ): Fetch {
-  const allowed = new Set([...directToVMSubresources].map((value) => value.trim()).filter(Boolean));
+  const allowed = new Set([...subresources].map((value) => value.trim()).filter(Boolean));
   const apiOrigin = new URL(apiBaseURL).origin;
 
   return async (input, init) => {
