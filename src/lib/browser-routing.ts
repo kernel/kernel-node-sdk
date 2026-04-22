@@ -1,20 +1,10 @@
-import type { RequestInfo, RequestInit } from '../internal/builtin-types';
-import { KernelError } from '../core/error';
-import { buildHeaders } from '../internal/headers';
 import type { Fetch } from '../internal/builtin-types';
-import type { FinalRequestOptions, RequestOptions } from '../internal/request-options';
-import type { HTTPMethod } from '../internal/types';
 import { parseJwtFromCdpWsUrl } from './browser-transport';
-import type { Kernel } from '../client';
-
-export interface BrowserFetchInit extends RequestInit {
-  timeout_ms?: number;
-}
 
 export type BrowserRoute = {
   sessionId: string;
   baseURL: string;
-  jwt?: string | undefined;
+  jwt: string;
 };
 
 export interface BrowserRoutingOptions {
@@ -31,7 +21,11 @@ export class BrowserRouteCache {
   }
 
   set(route: BrowserRoute): void {
-    this.entries.set(route.sessionId, normalizeRoute(route));
+    this.entries.set(route.sessionId, {
+      sessionId: route.sessionId.trim(),
+      baseURL: route.baseURL.trim(),
+      jwt: route.jwt.trim(),
+    });
   }
 
   delete(sessionId: string): void {
@@ -40,19 +34,6 @@ export class BrowserRouteCache {
 
   clear(): void {
     this.entries.clear();
-  }
-
-  prime(browser: unknown): BrowserRoute | undefined {
-    const route = browserRouteFromValue(browser);
-    if (!route) {
-      return undefined;
-    }
-    this.set(route);
-    return route;
-  }
-
-  values(): BrowserRoute[] {
-    return [...this.entries.values()];
   }
 }
 
@@ -72,70 +53,10 @@ export function createRoutingFetch(
   const apiOrigin = new URL(apiBaseURL).origin;
 
   return async (input, init) => {
-    const request = new Request(input as RequestInfo, init);
-    const match = matchDirectToVMRequest(request.url, apiOrigin, allowed);
-
-    const response = match ? await fetchDirectToVM(innerFetch, request, match, cache) : await innerFetch(input, init);
-    await sniffAndPrimeCache(response, cache);
+    const request = new Request(input, init);
+    const response = await routeRequest(innerFetch, request, apiOrigin, allowed, cache);
+    await sniffAndPopulateCache(response, cache);
     return response;
-  };
-}
-
-export async function browserFetch(
-  client: Kernel,
-  sessionId: string,
-  input: RequestInfo | URL,
-  init?: BrowserFetchInit,
-): Promise<Response> {
-  const route = client.browserRouteCache.get(sessionId);
-  if (!route) {
-    throw new KernelError(
-      `browser route cache does not contain session ${sessionId}; create, retrieve, or list the browser before calling browser.fetch`,
-    );
-  }
-  if (!route.jwt) {
-    throw new KernelError(`browser.fetch requires a browser session jwt for ${sessionId}`);
-  }
-
-  const { url: targetURL, method, headers, body, signal, duplex, timeout_ms } = splitFetchArgs(input, init);
-  assertHTTPURL(targetURL);
-
-  const query: Record<string, unknown> = {
-    url: targetURL,
-    jwt: route.jwt,
-  };
-  if (timeout_ms !== undefined) {
-    query['timeout_ms'] = timeout_ms;
-  }
-
-  const accept = headers.get('accept');
-  const methodLower = normalizeMethod(method);
-
-  const requestOptions: FinalRequestOptions = {
-    method: methodLower,
-    path: joinURL(route.baseURL, '/curl/raw'),
-    query,
-    body: body as RequestOptions['body'],
-    headers: buildHeaders([
-      { Authorization: null },
-      accept ? { Accept: accept } : { Accept: '*/*' },
-      headersToRequestOptionsHeaders(headers),
-    ]),
-    signal: signal ?? null,
-    __binaryResponse: true,
-  };
-  if (duplex) {
-    requestOptions.fetchOptions = { duplex } as NonNullable<RequestOptions['fetchOptions']>;
-  }
-
-  return client.request(requestOptions).asResponse();
-}
-
-function normalizeRoute(route: BrowserRoute): BrowserRoute {
-  return {
-    sessionId: route.sessionId.trim(),
-    baseURL: route.baseURL.trim(),
-    jwt: route.jwt?.trim() || undefined,
   };
 }
 
@@ -153,28 +74,31 @@ function browserRouteFromValue(value: unknown): BrowserRoute | undefined {
 
   const explicitJWT = typeof record['jwt'] === 'string' ? record['jwt'].trim() : '';
   const cdpWsURL = typeof record['cdp_ws_url'] === 'string' ? record['cdp_ws_url'] : undefined;
+  const jwt = explicitJWT || parseJwtFromCdpWsUrl(cdpWsURL) || '';
+  if (!jwt) {
+    return undefined;
+  }
   return {
     sessionId,
     baseURL,
-    jwt: explicitJWT || parseJwtFromCdpWsUrl(cdpWsURL) || undefined,
+    jwt,
   };
 }
 
-async function sniffAndPrimeCache(response: Response, cache: BrowserRouteCache): Promise<void> {
+async function sniffAndPopulateCache(response: Response, cache: BrowserRouteCache): Promise<void> {
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (!contentType.includes('application/json')) {
     return;
   }
 
   try {
-    const body = await response.clone().json();
-    primeRoutesFromJSON(body, cache);
+    populateCache(await response.clone().json(), cache);
   } catch {
-    // Ignore malformed or non-JSON bodies returned with a JSON content type.
+    // Ignore malformed JSON in routing cache population.
   }
 }
 
-function primeRoutesFromJSON(value: unknown, cache: BrowserRouteCache): void {
+function populateCache(value: unknown, cache: BrowserRouteCache): void {
   const route = browserRouteFromValue(value);
   if (route) {
     cache.set(route);
@@ -182,7 +106,7 @@ function primeRoutesFromJSON(value: unknown, cache: BrowserRouteCache): void {
 
   if (Array.isArray(value)) {
     for (const item of value) {
-      primeRoutesFromJSON(item, cache);
+      populateCache(item, cache);
     }
     return;
   }
@@ -193,58 +117,45 @@ function primeRoutesFromJSON(value: unknown, cache: BrowserRouteCache): void {
 
   for (const child of Object.values(value as Record<string, unknown>)) {
     if (typeof child === 'object' && child !== null) {
-      primeRoutesFromJSON(child, cache);
+      populateCache(child, cache);
     }
   }
 }
 
-function matchDirectToVMRequest(
-  rawURL: string,
+async function routeRequest(
+  innerFetch: Fetch,
+  request: Request,
   apiOrigin: string,
   allowed: ReadonlySet<string>,
-): { sessionId: string; subresource: string; rest: string } | undefined {
-  const url = new URL(rawURL);
+  cache: BrowserRouteCache,
+): Promise<Response> {
+  const url = new URL(request.url);
   if (url.origin !== apiOrigin) {
-    return undefined;
+    return innerFetch(request);
   }
 
   const match = url.pathname.match(/^\/(?:v\d+\/)?browsers\/([^/]+)\/([^/]+)(\/.*)?$/);
   if (!match) {
-    return undefined;
+    return innerFetch(request);
   }
 
   const sessionId = decodeURIComponent(match[1] ?? '');
   const subresource = match[2] ?? '';
   if (!sessionId || !allowed.has(subresource)) {
-    return undefined;
+    return innerFetch(request);
   }
-
-  return {
-    sessionId,
-    subresource,
-    rest: match[3] ?? '',
-  };
-}
-
-async function fetchDirectToVM(
-  innerFetch: Fetch,
-  request: Request,
-  match: { sessionId: string; subresource: string; rest: string },
-  cache: BrowserRouteCache,
-): Promise<Response> {
-  const route = cache.get(match.sessionId);
-  if (!route) {
+  const route = cache.get(sessionId);
+  if (route === undefined) {
     return innerFetch(request);
   }
 
-  const target = new URL(joinURL(route.baseURL, `/${match.subresource}${match.rest}`));
-  const current = new URL(request.url);
-  current.searchParams.forEach((value, key) => {
+  const target = new URL(joinURL(route.baseURL, `/${subresource}${match[3] ?? ''}`));
+  url.searchParams.forEach((value, key) => {
     if (key !== 'jwt') {
       target.searchParams.append(key, value);
     }
   });
-  if (route.jwt && !target.searchParams.get('jwt')) {
+  if (!target.searchParams.get('jwt')) {
     target.searchParams.set('jwt', route.jwt);
   }
 
@@ -269,125 +180,3 @@ function joinURL(baseURL: string, path: string): string {
   return `${baseURL.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-function normalizeMethod(method: string): HTTPMethod {
-  const methodLower = method.toLowerCase();
-  const allowed = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options']);
-  if (!allowed.has(methodLower)) {
-    throw new KernelError(`browser.fetch unsupported HTTP method: ${method}`);
-  }
-  return methodLower as HTTPMethod;
-}
-
-function splitFetchArgs(
-  input: RequestInfo | URL,
-  init?: BrowserFetchInit,
-): {
-  url: string;
-  method: string;
-  headers: Headers;
-  body?: RequestInit['body'];
-  signal?: AbortSignal | null;
-  duplex?: RequestInit['duplex'];
-  timeout_ms?: number;
-} {
-  const timeoutFromInit = init && 'timeout_ms' in init ? init['timeout_ms'] : undefined;
-
-  if (input instanceof Request) {
-    const merged = new Headers(input.headers);
-    if (init?.headers) {
-      const extra = new Headers(init.headers);
-      extra.forEach((value, key) => {
-        merged.set(key, value);
-      });
-    }
-    const out: {
-      url: string;
-      method: string;
-      headers: Headers;
-      body?: RequestInit['body'];
-      signal?: AbortSignal | null;
-      duplex?: RequestInit['duplex'];
-      timeout_ms?: number;
-    } = {
-      url: input.url,
-      method: (init?.method ?? input.method)?.toUpperCase() || 'GET',
-      headers: merged,
-    };
-    const mergedBody = init?.body ?? input.body;
-    if (mergedBody !== undefined && mergedBody !== null) {
-      out.body = mergedBody;
-    }
-    const mergedSignal = init?.signal ?? input.signal;
-    if (mergedSignal !== undefined) {
-      out.signal = mergedSignal;
-    }
-    if (init?.duplex !== undefined) {
-      out.duplex = init.duplex;
-    }
-    if (timeoutFromInit !== undefined) {
-      out.timeout_ms = timeoutFromInit;
-    }
-    return out;
-  }
-
-  const url = input instanceof URL ? input.href : String(input);
-  const method = (init?.method ?? 'GET').toUpperCase();
-  const headers = new Headers(init?.headers);
-  const out: {
-    url: string;
-    method: string;
-    headers: Headers;
-    body?: RequestInit['body'];
-    signal?: AbortSignal | null;
-    duplex?: RequestInit['duplex'];
-    timeout_ms?: number;
-  } = { url, method, headers };
-  if (init?.body !== undefined) {
-    out.body = init.body;
-  }
-  if (init?.signal !== undefined) {
-    out.signal = init.signal;
-  }
-  if (init?.duplex !== undefined) {
-    out.duplex = init.duplex;
-  }
-  if (timeoutFromInit !== undefined) {
-    out.timeout_ms = timeoutFromInit;
-  }
-  return out;
-}
-
-function assertHTTPURL(url: string): void {
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    throw new KernelError(`browser.fetch target must be an absolute URL; received: ${url}`);
-  }
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    throw new KernelError(`browser.fetch only supports http(s) URLs; received: ${parsed.protocol}`);
-  }
-}
-
-function headersToRequestOptionsHeaders(headers: Headers): Record<string, string | null | undefined> {
-  const out: Record<string, string | null | undefined> = {};
-  headers.forEach((value, key) => {
-    const lower = key.toLowerCase();
-    if (
-      lower === 'accept' ||
-      lower === 'content-length' ||
-      lower === 'connection' ||
-      lower === 'keep-alive' ||
-      lower === 'proxy-authenticate' ||
-      lower === 'proxy-authorization' ||
-      lower === 'te' ||
-      lower === 'trailers' ||
-      lower === 'transfer-encoding' ||
-      lower === 'upgrade'
-    ) {
-      return;
-    }
-    out[key] = value;
-  });
-  return out;
-}
