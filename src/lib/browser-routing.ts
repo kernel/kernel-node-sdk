@@ -352,4 +352,3 @@ function headersToRequestOptionsHeaders(headers: Headers): Record<string, string
   });
   return out;
 }
-

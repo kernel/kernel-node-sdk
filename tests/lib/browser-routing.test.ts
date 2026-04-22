@@ -1,8 +1,15 @@
 import Kernel from '@onkernel/sdk';
 
 describe('browser routing', () => {
-  const normalizeURL = (input: string | URL | Request) =>
-    typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+  const normalizeURL = (input: string | URL | Request) => {
+    if (typeof input === 'string') {
+      return input;
+    }
+    if (input instanceof URL) {
+      return input.toString();
+    }
+    return input.url;
+  };
 
   test('warms cache from browser responses and routes allowlisted subresources directly to the VM', async () => {
     const calls: Array<{ url: string; headers: Headers }> = [];
