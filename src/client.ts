@@ -342,21 +342,14 @@ export class Kernel {
    */
   withOptions(options: Partial<ClientOptions>): this {
     const currentRouting = this._options.browserRouting;
-    const nextBrowserRouting =
-      options.browserRouting === undefined ?
+    const nextBrowserRouting = options.browserRouting === undefined ? currentRouting : options.browserRouting;
+    const sharedBrowserRouting =
+      nextBrowserRouting ?
         {
-          ...(currentRouting ?? {}),
-          cache: currentRouting?.cache ?? this.browserRouteCache,
+          ...nextBrowserRouting,
+          cache: nextBrowserRouting.cache ?? this.browserRouteCache,
         }
-      : options.browserRouting.enabled ?
-        {
-          ...options.browserRouting,
-          cache: options.browserRouting.cache ?? this.browserRouteCache,
-        }
-      : {
-          ...options.browserRouting,
-          cache: options.browserRouting.cache ?? this.browserRouteCache,
-        };
+      : undefined;
 
     const client = new (this.constructor as any as new (props: ClientOptions) => typeof this)({
       ...this._options,
@@ -370,7 +363,7 @@ export class Kernel {
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
       ...options,
-      browserRouting: nextBrowserRouting,
+      browserRouting: sharedBrowserRouting,
     });
     return client;
   }

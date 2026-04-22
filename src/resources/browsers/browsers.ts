@@ -76,7 +76,7 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { multipartFormRequestOptions } from '../../internal/uploads';
 import { path } from '../../internal/utils/path';
-import { browserFetch, type BrowserFetchInit } from '../../lib/browser-routing';
+import { browserFetch, type BrowserFetchInit } from '../../lib/browser-fetch';
 
 /**
  * Create and manage browser sessions.
