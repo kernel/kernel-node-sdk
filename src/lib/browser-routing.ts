@@ -1,5 +1,5 @@
 import type { Fetch, RequestInfo, RequestInit } from '../internal/builtin-types';
-import { joinURL } from '../internal/utils/url';
+import { joinURL } from './join-url';
 
 export type BrowserRoute = {
   sessionId: string;
