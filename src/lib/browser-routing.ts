@@ -29,6 +29,7 @@ export class BrowserRouteCache {
 
 const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
 const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl'];
+const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
 
 export function browserRoutingSubresourcesFromEnv(): string[] {
   const raw = readBrowserRoutingSubresourcesEnv();
@@ -63,10 +64,18 @@ export function createRoutingFetch(
 
   return async (input, init) => {
     const request = new Request(input, init);
+    const shouldSniff = shouldSniffAndPopulateCache(request, apiOrigin);
     const response = await routeRequest(innerFetch, { input, init, request }, apiOrigin, allowed, cache);
-    await sniffAndPopulateCache(response, cache);
+    if (shouldSniff) {
+      await sniffAndPopulateCache(response, cache);
+    }
     return response;
   };
+}
+
+function shouldSniffAndPopulateCache(request: Request, apiOrigin: string): boolean {
+  const url = new URL(request.url);
+  return url.origin === apiOrigin && BROWSER_ROUTE_CACHEABLE_PATH.test(url.pathname);
 }
 
 function browserRouteFromValue(value: unknown): BrowserRoute | undefined {
