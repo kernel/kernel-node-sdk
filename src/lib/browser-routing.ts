@@ -30,7 +30,9 @@ export class BrowserRouteCache {
 const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
 const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl'];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
+const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/?$/;
 const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
+const BROWSER_POOL_RELEASE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/release\/?$/;
 
 export function browserRoutingSubresourcesFromEnv(): string[] {
   const raw = readBrowserRoutingSubresourcesEnv();
@@ -70,23 +72,26 @@ export function createRoutingFetch(
     if (shouldSniff) {
       await sniffAndPopulateCache(response, cache);
     }
-    maybeEvictDeletedBrowserRoute(request, response, apiOrigin, cache);
+    await maybeEvictBrowserRoute(request, response, apiOrigin, cache);
     return response;
   };
 }
 
 function shouldSniffAndPopulateCache(request: Request, apiOrigin: string): boolean {
   const url = new URL(request.url);
-  return url.origin === apiOrigin && BROWSER_ROUTE_CACHEABLE_PATH.test(url.pathname);
+  return (
+    url.origin === apiOrigin &&
+    (BROWSER_ROUTE_CACHEABLE_PATH.test(url.pathname) || BROWSER_POOL_ACQUIRE_PATH.test(url.pathname))
+  );
 }
 
-function maybeEvictDeletedBrowserRoute(
+async function maybeEvictBrowserRoute(
   request: Request,
   response: Response,
   apiOrigin: string,
   cache: BrowserRouteCache,
-): void {
-  if (!response.ok || request.method.toUpperCase() !== 'DELETE') {
+): Promise<void> {
+  if (!response.ok) {
     return;
   }
 
@@ -95,17 +100,44 @@ function maybeEvictDeletedBrowserRoute(
     return;
   }
 
-  const match = url.pathname.match(BROWSER_DELETE_BY_ID_PATH);
+  const sessionId =
+    deletedSessionIdFromPath(request, url.pathname) ??
+    (await releasedSessionIdFromRequest(request, url.pathname));
+  if (sessionId) {
+    cache.delete(sessionId);
+  }
+}
+
+function deletedSessionIdFromPath(request: Request, pathname: string): string | undefined {
+  if (request.method.toUpperCase() !== 'DELETE') {
+    return undefined;
+  }
+
+  const match = pathname.match(BROWSER_DELETE_BY_ID_PATH);
   if (!match) {
-    return;
+    return undefined;
   }
 
   const sessionId = decodeURIComponent(match[1] ?? '');
-  if (!sessionId) {
-    return;
+  return sessionId || undefined;
+}
+
+async function releasedSessionIdFromRequest(request: Request, pathname: string): Promise<string | undefined> {
+  if (request.method.toUpperCase() !== 'POST' || !BROWSER_POOL_RELEASE_PATH.test(pathname)) {
+    return undefined;
   }
 
-  cache.delete(sessionId);
+  try {
+    const body = await request.clone().json();
+    if (!body || typeof body !== 'object') {
+      return undefined;
+    }
+
+    const sessionId = (body as Record<string, unknown>)['session_id'];
+    return typeof sessionId === 'string' && sessionId.trim() ? sessionId.trim() : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function browserRouteFromValue(value: unknown): BrowserRoute | undefined {
