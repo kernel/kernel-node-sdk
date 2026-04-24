@@ -1,4 +1,5 @@
-import type { Fetch } from '../internal/builtin-types';
+import type { Fetch, RequestInfo, RequestInit } from '../internal/builtin-types';
+import { joinURL } from '../internal/utils/url';
 
 export type BrowserRoute = {
   sessionId: string;
@@ -62,7 +63,7 @@ export function createRoutingFetch(
 
   return async (input, init) => {
     const request = new Request(input, init);
-    const response = await routeRequest(innerFetch, request, apiOrigin, allowed, cache);
+    const response = await routeRequest(innerFetch, { input, init, request }, apiOrigin, allowed, cache);
     await sniffAndPopulateCache(response, cache);
     return response;
   };
@@ -132,29 +133,37 @@ function populateCache(value: unknown, cache: BrowserRouteCache): void {
 
 async function routeRequest(
   innerFetch: Fetch,
-  request: Request,
+  {
+    input,
+    init,
+    request,
+  }: {
+    input: RequestInfo;
+    init: RequestInit | undefined;
+    request: Request;
+  },
   apiOrigin: string,
   allowed: ReadonlySet<string>,
   cache: BrowserRouteCache,
 ): Promise<Response> {
   const url = new URL(request.url);
   if (url.origin !== apiOrigin) {
-    return innerFetch(request);
+    return innerFetch(input, init);
   }
 
   const match = url.pathname.match(/^\/(?:v\d+\/)?browsers\/([^/]+)\/([^/]+)(\/.*)?$/);
   if (!match) {
-    return innerFetch(request);
+    return innerFetch(input, init);
   }
 
   const sessionId = decodeURIComponent(match[1] ?? '');
   const subresource = match[2] ?? '';
   if (!sessionId || !allowed.has(subresource)) {
-    return innerFetch(request);
+    return innerFetch(input, init);
   }
   const route = cache.get(sessionId);
   if (route === undefined) {
-    return innerFetch(request);
+    return innerFetch(input, init);
   }
 
   const target = new URL(joinURL(route.baseURL, `/${subresource}${match[3] ?? ''}`));
@@ -169,23 +178,57 @@ async function routeRequest(
 
   const headers = new Headers(request.headers);
   headers.delete('authorization');
+  return innerFetch(target.toString(), buildRoutedInit(request, init, headers));
+}
+
+function buildRoutedInit(
+  request: Request,
+  originalInit: RequestInit | undefined,
+  headers: Headers,
+): RequestInit {
   const method = request.method.toUpperCase();
-  const init: RequestInit = {
+  const routedInit = {
+    ...((originalInit ?? {}) as Record<string, unknown>),
     method,
     headers,
     redirect: request.redirect,
     signal: request.signal,
-  };
-  if (method !== 'GET' && method !== 'HEAD' && request.body) {
-    init.body = request.body;
-    init.duplex = 'half';
+  } as RequestInit & Record<string, unknown>;
+
+  delete routedInit['body'];
+  delete routedInit['duplex'];
+
+  if (method !== 'GET' && method !== 'HEAD') {
+    const body = requestBodyForFetch(request, originalInit);
+    if (body !== undefined) {
+      routedInit.body = body;
+    }
+    if (originalInit?.duplex !== undefined) {
+      routedInit.duplex = originalInit.duplex;
+    } else if (requiresHalfDuplex(body)) {
+      routedInit.duplex = 'half';
+    }
   }
 
-  return innerFetch(new Request(target.toString(), init));
+  return routedInit;
 }
 
-function joinURL(baseURL: string, path: string): string {
-  return `${baseURL.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+function requestBodyForFetch(
+  request: Request,
+  originalInit: RequestInit | undefined,
+): RequestInit['body'] | undefined {
+  if (originalInit?.body !== undefined && originalInit.body !== null) {
+    return originalInit.body;
+  }
+
+  return request.body ?? undefined;
+}
+
+function requiresHalfDuplex(body: RequestInit['body'] | undefined): boolean {
+  return (
+    ((globalThis as any).ReadableStream && body instanceof (globalThis as any).ReadableStream) ||
+    (typeof body === 'object' && body !== null && Symbol.asyncIterator in body)
+  );
 }
 
 function parseJwtFromCdpWsUrl(cdpWsUrl: string | undefined): string | undefined {
