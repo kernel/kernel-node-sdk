@@ -30,6 +30,7 @@ export class BrowserRouteCache {
 const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
 const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl'];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
+const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
 
 export function browserRoutingSubresourcesFromEnv(): string[] {
   const raw = readBrowserRoutingSubresourcesEnv();
@@ -69,6 +70,7 @@ export function createRoutingFetch(
     if (shouldSniff) {
       await sniffAndPopulateCache(response, cache);
     }
+    maybeEvictDeletedBrowserRoute(request, response, apiOrigin, cache);
     return response;
   };
 }
@@ -76,6 +78,34 @@ export function createRoutingFetch(
 function shouldSniffAndPopulateCache(request: Request, apiOrigin: string): boolean {
   const url = new URL(request.url);
   return url.origin === apiOrigin && BROWSER_ROUTE_CACHEABLE_PATH.test(url.pathname);
+}
+
+function maybeEvictDeletedBrowserRoute(
+  request: Request,
+  response: Response,
+  apiOrigin: string,
+  cache: BrowserRouteCache,
+): void {
+  if (!response.ok || request.method.toUpperCase() !== 'DELETE') {
+    return;
+  }
+
+  const url = new URL(request.url);
+  if (url.origin !== apiOrigin) {
+    return;
+  }
+
+  const match = url.pathname.match(BROWSER_DELETE_BY_ID_PATH);
+  if (!match) {
+    return;
+  }
+
+  const sessionId = decodeURIComponent(match[1] ?? '');
+  if (!sessionId) {
+    return;
+  }
+
+  cache.delete(sessionId);
 }
 
 function browserRouteFromValue(value: unknown): BrowserRoute | undefined {

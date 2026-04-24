@@ -233,6 +233,52 @@ describe('browser routing', () => {
     await expect(kernel.browsers.fetch('sess-1', 'https://example.com/again')).rejects.toThrow(/route cache/);
   });
 
+  test('evicts cached route after successful browser delete by id', async () => {
+    const calls: string[] = [];
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      fetch: async (input) => {
+        const url = normalizeURL(input);
+        calls.push(url);
+        return new Response(null, { status: 204 });
+      },
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    await kernel.browsers.deleteByID('sess-1');
+
+    expect(calls).toEqual(['https://api.example/browsers/sess-1']);
+    expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
+  });
+
+  test('keeps cached route when browser delete by id fails', async () => {
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      maxRetries: 0,
+      fetch: async () => new Response('boom', { status: 500, headers: { 'content-type': 'text/plain' } }),
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    await expect(kernel.browsers.deleteByID('sess-1')).rejects.toThrow();
+    expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+  });
+
   test('browser.fetch supports HEAD requests', async () => {
     const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
     const kernel = new Kernel({
