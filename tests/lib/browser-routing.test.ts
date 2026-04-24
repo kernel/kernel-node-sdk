@@ -127,6 +127,36 @@ describe('browser routing', () => {
     });
   });
 
+  test('preserves custom fetch options for both API and routed VM requests', async () => {
+    await withBrowserRoutingEnv('process', async () => {
+      const dispatcher = Symbol('dispatcher');
+      const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetchOptions: { dispatcher } as any,
+        fetch: async (input, init?: RequestInit) => {
+          const url = normalizeURL(input);
+          calls.push({ url, init });
+          if (url === 'https://api.example/browsers') {
+            return Response.json({
+              session_id: 'sess-1',
+              base_url: 'http://browser-session.test/browser/kernel',
+              cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
+            });
+          }
+          return Response.json({ exit_code: 0, stdout_b64: '', stderr_b64: '' });
+        },
+      });
+
+      await kernel.browsers.create();
+      await kernel.browsers.process.exec('sess-1', { command: 'echo' });
+
+      expect((calls[0]?.init as any)?.dispatcher).toBe(dispatcher);
+      expect((calls[1]?.init as any)?.dispatcher).toBe(dispatcher);
+    });
+  });
+
   test('ignores browser responses that do not include a usable jwt', async () => {
     await withBrowserRoutingEnv('process', async () => {
       const kernel = new Kernel({
@@ -171,6 +201,31 @@ describe('browser routing', () => {
 
     kernel.browserRouteCache.delete('sess-1');
     await expect(kernel.browsers.fetch('sess-1', 'https://example.com/again')).rejects.toThrow(/route cache/);
+  });
+
+  test('browser.fetch supports HEAD requests', async () => {
+    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      fetch: async (input, init?: RequestInit) => {
+        const url = normalizeURL(input);
+        calls.push({ url, init });
+        return new Response(null, { status: 204 });
+      },
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    const response = await kernel.browsers.fetch('sess-1', 'https://example.com/hello', { method: 'HEAD' });
+
+    expect(response.status).toBe(204);
+    expect(calls[0]?.url).toContain('http://browser-session.test/browser/kernel/curl/raw?');
+    expect(calls[0]?.init?.method).toBe('HEAD');
   });
 
   test('defaults browser routing subresources to curl when env is unset', async () => {

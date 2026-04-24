@@ -3,6 +3,7 @@ import { KernelError } from '../core/error';
 import { buildHeaders } from '../internal/headers';
 import type { FinalRequestOptions, RequestOptions } from '../internal/request-options';
 import type { HTTPMethod } from '../internal/types';
+import { joinURL } from '../internal/utils/url';
 import type { Kernel } from '../client';
 
 export interface BrowserFetchInit extends RequestInit {
@@ -176,8 +177,4 @@ function headersToRequestOptionsHeaders(headers: Headers): Record<string, string
   });
 
   return out;
-}
-
-function joinURL(baseURL: string, path: string): string {
-  return `${baseURL.replace(/\/+$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
 }
