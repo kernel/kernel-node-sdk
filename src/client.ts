@@ -21,6 +21,11 @@ import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
+  BrowserRouteCache,
+  browserRoutingSubresourcesFromEnv,
+  createRoutingFetch,
+} from './lib/browser-routing';
+import {
   BrowserPool,
   BrowserPoolAcquireParams,
   BrowserPoolAcquireResponse,
@@ -247,9 +252,11 @@ export class Kernel {
   fetchOptions: MergedRequestInit | undefined;
 
   private fetch: Fetch;
+  private rawFetch: Fetch;
   #encoder: Opts.RequestEncoder;
   protected idempotencyHeader?: string;
   private _options: ClientOptions;
+  public browserRouteCache: BrowserRouteCache;
 
   /**
    * API Client for interfacing with the Kernel API.
@@ -312,7 +319,13 @@ export class Kernel {
       defaultLogLevel;
     this.fetchOptions = options.fetchOptions;
     this.maxRetries = options.maxRetries ?? 2;
-    this.fetch = options.fetch ?? Shims.getDefaultFetch();
+    this.rawFetch = options.fetch ?? Shims.getDefaultFetch();
+    this.browserRouteCache = new BrowserRouteCache();
+    this.fetch = createRoutingFetch(this.rawFetch, {
+      apiBaseURL: this.baseURL,
+      subresources: browserRoutingSubresourcesFromEnv(),
+      cache: this.browserRouteCache,
+    });
     this.#encoder = Opts.FallbackEncoder;
 
     this._options = options;
@@ -332,10 +345,16 @@ export class Kernel {
       timeout: this.timeout,
       logger: this.logger,
       logLevel: this.logLevel,
-      fetch: this.fetch,
+      fetch: this.rawFetch,
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
       ...options,
+    });
+    client.browserRouteCache = this.browserRouteCache;
+    client.fetch = createRoutingFetch(client.rawFetch, {
+      apiBaseURL: client.baseURL,
+      subresources: browserRoutingSubresourcesFromEnv(),
+      cache: client.browserRouteCache,
     });
     return client;
   }
