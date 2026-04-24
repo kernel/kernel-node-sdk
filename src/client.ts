@@ -20,7 +20,11 @@ import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
-import { BrowserRouteCache, createRoutingFetch, type BrowserRoutingOptions } from './lib/browser-routing';
+import {
+  BrowserRouteCache,
+  browserRoutingSubresourcesFromEnv,
+  createRoutingFetch,
+} from './lib/browser-routing';
 import {
   BrowserPool,
   BrowserPoolAcquireParams,
@@ -196,11 +200,6 @@ export interface ClientOptions {
   fetch?: Fetch | undefined;
 
   /**
-   * Configure direct-to-VM routing for browser subresource requests.
-   */
-  browserRouting?: BrowserRoutingOptions | undefined;
-
-  /**
    * The maximum number of times that the client will retry a request in case of a
    * temporary failure, like a network error or a 5XX error from the server.
    *
@@ -321,15 +320,12 @@ export class Kernel {
     this.fetchOptions = options.fetchOptions;
     this.maxRetries = options.maxRetries ?? 2;
     this.rawFetch = options.fetch ?? Shims.getDefaultFetch();
-    this.browserRouteCache = options.browserRouting?.cache ?? new BrowserRouteCache();
-    this.fetch =
-      options.browserRouting?.enabled ?
-        createRoutingFetch(this.rawFetch, {
-          apiBaseURL: this.baseURL,
-          subresources: options.browserRouting.subresources ?? [],
-          cache: this.browserRouteCache,
-        })
-      : this.rawFetch;
+    this.browserRouteCache = new BrowserRouteCache();
+    this.fetch = createRoutingFetch(this.rawFetch, {
+      apiBaseURL: this.baseURL,
+      subresources: browserRoutingSubresourcesFromEnv(),
+      cache: this.browserRouteCache,
+    });
     this.#encoder = Opts.FallbackEncoder;
 
     this._options = options;
@@ -341,16 +337,6 @@ export class Kernel {
    * Create a new client instance re-using the same options given to the current client with optional overriding.
    */
   withOptions(options: Partial<ClientOptions>): this {
-    const currentRouting = this._options.browserRouting;
-    const nextBrowserRouting = options.browserRouting === undefined ? currentRouting : options.browserRouting;
-    const sharedBrowserRouting =
-      nextBrowserRouting ?
-        {
-          ...nextBrowserRouting,
-          cache: nextBrowserRouting.cache ?? this.browserRouteCache,
-        }
-      : undefined;
-
     const client = new (this.constructor as any as new (props: ClientOptions) => typeof this)({
       ...this._options,
       environment: options.environment ? options.environment : undefined,
@@ -363,7 +349,12 @@ export class Kernel {
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
       ...options,
-      browserRouting: sharedBrowserRouting,
+    });
+    client.browserRouteCache = this.browserRouteCache;
+    client.fetch = createRoutingFetch(client.rawFetch, {
+      apiBaseURL: client.baseURL,
+      subresources: browserRoutingSubresourcesFromEnv(),
+      cache: client.browserRouteCache,
     });
     return client;
   }
