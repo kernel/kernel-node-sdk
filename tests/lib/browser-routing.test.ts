@@ -1,6 +1,10 @@
 import Kernel from '@onkernel/sdk';
 
-import { browserRoutingSubresourcesFromEnv } from '../../src/lib/browser-routing';
+import {
+  BrowserRouteCache,
+  browserRoutingSubresourcesFromEnv,
+  createRoutingFetch,
+} from '../../src/lib/browser-routing';
 
 describe('browser routing', () => {
   const browserRoutingEnv = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
@@ -125,6 +129,32 @@ describe('browser routing', () => {
         'http://browser-session.test/browser/kernel/process/exec?jwt=token-abc',
       ]);
     });
+  });
+
+  test('skips cache sniffing for non-browser JSON responses', async () => {
+    let cloneCalled = false;
+    const wrappedFetch = createRoutingFetch(
+      async () => {
+        const response = Response.json({ ok: true });
+        const clone = response.clone.bind(response);
+        Object.defineProperty(response, 'clone', {
+          value: () => {
+            cloneCalled = true;
+            return clone();
+          },
+        });
+        return response;
+      },
+      {
+        apiBaseURL: 'https://api.example/',
+        subresources: ['process'],
+        cache: new BrowserRouteCache(),
+      },
+    );
+
+    await wrappedFetch('https://api.example/deployments');
+
+    expect(cloneCalled).toBe(false);
   });
 
   test('preserves custom fetch options for both API and routed VM requests', async () => {
