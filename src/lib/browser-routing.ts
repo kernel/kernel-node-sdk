@@ -6,12 +6,6 @@ export type BrowserRoute = {
   jwt: string;
 };
 
-export interface BrowserRoutingOptions {
-  enabled?: boolean;
-  subresources?: string[] | undefined;
-  cache?: BrowserRouteCache | undefined;
-}
-
 export class BrowserRouteCache {
   private entries = new Map<string, BrowserRoute>();
 
@@ -30,6 +24,25 @@ export class BrowserRouteCache {
   clear(): void {
     this.entries.clear();
   }
+}
+
+const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
+const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl'];
+
+export function browserRoutingSubresourcesFromEnv(): string[] {
+  const raw = readBrowserRoutingSubresourcesEnv();
+  if (raw === undefined) {
+    return [...DEFAULT_BROWSER_ROUTING_SUBRESOURCES];
+  }
+
+  if (raw.trim() === '') {
+    return [];
+  }
+
+  return raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
 }
 
 export function createRoutingFetch(
@@ -185,4 +198,18 @@ function parseJwtFromCdpWsUrl(cdpWsUrl: string | undefined): string | undefined 
   } catch {
     return undefined;
   }
+}
+
+function readBrowserRoutingSubresourcesEnv(): string | undefined {
+  if (typeof (globalThis as any).process !== 'undefined') {
+    const value = (globalThis as any).process.env?.[BROWSER_ROUTING_SUBRESOURCES_ENV];
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  if (typeof (globalThis as any).Deno !== 'undefined') {
+    const value = (globalThis as any).Deno.env?.get?.(BROWSER_ROUTING_SUBRESOURCES_ENV);
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  return undefined;
 }
