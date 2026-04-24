@@ -233,6 +233,41 @@ describe('browser routing', () => {
     await expect(kernel.browsers.fetch('sess-1', 'https://example.com/again')).rejects.toThrow(/route cache/);
   });
 
+  test('warms cache from browser pool acquire responses', async () => {
+    await withBrowserRoutingEnv('process', async () => {
+      const calls: string[] = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input) => {
+          const url = normalizeURL(input);
+          calls.push(url);
+          if (url === 'https://api.example/browser_pools/pool-1/acquire') {
+            return Response.json({
+              session_id: 'sess-1',
+              base_url: 'http://browser-session.test/browser/kernel',
+              cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
+            });
+          }
+          return Response.json({ exit_code: 0, stdout_b64: '', stderr_b64: '' });
+        },
+      });
+
+      await kernel.browserPools.acquire('pool-1', {});
+      await kernel.browsers.process.exec('sess-1', { command: 'echo' });
+
+      expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+      expect(calls).toEqual([
+        'https://api.example/browser_pools/pool-1/acquire',
+        'http://browser-session.test/browser/kernel/process/exec?jwt=token-abc',
+      ]);
+    });
+  });
+
   test('evicts cached route after successful browser delete by id', async () => {
     const calls: string[] = [];
     const kernel = new Kernel({
@@ -257,6 +292,30 @@ describe('browser routing', () => {
     expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
   });
 
+  test('evicts cached route after successful browser pool release', async () => {
+    const calls: string[] = [];
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      fetch: async (input) => {
+        const url = normalizeURL(input);
+        calls.push(url);
+        return new Response(null, { status: 204 });
+      },
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    await kernel.browserPools.release('pool-1', { session_id: 'sess-1' });
+
+    expect(calls).toEqual(['https://api.example/browser_pools/pool-1/release']);
+    expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
+  });
+
   test('keeps cached route when browser delete by id fails', async () => {
     const kernel = new Kernel({
       apiKey: 'k',
@@ -272,6 +331,28 @@ describe('browser routing', () => {
     });
 
     await expect(kernel.browsers.deleteByID('sess-1')).rejects.toThrow();
+    expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+  });
+
+  test('keeps cached route when browser pool release fails', async () => {
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      maxRetries: 0,
+      fetch: async () => new Response('boom', { status: 500, headers: { 'content-type': 'text/plain' } }),
+    });
+
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    await expect(kernel.browserPools.release('pool-1', { session_id: 'sess-1' })).rejects.toThrow();
     expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({
       sessionId: 'sess-1',
       baseURL: 'http://browser-session.test/browser/kernel',
