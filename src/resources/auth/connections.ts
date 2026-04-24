@@ -245,6 +245,13 @@ export interface ManagedAuth {
   allowed_domains?: Array<string>;
 
   /**
+   * ID of the underlying browser session driving the current flow (present when flow
+   * in progress). Use this to inspect or terminate the browser session via the
+   * `/browsers` API.
+   */
+  browser_session_id?: string | null;
+
+  /**
    * Whether automatic re-authentication is possible (has credential, selectors, and
    * login_url)
    */
