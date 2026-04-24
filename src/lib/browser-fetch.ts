@@ -3,7 +3,7 @@ import { KernelError } from '../core/error';
 import { buildHeaders } from '../internal/headers';
 import type { FinalRequestOptions, RequestOptions } from '../internal/request-options';
 import type { HTTPMethod } from '../internal/types';
-import { joinURL } from '../internal/utils/url';
+import { joinURL } from './join-url';
 import type { Kernel } from '../client';
 
 export interface BrowserFetchInit extends RequestInit {
@@ -54,7 +54,7 @@ export async function browserFetch(
 
 function normalizeMethod(method: string): HTTPMethod {
   const methodLower = method.toLowerCase();
-  const allowed = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options']);
+  const allowed = new Set(['get', 'post', 'put', 'patch', 'delete']);
   if (!allowed.has(methodLower)) {
     throw new KernelError(`browser.fetch unsupported HTTP method: ${method}`);
   }

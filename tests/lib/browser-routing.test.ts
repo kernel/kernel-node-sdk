@@ -279,16 +279,11 @@ describe('browser routing', () => {
     });
   });
 
-  test('browser.fetch supports HEAD requests', async () => {
-    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+  test('browser.fetch rejects methods outside the SDK HTTPMethod union', async () => {
     const kernel = new Kernel({
       apiKey: 'k',
       baseURL: 'https://api.example/',
-      fetch: async (input, init?: RequestInit) => {
-        const url = normalizeURL(input);
-        calls.push({ url, init });
-        return new Response(null, { status: 204 });
-      },
+      fetch: async () => new Response(null, { status: 204 }),
     });
 
     kernel.browserRouteCache.set({
@@ -297,11 +292,12 @@ describe('browser routing', () => {
       jwt: 'token-abc',
     });
 
-    const response = await kernel.browsers.fetch('sess-1', 'https://example.com/hello', { method: 'HEAD' });
-
-    expect(response.status).toBe(204);
-    expect(calls[0]?.url).toContain('http://browser-session.test/browser/kernel/curl/raw?');
-    expect(calls[0]?.init?.method).toBe('HEAD');
+    await expect(
+      kernel.browsers.fetch('sess-1', 'https://example.com/hello', { method: 'HEAD' }),
+    ).rejects.toThrow(/unsupported HTTP method/i);
+    await expect(
+      kernel.browsers.fetch('sess-1', 'https://example.com/hello', { method: 'OPTIONS' }),
+    ).rejects.toThrow(/unsupported HTTP method/i);
   });
 
   test('defaults browser routing subresources to curl when env is unset', async () => {
