@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.51.0 (2026-04-25)
+
+Full Changelog: [v0.50.0...v0.51.0](https://github.com/kernel/kernel-node-sdk/compare/v0.50.0...v0.51.0)
+
+### Features
+
+* add browser-scoped session client ([94228be](https://github.com/kernel/kernel-node-sdk/commit/94228be699cc42b42caccba4b179875fc6bfcab3))
+* Expire stuck IN_PROGRESS managed auth sessions via background worker ([8c5e75d](https://github.com/kernel/kernel-node-sdk/commit/8c5e75d924c6a77703afa260cc2f5046e2617303))
+* Expose browser_session_id on managed auth connection ([410b647](https://github.com/kernel/kernel-node-sdk/commit/410b647f81d64dc632ccc6f8fb09bbb2a364b49d))
+* generate browser-scoped session bindings ([e730af8](https://github.com/kernel/kernel-node-sdk/commit/e730af816f72663041170b4602c009ae5e86ba9c))
+* restore node browser fetch helper ([b09434e](https://github.com/kernel/kernel-node-sdk/commit/b09434ec0642ec166a749beccc985510ed3a4723))
+
+
+### Bug Fixes
+
+* clean up node browser routing lint drift ([7a56ab6](https://github.com/kernel/kernel-node-sdk/commit/7a56ab6c6c08697f1a6c4ddc104a9c6abab5bd98))
+* drop node browser routing branch churn ([2f16386](https://github.com/kernel/kernel-node-sdk/commit/2f1638684e9e687f26c24bd7e2d54bb335810ef8))
+* enforce browser base_url routing ([d835f69](https://github.com/kernel/kernel-node-sdk/commit/d835f6925b8940bbf58703ddbb03858117f0e070))
+* evict deleted browser routes ([2d0056e](https://github.com/kernel/kernel-node-sdk/commit/2d0056e0dabe2e4716d50d053a12e2b8e95048a0))
+* handle browser pool route cache updates ([81e47ca](https://github.com/kernel/kernel-node-sdk/commit/81e47caffea08415750b6a3480b59a4f698c4187))
+* keep browser routing helpers out of generated code ([a76f7ae](https://github.com/kernel/kernel-node-sdk/commit/a76f7ae7e8d040835cd38eb026fad626dfa718db))
+* limit browser route cache sniffing ([0e0e88f](https://github.com/kernel/kernel-node-sdk/commit/0e0e88fd88d3f1c11a9b3dc5f10c3c379a10bf96))
+* preserve browser routing fetch options ([9b24280](https://github.com/kernel/kernel-node-sdk/commit/9b242808521a9960ce48174af2e3e2ccb30a7a84))
+* require base_url for browser-scoped routing ([ae9a739](https://github.com/kernel/kernel-node-sdk/commit/ae9a739d0b1026b3ebf71d6f7d11ce52070cf42e))
+* restore generated types formatting ([a7ff9bc](https://github.com/kernel/kernel-node-sdk/commit/a7ff9bcae419cefbebaccaf4e07545504ec39356))
+* simplify node browser routing helpers ([fdd3adf](https://github.com/kernel/kernel-node-sdk/commit/fdd3adf1cd0bbd669a6aa2cd053359256735d9a7))
+
+
+### Chores
+
+* **internal:** more robust bootstrap script ([4ba0696](https://github.com/kernel/kernel-node-sdk/commit/4ba0696f2b38548f3dcb6763cddd3490b090f658))
+
+
+### Documentation
+
+* restore raw http example in browser routing demo ([0d9ddce](https://github.com/kernel/kernel-node-sdk/commit/0d9ddced05e9b030efd055ccf9fc75080ec6dcec))
+
+
+### Refactors
+
+* move node browser routing rollout to env ([00c91ef](https://github.com/kernel/kernel-node-sdk/commit/00c91ef1de5a18604fe6e66a57227a2cc794cdba))
+* rename browser routing subresources config ([7030d96](https://github.com/kernel/kernel-node-sdk/commit/7030d969217535fd7e29215ef1e45e8625e6c3e4))
+* replace browser-scoped client with browser routing cache ([2f12277](https://github.com/kernel/kernel-node-sdk/commit/2f1227728f83205144169be48de7b4f145f920d7))
+* simplify browser routing cache ([2082705](https://github.com/kernel/kernel-node-sdk/commit/20827054115bd07042359acc6a167c72ab8a581f))
+
 ## 0.50.0 (2026-04-20)
 
 Full Changelog: [v0.49.0...v0.50.0](https://github.com/kernel/kernel-node-sdk/compare/v0.49.0...v0.50.0)
