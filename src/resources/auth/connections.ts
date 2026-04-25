@@ -293,7 +293,10 @@ export interface ManagedAuth {
   external_action_message?: string | null;
 
   /**
-   * When the current flow expires (null when no flow in progress)
+   * When the current flow expires (null when no flow in progress). A flow past this
+   * timestamp is no longer valid and its `flow_status` will be `EXPIRED`. Clients
+   * may start a new login to supersede a stale `IN_PROGRESS` flow past this
+   * timestamp.
    */
   flow_expires_at?: string | null;
 
@@ -333,9 +336,20 @@ export interface ManagedAuth {
   hosted_url?: string | null;
 
   /**
-   * When the profile was last successfully authenticated
+   * @deprecated Deprecated alias for `last_auth_check_at`. Despite the name, this is
+   * the last health-check timestamp, not the last successful authentication. Use
+   * `last_auth_check_at` instead.
    */
   last_auth_at?: string;
+
+  /**
+   * When the most recent auth health check ran for this connection, regardless of
+   * outcome. Updated on every health check and does not by itself indicate that the
+   * profile is currently authenticated - use `status` for that. May be newer than
+   * `flow_expires_at` when a flow is still in progress because health checks
+   * continue to run in parallel.
+   */
+  last_auth_check_at?: string;
 
   /**
    * Browser live view URL for debugging (present when flow in progress)
