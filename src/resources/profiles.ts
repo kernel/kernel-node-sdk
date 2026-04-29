@@ -49,8 +49,7 @@ export class Profiles extends APIResource {
   }
 
   /**
-   * Download the profile. Profiles are JSON files containing the pieces of state
-   * that we save.
+   * Returns a zstd-compressed tar file of the full user-data directory.
    */
   download(idOrName: string, options?: RequestOptions): APIPromise<Response> {
     return this._client.get(path`/profiles/${idOrName}/download`, {
