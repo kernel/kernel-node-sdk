@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.52.0 (2026-04-29)
+
+Full Changelog: [v0.51.0...v0.52.0](https://github.com/kernel/kernel-node-sdk/compare/v0.51.0...v0.52.0)
+
+### Features
+
+* profile download: 409 for empty profile + surface API errors in dashboard ([db164ab](https://github.com/kernel/kernel-node-sdk/commit/db164abb21ef046db547e13d1b9cdeab2aa1fcf4))
+* support setting headers via env ([1a5897b](https://github.com/kernel/kernel-node-sdk/commit/1a5897b9f941b59622b82f1cc6244109b8c70bc6))
+
+
+### Chores
+
+* **format:** run eslint and prettier separately ([127af86](https://github.com/kernel/kernel-node-sdk/commit/127af86528c1c942c2b8b2af6c9e367f4acb832f))
+* **internal:** codegen related update ([98c6a4b](https://github.com/kernel/kernel-node-sdk/commit/98c6a4b6e8cce127205f690b9f0b1d8f8ae333c9))
+* prettier format browser routing example ([d530ee3](https://github.com/kernel/kernel-node-sdk/commit/d530ee341694c72f095fc12c1f417dbd5a5a7a51))
+
+
+### Documentation
+
+* print response body and clarify fetch() / Response semantics ([125c74d](https://github.com/kernel/kernel-node-sdk/commit/125c74db4b373d14b37ef898718dc2b18cf1d5ad))
+* show both raw streaming and buffered curl in routing example ([47e2462](https://github.com/kernel/kernel-node-sdk/commit/47e2462511cbd04605612b4a76e692d635e3ef06))
+
 ## 0.51.0 (2026-04-25)
 
 Full Changelog: [v0.50.0...v0.51.0](https://github.com/kernel/kernel-node-sdk/compare/v0.50.0...v0.51.0)
