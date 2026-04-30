@@ -464,7 +464,7 @@ export namespace ManagedAuth {
      * If this field is associated with an MFA option, the type of that option (e.g.,
      * password field linked to "Enter password" option)
      */
-    linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | null;
+    linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch' | null;
 
     /**
      * Field placeholder
@@ -487,9 +487,11 @@ export namespace ManagedAuth {
     label: string;
 
     /**
-     * The MFA delivery method type (includes password for auth method selection pages)
+     * The MFA delivery method type. Includes 'password' for auth method selection
+     * pages and 'switch' for generic method-switcher links like "Use another method"
+     * that do not name a specific method.
      */
-    type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password';
+    type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch';
 
     /**
      * Additional instructions from the site
@@ -927,7 +929,7 @@ export namespace ConnectionFollowResponse {
        * If this field is associated with an MFA option, the type of that option (e.g.,
        * password field linked to "Enter password" option)
        */
-      linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | null;
+      linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch' | null;
 
       /**
        * Field placeholder
@@ -950,9 +952,11 @@ export namespace ConnectionFollowResponse {
       label: string;
 
       /**
-       * The MFA delivery method type (includes password for auth method selection pages)
+       * The MFA delivery method type. Includes 'password' for auth method selection
+       * pages and 'switch' for generic method-switcher links like "Use another method"
+       * that do not name a specific method.
        */
-      type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password';
+      type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch';
 
       /**
        * Additional instructions from the site
