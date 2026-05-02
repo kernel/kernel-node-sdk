@@ -155,7 +155,12 @@ export interface ProjectUpdateParams {
   status?: 'active' | 'archived';
 }
 
-export interface ProjectListParams extends OffsetPaginationParams {}
+export interface ProjectListParams extends OffsetPaginationParams {
+  /**
+   * Case-insensitive substring match against project name
+   */
+  query?: string;
+}
 
 Projects.Limits = Limits;
 
