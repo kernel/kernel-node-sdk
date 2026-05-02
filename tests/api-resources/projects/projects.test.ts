@@ -65,7 +65,14 @@ describe('resource projects', () => {
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.projects.list({ limit: 100, offset: 0 }, { path: '/_stainless_unknown_path' }),
+      client.projects.list(
+        {
+          limit: 100,
+          offset: 0,
+          query: 'query',
+        },
+        { path: '/_stainless_unknown_path' },
+      ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
