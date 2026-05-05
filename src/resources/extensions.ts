@@ -132,7 +132,7 @@ export namespace ExtensionListResponse {
 
     /**
      * Optional, easier-to-reference name for the extension. Must be unique within the
-     * organization.
+     * project.
      */
     name?: string | null;
   }
@@ -164,7 +164,7 @@ export interface ExtensionUploadResponse {
 
   /**
    * Optional, easier-to-reference name for the extension. Must be unique within the
-   * organization.
+   * project.
    */
   name?: string | null;
 }
@@ -188,7 +188,7 @@ export interface ExtensionUploadParams {
   file: Uploadable;
 
   /**
-   * Optional unique name within the organization to reference this extension.
+   * Optional unique name within the project to reference this extension.
    */
   name?: string;
 }

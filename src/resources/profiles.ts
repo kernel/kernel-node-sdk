@@ -62,7 +62,7 @@ export class Profiles extends APIResource {
 
 export interface ProfileCreateParams {
   /**
-   * Optional name of the profile. Must be unique within the organization.
+   * Optional name of the profile. Must be unique within the project.
    */
   name?: string;
 }
