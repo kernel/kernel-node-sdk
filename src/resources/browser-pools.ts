@@ -220,7 +220,7 @@ export namespace BrowserPool {
     kiosk_mode?: boolean;
 
     /**
-     * Optional name for the browser pool. Must be unique within the organization.
+     * Optional name for the browser pool. Must be unique within the project.
      */
     name?: string;
 
@@ -413,7 +413,7 @@ export interface BrowserPoolCreateParams {
   kiosk_mode?: boolean;
 
   /**
-   * Optional name for the browser pool. Must be unique within the organization.
+   * Optional name for the browser pool. Must be unique within the project.
    */
   name?: string;
 
@@ -503,7 +503,7 @@ export interface BrowserPoolUpdateParams {
   kiosk_mode?: boolean;
 
   /**
-   * Optional name for the browser pool. Must be unique within the organization.
+   * Optional name for the browser pool. Must be unique within the project.
    */
   name?: string;
 

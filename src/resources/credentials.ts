@@ -122,7 +122,7 @@ export interface CreateCredentialRequest {
   domain: string;
 
   /**
-   * Unique name for the credential within the organization
+   * Unique name for the credential within the project
    */
   name: string;
 
@@ -166,7 +166,7 @@ export interface Credential {
   domain: string;
 
   /**
-   * Unique name for the credential within the organization
+   * Unique name for the credential within the project
    */
   name: string;
 
@@ -252,7 +252,7 @@ export interface CredentialCreateParams {
   domain: string;
 
   /**
-   * Unique name for the credential within the organization
+   * Unique name for the credential within the project
    */
   name: string;
 
