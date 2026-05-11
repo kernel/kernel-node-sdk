@@ -36,6 +36,7 @@ describe('resource browserPools', () => {
         save_changes: true,
       },
       proxy_id: 'proxy_id',
+      start_url: 'https://example.com',
       stealth: true,
       timeout_seconds: 60,
       viewport: {
@@ -87,6 +88,7 @@ describe('resource browserPools', () => {
         save_changes: true,
       },
       proxy_id: 'proxy_id',
+      start_url: 'https://example.com',
       stealth: true,
       timeout_seconds: 60,
       viewport: {

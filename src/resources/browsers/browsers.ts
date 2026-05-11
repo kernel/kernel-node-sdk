@@ -383,6 +383,12 @@ export interface BrowserCreateResponse {
   proxy_id?: string;
 
   /**
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging — navigation is best-effort and may have failed.
+   */
+  start_url?: string;
+
+  /**
    * Session usage metrics.
    */
   usage?: BrowserUsage;
@@ -487,6 +493,12 @@ export interface BrowserRetrieveResponse {
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
+
+  /**
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging — navigation is best-effort and may have failed.
+   */
+  start_url?: string;
 
   /**
    * Session usage metrics.
@@ -595,6 +607,12 @@ export interface BrowserUpdateResponse {
   proxy_id?: string;
 
   /**
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging — navigation is best-effort and may have failed.
+   */
+  start_url?: string;
+
+  /**
    * Session usage metrics.
    */
   usage?: BrowserUsage;
@@ -701,6 +719,12 @@ export interface BrowserListResponse {
   proxy_id?: string;
 
   /**
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging — navigation is best-effort and may have failed.
+   */
+  start_url?: string;
+
+  /**
    * Session usage metrics.
    */
   usage?: BrowserUsage;
@@ -794,6 +818,15 @@ export interface BrowserCreateParams {
    * belonging to the caller's org.
    */
   proxy_id?: string;
+
+  /**
+   * Optional URL to navigate to immediately after the browser is created.
+   * Best-effort: failures to navigate do not fail browser creation. Any pre-existing
+   * tabs are reduced to a single tab which is then navigated. Accepts any URL
+   * Chromium can resolve, including chrome:// pages. Ignored when reusing an
+   * existing persistent session.
+   */
+  start_url?: string;
 
   /**
    * If true, launches the browser in stealth mode to reduce detection by anti-bot
