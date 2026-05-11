@@ -238,6 +238,15 @@ export namespace BrowserPool {
     proxy_id?: string;
 
     /**
+     * Optional URL to navigate to when a new browser is warmed into the pool.
+     * Best-effort: failures to navigate do not fail pool fill. Only applied to
+     * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
+     * the previous lease left them on. Accepts any URL Chromium can resolve, including
+     * chrome:// pages.
+     */
+    start_url?: string;
+
+    /**
      * If true, launches the browser in stealth mode to reduce detection by anti-bot
      * mechanisms.
      */
@@ -354,6 +363,12 @@ export interface BrowserPoolAcquireResponse {
   proxy_id?: string;
 
   /**
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging — navigation is best-effort and may have failed.
+   */
+  start_url?: string;
+
+  /**
    * Session usage metrics.
    */
   usage?: BrowsersAPI.BrowserUsage;
@@ -429,6 +444,15 @@ export interface BrowserPoolCreateParams {
    * belonging to the caller's org.
    */
   proxy_id?: string;
+
+  /**
+   * Optional URL to navigate to when a new browser is warmed into the pool.
+   * Best-effort: failures to navigate do not fail pool fill. Only applied to
+   * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
+   * the previous lease left them on. Accepts any URL Chromium can resolve, including
+   * chrome:// pages.
+   */
+  start_url?: string;
 
   /**
    * If true, launches the browser in stealth mode to reduce detection by anti-bot
@@ -519,6 +543,15 @@ export interface BrowserPoolUpdateParams {
    * belonging to the caller's org.
    */
   proxy_id?: string;
+
+  /**
+   * Optional URL to navigate to when a new browser is warmed into the pool.
+   * Best-effort: failures to navigate do not fail pool fill. Only applied to
+   * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
+   * the previous lease left them on. Accepts any URL Chromium can resolve, including
+   * chrome:// pages.
+   */
+  start_url?: string;
 
   /**
    * If true, launches the browser in stealth mode to reduce detection by anti-bot
