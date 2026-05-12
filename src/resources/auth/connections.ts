@@ -272,7 +272,8 @@ export interface ManagedAuth {
   credential?: ManagedAuth.Credential;
 
   /**
-   * Fields awaiting input (present when flow_step=awaiting_input)
+   * Fields awaiting input (present when flow_step=awaiting_input; may also be
+   * present with awaiting_external_action as fallback actions)
    */
   discovered_fields?: Array<ManagedAuth.DiscoveredField> | null;
 
@@ -362,13 +363,14 @@ export interface ManagedAuth {
   login_url?: string;
 
   /**
-   * MFA method options (present when flow_step=awaiting_input and MFA selection
-   * required)
+   * MFA method options (present when flow_step=awaiting_input; may also be present
+   * with awaiting_external_action as fallback actions)
    */
   mfa_options?: Array<ManagedAuth.MfaOption> | null;
 
   /**
-   * SSO buttons available (present when flow_step=awaiting_input)
+   * SSO buttons available (present when flow_step=awaiting_input; may also be
+   * present with awaiting_external_action as fallback actions)
    */
   pending_sso_buttons?: Array<ManagedAuth.PendingSSOButton> | null;
 
@@ -384,7 +386,8 @@ export interface ManagedAuth {
 
   /**
    * Non-MFA choices presented during the auth flow, such as account selection or org
-   * pickers (present when flow_step=awaiting_input).
+   * pickers (present when flow_step=awaiting_input; may also be present with
+   * awaiting_external_action as fallback actions).
    */
   sign_in_options?: Array<ManagedAuth.SignInOption> | null;
 
@@ -830,7 +833,8 @@ export namespace ConnectionFollowResponse {
     timestamp: string;
 
     /**
-     * Fields awaiting input (present when flow_step=AWAITING_INPUT).
+     * Fields awaiting input (present when flow_step=AWAITING_INPUT; may also be
+     * present with AWAITING_EXTERNAL_ACTION as fallback actions).
      */
     discovered_fields?: Array<ManagedAuthStateEvent.DiscoveredField>;
 
@@ -866,13 +870,14 @@ export namespace ConnectionFollowResponse {
     live_view_url?: string;
 
     /**
-     * MFA method options (present when flow_step=AWAITING_INPUT and MFA selection
-     * required).
+     * MFA method options (present when flow_step=AWAITING_INPUT; may also be present
+     * with AWAITING_EXTERNAL_ACTION as fallback actions).
      */
     mfa_options?: Array<ManagedAuthStateEvent.MfaOption>;
 
     /**
-     * SSO buttons available (present when flow_step=AWAITING_INPUT).
+     * SSO buttons available (present when flow_step=AWAITING_INPUT; may also be
+     * present with AWAITING_EXTERNAL_ACTION as fallback actions).
      */
     pending_sso_buttons?: Array<ManagedAuthStateEvent.PendingSSOButton>;
 
@@ -883,7 +888,8 @@ export namespace ConnectionFollowResponse {
 
     /**
      * Non-MFA choices presented during the auth flow, such as account selection or org
-     * pickers (present when flow_step=AWAITING_INPUT).
+     * pickers (present when flow_step=AWAITING_INPUT; may also be present with
+     * AWAITING_EXTERNAL_ACTION as fallback actions).
      */
     sign_in_options?: Array<ManagedAuthStateEvent.SignInOption>;
 
