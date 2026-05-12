@@ -213,6 +213,12 @@ export interface ManagedAuth {
   profile_name: string;
 
   /**
+   * Whether browser sessions for this connection are recorded by default for
+   * debugging. Can be overridden per-login.
+   */
+  record_session: boolean;
+
+  /**
    * Whether credentials are saved after every successful login. One-time codes
    * (TOTP, SMS, etc.) are not saved.
    */
@@ -615,6 +621,12 @@ export interface ManagedAuthCreateRequest {
   proxy?: ManagedAuthCreateRequest.Proxy;
 
   /**
+   * Whether to record browser sessions for this connection by default. Useful for
+   * debugging. Can be overridden per-login. Defaults to false.
+   */
+  record_session?: boolean;
+
+  /**
    * Whether to save credentials after every successful login. Defaults to true.
    * One-time codes (TOTP, SMS, etc.) are not saved.
    */
@@ -701,6 +713,11 @@ export interface ManagedAuthUpdateRequest {
    * caller's org.
    */
   proxy?: ManagedAuthUpdateRequest.Proxy;
+
+  /**
+   * Whether to record browser sessions for this connection by default
+   */
+  record_session?: boolean;
 
   /**
    * Whether to save credentials after every successful login
@@ -1081,6 +1098,12 @@ export interface ConnectionCreateParams {
   proxy?: ConnectionCreateParams.Proxy;
 
   /**
+   * Whether to record browser sessions for this connection by default. Useful for
+   * debugging. Can be overridden per-login. Defaults to false.
+   */
+  record_session?: boolean;
+
+  /**
    * Whether to save credentials after every successful login. Defaults to true.
    * One-time codes (TOTP, SMS, etc.) are not saved.
    */
@@ -1166,6 +1189,11 @@ export interface ConnectionUpdateParams {
   proxy?: ConnectionUpdateParams.Proxy;
 
   /**
+   * Whether to record browser sessions for this connection by default
+   */
+  record_session?: boolean;
+
+  /**
    * Whether to save credentials after every successful login
    */
   save_credentials?: boolean;
@@ -1236,6 +1264,12 @@ export interface ConnectionLoginParams {
    * caller's org.
    */
   proxy?: ConnectionLoginParams.Proxy;
+
+  /**
+   * Override the connection's default for recording this login's browser session.
+   * When omitted, the connection's record_session default is used.
+   */
+  record_session?: boolean;
 }
 
 export namespace ConnectionLoginParams {
