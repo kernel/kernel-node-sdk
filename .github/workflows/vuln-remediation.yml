@@ -12,6 +12,4 @@ permissions:
 jobs:
   remediate:
     uses: kernel/security-workflows/.github/workflows/vuln-remediation.yml@main
-    with:
-      setup-bun: true
     secrets: inherit
