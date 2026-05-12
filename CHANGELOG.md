@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.53.0 (2026-05-12)
+
+Full Changelog: [v0.52.0...v0.53.0](https://github.com/kernel/kernel-node-sdk/compare/v0.52.0...v0.53.0)
+
+### Features
+
+* Add 'switch' MFA option type for generic method-switcher links ([856e76b](https://github.com/kernel/kernel-node-sdk/commit/856e76bd7344762e3ef3041fba14dd325466c558))
+* **api:** server-side search on GET /projects ([0f26037](https://github.com/kernel/kernel-node-sdk/commit/0f260373c9266c632c2a2990317a9239caa6f24e))
+* browser_pools: add start_url config (KERNEL-1217 PR 2) ([ce4fd29](https://github.com/kernel/kernel-node-sdk/commit/ce4fd29801277fd8d96aa6c56324222f3f8b5d34))
+* Scope name uniqueness to project for profiles, session_pools, extensions, credentials ([f552873](https://github.com/kernel/kernel-node-sdk/commit/f552873b94a67ba8d12a71785cb1cf6bcc047033))
+
+
+### Bug Fixes
+
+* remove incorrect setup-bun input — project uses yarn ([48c75c6](https://github.com/kernel/kernel-node-sdk/commit/48c75c6d157c05d9bd92ca9294efb89f81c65ada))
+
+
+### Chores
+
+* redact api-key headers in debug logs ([0052fe0](https://github.com/kernel/kernel-node-sdk/commit/0052fe0fbaf8eeca6ac833b2de0a20f0a97a2475))
+
 ## 0.52.0 (2026-04-29)
 
 Full Changelog: [v0.51.0...v0.52.0](https://github.com/kernel/kernel-node-sdk/compare/v0.51.0...v0.52.0)
