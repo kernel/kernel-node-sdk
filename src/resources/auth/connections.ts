@@ -213,8 +213,8 @@ export interface ManagedAuth {
   profile_name: string;
 
   /**
-   * Whether browser sessions for this connection are recorded by default for
-   * debugging. Can be overridden per-login.
+   * Whether to record browser session replays for this connection by default. Useful
+   * for debugging login flows. Can be overridden per-login.
    */
   record_session: boolean;
 
