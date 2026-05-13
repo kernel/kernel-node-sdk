@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.54.0 (2026-05-13)
+
+Full Changelog: [v0.53.0...v0.54.0](https://github.com/kernel/kernel-node-sdk/compare/v0.53.0...v0.54.0)
+
+### Features
+
+* Add opt-in record_session flag to managed auth ([0fd9a82](https://github.com/kernel/kernel-node-sdk/commit/0fd9a82f23facc069946bc635da0c3d023d30087))
+* managed-auth: surface awaiting_external_action even when fallback actions exist ([4d3eacd](https://github.com/kernel/kernel-node-sdk/commit/4d3eacd52096f9a497a492388af8acb99f4b8802))
+
+
+### Documentation
+
+* clarify record_session description in OpenAPI spec ([de53ea5](https://github.com/kernel/kernel-node-sdk/commit/de53ea541914c933e3828db73a4104ef8f27c447))
+
 ## 0.53.0 (2026-05-12)
 
 Full Changelog: [v0.52.0...v0.53.0](https://github.com/kernel/kernel-node-sdk/compare/v0.52.0...v0.53.0)
