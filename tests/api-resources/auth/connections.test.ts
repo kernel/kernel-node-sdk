@@ -38,6 +38,7 @@ describe('resource connections', () => {
       health_check_interval: 3600,
       login_url: 'https://netflix.com/login',
       proxy: { id: 'id', name: 'name' },
+      record_session: false,
       save_credentials: true,
     });
   });
@@ -136,7 +137,10 @@ describe('resource connections', () => {
     await expect(
       client.auth.connections.login(
         'id',
-        { proxy: { id: 'id', name: 'name' } },
+        {
+          proxy: { id: 'id', name: 'name' },
+          record_session: true,
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
