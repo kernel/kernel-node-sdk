@@ -238,11 +238,9 @@ export namespace BrowserPool {
     proxy_id?: string;
 
     /**
-     * Optional URL to navigate to when a new browser is warmed into the pool.
-     * Best-effort: failures to navigate do not fail pool fill. Only applied to
-     * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
-     * the previous lease left them on. Accepts any URL Chromium can resolve, including
-     * chrome:// pages.
+     * Optional URL to open when a browser is created for the pool. Navigation is
+     * best-effort, so navigation failures do not prevent the pool from filling. Reused
+     * browsers keep the page left by the previous lease.
      */
     start_url?: string;
 
@@ -363,8 +361,7 @@ export interface BrowserPoolAcquireResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
-   * debugging — navigation is best-effort and may have failed.
+   * Start URL requested for the session, if provided.
    */
   start_url?: string;
 
@@ -446,11 +443,9 @@ export interface BrowserPoolCreateParams {
   proxy_id?: string;
 
   /**
-   * Optional URL to navigate to when a new browser is warmed into the pool.
-   * Best-effort: failures to navigate do not fail pool fill. Only applied to
-   * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
-   * the previous lease left them on. Accepts any URL Chromium can resolve, including
-   * chrome:// pages.
+   * Optional URL to open when a browser is created for the pool. Navigation is
+   * best-effort, so navigation failures do not prevent the pool from filling. Reused
+   * browsers keep the page left by the previous lease.
    */
   start_url?: string;
 
@@ -545,11 +540,9 @@ export interface BrowserPoolUpdateParams {
   proxy_id?: string;
 
   /**
-   * Optional URL to navigate to when a new browser is warmed into the pool.
-   * Best-effort: failures to navigate do not fail pool fill. Only applied to
-   * newly-warmed browsers — browsers reused via release/acquire keep whatever URL
-   * the previous lease left them on. Accepts any URL Chromium can resolve, including
-   * chrome:// pages.
+   * Optional URL to open when a browser is created for the pool. Navigation is
+   * best-effort, so navigation failures do not prevent the pool from filling. Reused
+   * browsers keep the page left by the previous lease.
    */
   start_url?: string;
 
