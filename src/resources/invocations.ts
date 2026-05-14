@@ -502,8 +502,7 @@ export namespace InvocationListBrowsersResponse {
     proxy_id?: string;
 
     /**
-     * URL the session was asked to navigate to on creation, if any. Recorded for
-     * debugging — navigation is best-effort and may have failed.
+     * Start URL requested for the session, if provided.
      */
     start_url?: string;
 

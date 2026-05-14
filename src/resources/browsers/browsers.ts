@@ -393,8 +393,7 @@ export interface BrowserCreateResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
-   * debugging — navigation is best-effort and may have failed.
+   * Start URL requested for the session, if provided.
    */
   start_url?: string;
 
@@ -505,8 +504,7 @@ export interface BrowserRetrieveResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
-   * debugging — navigation is best-effort and may have failed.
+   * Start URL requested for the session, if provided.
    */
   start_url?: string;
 
@@ -617,8 +615,7 @@ export interface BrowserUpdateResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
-   * debugging — navigation is best-effort and may have failed.
+   * Start URL requested for the session, if provided.
    */
   start_url?: string;
 
@@ -729,8 +726,7 @@ export interface BrowserListResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
-   * debugging — navigation is best-effort and may have failed.
+   * Start URL requested for the session, if provided.
    */
   start_url?: string;
 
@@ -830,11 +826,9 @@ export interface BrowserCreateParams {
   proxy_id?: string;
 
   /**
-   * Optional URL to navigate to immediately after the browser is created.
-   * Best-effort: failures to navigate do not fail browser creation. Any pre-existing
-   * tabs are reduced to a single tab which is then navigated. Accepts any URL
-   * Chromium can resolve, including chrome:// pages. Ignored when reusing an
-   * existing persistent session.
+   * Optional URL to open when the browser session is created. Navigation is
+   * best-effort, so navigation failures do not prevent the session from being
+   * created.
    */
   start_url?: string;
 
