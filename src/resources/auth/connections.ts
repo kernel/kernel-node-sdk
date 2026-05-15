@@ -251,6 +251,17 @@ export interface ManagedAuth {
   allowed_domains?: Array<string>;
 
   /**
+   * Whether automatic re-authentication is permitted for this connection. This is an
+   * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+   * when true, re-auth only runs when the system has what it needs to perform it
+   * (for example, saved credentials for the required login fields), and only after a
+   * scheduled health check detects an expired session — so this flag has no effect
+   * when `health_checks` is false. When false, expired sessions detected by a health
+   * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+   */
+  auto_reauth?: boolean;
+
+  /**
    * ID of the underlying browser session driving the current flow (present when flow
    * in progress). Use this to inspect or terminate the browser session via the
    * `/browsers` API.
@@ -336,6 +347,15 @@ export interface ManagedAuth {
    * Hobbyist: 3600 (1 hour).
    */
   health_check_interval?: number | null;
+
+  /**
+   * Whether periodic health checks are enabled for this connection. When false, the
+   * system will not automatically verify authentication status, and `auto_reauth`
+   * has no effect on the automatic flow (since re-auth is only triggered by a failed
+   * scheduled health check). Manually triggering a health check via the API still
+   * works regardless of this setting.
+   */
+  health_checks?: boolean;
 
   /**
    * URL to redirect user to for hosted login (present when flow in progress)
@@ -592,6 +612,18 @@ export interface ManagedAuthCreateRequest {
   allowed_domains?: Array<string>;
 
   /**
+   * Whether to permit automatic re-authentication when a scheduled health check
+   * detects an expired session. This is an opt-in flag only — it does not check
+   * whether re-auth is actually feasible. Even when true, re-auth only runs when the
+   * system has what it needs to perform it (for example, saved credentials for the
+   * required login fields), and only after a scheduled health check detects an
+   * expired session — so this flag has no effect when `health_checks` is false. When
+   * false, expired sessions are marked as `NEEDS_AUTH` instead of attempting
+   * re-auth. Defaults to true.
+   */
+  auto_reauth?: boolean;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -608,6 +640,14 @@ export interface ManagedAuthCreateRequest {
    * Hobbyist: 3600 (1 hour).
    */
   health_check_interval?: number;
+
+  /**
+   * Whether to enable periodic health checks. When false, the system will not
+   * automatically verify authentication status, and `auto_reauth` has no effect on
+   * the automatic flow (since re-auth is only triggered by a failed scheduled health
+   * check). Defaults to true.
+   */
+  health_checks?: boolean;
 
   /**
    * Optional login page URL to skip discovery
@@ -690,6 +730,17 @@ export interface ManagedAuthUpdateRequest {
   allowed_domains?: Array<string>;
 
   /**
+   * Whether automatic re-authentication is permitted for this connection. This is an
+   * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+   * when true, re-auth only runs when the system has what it needs to perform it
+   * (for example, saved credentials for the required login fields), and only after a
+   * scheduled health check detects an expired session — so this flag has no effect
+   * when `health_checks` is false. When false, expired sessions detected by a health
+   * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+   */
+  auto_reauth?: boolean;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -702,6 +753,14 @@ export interface ManagedAuthUpdateRequest {
    * Interval in seconds between automatic health checks
    */
   health_check_interval?: number;
+
+  /**
+   * Whether periodic health checks are enabled. When set to false, the system will
+   * not automatically verify authentication status, and `auto_reauth` has no effect
+   * on the automatic flow (since re-auth is only triggered by a failed scheduled
+   * health check).
+   */
+  health_checks?: boolean;
 
   /**
    * Login page URL. Set to empty string to clear.
@@ -1069,6 +1128,18 @@ export interface ConnectionCreateParams {
   allowed_domains?: Array<string>;
 
   /**
+   * Whether to permit automatic re-authentication when a scheduled health check
+   * detects an expired session. This is an opt-in flag only — it does not check
+   * whether re-auth is actually feasible. Even when true, re-auth only runs when the
+   * system has what it needs to perform it (for example, saved credentials for the
+   * required login fields), and only after a scheduled health check detects an
+   * expired session — so this flag has no effect when `health_checks` is false. When
+   * false, expired sessions are marked as `NEEDS_AUTH` instead of attempting
+   * re-auth. Defaults to true.
+   */
+  auto_reauth?: boolean;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -1085,6 +1156,14 @@ export interface ConnectionCreateParams {
    * Hobbyist: 3600 (1 hour).
    */
   health_check_interval?: number;
+
+  /**
+   * Whether to enable periodic health checks. When false, the system will not
+   * automatically verify authentication status, and `auto_reauth` has no effect on
+   * the automatic flow (since re-auth is only triggered by a failed scheduled health
+   * check). Defaults to true.
+   */
+  health_checks?: boolean;
 
   /**
    * Optional login page URL to skip discovery
@@ -1164,6 +1243,17 @@ export interface ConnectionUpdateParams {
   allowed_domains?: Array<string>;
 
   /**
+   * Whether automatic re-authentication is permitted for this connection. This is an
+   * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+   * when true, re-auth only runs when the system has what it needs to perform it
+   * (for example, saved credentials for the required login fields), and only after a
+   * scheduled health check detects an expired session — so this flag has no effect
+   * when `health_checks` is false. When false, expired sessions detected by a health
+   * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+   */
+  auto_reauth?: boolean;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -1176,6 +1266,14 @@ export interface ConnectionUpdateParams {
    * Interval in seconds between automatic health checks
    */
   health_check_interval?: number;
+
+  /**
+   * Whether periodic health checks are enabled. When set to false, the system will
+   * not automatically verify authentication status, and `auto_reauth` has no effect
+   * on the automatic flow (since re-auth is only triggered by a failed scheduled
+   * health check).
+   */
+  health_checks?: boolean;
 
   /**
    * Login page URL. Set to empty string to clear.
