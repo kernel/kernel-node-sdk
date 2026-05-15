@@ -29,6 +29,7 @@ describe('resource connections', () => {
       domain: 'netflix.com',
       profile_name: 'user-123',
       allowed_domains: ['login.netflix.com', 'auth.netflix.com'],
+      auto_reauth: true,
       credential: {
         auto: true,
         name: 'my-netflix-creds',
@@ -36,6 +37,7 @@ describe('resource connections', () => {
         provider: 'my-1p',
       },
       health_check_interval: 3600,
+      health_checks: true,
       login_url: 'https://netflix.com/login',
       proxy: { id: 'id', name: 'name' },
       record_session: false,
