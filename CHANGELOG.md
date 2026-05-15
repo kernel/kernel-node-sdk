@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.55.0 (2026-05-15)
+
+Full Changelog: [v0.54.0...v0.55.0](https://github.com/kernel/kernel-node-sdk/compare/v0.54.0...v0.55.0)
+
+### Features
+
+* Add health check and auto-reauth controls for managed auth connections ([259c75b](https://github.com/kernel/kernel-node-sdk/commit/259c75be12f66c2180fb20c83269573bc5c2b00a))
+* Polish start URL OpenAPI descriptions ([6f9e3d9](https://github.com/kernel/kernel-node-sdk/commit/6f9e3d97031b8f5dd3536a86b65a1b45f27f6af1))
+
 ## 0.54.0 (2026-05-13)
 
 Full Changelog: [v0.53.0...v0.54.0](https://github.com/kernel/kernel-node-sdk/compare/v0.53.0...v0.54.0)
