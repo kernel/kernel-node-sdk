@@ -465,6 +465,13 @@ export namespace InvocationListBrowsersResponse {
     browser_live_view_url?: string;
 
     /**
+     * Custom Chrome enterprise policy overrides that were applied to this browser
+     * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+     * names.
+     */
+    chrome_policy?: { [key: string]: unknown };
+
+    /**
      * When the browser session was soft-deleted. Only present for deleted sessions.
      */
     deleted_at?: string;

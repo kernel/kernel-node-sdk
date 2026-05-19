@@ -26,6 +26,7 @@ describe('resource browsers', () => {
     await expect(
       client.browsers.create(
         {
+          chrome_policy: { foo: 'bar' },
           extensions: [{ id: 'id', name: 'name' }],
           gpu: false,
           headless: false,
