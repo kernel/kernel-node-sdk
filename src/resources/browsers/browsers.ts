@@ -346,6 +346,13 @@ export interface BrowserCreateResponse {
   browser_live_view_url?: string;
 
   /**
+   * Custom Chrome enterprise policy overrides that were applied to this browser
+   * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+   * names.
+   */
+  chrome_policy?: { [key: string]: unknown };
+
+  /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
@@ -455,6 +462,13 @@ export interface BrowserRetrieveResponse {
    * browsers.
    */
   browser_live_view_url?: string;
+
+  /**
+   * Custom Chrome enterprise policy overrides that were applied to this browser
+   * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+   * names.
+   */
+  chrome_policy?: { [key: string]: unknown };
 
   /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
@@ -568,6 +582,13 @@ export interface BrowserUpdateResponse {
   browser_live_view_url?: string;
 
   /**
+   * Custom Chrome enterprise policy overrides that were applied to this browser
+   * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+   * names.
+   */
+  chrome_policy?: { [key: string]: unknown };
+
+  /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
@@ -679,6 +700,13 @@ export interface BrowserListResponse {
   browser_live_view_url?: string;
 
   /**
+   * Custom Chrome enterprise policy overrides that were applied to this browser
+   * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+   * names.
+   */
+  chrome_policy?: { [key: string]: unknown };
+
+  /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
@@ -768,6 +796,15 @@ export interface BrowserCurlResponse {
 }
 
 export interface BrowserCreateParams {
+  /**
+   * Custom Chrome enterprise policy overrides applied to this browser session. Keys
+   * are Chrome enterprise policy names; values must match their expected types.
+   * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). Ignored
+   * when reusing an existing persistent session. See
+   * https://chromeenterprise.google/policies/
+   */
+  chrome_policy?: { [key: string]: unknown };
+
   /**
    * List of browser extensions to load into the session. Provide each by id or name.
    */
