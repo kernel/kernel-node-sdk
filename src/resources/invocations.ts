@@ -3,6 +3,7 @@
 import { APIResource } from '../core/resource';
 import * as Shared from './shared';
 import * as BrowsersAPI from './browsers/browsers';
+import * as TelemetryAPI from './browsers/telemetry';
 import { APIPromise } from '../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { Stream } from '../core/streaming';
@@ -509,9 +510,18 @@ export namespace InvocationListBrowsersResponse {
     proxy_id?: string;
 
     /**
-     * Start URL requested for the session, if provided.
+     * URL the session was asked to navigate to on creation, if any. Recorded for
+     * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+     * without waiting for it to load, and any errors (DNS failure, bad status,
+     * timeout) are silently dropped. Captures what was requested, not what the browser
+     * actually loaded.
      */
     start_url?: string;
+
+    /**
+     * Active telemetry configuration for the session, if any.
+     */
+    telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
     /**
      * Session usage metrics.

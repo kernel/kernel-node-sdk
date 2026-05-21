@@ -87,6 +87,46 @@ Methods:
 - <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>
 - <code title="post /browsers/{id}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(id, { ...params }) -> void</code>
 
+## Telemetry
+
+Types:
+
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCallStack</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserConsoleErrorEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserConsoleLogEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserEventContext</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserEventSource</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserHTTPHeaders</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionClickEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionKeyEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionScrollSettledEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorDisconnectedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorInitFailedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorReconnectFailedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorReconnectedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorScreenshotEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkIdleEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkLoadingFailedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkRequestEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkResponseEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageDomContentLoadedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLayoutSettledEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLayoutShiftEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLcpEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLoadEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationSettledEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageTabOpenedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoriesConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoryConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">TelemetryStreamResponse</a></code>
+
+Methods:
+
+- <code title="get /browsers/{id}/telemetry">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">stream</a>(id, { ...params }) -> TelemetryStreamResponse</code>
+
 ## Replays
 
 Types:

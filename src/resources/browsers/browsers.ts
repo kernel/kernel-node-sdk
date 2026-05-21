@@ -50,6 +50,42 @@ import {
   ReplayStopParams,
   Replays,
 } from './replays';
+import * as TelemetryAPI from './telemetry';
+import {
+  BrowserCallStack,
+  BrowserConsoleErrorEvent,
+  BrowserConsoleLogEvent,
+  BrowserEventContext,
+  BrowserEventSource,
+  BrowserHTTPHeaders,
+  BrowserInteractionClickEvent,
+  BrowserInteractionKeyEvent,
+  BrowserInteractionScrollSettledEvent,
+  BrowserMonitorDisconnectedEvent,
+  BrowserMonitorInitFailedEvent,
+  BrowserMonitorReconnectFailedEvent,
+  BrowserMonitorReconnectedEvent,
+  BrowserMonitorScreenshotEvent,
+  BrowserNetworkIdleEvent,
+  BrowserNetworkLoadingFailedEvent,
+  BrowserNetworkRequestEvent,
+  BrowserNetworkResponseEvent,
+  BrowserPageDomContentLoadedEvent,
+  BrowserPageLayoutSettledEvent,
+  BrowserPageLayoutShiftEvent,
+  BrowserPageLcpEvent,
+  BrowserPageLoadEvent,
+  BrowserPageNavigationEvent,
+  BrowserPageNavigationSettledEvent,
+  BrowserPageTabOpenedEvent,
+  BrowserTelemetryCategoriesConfig,
+  BrowserTelemetryCategoryConfig,
+  BrowserTelemetryConfig,
+  BrowserTelemetryEvent,
+  Telemetry,
+  TelemetryStreamParams,
+  TelemetryStreamResponse,
+} from './telemetry';
 import * as FsAPI from './fs/fs';
 import {
   FCreateDirectoryParams,
@@ -80,6 +116,7 @@ import { path } from '../../internal/utils/path';
  * Create and manage browser sessions.
  */
 export class Browsers extends APIResource {
+  telemetry: TelemetryAPI.Telemetry = new TelemetryAPI.Telemetry(this._client);
   replays: ReplaysAPI.Replays = new ReplaysAPI.Replays(this._client);
   fs: FsAPI.Fs = new FsAPI.Fs(this._client);
   process: ProcessAPI.Process = new ProcessAPI.Process(this._client);
@@ -390,9 +427,18 @@ export interface BrowserCreateResponse {
   proxy_id?: string;
 
   /**
-   * Start URL requested for the session, if provided.
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+   * without waiting for it to load, and any errors (DNS failure, bad status,
+   * timeout) are silently dropped. Captures what was requested, not what the browser
+   * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * Active telemetry configuration for the session, if any.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
   /**
    * Session usage metrics.
@@ -508,9 +554,18 @@ export interface BrowserRetrieveResponse {
   proxy_id?: string;
 
   /**
-   * Start URL requested for the session, if provided.
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+   * without waiting for it to load, and any errors (DNS failure, bad status,
+   * timeout) are silently dropped. Captures what was requested, not what the browser
+   * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * Active telemetry configuration for the session, if any.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
   /**
    * Session usage metrics.
@@ -626,9 +681,18 @@ export interface BrowserUpdateResponse {
   proxy_id?: string;
 
   /**
-   * Start URL requested for the session, if provided.
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+   * without waiting for it to load, and any errors (DNS failure, bad status,
+   * timeout) are silently dropped. Captures what was requested, not what the browser
+   * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * Active telemetry configuration for the session, if any.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
   /**
    * Session usage metrics.
@@ -744,9 +808,18 @@ export interface BrowserListResponse {
   proxy_id?: string;
 
   /**
-   * Start URL requested for the session, if provided.
+   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+   * without waiting for it to load, and any errors (DNS failure, bad status,
+   * timeout) are silently dropped. Captures what was requested, not what the browser
+   * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * Active telemetry configuration for the session, if any.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
   /**
    * Session usage metrics.
@@ -866,6 +939,13 @@ export interface BrowserCreateParams {
   stealth?: boolean;
 
   /**
+   * Telemetry configuration for the browser session. If provided, telemetry capture
+   * starts with the specified category filter when the session is created. If
+   * omitted, no telemetry capture is started.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
+
+  /**
    * The number of seconds of inactivity before the browser session is terminated.
    * Activity includes CDP connections and live view connections. Defaults to 60
    * seconds. Minimum allowed is 10 seconds. Maximum allowed is 259200 (72 hours). We
@@ -916,6 +996,14 @@ export interface BrowserUpdateParams {
    * proxy.
    */
   proxy_id?: string | null;
+
+  /**
+   * Telemetry configuration. Omit, set to null, or set to an empty object ({}) to
+   * leave the existing configuration unchanged (no-op). To enable capture for all
+   * categories using VM defaults, set browser to an empty object ({"browser": {}}).
+   * To stop capture, set every category's enabled to false.
+   */
+  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
 
   /**
    * Viewport configuration to apply to the browser session.
@@ -1018,6 +1106,7 @@ export namespace BrowserLoadExtensionsParams {
   }
 }
 
+Browsers.Telemetry = Telemetry;
 Browsers.Replays = Replays;
 Browsers.Fs = Fs;
 Browsers.Process = Process;
@@ -1044,6 +1133,42 @@ export declare namespace Browsers {
     type BrowserDeleteParams as BrowserDeleteParams,
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
+  };
+
+  export {
+    Telemetry as Telemetry,
+    type BrowserCallStack as BrowserCallStack,
+    type BrowserConsoleErrorEvent as BrowserConsoleErrorEvent,
+    type BrowserConsoleLogEvent as BrowserConsoleLogEvent,
+    type BrowserEventContext as BrowserEventContext,
+    type BrowserEventSource as BrowserEventSource,
+    type BrowserHTTPHeaders as BrowserHTTPHeaders,
+    type BrowserInteractionClickEvent as BrowserInteractionClickEvent,
+    type BrowserInteractionKeyEvent as BrowserInteractionKeyEvent,
+    type BrowserInteractionScrollSettledEvent as BrowserInteractionScrollSettledEvent,
+    type BrowserMonitorDisconnectedEvent as BrowserMonitorDisconnectedEvent,
+    type BrowserMonitorInitFailedEvent as BrowserMonitorInitFailedEvent,
+    type BrowserMonitorReconnectFailedEvent as BrowserMonitorReconnectFailedEvent,
+    type BrowserMonitorReconnectedEvent as BrowserMonitorReconnectedEvent,
+    type BrowserMonitorScreenshotEvent as BrowserMonitorScreenshotEvent,
+    type BrowserNetworkIdleEvent as BrowserNetworkIdleEvent,
+    type BrowserNetworkLoadingFailedEvent as BrowserNetworkLoadingFailedEvent,
+    type BrowserNetworkRequestEvent as BrowserNetworkRequestEvent,
+    type BrowserNetworkResponseEvent as BrowserNetworkResponseEvent,
+    type BrowserPageDomContentLoadedEvent as BrowserPageDomContentLoadedEvent,
+    type BrowserPageLayoutSettledEvent as BrowserPageLayoutSettledEvent,
+    type BrowserPageLayoutShiftEvent as BrowserPageLayoutShiftEvent,
+    type BrowserPageLcpEvent as BrowserPageLcpEvent,
+    type BrowserPageLoadEvent as BrowserPageLoadEvent,
+    type BrowserPageNavigationEvent as BrowserPageNavigationEvent,
+    type BrowserPageNavigationSettledEvent as BrowserPageNavigationSettledEvent,
+    type BrowserPageTabOpenedEvent as BrowserPageTabOpenedEvent,
+    type BrowserTelemetryCategoriesConfig as BrowserTelemetryCategoriesConfig,
+    type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
+    type BrowserTelemetryConfig as BrowserTelemetryConfig,
+    type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type TelemetryStreamResponse as TelemetryStreamResponse,
+    type TelemetryStreamParams as TelemetryStreamParams,
   };
 
   export {
