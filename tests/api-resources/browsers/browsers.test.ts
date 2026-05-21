@@ -41,6 +41,14 @@ describe('resource browsers', () => {
           proxy_id: 'proxy_id',
           start_url: 'https://example.com',
           stealth: true,
+          telemetry: {
+            browser: {
+              console: { enabled: true },
+              interaction: { enabled: true },
+              network: { enabled: true },
+              page: { enabled: true },
+            },
+          },
           timeout_seconds: 10,
           viewport: {
             height: 800,
