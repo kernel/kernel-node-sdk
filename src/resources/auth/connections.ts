@@ -269,15 +269,59 @@ export interface ManagedAuth {
   browser_session_id?: string | null;
 
   /**
-   * Whether automatic re-authentication is possible (has credential, selectors, and
-   * login_url)
+   * Whether Kernel can automatically re-authenticate this connection when the
+   * session expires. Requires a prior successful login plus either a Kernel
+   * credential or an external credential reference. See `can_reauth_reason` for the
+   * specific outcome.
    */
   can_reauth?: boolean;
 
   /**
-   * Reason why automatic re-authentication is or is not possible
+   * Machine-readable reason for the current value of `can_reauth`. Affirmative
+   * values (re-auth is possible):
+   *
+   * - `external_credential` — an external credential provider is attached
+   * - `cua_has_credential` — CUA flow with a stored credential
+   * - `has_credential` — Kernel credential is attached (optimistic; plan viability
+   *   not checked)
+   * - `viable_plans_found` — at least one stored login plan can be replayed
+   * - `no_requirements_recorded` — no recorded credential requirements to fail
+   *   against
+   * - `requirements_satisfiable` — recorded requirements can be met by the attached
+   *   credential
+   *
+   * Negative values (a human must complete the login flow):
+   *
+   * - `no_prior_successful_login` — connection has never completed a successful
+   *   login
+   * - `no_credential` — no Kernel or external credential attached
+   * - `no_viable_plans` — credential attached but no replayable login plan exists
+   *   yet
+   * - `viable_plans_require_external_action` — stored plans need an external step
+   *   (email link, push, etc.)
+   * - `requires_external_action` — recorded requirements include an external step
+   * - `requires_totp_without_secret` — flow needs a TOTP code but no TOTP secret is
+   *   stored
+   * - `requires_sms_code` — flow needs an SMS code that cannot be received
+   *   automatically
+   * - `requires_email_code` — flow needs an email code that cannot be received
+   *   automatically
    */
-  can_reauth_reason?: string;
+  can_reauth_reason?:
+    | 'external_credential'
+    | 'cua_has_credential'
+    | 'has_credential'
+    | 'viable_plans_found'
+    | 'no_requirements_recorded'
+    | 'requirements_satisfiable'
+    | 'no_prior_successful_login'
+    | 'no_credential'
+    | 'no_viable_plans'
+    | 'viable_plans_require_external_action'
+    | 'requires_external_action'
+    | 'requires_totp_without_secret'
+    | 'requires_sms_code'
+    | 'requires_email_code';
 
   /**
    * Reference to credentials for the auth connection. Use one of:
