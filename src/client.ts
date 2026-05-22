@@ -104,12 +104,10 @@ import {
   BrowserCreateResponse,
   BrowserCurlParams,
   BrowserCurlResponse,
-  BrowserDeleteParams,
   BrowserListParams,
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
   BrowserLoadExtensionsParams,
-  BrowserPersistence,
   BrowserPoolRef,
   BrowserRetrieveParams,
   BrowserRetrieveResponse,
@@ -996,7 +994,6 @@ export declare namespace Kernel {
 
   export {
     Browsers as Browsers,
-    type BrowserPersistence as BrowserPersistence,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
@@ -1010,7 +1007,6 @@ export declare namespace Kernel {
     type BrowserRetrieveParams as BrowserRetrieveParams,
     type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
-    type BrowserDeleteParams as BrowserDeleteParams,
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
   };

@@ -55,12 +55,6 @@ export interface ProjectLimits {
   max_concurrent_sessions?: number | null;
 
   /**
-   * Maximum persistent browser sessions for this project. Null means no
-   * project-level cap.
-   */
-  max_persistent_sessions?: number | null;
-
-  /**
    * Maximum pooled sessions capacity for this project. Null means no project-level
    * cap.
    */
@@ -81,12 +75,6 @@ export interface UpdateProjectLimitsRequest {
   max_concurrent_sessions?: number | null;
 
   /**
-   * Maximum persistent browser sessions for this project. Set to 0 to remove the
-   * cap; omit to leave unchanged.
-   */
-  max_persistent_sessions?: number | null;
-
-  /**
    * Maximum pooled sessions capacity for this project. Set to 0 to remove the cap;
    * omit to leave unchanged.
    */
@@ -105,12 +93,6 @@ export interface LimitUpdateParams {
    * cap; omit to leave unchanged.
    */
   max_concurrent_sessions?: number | null;
-
-  /**
-   * Maximum persistent browser sessions for this project. Set to 0 to remove the
-   * cap; omit to leave unchanged.
-   */
-  max_persistent_sessions?: number | null;
 
   /**
    * Maximum pooled sessions capacity for this project. Set to 0 to remove the cap;

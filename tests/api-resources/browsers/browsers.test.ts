@@ -32,7 +32,6 @@ describe('resource browsers', () => {
           headless: false,
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
-          persistence: { id: 'my-awesome-browser-for-user-1234' },
           profile: {
             id: 'id',
             name: 'name',
@@ -124,23 +123,6 @@ describe('resource browsers', () => {
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
-  });
-
-  // Mock server tests are disabled
-  test.skip('delete: only required params', async () => {
-    const responsePromise = client.browsers.delete({ persistent_id: 'persistent_id' });
-    const rawResponse = await responsePromise.asResponse();
-    expect(rawResponse).toBeInstanceOf(Response);
-    const response = await responsePromise;
-    expect(response).not.toBeInstanceOf(Response);
-    const dataAndResponse = await responsePromise.withResponse();
-    expect(dataAndResponse.data).toBe(response);
-    expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Mock server tests are disabled
-  test.skip('delete: required and optional params', async () => {
-    const response = await client.browsers.delete({ persistent_id: 'persistent_id' });
   });
 
   // Mock server tests are disabled

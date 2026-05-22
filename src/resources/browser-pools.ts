@@ -350,12 +350,6 @@ export interface BrowserPoolAcquireResponse {
   kiosk_mode?: boolean;
 
   /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowsersAPI.BrowserPersistence;
-
-  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowsersAPI.BrowserPoolRef;
