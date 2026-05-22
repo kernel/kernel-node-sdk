@@ -21,7 +21,6 @@ export {
 } from './browser-pools';
 export {
   Browsers,
-  type BrowserPersistence,
   type BrowserPoolRef,
   type BrowserUsage,
   type Profile,
@@ -34,7 +33,6 @@ export {
   type BrowserRetrieveParams,
   type BrowserUpdateParams,
   type BrowserListParams,
-  type BrowserDeleteParams,
   type BrowserCurlParams,
   type BrowserLoadExtensionsParams,
   type ProfilesOffsetPagination,

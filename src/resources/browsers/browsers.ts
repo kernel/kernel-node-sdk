@@ -193,21 +193,6 @@ export class Browsers extends APIResource {
   }
 
   /**
-   * DEPRECATED: Use DELETE /browsers/{id} instead. Delete a persistent browser
-   * session by its persistent_id.
-   *
-   * @deprecated
-   */
-  delete(params: BrowserDeleteParams, options?: RequestOptions): APIPromise<void> {
-    const { persistent_id } = params;
-    return this._client.delete('/browsers', {
-      query: { persistent_id },
-      ...options,
-      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
-    });
-  }
-
-  /**
    * Sends an HTTP request through Chrome's HTTP request stack, inheriting the
    * browser's TLS fingerprint, cookies, proxy configuration, and headers. Returns a
    * structured JSON response with status, headers, body, and timing.
@@ -278,17 +263,6 @@ export class Browsers extends APIResource {
 export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListResponse>;
 
 export type ProfilesOffsetPagination = OffsetPagination<Profile>;
-
-/**
- * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
- * instead.
- */
-export interface BrowserPersistence {
-  /**
-   * DEPRECATED: Unique identifier for the persistent browser session.
-   */
-  id: string;
-}
 
 /**
  * Browser pool this session was acquired from, if any.
@@ -416,12 +390,6 @@ export interface BrowserCreateResponse {
   kiosk_mode?: boolean;
 
   /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowserPersistence;
-
-  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -541,12 +509,6 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
-
-  /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowserPersistence;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -670,12 +632,6 @@ export interface BrowserUpdateResponse {
   kiosk_mode?: boolean;
 
   /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowserPersistence;
-
-  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -797,12 +753,6 @@ export interface BrowserListResponse {
   kiosk_mode?: boolean;
 
   /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowserPersistence;
-
-  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -882,8 +832,7 @@ export interface BrowserCreateParams {
   /**
    * Custom Chrome enterprise policy overrides applied to this browser session. Keys
    * are Chrome enterprise policy names; values must match their expected types.
-   * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). Ignored
-   * when reusing an existing persistent session. See
+   * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
    * https://chromeenterprise.google/policies/
    */
   chrome_policy?: { [key: string]: unknown };
@@ -915,12 +864,6 @@ export interface BrowserCreateParams {
    * view.
    */
   kiosk_mode?: boolean;
-
-  /**
-   * @deprecated DEPRECATED: Use timeout_seconds (up to 72 hours) and Profiles
-   * instead.
-   */
-  persistence?: BrowserPersistence;
 
   /**
    * Profile selection for the browser session. Provide either id or name. If
@@ -1055,13 +998,6 @@ export interface BrowserListParams extends OffsetPaginationParams {
   status?: 'active' | 'deleted' | 'all';
 }
 
-export interface BrowserDeleteParams {
-  /**
-   * Persistent browser identifier
-   */
-  persistent_id: string;
-}
-
 export interface BrowserCurlParams {
   /**
    * Target URL (must be http or https).
@@ -1126,7 +1062,6 @@ Browsers.Playwright = Playwright;
 
 export declare namespace Browsers {
   export {
-    type BrowserPersistence as BrowserPersistence,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
@@ -1140,7 +1075,6 @@ export declare namespace Browsers {
     type BrowserRetrieveParams as BrowserRetrieveParams,
     type BrowserUpdateParams as BrowserUpdateParams,
     type BrowserListParams as BrowserListParams,
-    type BrowserDeleteParams as BrowserDeleteParams,
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
   };
