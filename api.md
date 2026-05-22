@@ -66,7 +66,6 @@ Methods:
 
 Types:
 
-- <code><a href="./src/resources/browsers/browsers.ts">BrowserPersistence</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
@@ -82,7 +81,6 @@ Methods:
 - <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id, { ...params }) -> BrowserRetrieveResponse</code>
 - <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
-- <code title="delete /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">delete</a>({ ...params }) -> void</code>
 - <code title="post /browsers/{id}/curl">client.browsers.<a href="./src/resources/browsers/browsers.ts">curl</a>(id, { ...params }) -> BrowserCurlResponse</code>
 - <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>
 - <code title="post /browsers/{id}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(id, { ...params }) -> void</code>
