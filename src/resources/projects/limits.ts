@@ -21,7 +21,7 @@ export class Limits extends APIResource {
    * ```
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<ProjectLimits> {
-    return this._client.get(path`/projects/${id}/limits`, options);
+    return this._client.get(path`/org/projects/${id}/limits`, options);
   }
 
   /**
@@ -37,7 +37,7 @@ export class Limits extends APIResource {
    * ```
    */
   update(id: string, body: LimitUpdateParams, options?: RequestOptions): APIPromise<ProjectLimits> {
-    return this._client.patch(path`/projects/${id}/limits`, { body, ...options });
+    return this._client.patch(path`/org/projects/${id}/limits`, { body, ...options });
   }
 }
 
