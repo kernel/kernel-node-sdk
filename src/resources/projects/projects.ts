@@ -26,7 +26,7 @@ export class Projects extends APIResource {
    * ```
    */
   create(body: ProjectCreateParams, options?: RequestOptions): APIPromise<Project> {
-    return this._client.post('/projects', { body, ...options });
+    return this._client.post('/org/projects', { body, ...options });
   }
 
   /**
@@ -38,7 +38,7 @@ export class Projects extends APIResource {
    * ```
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<Project> {
-    return this._client.get(path`/projects/${id}`, options);
+    return this._client.get(path`/org/projects/${id}`, options);
   }
 
   /**
@@ -50,7 +50,7 @@ export class Projects extends APIResource {
    * ```
    */
   update(id: string, body: ProjectUpdateParams, options?: RequestOptions): APIPromise<Project> {
-    return this._client.patch(path`/projects/${id}`, { body, ...options });
+    return this._client.patch(path`/org/projects/${id}`, { body, ...options });
   }
 
   /**
@@ -68,7 +68,7 @@ export class Projects extends APIResource {
     query: ProjectListParams | null | undefined = {},
     options?: RequestOptions,
   ): PagePromise<ProjectsOffsetPagination, Project> {
-    return this._client.getAPIList('/projects', OffsetPagination<Project>, { query, ...options });
+    return this._client.getAPIList('/org/projects', OffsetPagination<Project>, { query, ...options });
   }
 
   /**
@@ -80,7 +80,7 @@ export class Projects extends APIResource {
    * ```
    */
   delete(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/projects/${id}`, {
+    return this._client.delete(path`/org/projects/${id}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
