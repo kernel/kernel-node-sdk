@@ -1412,11 +1412,11 @@ export interface BrowserTelemetryCategoryConfig {
 }
 
 /**
- * Telemetry configuration for a browser session.
+ * Active telemetry configuration for a browser session.
  */
 export interface BrowserTelemetryConfig {
   /**
-   * Per-category enable/disable flags. If omitted, all categories are captured.
+   * Per-category enable/disable flags.
    */
   browser?: BrowserTelemetryCategoriesConfig;
 }
@@ -1451,6 +1451,25 @@ export type BrowserTelemetryEvent =
   | BrowserMonitorReconnectedEvent
   | BrowserMonitorReconnectFailedEvent
   | BrowserMonitorInitFailedEvent;
+
+/**
+ * Telemetry request configuration for a browser session.
+ */
+export interface BrowserTelemetryRequestConfig {
+  /**
+   * Per-category enable/disable flags. If enabled is true and browser is omitted or
+   * empty, the VM default category set is used. Explicitly disabling all four
+   * categories stops capture on update and starts no capture on create.
+   */
+  browser?: BrowserTelemetryCategoriesConfig;
+
+  /**
+   * Request shortcut for browser telemetry capture. True enables capture using VM
+   * defaults. False stops capture on update and starts no capture on create. Cannot
+   * be combined with browser category settings.
+   */
+  enabled?: boolean;
+}
 
 /**
  * Envelope wrapping a browser telemetry event with its monotonic sequence number.
@@ -1515,6 +1534,7 @@ export declare namespace Telemetry {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type BrowserTelemetryRequestConfig as BrowserTelemetryRequestConfig,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryStreamParams as TelemetryStreamParams,
   };
