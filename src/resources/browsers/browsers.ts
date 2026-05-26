@@ -83,8 +83,7 @@ import {
   BrowserTelemetryCategoryConfig,
   BrowserTelemetryConfig,
   BrowserTelemetryEvent,
-  BrowserTelemetryRequestConfig,
-  Telemetry,
+  Telemetry as TelemetryAPITelemetry,
   TelemetryStreamParams,
   TelemetryStreamResponse,
 } from './telemetry';
@@ -899,7 +898,7 @@ export interface BrowserCreateParams {
    * category settings, or all four categories are explicitly disabled, capture is
    * not started.
    */
-  telemetry?: TelemetryAPI.BrowserTelemetryRequestConfig | null;
+  telemetry?: BrowserCreateParams.Telemetry | null;
 
   /**
    * The number of seconds of inactivity before the browser session is terminated.
@@ -925,6 +924,32 @@ export interface BrowserCreateParams {
    * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
+}
+
+export namespace BrowserCreateParams {
+  /**
+   * Telemetry configuration for the browser session. Set enabled to true to start
+   * capture using VM defaults, or provide browser category settings. If omitted,
+   * null, set to an empty object ({}), set to enabled: false without browser
+   * category settings, or all four categories are explicitly disabled, capture is
+   * not started.
+   */
+  export interface Telemetry {
+    /**
+     * Per-category enable/disable flags. If enabled is true and browser is omitted or
+     * empty, the VM default category set is used. Explicitly disabling all four
+     * categories stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture using VM
+     * defaults unless browser category settings are provided. False stops capture on
+     * update and starts no capture on create. enabled=false cannot be combined with
+     * browser category settings.
+     */
+    enabled?: boolean;
+  }
 }
 
 export interface BrowserRetrieveParams {
@@ -960,7 +985,7 @@ export interface BrowserUpdateParams {
    * category settings for per-category updates. Explicitly disabling all four
    * categories also stops capture.
    */
-  telemetry?: TelemetryAPI.BrowserTelemetryRequestConfig | null;
+  telemetry?: BrowserUpdateParams.Telemetry | null;
 
   /**
    * Viewport configuration to apply to the browser session.
@@ -969,6 +994,30 @@ export interface BrowserUpdateParams {
 }
 
 export namespace BrowserUpdateParams {
+  /**
+   * Telemetry configuration. Omit, set to null, or set to an empty object ({}) to
+   * leave the existing configuration unchanged. Set enabled to true to enable
+   * capture using VM defaults. Set enabled to false to stop capture. Provide browser
+   * category settings for per-category updates. Explicitly disabling all four
+   * categories also stops capture.
+   */
+  export interface Telemetry {
+    /**
+     * Per-category enable/disable flags. If enabled is true and browser is omitted or
+     * empty, the VM default category set is used. Explicitly disabling all four
+     * categories stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture using VM
+     * defaults unless browser category settings are provided. False stops capture on
+     * update and starts no capture on create. enabled=false cannot be combined with
+     * browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Viewport configuration to apply to the browser session.
    */
@@ -1056,7 +1105,7 @@ export namespace BrowserLoadExtensionsParams {
   }
 }
 
-Browsers.Telemetry = Telemetry;
+Browsers.Telemetry = TelemetryAPITelemetry;
 Browsers.Replays = Replays;
 Browsers.Fs = Fs;
 Browsers.Process = Process;
@@ -1084,7 +1133,7 @@ export declare namespace Browsers {
   };
 
   export {
-    Telemetry as Telemetry,
+    TelemetryAPITelemetry as Telemetry,
     type BrowserCallStack as BrowserCallStack,
     type BrowserConsoleErrorEvent as BrowserConsoleErrorEvent,
     type BrowserConsoleLogEvent as BrowserConsoleLogEvent,
@@ -1115,7 +1164,6 @@ export declare namespace Browsers {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
-    type BrowserTelemetryRequestConfig as BrowserTelemetryRequestConfig,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryStreamParams as TelemetryStreamParams,
   };
