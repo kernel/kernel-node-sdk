@@ -111,7 +111,6 @@ export {
   type BrowserTelemetryCategoryConfig,
   type BrowserTelemetryConfig,
   type BrowserTelemetryEvent,
-  type BrowserTelemetryRequestConfig,
   type TelemetryStreamResponse,
   type TelemetryStreamParams,
 } from './telemetry';
