@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.57.0 (2026-05-26)
+
+Full Changelog: [v0.55.0...v0.57.0](https://github.com/kernel/kernel-node-sdk/compare/v0.55.0...v0.57.0)
+
+### Features
+
+* [kernel-1116] browser events api integration ([958614b](https://github.com/kernel/kernel-node-sdk/commit/958614b4a683675d7e00d901fee039515f94df6a))
+* api: dual-route /projects under /org/projects, deprecate /projects ([e333d62](https://github.com/kernel/kernel-node-sdk/commit/e333d62b51b1f119f6f0b25798ca62a1d49eaf72))
+* **api:** type can_reauth_reason as an enum on ManagedAuth ([be986fa](https://github.com/kernel/kernel-node-sdk/commit/be986fabf5305bfaa447f88225750a1c054a1a8e))
+* browsers: accept chrome_policy on POST /browsers (KERNEL-1216) ([e3b32bb](https://github.com/kernel/kernel-node-sdk/commit/e3b32bb8178e98e4ea15fb358a3e370dd96d0315))
+* EOL persistent browsers: openapi limits ([4dced80](https://github.com/kernel/kernel-node-sdk/commit/4dced80cd4f8cc1057717e0110ac043575290367))
+* Expose POST /projects in public API ([e251459](https://github.com/kernel/kernel-node-sdk/commit/e251459afc038f2e15eef5ab77b91b398a75eae1))
+* Support telemetry enabled request config ([2aea49f](https://github.com/kernel/kernel-node-sdk/commit/2aea49f341f7cc1a2f8e99a5112e831bbcfdcd4e))
+
+
+### Bug Fixes
+
+* **typescript:** upgrade tsc-multi so that it works with Node 26 ([46e3fb5](https://github.com/kernel/kernel-node-sdk/commit/46e3fb57502dcf44dd4c972fc42fb09c30eab6eb))
+
+
+### Chores
+
+* **tests:** remove redundant File import ([1677dc1](https://github.com/kernel/kernel-node-sdk/commit/1677dc13811672b22ec12102bda30755fa4d1f6f))
+
 ## 0.55.0 (2026-05-15)
 
 Full Changelog: [v0.54.0...v0.55.0](https://github.com/kernel/kernel-node-sdk/compare/v0.54.0...v0.55.0)
