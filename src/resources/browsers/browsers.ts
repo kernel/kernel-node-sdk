@@ -82,6 +82,7 @@ import {
   BrowserTelemetryCategoryConfig,
   BrowserTelemetryConfig,
   BrowserTelemetryEvent,
+  BrowserTelemetryRequestConfig,
   Telemetry,
   TelemetryStreamParams,
   TelemetryStreamResponse,
@@ -882,11 +883,13 @@ export interface BrowserCreateParams {
   stealth?: boolean;
 
   /**
-   * Telemetry configuration for the browser session. If provided, telemetry capture
-   * starts with the specified category filter when the session is created. If
-   * omitted, no telemetry capture is started.
+   * Telemetry configuration for the browser session. Set enabled to true to start
+   * capture using VM defaults, or provide browser category settings. If omitted,
+   * null, set to an empty object ({}), set to enabled: false without browser
+   * category settings, or all four categories are explicitly disabled, capture is
+   * not started.
    */
-  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
+  telemetry?: TelemetryAPI.BrowserTelemetryRequestConfig | null;
 
   /**
    * The number of seconds of inactivity before the browser session is terminated.
@@ -942,11 +945,12 @@ export interface BrowserUpdateParams {
 
   /**
    * Telemetry configuration. Omit, set to null, or set to an empty object ({}) to
-   * leave the existing configuration unchanged (no-op). To enable capture for all
-   * categories using VM defaults, set browser to an empty object ({"browser": {}}).
-   * To stop capture, set every category's enabled to false.
+   * leave the existing configuration unchanged. Set enabled to true to enable
+   * capture using VM defaults. Set enabled to false to stop capture. Provide browser
+   * category settings for per-category updates. Explicitly disabling all four
+   * categories also stops capture.
    */
-  telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
+  telemetry?: TelemetryAPI.BrowserTelemetryRequestConfig | null;
 
   /**
    * Viewport configuration to apply to the browser session.
@@ -1101,6 +1105,7 @@ export declare namespace Browsers {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type BrowserTelemetryRequestConfig as BrowserTelemetryRequestConfig,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryStreamParams as TelemetryStreamParams,
   };

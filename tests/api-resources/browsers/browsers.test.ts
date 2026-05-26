@@ -47,6 +47,7 @@ describe('resource browsers', () => {
               network: { enabled: true },
               page: { enabled: true },
             },
+            enabled: true,
           },
           timeout_seconds: 10,
           viewport: {
