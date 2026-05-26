@@ -1453,25 +1453,6 @@ export type BrowserTelemetryEvent =
   | BrowserMonitorInitFailedEvent;
 
 /**
- * Telemetry request configuration for a browser session.
- */
-export interface BrowserTelemetryRequestConfig {
-  /**
-   * Per-category enable/disable flags. If enabled is true and browser is omitted or
-   * empty, the VM default category set is used. Explicitly disabling all four
-   * categories stops capture on update and starts no capture on create.
-   */
-  browser?: BrowserTelemetryCategoriesConfig;
-
-  /**
-   * Request shortcut for browser telemetry capture. True enables capture using VM
-   * defaults. False stops capture on update and starts no capture on create. Cannot
-   * be combined with browser category settings.
-   */
-  enabled?: boolean;
-}
-
-/**
  * Envelope wrapping a browser telemetry event with its monotonic sequence number.
  * Each SSE data: frame carries one envelope as JSON. The seq value is also emitted
  * as the SSE id: field so clients can pass it as Last-Event-ID on reconnect.
@@ -1534,7 +1515,6 @@ export declare namespace Telemetry {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
-    type BrowserTelemetryRequestConfig as BrowserTelemetryRequestConfig,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryStreamParams as TelemetryStreamParams,
   };
