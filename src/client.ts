@@ -26,9 +26,7 @@ import {
   APIKeyUpdateParams,
   APIKeys,
   APIKeysOffsetPagination,
-  CreateAPIKeyRequest,
   CreatedAPIKey,
-  UpdateAPIKeyRequest,
 } from './resources/api-keys';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
@@ -1091,9 +1089,7 @@ export declare namespace Kernel {
   export {
     APIKeys as APIKeys,
     type APIKey as APIKey,
-    type CreateAPIKeyRequest as CreateAPIKeyRequest,
     type CreatedAPIKey as CreatedAPIKey,
-    type UpdateAPIKeyRequest as UpdateAPIKeyRequest,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
     type APIKeyUpdateParams as APIKeyUpdateParams,
