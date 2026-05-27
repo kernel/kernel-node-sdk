@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.58.0 (2026-05-27)
+
+Full Changelog: [v0.57.0...v0.58.0](https://github.com/kernel/kernel-node-sdk/compare/v0.57.0...v0.58.0)
+
+### Features
+
+* [codex] Expose API keys in SDK config ([342f436](https://github.com/kernel/kernel-node-sdk/commit/342f436fe2c9833ed2c418eff3d018a1538acef5))
+* Fix API key request model SDK metadata ([464c2ee](https://github.com/kernel/kernel-node-sdk/commit/464c2eec36533b1346aa215f6050e4a9cedaf87e))
+* Support telemetry enabled request config and fix SDK metadata ([14d3265](https://github.com/kernel/kernel-node-sdk/commit/14d3265acdd9911f08fff8ff7fde51561a226845))
+
 ## 0.57.0 (2026-05-26)
 
 Full Changelog: [v0.55.0...v0.57.0](https://github.com/kernel/kernel-node-sdk/compare/v0.55.0...v0.57.0)
