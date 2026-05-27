@@ -372,9 +372,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/api-keys.ts">APIKey</a></code>
-- <code><a href="./src/resources/api-keys.ts">CreateAPIKeyRequest</a></code>
 - <code><a href="./src/resources/api-keys.ts">CreatedAPIKey</a></code>
-- <code><a href="./src/resources/api-keys.ts">UpdateAPIKeyRequest</a></code>
 
 Methods:
 

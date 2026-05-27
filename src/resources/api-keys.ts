@@ -147,23 +147,6 @@ export namespace APIKey {
   }
 }
 
-export interface CreateAPIKeyRequest {
-  /**
-   * API key name (1-255 characters)
-   */
-  name: string;
-
-  /**
-   * Number of days until expiry, up to 3650. Use null for never.
-   */
-  days_to_expire?: number | null;
-
-  /**
-   * Unique project identifier
-   */
-  project_id?: string | null;
-}
-
 /**
  * API key returned immediately after creation. Includes the plaintext key once.
  */
@@ -172,13 +155,6 @@ export interface CreatedAPIKey extends APIKey {
    * Plaintext API key. Only returned once when the key is created.
    */
   key: string;
-}
-
-export interface UpdateAPIKeyRequest {
-  /**
-   * New API key name
-   */
-  name: string;
 }
 
 export interface APIKeyCreateParams {
@@ -210,9 +186,7 @@ export interface APIKeyListParams extends OffsetPaginationParams {}
 export declare namespace APIKeys {
   export {
     type APIKey as APIKey,
-    type CreateAPIKeyRequest as CreateAPIKeyRequest,
     type CreatedAPIKey as CreatedAPIKey,
-    type UpdateAPIKeyRequest as UpdateAPIKeyRequest,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
     type APIKeyUpdateParams as APIKeyUpdateParams,

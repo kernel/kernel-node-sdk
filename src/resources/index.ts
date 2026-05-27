@@ -4,9 +4,7 @@ export * from './shared';
 export {
   APIKeys,
   type APIKey,
-  type CreateAPIKeyRequest,
   type CreatedAPIKey,
-  type UpdateAPIKeyRequest,
   type APIKeyCreateParams,
   type APIKeyUpdateParams,
   type APIKeyListParams,
