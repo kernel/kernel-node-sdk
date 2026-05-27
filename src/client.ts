@@ -19,6 +19,17 @@ import { AbstractPage, type OffsetPaginationParams, OffsetPaginationResponse } f
 import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
+import {
+  APIKey,
+  APIKeyCreateParams,
+  APIKeyListParams,
+  APIKeyUpdateParams,
+  APIKeys,
+  APIKeysOffsetPagination,
+  CreateAPIKeyRequest,
+  CreatedAPIKey,
+  UpdateAPIKeyRequest,
+} from './resources/api-keys';
 import { AppListParams, AppListResponse, AppListResponsesOffsetPagination, Apps } from './resources/apps';
 import {
   BrowserRouteCache,
@@ -971,6 +982,10 @@ export class Kernel {
    */
   projects: API.Projects = new API.Projects(this);
   /**
+   * Create and manage API keys for organization and project-scoped access.
+   */
+  apiKeys: API.APIKeys = new API.APIKeys(this);
+  /**
    * Configure external credential providers like 1Password.
    */
   credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
@@ -987,6 +1002,7 @@ Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
 Kernel.Credentials = Credentials;
 Kernel.Projects = Projects;
+Kernel.APIKeys = APIKeys;
 Kernel.CredentialProviders = CredentialProviders;
 
 export declare namespace Kernel {
@@ -1112,6 +1128,18 @@ export declare namespace Kernel {
     type ProjectCreateParams as ProjectCreateParams,
     type ProjectUpdateParams as ProjectUpdateParams,
     type ProjectListParams as ProjectListParams,
+  };
+
+  export {
+    APIKeys as APIKeys,
+    type APIKey as APIKey,
+    type CreateAPIKeyRequest as CreateAPIKeyRequest,
+    type CreatedAPIKey as CreatedAPIKey,
+    type UpdateAPIKeyRequest as UpdateAPIKeyRequest,
+    type APIKeysOffsetPagination as APIKeysOffsetPagination,
+    type APIKeyCreateParams as APIKeyCreateParams,
+    type APIKeyUpdateParams as APIKeyUpdateParams,
+    type APIKeyListParams as APIKeyListParams,
   };
 
   export {
