@@ -108,6 +108,8 @@ export namespace BrowserCallStack {
  * source_url, and stack_trace. Fields not applicable to the source are absent.
  */
 export interface BrowserConsoleErrorEvent {
+  category: 'console';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -188,6 +190,8 @@ export namespace BrowserConsoleErrorEvent {
  * A browser console log event (console.log, console.info, console.warn, etc.).
  */
 export interface BrowserConsoleLogEvent {
+  category: 'console';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -323,6 +327,8 @@ export type BrowserHTTPHeaders = { [key: string]: unknown };
  * A browser user click event captured via injected page script.
  */
 export interface BrowserInteractionClickEvent {
+  category: 'interaction';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -386,6 +392,8 @@ export namespace BrowserInteractionClickEvent {
  * A browser keyboard event captured via injected page script.
  */
 export interface BrowserInteractionKeyEvent {
+  category: 'interaction';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -440,6 +448,8 @@ export namespace BrowserInteractionKeyEvent {
  * captured via injected page script.
  */
 export interface BrowserInteractionScrollSettledEvent {
+  category: 'interaction';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -505,6 +515,8 @@ export namespace BrowserInteractionScrollSettledEvent {
  * page_layout_settled) as unreliable until then.
  */
 export interface BrowserMonitorDisconnectedEvent {
+  category: 'system';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -538,6 +550,8 @@ export namespace BrowserMonitorDisconnectedEvent {
  * The CDP session could not be initialized.
  */
 export interface BrowserMonitorInitFailedEvent {
+  category: 'system';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -572,6 +586,8 @@ export namespace BrowserMonitorInitFailedEvent {
  * reconnection attempts. No further telemetry events will arrive on this session.
  */
 export interface BrowserMonitorReconnectFailedEvent {
+  category: 'system';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -608,6 +624,8 @@ export namespace BrowserMonitorReconnectFailedEvent {
  * so navigation and network tracking restart fresh from this point.
  */
 export interface BrowserMonitorReconnectedEvent {
+  category: 'system';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -641,6 +659,8 @@ export namespace BrowserMonitorReconnectedEvent {
  * A periodic screenshot of the browser viewport.
  */
 export interface BrowserMonitorScreenshotEvent {
+  category: 'system';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -675,6 +695,8 @@ export namespace BrowserMonitorScreenshotEvent {
  * in-flight HTTP requests.
  */
 export interface BrowserNetworkIdleEvent {
+  category: 'network';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -707,6 +729,8 @@ export interface BrowserNetworkIdleEvent {
  * populated in that case.
  */
 export interface BrowserNetworkLoadingFailedEvent {
+  category: 'network';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -767,6 +791,8 @@ export namespace BrowserNetworkLoadingFailedEvent {
  * A browser network request sent event.
  */
 export interface BrowserNetworkRequestEvent {
+  category: 'network';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -854,6 +880,8 @@ export namespace BrowserNetworkRequestEvent {
  * fully received, not when headers arrive.
  */
 export interface BrowserNetworkResponseEvent {
+  category: 'network';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -934,6 +962,8 @@ export namespace BrowserNetworkResponseEvent {
  * A browser DOMContentLoaded event (CDP Page.domContentEventFired).
  */
 export interface BrowserPageDomContentLoadedEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -980,6 +1010,8 @@ export namespace BrowserPageDomContentLoadedEvent {
  * the 1-second timer.
  */
 export interface BrowserPageLayoutSettledEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1009,6 +1041,8 @@ export interface BrowserPageLayoutSettledEvent {
  * A browser cumulative layout shift (CLS) event from the Performance Timeline API.
  */
 export interface BrowserPageLayoutShiftEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1087,6 +1121,8 @@ export namespace BrowserPageLayoutShiftEvent {
  * API.
  */
 export interface BrowserPageLcpEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1178,6 +1214,8 @@ export namespace BrowserPageLcpEvent {
  * A browser page load event (CDP Page.loadEventFired).
  */
 export interface BrowserPageLoadEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1224,6 +1262,8 @@ export namespace BrowserPageLoadEvent {
  * epoch.
  */
 export interface BrowserPageNavigationEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1290,6 +1330,8 @@ export namespace BrowserPageNavigationEvent {
  * Independent of network_idle; a single pending request does not block it.
  */
 export interface BrowserPageNavigationSettledEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
@@ -1323,6 +1365,8 @@ export interface BrowserPageNavigationSettledEvent {
  * treat it as a special case.
  */
 export interface BrowserPageTabOpenedEvent {
+  category: 'page';
+
   /**
    * Provenance metadata identifying which producer emitted the event.
    */
