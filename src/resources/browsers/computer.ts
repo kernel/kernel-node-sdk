@@ -6,6 +6,9 @@ import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
+/**
+ * Control mouse, keyboard, and screen on the browser instance.
+ */
 export class Computer extends APIResource {
   /**
    * Send an array of computer actions to execute in order on the browser instance.
