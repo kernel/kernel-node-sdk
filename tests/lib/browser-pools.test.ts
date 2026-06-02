@@ -1,4 +1,4 @@
-import Kernel, { NotFoundError } from '@onkernel/sdk';
+import Kernel from '@onkernel/sdk';
 
 import { acquire, type AcquireOutcome } from '../../src/lib/browser-pools';
 
@@ -32,10 +32,11 @@ describe('browser pool typed acquire', () => {
     expect(result.status).toBe('timed_out');
   });
 
-  test('rejects with NotFoundError on 404', async () => {
+  test('resolves to not_found on 404', async () => {
     const client = clientWith(async () =>
       Response.json({ code: 'not_found', message: 'pool not found' }, { status: 404 }),
     );
-    await expect(acquire(client, 'missing')).rejects.toBeInstanceOf(NotFoundError);
+    const result = await acquire(client, 'missing');
+    expect(result.status).toBe('not_found');
   });
 });
