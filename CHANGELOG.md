@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.61.0 (2026-06-03)
+
+Full Changelog: [v0.60.0...v0.61.0](https://github.com/kernel/kernel-node-sdk/compare/v0.60.0...v0.61.0)
+
+### Features
+
+* Add record_audio option to browser replay recording API ([fe210bc](https://github.com/kernel/kernel-node-sdk/commit/fe210bcc49e0b0d404afa3e63e67c3dbf05f7ae1))
+
 ## 0.60.0 (2026-06-03)
 
 Full Changelog: [v0.59.0...v0.60.0](https://github.com/kernel/kernel-node-sdk/compare/v0.59.0...v0.60.0)
