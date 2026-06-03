@@ -34,6 +34,56 @@ const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/
 const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
 const BROWSER_POOL_RELEASE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/release\/?$/;
 
+/**
+ * Registry of routed (subresource + suffix) paths that are eligible for
+ * control-plane fallback when the VM reports the browser is authoritatively
+ * gone (HTTP 404 with body code "browser_gone"). Everything not listed here is
+ * fallback-OFF by default.
+ *
+ * Adding a future eligible endpoint is intentionally a one-line edit: append
+ * another `${subresource} ${suffix}` entry below.
+ */
+const FALLBACK_ELIGIBLE_ROUTES = new Set<string>([
+  // PROSPECTIVE: GET /browsers/{id}/telemetry/events. This pull endpoint /
+  // method does not exist on the SDK yet; this entry pre-wires the opt-in so
+  // control-plane fallback works the moment the method ships. Remove this
+  // comment once the method lands.
+  fallbackRouteKey('telemetry', '/events'),
+]);
+
+const BROWSER_GONE_CODE = 'browser_gone';
+
+function fallbackRouteKey(subresource: string, suffix: string): string {
+  return `${subresource} ${suffix}`;
+}
+
+/**
+ * Whether a routed path (parsed subresource + suffix) is opted in to
+ * control-plane fallback. Suffix is the portion after the subresource (e.g.
+ * "/events"), or "" when the request targets the bare subresource.
+ */
+export function isFallbackEligible(subresource: string, suffix: string): boolean {
+  return FALLBACK_ELIGIBLE_ROUTES.has(fallbackRouteKey(subresource, suffix));
+}
+
+async function isBrowserGone404(response: Response): Promise<boolean> {
+  if (response.status !== 404) {
+    return false;
+  }
+  // Key off the body code only (per kernel#2317: there is NO special response
+  // header). We do not gate on content-type so behavior matches the spec and
+  // the python SDK, which simply attempts response.json(). A non-JSON body just
+  // fails to parse and returns false.
+  try {
+    const body = await response.clone().json();
+    return (
+      !!body && typeof body === 'object' && (body as Record<string, unknown>)['code'] === BROWSER_GONE_CODE
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function browserRoutingSubresourcesFromEnv(): string[] {
   const raw = readBrowserRoutingSubresourcesEnv();
   if (raw === undefined) {
@@ -229,6 +279,7 @@ async function routeRequest(
 
   const sessionId = decodeURIComponent(match[1] ?? '');
   const subresource = match[2] ?? '';
+  const suffix = match[3] ?? '';
   if (!sessionId || !allowed.has(subresource)) {
     return innerFetch(input, init);
   }
@@ -237,7 +288,7 @@ async function routeRequest(
     return innerFetch(input, init);
   }
 
-  const target = new URL(joinURL(route.baseURL, `/${subresource}${match[3] ?? ''}`));
+  const target = new URL(joinURL(route.baseURL, `/${subresource}${suffix}`));
   url.searchParams.forEach((value, key) => {
     if (key !== 'jwt') {
       target.searchParams.append(key, value);
@@ -249,7 +300,32 @@ async function routeRequest(
 
   const headers = new Headers(request.headers);
   headers.delete('authorization');
-  return innerFetch(target.toString(), buildRoutedInit(request, init, headers));
+  const response = await innerFetch(target.toString(), buildRoutedInit(request, init, headers));
+
+  // Control-plane fallback: the request was actually routed to the VM, so this
+  // is the only place we attempt it. Fall back IFF the method is GET, the routed
+  // path is opted in, and the VM authoritatively reports the browser is gone
+  // (HTTP 404 with body code "browser_gone"). Everything else — success,
+  // transient 5xx, network errors, other 4xx, or a 404 without that code —
+  // propagates unchanged.
+  const method = request.method.toUpperCase();
+  if (method !== 'GET' || !isFallbackEligible(subresource, suffix)) {
+    return response;
+  }
+  if (!(await isBrowserGone404(response))) {
+    return response;
+  }
+
+  // The browser is authoritatively gone: evict the now-stale route and re-issue
+  // the ORIGINAL request to the control plane exactly once. Restore the original
+  // Authorization (still present on `request.headers`) and drop the jwt query
+  // param so we hit the CP, not the VM. Never loops back through routing.
+  cache.delete(sessionId);
+
+  const cpURL = new URL(request.url);
+  cpURL.searchParams.delete('jwt');
+  const cpHeaders = new Headers(request.headers);
+  return innerFetch(cpURL.toString(), buildRoutedInit(request, init, cpHeaders));
 }
 
 function buildRoutedInit(
