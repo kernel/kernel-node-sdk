@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-cd "$(dirname "$0")/.."
-
-./node_modules/.bin/ts-node -r tsconfig-paths/register examples/smoke-browser-telemetry.ts "$@"
