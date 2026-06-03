@@ -123,7 +123,7 @@ Types:
 
 Methods:
 
-- <code title="get /browsers/{id}/telemetry">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">stream</a>(id, { ...params }) -> TelemetryStreamResponse</code>
+- <code title="get /browsers/{id}/telemetry/stream">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">stream</a>(id, { ...params }) -> TelemetryStreamResponse</code>
 
 ## Replays
 
