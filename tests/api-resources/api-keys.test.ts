@@ -74,7 +74,16 @@ describe('resource apiKeys', () => {
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.apiKeys.list({ limit: 100, offset: 0 }, { path: '/_stainless_unknown_path' }),
+      client.apiKeys.list(
+        {
+          limit: 100,
+          offset: 0,
+          query: 'query',
+          sort_by: 'created_at',
+          sort_direction: 'asc',
+        },
+        { path: '/_stainless_unknown_path' },
+      ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 
