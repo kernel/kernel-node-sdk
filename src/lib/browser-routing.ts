@@ -28,7 +28,7 @@ export class BrowserRouteCache {
 }
 
 const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
-const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl'];
+const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl', 'telemetry'];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
 const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/?$/;
 const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
