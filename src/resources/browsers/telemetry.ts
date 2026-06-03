@@ -35,7 +35,7 @@ export class Telemetry extends APIResource {
     options?: RequestOptions,
   ): APIPromise<Stream<TelemetryStreamResponse>> {
     const { 'Last-Event-ID': lastEventID } = params ?? {};
-    return this._client.get(path`/browsers/${id}/telemetry`, {
+    return this._client.get(path`/browsers/${id}/telemetry/stream`, {
       ...options,
       headers: buildHeaders([
         {
