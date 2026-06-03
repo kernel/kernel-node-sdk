@@ -307,7 +307,6 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/browser-pools.ts">BrowserPool</a></code>
-- <code><a href="./src/resources/browser-pools.ts">BrowserPoolListResponse</a></code>
 - <code><a href="./src/resources/browser-pools.ts">BrowserPoolAcquireResponse</a></code>
 
 Methods:
@@ -315,7 +314,7 @@ Methods:
 - <code title="post /browser_pools">client.browserPools.<a href="./src/resources/browser-pools.ts">create</a>({ ...params }) -> BrowserPool</code>
 - <code title="get /browser_pools/{id_or_name}">client.browserPools.<a href="./src/resources/browser-pools.ts">retrieve</a>(idOrName) -> BrowserPool</code>
 - <code title="patch /browser_pools/{id_or_name}">client.browserPools.<a href="./src/resources/browser-pools.ts">update</a>(idOrName, { ...params }) -> BrowserPool</code>
-- <code title="get /browser_pools">client.browserPools.<a href="./src/resources/browser-pools.ts">list</a>() -> BrowserPoolListResponse</code>
+- <code title="get /browser_pools">client.browserPools.<a href="./src/resources/browser-pools.ts">list</a>({ ...params }) -> BrowserPoolsOffsetPagination</code>
 - <code title="delete /browser_pools/{id_or_name}">client.browserPools.<a href="./src/resources/browser-pools.ts">delete</a>(idOrName, { ...params }) -> void</code>
 - <code title="post /browser_pools/{id_or_name}/acquire">client.browserPools.<a href="./src/resources/browser-pools.ts">acquire</a>(idOrName, { ...params }) -> BrowserPoolAcquireResponse</code>
 - <code title="post /browser_pools/{id_or_name}/flush">client.browserPools.<a href="./src/resources/browser-pools.ts">flush</a>(idOrName) -> void</code>
