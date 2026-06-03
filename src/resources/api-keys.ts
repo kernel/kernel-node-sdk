@@ -181,7 +181,23 @@ export interface APIKeyUpdateParams {
   name: string;
 }
 
-export interface APIKeyListParams extends OffsetPaginationParams {}
+export interface APIKeyListParams extends OffsetPaginationParams {
+  /**
+   * Case-insensitive substring match against API key name, creator, and project. API
+   * key identifiers and masked keys match by exact value or prefix.
+   */
+  query?: string;
+
+  /**
+   * Field to sort API keys by.
+   */
+  sort_by?: 'created_at' | 'name' | 'expires_at';
+
+  /**
+   * Sort direction for API keys.
+   */
+  sort_direction?: 'asc' | 'desc';
+}
 
 export declare namespace APIKeys {
   export {
