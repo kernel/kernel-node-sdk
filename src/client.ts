@@ -35,10 +35,11 @@ import {
   BrowserPoolAcquireResponse,
   BrowserPoolCreateParams,
   BrowserPoolDeleteParams,
-  BrowserPoolListResponse,
+  BrowserPoolListParams,
   BrowserPoolReleaseParams,
   BrowserPoolUpdateParams,
   BrowserPools,
+  BrowserPoolsOffsetPagination,
 } from './resources/browser-pools';
 import {
   CreateCredentialProviderRequest,
@@ -1058,10 +1059,11 @@ export declare namespace Kernel {
   export {
     BrowserPools as BrowserPools,
     type BrowserPool as BrowserPool,
-    type BrowserPoolListResponse as BrowserPoolListResponse,
     type BrowserPoolAcquireResponse as BrowserPoolAcquireResponse,
+    type BrowserPoolsOffsetPagination as BrowserPoolsOffsetPagination,
     type BrowserPoolCreateParams as BrowserPoolCreateParams,
     type BrowserPoolUpdateParams as BrowserPoolUpdateParams,
+    type BrowserPoolListParams as BrowserPoolListParams,
     type BrowserPoolDeleteParams as BrowserPoolDeleteParams,
     type BrowserPoolAcquireParams as BrowserPoolAcquireParams,
     type BrowserPoolReleaseParams as BrowserPoolReleaseParams,
