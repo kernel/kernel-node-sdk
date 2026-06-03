@@ -122,5 +122,7 @@ export {
   type ProxyListResponse,
   type ProxyCheckResponse,
   type ProxyCreateParams,
+  type ProxyListParams,
   type ProxyCheckParams,
+  type ProxyListResponsesOffsetPagination,
 } from './proxies';

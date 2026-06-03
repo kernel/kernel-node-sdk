@@ -283,7 +283,7 @@ Methods:
 
 - <code title="post /proxies">client.proxies.<a href="./src/resources/proxies.ts">create</a>({ ...params }) -> ProxyCreateResponse</code>
 - <code title="get /proxies/{id}">client.proxies.<a href="./src/resources/proxies.ts">retrieve</a>(id) -> ProxyRetrieveResponse</code>
-- <code title="get /proxies">client.proxies.<a href="./src/resources/proxies.ts">list</a>() -> ProxyListResponse</code>
+- <code title="get /proxies">client.proxies.<a href="./src/resources/proxies.ts">list</a>({ ...params }) -> ProxyListResponsesOffsetPagination</code>
 - <code title="delete /proxies/{id}">client.proxies.<a href="./src/resources/proxies.ts">delete</a>(id) -> void</code>
 - <code title="post /proxies/{id}/check">client.proxies.<a href="./src/resources/proxies.ts">check</a>(id, { ...params }) -> ProxyCheckResponse</code>
 

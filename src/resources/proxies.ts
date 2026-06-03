@@ -2,6 +2,7 @@
 
 import { APIResource } from '../core/resource';
 import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
@@ -27,8 +28,11 @@ export class Proxies extends APIResource {
   /**
    * List proxies owned by the caller's organization.
    */
-  list(options?: RequestOptions): APIPromise<ProxyListResponse> {
-    return this._client.get('/proxies', options);
+  list(
+    query: ProxyListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<ProxyListResponsesOffsetPagination, ProxyListResponse> {
+    return this._client.getAPIList('/proxies', OffsetPagination<ProxyListResponse>, { query, ...options });
   }
 
   /**
@@ -57,6 +61,8 @@ export class Proxies extends APIResource {
     return this._client.post(path`/proxies/${id}/check`, { body, ...options });
   }
 }
+
+export type ProxyListResponsesOffsetPagination = OffsetPagination<ProxyListResponse>;
 
 /**
  * Configuration for routing traffic through a proxy.
@@ -370,163 +376,159 @@ export namespace ProxyRetrieveResponse {
   }
 }
 
-export type ProxyListResponse = Array<ProxyListResponse.ProxyListResponseItem>;
+/**
+ * Configuration for routing traffic through a proxy.
+ */
+export interface ProxyListResponse {
+  /**
+   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
+   * worst: `mobile` > `residential` > `isp` > `datacenter`.
+   */
+  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+
+  id?: string;
+
+  /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
+
+  /**
+   * Configuration specific to the selected proxy `type`.
+   */
+  config?:
+    | ProxyListResponse.DatacenterProxyConfig
+    | ProxyListResponse.IspProxyConfig
+    | ProxyListResponse.ResidentialProxyConfig
+    | ProxyListResponse.MobileProxyConfig
+    | ProxyListResponse.CustomProxyConfig;
+
+  /**
+   * IP address that the proxy uses when making requests.
+   */
+  ip_address?: string;
+
+  /**
+   * Timestamp of the last health check performed on this proxy.
+   */
+  last_checked?: string;
+
+  /**
+   * Readable name of the proxy.
+   */
+  name?: string;
+
+  /**
+   * Protocol to use for the proxy connection.
+   */
+  protocol?: 'http' | 'https';
+
+  /**
+   * Current health status of the proxy.
+   */
+  status?: 'available' | 'unavailable';
+}
 
 export namespace ProxyListResponse {
   /**
-   * Configuration for routing traffic through a proxy.
+   * Configuration for a datacenter proxy.
    */
-  export interface ProxyListResponseItem {
+  export interface DatacenterProxyConfig {
     /**
-     * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-     * worst: `mobile` > `residential` > `isp` > `datacenter`.
+     * ISO 3166 country code. Defaults to US if not provided.
      */
-    type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
-
-    id?: string;
-
-    /**
-     * Hostnames that should bypass the parent proxy and connect directly.
-     */
-    bypass_hosts?: Array<string>;
-
-    /**
-     * Configuration specific to the selected proxy `type`.
-     */
-    config?:
-      | ProxyListResponseItem.DatacenterProxyConfig
-      | ProxyListResponseItem.IspProxyConfig
-      | ProxyListResponseItem.ResidentialProxyConfig
-      | ProxyListResponseItem.MobileProxyConfig
-      | ProxyListResponseItem.CustomProxyConfig;
-
-    /**
-     * IP address that the proxy uses when making requests.
-     */
-    ip_address?: string;
-
-    /**
-     * Timestamp of the last health check performed on this proxy.
-     */
-    last_checked?: string;
-
-    /**
-     * Readable name of the proxy.
-     */
-    name?: string;
-
-    /**
-     * Protocol to use for the proxy connection.
-     */
-    protocol?: 'http' | 'https';
-
-    /**
-     * Current health status of the proxy.
-     */
-    status?: 'available' | 'unavailable';
+    country?: string;
   }
 
-  export namespace ProxyListResponseItem {
+  /**
+   * Configuration for an ISP proxy.
+   */
+  export interface IspProxyConfig {
     /**
-     * Configuration for a datacenter proxy.
+     * ISO 3166 country code. Defaults to US if not provided.
      */
-    export interface DatacenterProxyConfig {
-      /**
-       * ISO 3166 country code. Defaults to US if not provided.
-       */
-      country?: string;
-    }
+    country?: string;
+  }
 
+  /**
+   * Configuration for residential proxies.
+   */
+  export interface ResidentialProxyConfig {
     /**
-     * Configuration for an ISP proxy.
+     * Autonomous system number. See https://bgp.potaroo.net/cidr/autnums.html
      */
-    export interface IspProxyConfig {
-      /**
-       * ISO 3166 country code. Defaults to US if not provided.
-       */
-      country?: string;
-    }
+    asn?: string;
 
     /**
-     * Configuration for residential proxies.
+     * City name (no spaces, e.g. `sanfrancisco`). If provided, `country` must also be
+     * provided.
      */
-    export interface ResidentialProxyConfig {
-      /**
-       * Autonomous system number. See https://bgp.potaroo.net/cidr/autnums.html
-       */
-      asn?: string;
-
-      /**
-       * City name (no spaces, e.g. `sanfrancisco`). If provided, `country` must also be
-       * provided.
-       */
-      city?: string;
-
-      /**
-       * ISO 3166 country code.
-       */
-      country?: string;
-
-      /**
-       * @deprecated Operating system of the residential device.
-       */
-      os?: 'windows' | 'macos' | 'android';
-
-      /**
-       * Two-letter state code.
-       */
-      state?: string;
-
-      /**
-       * US ZIP code.
-       */
-      zip?: string;
-    }
+    city?: string;
 
     /**
-     * Configuration for mobile proxies.
+     * ISO 3166 country code.
      */
-    export interface MobileProxyConfig {
-      /**
-       * Provider city alias. Mobile carrier routing can make observed geo vary.
-       */
-      city?: string;
-
-      /**
-       * ISO 3166 country code
-       */
-      country?: string;
-
-      /**
-       * US-only state code. Mobile carrier routing can make observed geo vary.
-       */
-      state?: string;
-    }
+    country?: string;
 
     /**
-     * Configuration for a custom proxy (e.g., private proxy server).
+     * @deprecated Operating system of the residential device.
      */
-    export interface CustomProxyConfig {
-      /**
-       * Proxy host address or IP.
-       */
-      host: string;
+    os?: 'windows' | 'macos' | 'android';
 
-      /**
-       * Proxy port.
-       */
-      port: number;
+    /**
+     * Two-letter state code.
+     */
+    state?: string;
 
-      /**
-       * Whether the proxy has a password.
-       */
-      has_password?: boolean;
+    /**
+     * US ZIP code.
+     */
+    zip?: string;
+  }
 
-      /**
-       * Username for proxy authentication.
-       */
-      username?: string;
-    }
+  /**
+   * Configuration for mobile proxies.
+   */
+  export interface MobileProxyConfig {
+    /**
+     * Provider city alias. Mobile carrier routing can make observed geo vary.
+     */
+    city?: string;
+
+    /**
+     * ISO 3166 country code
+     */
+    country?: string;
+
+    /**
+     * US-only state code. Mobile carrier routing can make observed geo vary.
+     */
+    state?: string;
+  }
+
+  /**
+   * Configuration for a custom proxy (e.g., private proxy server).
+   */
+  export interface CustomProxyConfig {
+    /**
+     * Proxy host address or IP.
+     */
+    host: string;
+
+    /**
+     * Proxy port.
+     */
+    port: number;
+
+    /**
+     * Whether the proxy has a password.
+     */
+    has_password?: boolean;
+
+    /**
+     * Username for proxy authentication.
+     */
+    username?: string;
   }
 }
 
@@ -822,6 +824,8 @@ export namespace ProxyCreateParams {
   }
 }
 
+export interface ProxyListParams extends OffsetPaginationParams {}
+
 export interface ProxyCheckParams {
   /**
    * An optional URL to test reachability against. If provided, the proxy check will
@@ -846,7 +850,9 @@ export declare namespace Proxies {
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
     type ProxyListResponse as ProxyListResponse,
     type ProxyCheckResponse as ProxyCheckResponse,
+    type ProxyListResponsesOffsetPagination as ProxyListResponsesOffsetPagination,
     type ProxyCreateParams as ProxyCreateParams,
+    type ProxyListParams as ProxyListParams,
     type ProxyCheckParams as ProxyCheckParams,
   };
 }
