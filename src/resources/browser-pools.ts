@@ -48,7 +48,6 @@ export class BrowserPools extends APIResource {
    * ```ts
    * const browserPool = await client.browserPools.update(
    *   'id_or_name',
-   *   { size: 10 },
    * );
    * ```
    */
@@ -495,13 +494,6 @@ export interface BrowserPoolCreateParams {
 
 export interface BrowserPoolUpdateParams {
   /**
-   * Number of browsers to maintain in the pool. The maximum size is determined by
-   * your organization's pooled sessions limit (the sum of all pool sizes cannot
-   * exceed your limit).
-   */
-  size: number;
-
-  /**
    * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
    * Keys are Chrome enterprise policy names; values must match their expected types.
    * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
@@ -553,6 +545,13 @@ export interface BrowserPoolUpdateParams {
    * belonging to the caller's org.
    */
   proxy_id?: string;
+
+  /**
+   * Number of browsers to maintain in the pool. The maximum size is determined by
+   * your organization's pooled sessions limit (the sum of all pool sizes cannot
+   * exceed your limit).
+   */
+  size?: number;
 
   /**
    * Optional URL to navigate to when a new browser is warmed into the pool.

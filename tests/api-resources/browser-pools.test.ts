@@ -60,8 +60,8 @@ describe('resource browserPools', () => {
   });
 
   // Mock server tests are disabled
-  test.skip('update: only required params', async () => {
-    const responsePromise = client.browserPools.update('id_or_name', { size: 10 });
+  test.skip('update', async () => {
+    const responsePromise = client.browserPools.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -69,34 +69,6 @@ describe('resource browserPools', () => {
     const dataAndResponse = await responsePromise.withResponse();
     expect(dataAndResponse.data).toBe(response);
     expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Mock server tests are disabled
-  test.skip('update: required and optional params', async () => {
-    const response = await client.browserPools.update('id_or_name', {
-      size: 10,
-      chrome_policy: { foo: 'bar' },
-      discard_all_idle: false,
-      extensions: [{ id: 'id', name: 'name' }],
-      fill_rate_per_minute: 0,
-      headless: false,
-      kiosk_mode: true,
-      name: 'my-pool',
-      profile: {
-        id: 'id',
-        name: 'name',
-        save_changes: true,
-      },
-      proxy_id: 'proxy_id',
-      start_url: 'https://example.com',
-      stealth: true,
-      timeout_seconds: 60,
-      viewport: {
-        height: 800,
-        width: 1280,
-        refresh_rate: 60,
-      },
-    });
   });
 
   // Mock server tests are disabled
