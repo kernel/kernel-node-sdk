@@ -5,6 +5,7 @@ import * as Shared from './shared';
 import * as BrowsersAPI from './browsers/browsers';
 import * as TelemetryAPI from './browsers/telemetry';
 import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
@@ -60,11 +61,17 @@ export class BrowserPools extends APIResource {
    *
    * @example
    * ```ts
-   * const browserPools = await client.browserPools.list();
+   * // Automatically fetches more pages as needed.
+   * for await (const browserPool of client.browserPools.list()) {
+   *   // ...
+   * }
    * ```
    */
-  list(options?: RequestOptions): APIPromise<BrowserPoolListResponse> {
-    return this._client.get('/browser_pools', options);
+  list(
+    query: BrowserPoolListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<BrowserPoolsOffsetPagination, BrowserPool> {
+    return this._client.getAPIList('/browser_pools', OffsetPagination<BrowserPool>, { query, ...options });
   }
 
   /**
@@ -142,6 +149,8 @@ export class BrowserPools extends APIResource {
     });
   }
 }
+
+export type BrowserPoolsOffsetPagination = OffsetPagination<BrowserPool>;
 
 /**
  * A browser pool containing multiple identically configured browsers.
@@ -275,8 +284,6 @@ export namespace BrowserPool {
     viewport?: Shared.BrowserViewport;
   }
 }
-
-export type BrowserPoolListResponse = Array<BrowserPool>;
 
 export interface BrowserPoolAcquireResponse {
   /**
@@ -591,6 +598,8 @@ export interface BrowserPoolUpdateParams {
   viewport?: Shared.BrowserViewport;
 }
 
+export interface BrowserPoolListParams extends OffsetPaginationParams {}
+
 export interface BrowserPoolDeleteParams {
   /**
    * If true, force delete even if browsers are currently leased. Leased browsers
@@ -624,10 +633,11 @@ export interface BrowserPoolReleaseParams {
 export declare namespace BrowserPools {
   export {
     type BrowserPool as BrowserPool,
-    type BrowserPoolListResponse as BrowserPoolListResponse,
     type BrowserPoolAcquireResponse as BrowserPoolAcquireResponse,
+    type BrowserPoolsOffsetPagination as BrowserPoolsOffsetPagination,
     type BrowserPoolCreateParams as BrowserPoolCreateParams,
     type BrowserPoolUpdateParams as BrowserPoolUpdateParams,
+    type BrowserPoolListParams as BrowserPoolListParams,
     type BrowserPoolDeleteParams as BrowserPoolDeleteParams,
     type BrowserPoolAcquireParams as BrowserPoolAcquireParams,
     type BrowserPoolReleaseParams as BrowserPoolReleaseParams,

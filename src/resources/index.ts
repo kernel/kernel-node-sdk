@@ -20,13 +20,14 @@ export { Auth } from './auth/auth';
 export {
   BrowserPools,
   type BrowserPool,
-  type BrowserPoolListResponse,
   type BrowserPoolAcquireResponse,
   type BrowserPoolCreateParams,
   type BrowserPoolUpdateParams,
+  type BrowserPoolListParams,
   type BrowserPoolDeleteParams,
   type BrowserPoolAcquireParams,
   type BrowserPoolReleaseParams,
+  type BrowserPoolsOffsetPagination,
 } from './browser-pools';
 export {
   Browsers,
