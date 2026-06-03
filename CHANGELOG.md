@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.60.0 (2026-06-03)
+
+Full Changelog: [v0.59.0...v0.60.0](https://github.com/kernel/kernel-node-sdk/compare/v0.59.0...v0.60.0)
+
+### Features
+
+* Add API-backed API key management endpoints ([1e0f035](https://github.com/kernel/kernel-node-sdk/commit/1e0f035be5c62191399afa4843eb5b15f32001e6))
+* Fix browser pool update schema ([a0c377d](https://github.com/kernel/kernel-node-sdk/commit/a0c377d9a05c8f3f81c763be868b60d53663f772))
+* route browser telemetry directly to the VM by default ([2c4d153](https://github.com/kernel/kernel-node-sdk/commit/2c4d153399f48723d5eb4680379426029356e44c))
+
+
+### Refactors
+
+* **examples:** rename telemetry example to browser-telemetry ([2030547](https://github.com/kernel/kernel-node-sdk/commit/203054736d39a77e3e55895668130655a680b0c5))
+
 ## 0.59.0 (2026-06-03)
 
 Full Changelog: [v0.58.0...v0.59.0](https://github.com/kernel/kernel-node-sdk/compare/v0.58.0...v0.59.0)
