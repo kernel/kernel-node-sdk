@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.59.0 (2026-06-03)
+
+Full Changelog: [v0.58.0...v0.59.0](https://github.com/kernel/kernel-node-sdk/compare/v0.58.0...v0.59.0)
+
+### Features
+
+* api: surface category field on browser telemetry events ([131f0e9](https://github.com/kernel/kernel-node-sdk/commit/131f0e923dc19f803330fb0397fd42aa8c738cd1))
+* **api:** move browser telemetry SSE stream to /browsers/{id}/telemetry/stream ([a5a2d33](https://github.com/kernel/kernel-node-sdk/commit/a5a2d33608865eae65d1dd94c0a82e7da1626dd9))
+* Support Byteful mobile proxies ([c591523](https://github.com/kernel/kernel-node-sdk/commit/c591523059b7032d3081b7c2d996f92ede3eeff7))
+
+
+### Bug Fixes
+
+* **api:** move batch + get_mouse_position into Browser Computer Controls tag ([2798284](https://github.com/kernel/kernel-node-sdk/commit/27982848c92f285163665421815f46a43cfef129))
+
 ## 0.58.0 (2026-05-27)
 
 Full Changelog: [v0.57.0...v0.58.0](https://github.com/kernel/kernel-node-sdk/compare/v0.57.0...v0.58.0)
