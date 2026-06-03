@@ -43,7 +43,11 @@ describe('resource replays', () => {
     await expect(
       client.browsers.replays.start(
         'id',
-        { framerate: 1, max_duration_in_seconds: 1 },
+        {
+          framerate: 1,
+          max_duration_in_seconds: 1,
+          record_audio: true,
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
