@@ -152,6 +152,12 @@ export interface ReplayStartParams {
    * Maximum recording duration in seconds.
    */
   max_duration_in_seconds?: number;
+
+  /**
+   * Record audio in addition to video. When false (the default), the recording is
+   * video-only.
+   */
+  record_audio?: boolean;
 }
 
 export interface ReplayStopParams {
