@@ -381,9 +381,41 @@ describe('browser routing', () => {
     ).rejects.toThrow(/unsupported HTTP method/i);
   });
 
-  test('defaults browser routing subresources to curl when env is unset', async () => {
+  test('defaults browser routing subresources to curl and telemetry when env is unset', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
-      expect(browserRoutingSubresourcesFromEnv()).toEqual(['curl']);
+      expect(browserRoutingSubresourcesFromEnv()).toEqual(['curl', 'telemetry']);
+    });
+  });
+
+  test('routes telemetry stream calls to the VM /telemetry/stream path by default', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const url = normalizeURL(input);
+          const headers = input instanceof Request ? new Headers(input.headers) : new Headers(init?.headers);
+          calls.push({ url, headers });
+          if (url === 'https://api.example/browsers') {
+            return Response.json({
+              session_id: 'sess-1',
+              base_url: 'http://browser-session.test/browser/kernel',
+              cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
+            });
+          }
+          return new Response('id: 1\ndata: {"seq":1}\n\n', {
+            status: 200,
+            headers: { 'content-type': 'text/event-stream' },
+          });
+        },
+      });
+
+      await kernel.browsers.create();
+      await kernel.browsers.telemetry.stream('sess-1');
+
+      expect(calls[1]?.url).toBe('http://browser-session.test/browser/kernel/telemetry/stream?jwt=token-abc');
+      expect(calls[1]?.headers.get('authorization')).toBeNull();
     });
   });
 
