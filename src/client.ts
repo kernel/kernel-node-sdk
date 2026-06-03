@@ -104,7 +104,9 @@ import {
   ProxyCheckResponse,
   ProxyCreateParams,
   ProxyCreateResponse,
+  ProxyListParams,
   ProxyListResponse,
+  ProxyListResponsesOffsetPagination,
   ProxyRetrieveResponse,
 } from './resources/proxies';
 import { Auth } from './resources/auth/auth';
@@ -1039,7 +1041,9 @@ export declare namespace Kernel {
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
     type ProxyListResponse as ProxyListResponse,
     type ProxyCheckResponse as ProxyCheckResponse,
+    type ProxyListResponsesOffsetPagination as ProxyListResponsesOffsetPagination,
     type ProxyCreateParams as ProxyCreateParams,
+    type ProxyListParams as ProxyListParams,
     type ProxyCheckParams as ProxyCheckParams,
   };
 
