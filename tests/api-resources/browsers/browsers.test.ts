@@ -32,7 +32,7 @@ describe('resource browsers', () => {
           headless: false,
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
-          name: 'amazon-scrape-1',
+          name: 'checkout-flow-1',
           profile: {
             id: 'id',
             name: 'name',
