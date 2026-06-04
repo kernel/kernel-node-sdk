@@ -2,6 +2,7 @@
 
 import { APIResource } from '../core/resource';
 import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { type Uploadable } from '../core/uploads';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
@@ -17,11 +18,20 @@ export class Extensions extends APIResource {
    *
    * @example
    * ```ts
-   * const extensions = await client.extensions.list();
+   * // Automatically fetches more pages as needed.
+   * for await (const extensionListResponse of client.extensions.list()) {
+   *   // ...
+   * }
    * ```
    */
-  list(options?: RequestOptions): APIPromise<ExtensionListResponse> {
-    return this._client.get('/extensions', options);
+  list(
+    query: ExtensionListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<ExtensionListResponsesOffsetPagination, ExtensionListResponse> {
+    return this._client.getAPIList('/extensions', OffsetPagination<ExtensionListResponse>, {
+      query,
+      ...options,
+    });
   }
 
   /**
@@ -103,39 +113,37 @@ export class Extensions extends APIResource {
   }
 }
 
-export type ExtensionListResponse = Array<ExtensionListResponse.ExtensionListResponseItem>;
+export type ExtensionListResponsesOffsetPagination = OffsetPagination<ExtensionListResponse>;
 
-export namespace ExtensionListResponse {
+/**
+ * A browser extension uploaded to Kernel.
+ */
+export interface ExtensionListResponse {
   /**
-   * A browser extension uploaded to Kernel.
+   * Unique identifier for the extension
    */
-  export interface ExtensionListResponseItem {
-    /**
-     * Unique identifier for the extension
-     */
-    id: string;
+  id: string;
 
-    /**
-     * Timestamp when the extension was created
-     */
-    created_at: string;
+  /**
+   * Timestamp when the extension was created
+   */
+  created_at: string;
 
-    /**
-     * Size of the extension archive in bytes
-     */
-    size_bytes: number;
+  /**
+   * Size of the extension archive in bytes
+   */
+  size_bytes: number;
 
-    /**
-     * Timestamp when the extension was last used
-     */
-    last_used_at?: string | null;
+  /**
+   * Timestamp when the extension was last used
+   */
+  last_used_at?: string | null;
 
-    /**
-     * Optional, easier-to-reference name for the extension. Must be unique within the
-     * project.
-     */
-    name?: string | null;
-  }
+  /**
+   * Optional, easier-to-reference name for the extension. Must be unique within the
+   * project.
+   */
+  name?: string | null;
 }
 
 /**
@@ -169,6 +177,8 @@ export interface ExtensionUploadResponse {
   name?: string | null;
 }
 
+export interface ExtensionListParams extends OffsetPaginationParams {}
+
 export interface ExtensionDownloadFromChromeStoreParams {
   /**
    * Chrome Web Store URL for the extension.
@@ -197,6 +207,8 @@ export declare namespace Extensions {
   export {
     type ExtensionListResponse as ExtensionListResponse,
     type ExtensionUploadResponse as ExtensionUploadResponse,
+    type ExtensionListResponsesOffsetPagination as ExtensionListResponsesOffsetPagination,
+    type ExtensionListParams as ExtensionListParams,
     type ExtensionDownloadFromChromeStoreParams as ExtensionDownloadFromChromeStoreParams,
     type ExtensionUploadParams as ExtensionUploadParams,
   };

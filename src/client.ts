@@ -78,7 +78,9 @@ import {
 } from './resources/deployments';
 import {
   ExtensionDownloadFromChromeStoreParams,
+  ExtensionListParams,
   ExtensionListResponse,
+  ExtensionListResponsesOffsetPagination,
   ExtensionUploadParams,
   ExtensionUploadResponse,
   Extensions,
@@ -1052,6 +1054,8 @@ export declare namespace Kernel {
     Extensions as Extensions,
     type ExtensionListResponse as ExtensionListResponse,
     type ExtensionUploadResponse as ExtensionUploadResponse,
+    type ExtensionListResponsesOffsetPagination as ExtensionListResponsesOffsetPagination,
+    type ExtensionListParams as ExtensionListParams,
     type ExtensionDownloadFromChromeStoreParams as ExtensionDownloadFromChromeStoreParams,
     type ExtensionUploadParams as ExtensionUploadParams,
   };
