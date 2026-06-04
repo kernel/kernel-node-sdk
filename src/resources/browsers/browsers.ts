@@ -390,6 +390,11 @@ export interface BrowserCreateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Human-readable name of the browser session, if one was set at creation.
+   */
+  name?: string;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -509,6 +514,11 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Human-readable name of the browser session, if one was set at creation.
+   */
+  name?: string;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -632,6 +642,11 @@ export interface BrowserUpdateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Human-readable name of the browser session, if one was set at creation.
+   */
+  name?: string;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -753,6 +768,11 @@ export interface BrowserListResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Human-readable name of the browser session, if one was set at creation.
+   */
+  name?: string;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -864,6 +884,13 @@ export interface BrowserCreateParams {
    * view.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Optional human-readable name for the browser session, used to find it later in
+   * the dashboard. Must be unique among active sessions within the project. Set at
+   * creation time only.
+   */
+  name?: string;
 
   /**
    * Profile selection for the browser session. Provide either id or name. If
@@ -1040,7 +1067,7 @@ export interface BrowserListParams extends OffsetPaginationParams {
   include_deleted?: boolean;
 
   /**
-   * Search browsers by session ID, profile ID, proxy ID, or pool name.
+   * Search browsers by name, session ID, profile ID, proxy ID, or pool name.
    */
   query?: string;
 
