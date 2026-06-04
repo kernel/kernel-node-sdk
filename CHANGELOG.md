@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.62.0 (2026-06-04)
+
+Full Changelog: [v0.61.0...v0.62.0](https://github.com/kernel/kernel-node-sdk/compare/v0.61.0...v0.62.0)
+
+### Features
+
+* api: paginate GET /browser_pools ([694525a](https://github.com/kernel/kernel-node-sdk/commit/694525a66e8c30775e043593e8b81c60d0b6929b))
+* api: paginate GET /extensions ([df67fdd](https://github.com/kernel/kernel-node-sdk/commit/df67fddc43df68b01c50eb484a75bd1335a7632d))
+* api: paginate GET /org/credential_providers ([2976140](https://github.com/kernel/kernel-node-sdk/commit/2976140c1d35046ab5fff05b1419f74e39b1be5e))
+* api: paginate GET /proxies ([1520c55](https://github.com/kernel/kernel-node-sdk/commit/1520c5542688f2621483e8d62701b0fc07de731a))
+
 ## 0.61.0 (2026-06-03)
 
 Full Changelog: [v0.60.0...v0.61.0](https://github.com/kernel/kernel-node-sdk/compare/v0.60.0...v0.61.0)
