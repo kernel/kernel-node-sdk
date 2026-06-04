@@ -55,10 +55,11 @@ export {
   type CredentialProviderItem,
   type CredentialProviderTestResult,
   type UpdateCredentialProviderRequest,
-  type CredentialProviderListResponse,
   type CredentialProviderListItemsResponse,
   type CredentialProviderCreateParams,
   type CredentialProviderUpdateParams,
+  type CredentialProviderListParams,
+  type CredentialProvidersOffsetPagination,
 } from './credential-providers';
 export {
   Credentials,

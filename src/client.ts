@@ -52,10 +52,11 @@ import {
   CredentialProviderCreateParams,
   CredentialProviderItem,
   CredentialProviderListItemsResponse,
-  CredentialProviderListResponse,
+  CredentialProviderListParams,
   CredentialProviderTestResult,
   CredentialProviderUpdateParams,
   CredentialProviders,
+  CredentialProvidersOffsetPagination,
   UpdateCredentialProviderRequest,
 } from './resources/credential-providers';
 import {
@@ -1155,10 +1156,11 @@ export declare namespace Kernel {
     type CredentialProviderItem as CredentialProviderItem,
     type CredentialProviderTestResult as CredentialProviderTestResult,
     type UpdateCredentialProviderRequest as UpdateCredentialProviderRequest,
-    type CredentialProviderListResponse as CredentialProviderListResponse,
     type CredentialProviderListItemsResponse as CredentialProviderListItemsResponse,
+    type CredentialProvidersOffsetPagination as CredentialProvidersOffsetPagination,
     type CredentialProviderCreateParams as CredentialProviderCreateParams,
     type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
+    type CredentialProviderListParams as CredentialProviderListParams,
   };
 
   export type AppAction = API.AppAction;
