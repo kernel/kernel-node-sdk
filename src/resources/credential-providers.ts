@@ -2,6 +2,7 @@
 
 import { APIResource } from '../core/resource';
 import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
@@ -63,12 +64,20 @@ export class CredentialProviders extends APIResource {
    *
    * @example
    * ```ts
-   * const credentialProviders =
-   *   await client.credentialProviders.list();
+   * // Automatically fetches more pages as needed.
+   * for await (const credentialProvider of client.credentialProviders.list()) {
+   *   // ...
+   * }
    * ```
    */
-  list(options?: RequestOptions): APIPromise<CredentialProviderListResponse> {
-    return this._client.get('/org/credential_providers', options);
+  list(
+    query: CredentialProviderListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<CredentialProvidersOffsetPagination, CredentialProvider> {
+    return this._client.getAPIList('/org/credential_providers', OffsetPagination<CredentialProvider>, {
+      query,
+      ...options,
+    });
   }
 
   /**
@@ -114,6 +123,8 @@ export class CredentialProviders extends APIResource {
     return this._client.post(path`/org/credential_providers/${id}/test`, options);
   }
 }
+
+export type CredentialProvidersOffsetPagination = OffsetPagination<CredentialProvider>;
 
 /**
  * Request to create an external credential provider
@@ -280,8 +291,6 @@ export interface UpdateCredentialProviderRequest {
   priority?: number;
 }
 
-export type CredentialProviderListResponse = Array<CredentialProvider>;
-
 export interface CredentialProviderListItemsResponse {
   items?: Array<CredentialProviderItem>;
 }
@@ -335,6 +344,8 @@ export interface CredentialProviderUpdateParams {
   priority?: number;
 }
 
+export interface CredentialProviderListParams extends OffsetPaginationParams {}
+
 export declare namespace CredentialProviders {
   export {
     type CreateCredentialProviderRequest as CreateCredentialProviderRequest,
@@ -342,9 +353,10 @@ export declare namespace CredentialProviders {
     type CredentialProviderItem as CredentialProviderItem,
     type CredentialProviderTestResult as CredentialProviderTestResult,
     type UpdateCredentialProviderRequest as UpdateCredentialProviderRequest,
-    type CredentialProviderListResponse as CredentialProviderListResponse,
     type CredentialProviderListItemsResponse as CredentialProviderListItemsResponse,
+    type CredentialProvidersOffsetPagination as CredentialProvidersOffsetPagination,
     type CredentialProviderCreateParams as CredentialProviderCreateParams,
     type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
+    type CredentialProviderListParams as CredentialProviderListParams,
   };
 }

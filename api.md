@@ -390,7 +390,6 @@ Types:
 - <code><a href="./src/resources/credential-providers.ts">CredentialProviderItem</a></code>
 - <code><a href="./src/resources/credential-providers.ts">CredentialProviderTestResult</a></code>
 - <code><a href="./src/resources/credential-providers.ts">UpdateCredentialProviderRequest</a></code>
-- <code><a href="./src/resources/credential-providers.ts">CredentialProviderListResponse</a></code>
 - <code><a href="./src/resources/credential-providers.ts">CredentialProviderListItemsResponse</a></code>
 
 Methods:
@@ -398,7 +397,7 @@ Methods:
 - <code title="post /org/credential_providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">create</a>({ ...params }) -> CredentialProvider</code>
 - <code title="get /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">retrieve</a>(id) -> CredentialProvider</code>
 - <code title="patch /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">update</a>(id, { ...params }) -> CredentialProvider</code>
-- <code title="get /org/credential_providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">list</a>() -> CredentialProviderListResponse</code>
+- <code title="get /org/credential_providers">client.credentialProviders.<a href="./src/resources/credential-providers.ts">list</a>({ ...params }) -> CredentialProvidersOffsetPagination</code>
 - <code title="delete /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">delete</a>(id) -> void</code>
 - <code title="get /org/credential_providers/{id}/items">client.credentialProviders.<a href="./src/resources/credential-providers.ts">listItems</a>(id) -> CredentialProviderListItemsResponse</code>
 - <code title="post /org/credential_providers/{id}/test">client.credentialProviders.<a href="./src/resources/credential-providers.ts">test</a>(id) -> CredentialProviderTestResult</code>
