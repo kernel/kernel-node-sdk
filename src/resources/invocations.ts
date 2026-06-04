@@ -489,6 +489,11 @@ export namespace InvocationListBrowsersResponse {
     kiosk_mode?: boolean;
 
     /**
+     * Human-readable name of the browser session, if one was set at creation.
+     */
+    name?: string;
+
+    /**
      * Browser pool this session was acquired from, if any.
      */
     pool?: BrowsersAPI.BrowserPoolRef;
