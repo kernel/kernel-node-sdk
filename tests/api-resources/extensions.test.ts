@@ -21,6 +21,14 @@ describe('resource extensions', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('list: request options and params are passed correctly', async () => {
+    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
+    await expect(
+      client.extensions.list({ limit: 1, offset: 0 }, { path: '/_stainless_unknown_path' }),
+    ).rejects.toThrow(Kernel.NotFoundError);
+  });
+
+  // Mock server tests are disabled
   test.skip('delete', async () => {
     const responsePromise = client.extensions.delete('id_or_name');
     const rawResponse = await responsePromise.asResponse();

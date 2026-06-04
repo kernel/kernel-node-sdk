@@ -87,8 +87,10 @@ export {
   Extensions,
   type ExtensionListResponse,
   type ExtensionUploadResponse,
+  type ExtensionListParams,
   type ExtensionDownloadFromChromeStoreParams,
   type ExtensionUploadParams,
+  type ExtensionListResponsesOffsetPagination,
 } from './extensions';
 export {
   Invocations,
