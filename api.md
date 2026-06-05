@@ -69,6 +69,7 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserCreateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserRetrieveResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUpdateResponse</a></code>

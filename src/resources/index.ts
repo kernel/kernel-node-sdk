@@ -34,6 +34,7 @@ export {
   type BrowserPoolRef,
   type BrowserUsage,
   type Profile,
+  type Tags,
   type BrowserCreateResponse,
   type BrowserRetrieveResponse,
   type BrowserUpdateResponse,
