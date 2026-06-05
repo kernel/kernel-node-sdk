@@ -41,6 +41,7 @@ describe('resource browsers', () => {
           proxy_id: 'proxy_id',
           start_url: 'https://example.com',
           stealth: true,
+          tags: { team: 'backend', env: 'staging' },
           telemetry: {
             browser: {
               console: { enabled: true },
@@ -121,6 +122,7 @@ describe('resource browsers', () => {
           offset: 0,
           query: 'query',
           status: 'active',
+          tags: { foo: 'string' },
         },
         { path: '/_stainless_unknown_path' },
       ),

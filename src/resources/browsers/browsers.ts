@@ -309,6 +309,11 @@ export interface Profile {
   updated_at?: string;
 }
 
+/**
+ * User-defined key-value tags.
+ */
+export type Tags = { [key: string]: string };
+
 export interface BrowserCreateResponse {
   /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
@@ -407,6 +412,12 @@ export interface BrowserCreateResponse {
    * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * User-defined key-value tags that were set on this browser session, if any.
+   * Echoed back when present.
+   */
+  tags?: Tags;
 
   /**
    * Active telemetry configuration for the session, if any.
@@ -535,6 +546,12 @@ export interface BrowserRetrieveResponse {
   start_url?: string;
 
   /**
+   * User-defined key-value tags that were set on this browser session, if any.
+   * Echoed back when present.
+   */
+  tags?: Tags;
+
+  /**
    * Active telemetry configuration for the session, if any.
    */
   telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
@@ -659,6 +676,12 @@ export interface BrowserUpdateResponse {
    * actually loaded.
    */
   start_url?: string;
+
+  /**
+   * User-defined key-value tags that were set on this browser session, if any.
+   * Echoed back when present.
+   */
+  tags?: Tags;
 
   /**
    * Active telemetry configuration for the session, if any.
@@ -787,6 +810,12 @@ export interface BrowserListResponse {
   start_url?: string;
 
   /**
+   * User-defined key-value tags that were set on this browser session, if any.
+   * Echoed back when present.
+   */
+  tags?: Tags;
+
+  /**
    * Active telemetry configuration for the session, if any.
    */
   telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
@@ -907,6 +936,12 @@ export interface BrowserCreateParams {
    * mechanisms.
    */
   stealth?: boolean;
+
+  /**
+   * Optional user-defined key-value tags for the browser session, used to find and
+   * group sessions later. Set at creation time only. Up to 50 pairs.
+   */
+  tags?: Tags;
 
   /**
    * Telemetry configuration for the browser session. Set enabled to true to start
@@ -1066,6 +1101,13 @@ export interface BrowserListParams extends OffsetPaginationParams {
    * "deleted" returns only soft-deleted sessions, "all" returns both.
    */
   status?: 'active' | 'deleted' | 'all';
+
+  /**
+   * Filter sessions by tag key-value pairs using deepObject style, e.g.
+   * ?tags[team]=backend&tags[env]=staging. Multiple pairs are ANDed: a session must
+   * match every supplied pair exactly.
+   */
+  tags?: { [key: string]: string };
 }
 
 export interface BrowserCurlParams {
@@ -1135,6 +1177,7 @@ export declare namespace Browsers {
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
+    type Tags as Tags,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,
