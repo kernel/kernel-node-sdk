@@ -52,7 +52,11 @@ import {
 } from './replays';
 import * as TelemetryAPI from './telemetry';
 import {
+  BrowserAPICallEvent,
   BrowserCallStack,
+  BrowserCaptchaSolveResultEvent,
+  BrowserCdpConnectEvent,
+  BrowserCdpDisconnectEvent,
   BrowserConsoleErrorEvent,
   BrowserConsoleLogEvent,
   BrowserEventContext,
@@ -61,6 +65,8 @@ import {
   BrowserInteractionClickEvent,
   BrowserInteractionKeyEvent,
   BrowserInteractionScrollSettledEvent,
+  BrowserLiveViewConnectEvent,
+  BrowserLiveViewDisconnectEvent,
   BrowserMonitorDisconnectedEvent,
   BrowserMonitorInitFailedEvent,
   BrowserMonitorReconnectFailedEvent,
@@ -78,6 +84,8 @@ import {
   BrowserPageNavigationEvent,
   BrowserPageNavigationSettledEvent,
   BrowserPageTabOpenedEvent,
+  BrowserServiceCrashedEvent,
+  BrowserSystemOomKillEvent,
   BrowserTelemetryCategoriesConfig,
   BrowserTelemetryCategoryConfig,
   BrowserTelemetryConfig,
@@ -988,17 +996,18 @@ export namespace BrowserCreateParams {
    */
   export interface Telemetry {
     /**
-     * Per-category enable/disable flags. If enabled is true and browser is omitted or
-     * empty, the VM default category set is used. Explicitly disabling all four
-     * categories stops capture on update and starts no capture on create.
+     * Per-category capture flags. Selection is opt-in: only the categories set to
+     * enabled=true are captured; anything omitted is off. If enabled is true and
+     * browser is omitted or empty, the default category set is used. A browser config
+     * that enables nothing stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
     /**
-     * Request shortcut for browser telemetry capture. True enables capture using VM
-     * defaults unless browser category settings are provided. False stops capture on
-     * update and starts no capture on create. enabled=false cannot be combined with
-     * browser category settings.
+     * Request shortcut for browser telemetry capture. True enables capture using the
+     * default category set unless browser category settings are provided. False stops
+     * capture on update and starts no capture on create. enabled=false cannot be
+     * combined with browser category settings.
      */
     enabled?: boolean;
   }
@@ -1055,17 +1064,18 @@ export namespace BrowserUpdateParams {
    */
   export interface Telemetry {
     /**
-     * Per-category enable/disable flags. If enabled is true and browser is omitted or
-     * empty, the VM default category set is used. Explicitly disabling all four
-     * categories stops capture on update and starts no capture on create.
+     * Per-category capture flags. Selection is opt-in: only the categories set to
+     * enabled=true are captured; anything omitted is off. If enabled is true and
+     * browser is omitted or empty, the default category set is used. A browser config
+     * that enables nothing stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
     /**
-     * Request shortcut for browser telemetry capture. True enables capture using VM
-     * defaults unless browser category settings are provided. False stops capture on
-     * update and starts no capture on create. enabled=false cannot be combined with
-     * browser category settings.
+     * Request shortcut for browser telemetry capture. True enables capture using the
+     * default category set unless browser category settings are provided. False stops
+     * capture on update and starts no capture on create. enabled=false cannot be
+     * combined with browser category settings.
      */
     enabled?: boolean;
   }
@@ -1194,7 +1204,11 @@ export declare namespace Browsers {
 
   export {
     TelemetryAPITelemetry as Telemetry,
+    type BrowserAPICallEvent as BrowserAPICallEvent,
     type BrowserCallStack as BrowserCallStack,
+    type BrowserCaptchaSolveResultEvent as BrowserCaptchaSolveResultEvent,
+    type BrowserCdpConnectEvent as BrowserCdpConnectEvent,
+    type BrowserCdpDisconnectEvent as BrowserCdpDisconnectEvent,
     type BrowserConsoleErrorEvent as BrowserConsoleErrorEvent,
     type BrowserConsoleLogEvent as BrowserConsoleLogEvent,
     type BrowserEventContext as BrowserEventContext,
@@ -1203,6 +1217,8 @@ export declare namespace Browsers {
     type BrowserInteractionClickEvent as BrowserInteractionClickEvent,
     type BrowserInteractionKeyEvent as BrowserInteractionKeyEvent,
     type BrowserInteractionScrollSettledEvent as BrowserInteractionScrollSettledEvent,
+    type BrowserLiveViewConnectEvent as BrowserLiveViewConnectEvent,
+    type BrowserLiveViewDisconnectEvent as BrowserLiveViewDisconnectEvent,
     type BrowserMonitorDisconnectedEvent as BrowserMonitorDisconnectedEvent,
     type BrowserMonitorInitFailedEvent as BrowserMonitorInitFailedEvent,
     type BrowserMonitorReconnectFailedEvent as BrowserMonitorReconnectFailedEvent,
@@ -1220,6 +1236,8 @@ export declare namespace Browsers {
     type BrowserPageNavigationEvent as BrowserPageNavigationEvent,
     type BrowserPageNavigationSettledEvent as BrowserPageNavigationSettledEvent,
     type BrowserPageTabOpenedEvent as BrowserPageTabOpenedEvent,
+    type BrowserServiceCrashedEvent as BrowserServiceCrashedEvent,
+    type BrowserSystemOomKillEvent as BrowserSystemOomKillEvent,
     type BrowserTelemetryCategoriesConfig as BrowserTelemetryCategoriesConfig,
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
