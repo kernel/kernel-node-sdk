@@ -137,6 +137,7 @@ import {
   BrowserUsage,
   Browsers,
   Profile,
+  Tags,
 } from './resources/browsers/browsers';
 import {
   CreateProjectRequest,
@@ -403,9 +404,6 @@ export class Kernel {
     return buildHeaders([{ Authorization: `Bearer ${this.apiKey}` }]);
   }
 
-  /**
-   * Basic re-implementation of `qs.stringify` for primitive types.
-   */
   protected stringifyQuery(query: object | Record<string, unknown>): string {
     return stringifyQuery(query);
   }
@@ -1059,6 +1057,7 @@ export declare namespace Kernel {
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
+    type Tags as Tags,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,

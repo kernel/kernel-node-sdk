@@ -385,6 +385,12 @@ export interface BrowserPoolAcquireResponse {
   start_url?: string;
 
   /**
+   * User-defined key-value tags that were set on this browser session, if any.
+   * Echoed back when present.
+   */
+  tags?: BrowsersAPI.Tags;
+
+  /**
    * Active telemetry configuration for the session, if any.
    */
   telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
