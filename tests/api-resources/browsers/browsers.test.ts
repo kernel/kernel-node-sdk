@@ -44,10 +44,15 @@ describe('resource browsers', () => {
           tags: { team: 'backend', env: 'staging' },
           telemetry: {
             browser: {
+              captcha: { enabled: true },
+              connection: { enabled: true },
               console: { enabled: true },
+              control: { enabled: true },
               interaction: { enabled: true },
               network: { enabled: true },
               page: { enabled: true },
+              screenshot: { enabled: true },
+              system: { enabled: true },
             },
             enabled: true,
           },
