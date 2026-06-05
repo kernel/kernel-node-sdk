@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.63.0 (2026-06-05)
+
+Full Changelog: [v0.62.0...v0.63.0](https://github.com/kernel/kernel-node-sdk/compare/v0.62.0...v0.63.0)
+
+### Features
+
+* **api:** allow setting a custom name on a browser session at create time ([1c1b647](https://github.com/kernel/kernel-node-sdk/commit/1c1b647518635e41e9ff3aec818917c9f7d02ab9))
+* **api:** allow setting key-value tags on a browser session at create time ([93f8e0e](https://github.com/kernel/kernel-node-sdk/commit/93f8e0e46477364d095503e0d0c276e4f14d2bbc))
+
+
+### Documentation
+
+* **api:** use neutral example for browser session name field ([316ea2e](https://github.com/kernel/kernel-node-sdk/commit/316ea2eb22cee52340deb53299bb131c9391aa6e))
+
 ## 0.62.0 (2026-06-04)
 
 Full Changelog: [v0.61.0...v0.62.0](https://github.com/kernel/kernel-node-sdk/compare/v0.61.0...v0.62.0)
