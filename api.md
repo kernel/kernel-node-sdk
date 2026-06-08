@@ -79,11 +79,11 @@ Types:
 Methods:
 
 - <code title="post /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">create</a>({ ...params }) -> BrowserCreateResponse</code>
-- <code title="get /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(id, { ...params }) -> BrowserRetrieveResponse</code>
-- <code title="patch /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(id, { ...params }) -> BrowserUpdateResponse</code>
+- <code title="get /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">retrieve</a>(idOrName, { ...params }) -> BrowserRetrieveResponse</code>
+- <code title="patch /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">update</a>(idOrName, { ...params }) -> BrowserUpdateResponse</code>
 - <code title="get /browsers">client.browsers.<a href="./src/resources/browsers/browsers.ts">list</a>({ ...params }) -> BrowserListResponsesOffsetPagination</code>
 - <code title="post /browsers/{id}/curl">client.browsers.<a href="./src/resources/browsers/browsers.ts">curl</a>(id, { ...params }) -> BrowserCurlResponse</code>
-- <code title="delete /browsers/{id}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(id) -> void</code>
+- <code title="delete /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(idOrName) -> void</code>
 - <code title="post /browsers/{id}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(id, { ...params }) -> void</code>
 
 ## Telemetry
