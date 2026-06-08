@@ -626,6 +626,21 @@ export interface BrowserPoolAcquireParams {
    * rate.
    */
   acquire_timeout_seconds?: number;
+
+  /**
+   * Optional human-readable name for the acquired browser session, used to find it
+   * later in the dashboard. Must be unique among active sessions within the pool's
+   * project. Applies to this lease only and is cleared when the browser is released
+   * back to the pool.
+   */
+  name?: string;
+
+  /**
+   * Optional user-defined key-value tags for the acquired browser session, used to
+   * find and group sessions later. Applies to this lease only and are cleared when
+   * the browser is released back to the pool. Up to 50 pairs.
+   */
+  tags?: BrowsersAPI.Tags;
 }
 
 export interface BrowserPoolReleaseParams {
