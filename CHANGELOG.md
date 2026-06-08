@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.64.0 (2026-06-05)
+
+Full Changelog: [v0.63.0...v0.64.0](https://github.com/kernel/kernel-node-sdk/compare/v0.63.0...v0.64.0)
+
+### Features
+
+* Telemetry: expose opt-in categories + full event taxonomy (public API) ([6694395](https://github.com/kernel/kernel-node-sdk/commit/66943955bff80f219199e13961315750075acc52))
+
 ## 0.63.0 (2026-06-05)
 
 Full Changelog: [v0.62.0...v0.63.0](https://github.com/kernel/kernel-node-sdk/compare/v0.62.0...v0.63.0)

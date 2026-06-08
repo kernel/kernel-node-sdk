@@ -90,7 +90,11 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserAPICallEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCallStack</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCaptchaSolveResultEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpConnectEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpDisconnectEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserConsoleErrorEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserConsoleLogEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserEventContext</a></code>
@@ -99,6 +103,8 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionClickEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionKeyEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserInteractionScrollSettledEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserLiveViewConnectEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserLiveViewDisconnectEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorDisconnectedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorInitFailedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserMonitorReconnectFailedEvent</a></code>
@@ -116,6 +122,8 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationSettledEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageTabOpenedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserServiceCrashedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserSystemOomKillEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoriesConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoryConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryConfig</a></code>

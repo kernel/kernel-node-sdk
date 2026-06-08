@@ -50,6 +50,56 @@ export class Telemetry extends APIResource {
 }
 
 /**
+ * An agent-driven HTTP call handled by the in-VM API server.
+ */
+export interface BrowserAPICallEvent {
+  category: 'control';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'api_call';
+
+  data?: BrowserAPICallEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserAPICallEvent {
+  export interface Data {
+    /**
+     * Wall-clock duration of the handler in milliseconds.
+     */
+    duration_ms: number;
+
+    /**
+     * OpenAPI operationId of the matched route (e.g. processExec, takeScreenshot).
+     */
+    operation_id: string;
+
+    /**
+     * Per-request identifier from the in-VM API request middleware.
+     */
+    request_id: string;
+
+    /**
+     * HTTP response status code.
+     */
+    status: number;
+  }
+}
+
+/**
  * CDP Runtime.StackTrace representing the JavaScript call stack at the time of an
  * event. Fields use CDP naming conventions rather than snake_case to match the
  * Chrome DevTools Protocol wire format.
@@ -97,6 +147,151 @@ export namespace BrowserCallStack {
      * URL or name of the script file.
      */
     url: string;
+  }
+}
+
+/**
+ * A captcha solve attempt reached a terminal outcome.
+ */
+export interface BrowserCaptchaSolveResultEvent {
+  category: 'captcha';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'captcha_solve_result';
+
+  data?: BrowserCaptchaSolveResultEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserCaptchaSolveResultEvent {
+  export interface Data {
+    /**
+     * Captcha vendor family. Provider-specific task names are normalized into this
+     * set; anything not covered is reported as other.
+     */
+    captcha_type: 'hcaptcha' | 'recaptcha_v2' | 'recaptcha_v3' | 'turnstile' | 'geetest' | 'other';
+
+    /**
+     * Wall-clock duration from solve start to terminal outcome.
+     */
+    duration_ms: number;
+
+    /**
+     * Terminal outcome. success: solver returned a usable solution. failure: solver
+     * returned an error (see error_code). timeout: solver did not return within the
+     * caller's wait budget. abandoned: caller cancelled or the page navigated away
+     * mid-solve.
+     */
+    status: 'success' | 'failure' | 'timeout' | 'abandoned';
+
+    /**
+     * Solver-specific error code on failure (e.g. ERROR_CAPTCHA_UNSOLVABLE). Absent on
+     * success.
+     */
+    error_code?: string;
+
+    /**
+     * Solver-assigned identifier. Opaque, useful for support cross-references.
+     */
+    task_id?: string;
+
+    /**
+     * Host of the page where the captcha was solved.
+     */
+    website_host?: string;
+
+    /**
+     * Path of the page where the captcha was solved. Query string excluded.
+     */
+    website_path?: string;
+  }
+}
+
+/**
+ * An external client (e.g. customer SDK, Playwright, Puppeteer) connected to the
+ * CDP WebSocket proxy on this VM.
+ */
+export interface BrowserCdpConnectEvent {
+  category: 'connection';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'cdp_connect';
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+/**
+ * An external client disconnected from the CDP WebSocket proxy on this VM. Pair
+ * with the immediately preceding cdp_connect on the same stream.
+ */
+export interface BrowserCdpDisconnectEvent {
+  category: 'connection';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'cdp_disconnect';
+
+  data?: BrowserCdpDisconnectEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserCdpDisconnectEvent {
+  export interface Data {
+    /**
+     * Wall-clock duration of the connection in milliseconds.
+     */
+    duration_ms: number;
+
+    /**
+     * Number of CDP messages relayed across the connection in either direction.
+     */
+    message_count: number;
+
+    /**
+     * Why the connection ended. client_close: the client initiated the close.
+     * upstream_changed: Chromium restarted mid-session and the proxy tore down so the
+     * client could reconnect against the new upstream. upstream_error: upstream dial
+     * or message pump errored. context_cancelled: the request context was cancelled
+     * (typically server shutdown).
+     */
+    reason: 'client_close' | 'upstream_changed' | 'upstream_error' | 'context_cancelled';
   }
 }
 
@@ -510,12 +705,90 @@ export namespace BrowserInteractionScrollSettledEvent {
 }
 
 /**
+ * A live view client connected to the headful browser's WebRTC server. Headful
+ * only; not emitted for headless images.
+ */
+export interface BrowserLiveViewConnectEvent {
+  category: 'connection';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'live_view_connect';
+
+  data?: BrowserLiveViewConnectEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserLiveViewConnectEvent {
+  export interface Data {
+    /**
+     * Live view session identifier. Stable across reconnects, so a transient network
+     * blip can emit two events with the same session_id.
+     */
+    session_id: string;
+  }
+}
+
+/**
+ * A live view client disconnected from the headful browser's WebRTC server. Pair
+ * with live_view_connect by session_id.
+ */
+export interface BrowserLiveViewDisconnectEvent {
+  category: 'connection';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'live_view_disconnect';
+
+  data?: BrowserLiveViewDisconnectEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserLiveViewDisconnectEvent {
+  export interface Data {
+    /**
+     * Wall-clock duration of the connection in milliseconds.
+     */
+    duration_ms: number;
+
+    /**
+     * Live view session identifier; matches the corresponding live_view_connect event.
+     */
+    session_id: string;
+  }
+}
+
+/**
  * The CDP connection to Chrome was lost. Telemetry events may be dropped until
  * monitor_reconnected arrives. Treat any in-progress computed state (network_idle,
  * page_layout_settled) as unreliable until then.
  */
 export interface BrowserMonitorDisconnectedEvent {
-  category: 'system';
+  category: 'monitor';
 
   /**
    * Provenance metadata identifying which producer emitted the event.
@@ -550,7 +823,7 @@ export namespace BrowserMonitorDisconnectedEvent {
  * The CDP session could not be initialized.
  */
 export interface BrowserMonitorInitFailedEvent {
-  category: 'system';
+  category: 'monitor';
 
   /**
    * Provenance metadata identifying which producer emitted the event.
@@ -586,7 +859,7 @@ export namespace BrowserMonitorInitFailedEvent {
  * reconnection attempts. No further telemetry events will arrive on this session.
  */
 export interface BrowserMonitorReconnectFailedEvent {
-  category: 'system';
+  category: 'monitor';
 
   /**
    * Provenance metadata identifying which producer emitted the event.
@@ -624,7 +897,7 @@ export namespace BrowserMonitorReconnectFailedEvent {
  * so navigation and network tracking restart fresh from this point.
  */
 export interface BrowserMonitorReconnectedEvent {
-  category: 'system';
+  category: 'monitor';
 
   /**
    * Provenance metadata identifying which producer emitted the event.
@@ -659,7 +932,7 @@ export namespace BrowserMonitorReconnectedEvent {
  * A periodic screenshot of the browser viewport.
  */
 export interface BrowserMonitorScreenshotEvent {
-  category: 'system';
+  category: 'screenshot';
 
   /**
    * Provenance metadata identifying which producer emitted the event.
@@ -1417,16 +1690,195 @@ export namespace BrowserPageTabOpenedEvent {
 }
 
 /**
- * Per-category telemetry capture settings.
+ * A managed service exited unexpectedly. Intentional stops do not produce this
+ * event; only unexpected exits and terminal restart-give-up transitions do.
+ */
+export interface BrowserServiceCrashedEvent {
+  category: 'system';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'service_crashed';
+
+  data?: BrowserServiceCrashedEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserServiceCrashedEvent {
+  export interface Data {
+    /**
+     * Lifecycle phase the crash occurred in. startup: the process died before reaching
+     * a healthy running state. running: a previously healthy process died
+     * unexpectedly. gave_up: the process manager exhausted its restart attempts and
+     * stopped trying.
+     */
+    phase: 'startup' | 'running' | 'gave_up';
+
+    /**
+     * Program name of the crashed service (e.g. chromium, mutter, kernel-images-api).
+     */
+    service_name: string;
+
+    /**
+     * PID of the crashed process. Absent when the process manager gave up after
+     * exhausting restart attempts.
+     */
+    pid?: number;
+  }
+}
+
+/**
+ * The Linux kernel OOM-killer terminated a process inside the VM. Fires for any
+ * process killed by the kernel due to memory exhaustion, including Chrome renderer
+ * subprocesses that are not supervised.
+ */
+export interface BrowserSystemOomKillEvent {
+  category: 'system';
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'system_oom_kill';
+
+  data?: BrowserSystemOomKillEvent.Data;
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserSystemOomKillEvent {
+  export interface Data {
+    /**
+     * PID of the killed process.
+     */
+    pid: number;
+
+    /**
+     * Comm of the killed process as reported by the kernel (max 15 chars, truncated by
+     * the kernel).
+     */
+    process_name: string;
+
+    /**
+     * Resident set size of the killed process in KiB (sum of anon-rss, file-rss, and
+     * shmem-rss).
+     */
+    rss_kb: number;
+
+    /**
+     * Why the kernel decided to OOM-kill. none means global memory exhaustion; memcg
+     * means a cgroup memory limit was hit; cpuset / memory_policy are
+     * NUMA/policy-driven kills. Absent on kernels older than 5.0.
+     */
+    constraint?: 'none' | 'memcg' | 'cpuset' | 'memory_policy';
+
+    /**
+     * Free system memory in KiB at the time of the kill. Assumes a 4 KiB page size.
+     * Does not include reclaimable caches. Absent if the kernel did not emit a
+     * parseable Mem-Info section.
+     */
+    mem_free_kb?: number;
+
+    /**
+     * Total system memory in KiB at the time of the kill. Assumes a 4 KiB page size.
+     * Absent if the kernel did not emit a parseable Mem-Info section.
+     */
+    mem_total_kb?: number;
+
+    /**
+     * Top processes by resident-set-size at the moment of the kill, sorted descending.
+     * Empty if the kernel did not emit the Tasks state table. Capped at 5 entries.
+     */
+    top_tasks?: Array<Data.TopTask>;
+
+    /**
+     * PID of the triggering process. Absent if the kernel did not emit the standard
+     * header line.
+     */
+    trigger_pid?: number;
+
+    /**
+     * Comm of the process whose allocation request caused the kernel to invoke the
+     * OOM-killer. Often the same as process_name but can differ. Max 15 chars.
+     */
+    trigger_process_name?: string;
+  }
+
+  export namespace Data {
+    export interface TopTask {
+      /**
+       * Comm of the process (max 15 chars, truncated by the kernel).
+       */
+      name: string;
+
+      /**
+       * PID of the process.
+       */
+      pid: number;
+
+      /**
+       * Resident set size in KiB at the moment of the kill.
+       */
+      rss_kb: number;
+    }
+  }
+}
+
+/**
+ * Per-category telemetry capture settings. Selection is opt-in: set a category to
+ * enabled=true to capture it; anything omitted is off. The default set (used by
+ * enabled=true with no per-category settings) is the lightweight operational
+ * signals: control, connection, system, captcha. The CDP categories (console,
+ * network, page, interaction) and screenshot are off by default and must be opted
+ * into.
  */
 export interface BrowserTelemetryCategoriesConfig {
   /**
-   * Console output (log, warn, error) and uncaught exceptions.
+   * Captcha solve attempt outcomes. On by default.
+   */
+  captcha?: BrowserTelemetryCategoryConfig;
+
+  /**
+   * Client attach/detach lifecycle for the CDP proxy and live view. On by default.
+   */
+  connection?: BrowserTelemetryCategoryConfig;
+
+  /**
+   * Console output (log, warn, error) and uncaught exceptions. CDP category; off by
+   * default.
    */
   console?: BrowserTelemetryCategoryConfig;
 
   /**
+   * Agent-driven actions against the browser, such as inbound calls to the in-VM
+   * API. On by default.
+   */
+  control?: BrowserTelemetryCategoryConfig;
+
+  /**
    * User interaction events including clicks, keydowns, and scroll-settled events.
+   * CDP category; off by default.
    */
   interaction?: BrowserTelemetryCategoryConfig;
 
@@ -1434,15 +1886,28 @@ export interface BrowserTelemetryCategoriesConfig {
    * HTTP request and response metadata including URL, method, status code, and
    * timing. Request post data is forwarded as-is from CDP. Text response bodies are
    * truncated at 8 KB for structured types (JSON, XML, form data) and 4 KB for other
-   * text types. Binary responses (images, fonts, media) are excluded.
+   * text types. Binary responses (images, fonts, media) are excluded. CDP category;
+   * off by default.
    */
   network?: BrowserTelemetryCategoryConfig;
 
   /**
    * Page lifecycle events including navigation, DOMContentLoaded, load, layout
-   * shifts, and LCP.
+   * shifts, and LCP. CDP category; off by default.
    */
   page?: BrowserTelemetryCategoryConfig;
+
+  /**
+   * Periodic base64-encoded viewport screenshots. High volume; off by default and
+   * must be opted into.
+   */
+  screenshot?: BrowserTelemetryCategoryConfig;
+
+  /**
+   * Browser VM health, such as out-of-memory kills and managed-service crashes. On
+   * by default.
+   */
+  system?: BrowserTelemetryCategoryConfig;
 }
 
 /**
@@ -1450,7 +1915,8 @@ export interface BrowserTelemetryCategoriesConfig {
  */
 export interface BrowserTelemetryCategoryConfig {
   /**
-   * Whether this category is captured. Defaults to true if omitted.
+   * Whether this category is captured. Selection is opt-in, so an omitted category
+   * is not captured.
    */
   enabled?: boolean;
 }
@@ -1467,10 +1933,13 @@ export interface BrowserTelemetryConfig {
 
 /**
  * Union type representing any browser telemetry event. Discriminated on `type`.
- * Events with a `monitor_` prefix (monitor_screenshot, monitor_disconnected,
- * monitor_reconnected, monitor_reconnect_failed, monitor_init_failed) are always
- * emitted regardless of the category configuration in BrowserTelemetryConfig. All
- * other event types are controlled by the per-category enable/disable flags.
+ * Each event's `category` determines when it is captured. The CDP collector-health
+ * events (monitor_disconnected, monitor_reconnected, monitor_reconnect_failed,
+ * monitor_init_failed) use the `monitor` category, which is not user-configurable:
+ * it flows automatically whenever any CDP category (console, network, page,
+ * interaction) is captured, and is silent otherwise. monitor_screenshot uses the
+ * opt-in `screenshot` category. All other event types are controlled by their
+ * per-category enable/disable flags.
  */
 export type BrowserTelemetryEvent =
   | BrowserConsoleLogEvent
@@ -1494,7 +1963,15 @@ export type BrowserTelemetryEvent =
   | BrowserMonitorDisconnectedEvent
   | BrowserMonitorReconnectedEvent
   | BrowserMonitorReconnectFailedEvent
-  | BrowserMonitorInitFailedEvent;
+  | BrowserMonitorInitFailedEvent
+  | BrowserAPICallEvent
+  | BrowserCdpConnectEvent
+  | BrowserCdpDisconnectEvent
+  | BrowserLiveViewConnectEvent
+  | BrowserLiveViewDisconnectEvent
+  | BrowserCaptchaSolveResultEvent
+  | BrowserSystemOomKillEvent
+  | BrowserServiceCrashedEvent;
 
 /**
  * Envelope wrapping a browser telemetry event with its monotonic sequence number.
@@ -1504,10 +1981,13 @@ export type BrowserTelemetryEvent =
 export interface TelemetryStreamResponse {
   /**
    * Union type representing any browser telemetry event. Discriminated on `type`.
-   * Events with a `monitor_` prefix (monitor_screenshot, monitor_disconnected,
-   * monitor_reconnected, monitor_reconnect_failed, monitor_init_failed) are always
-   * emitted regardless of the category configuration in BrowserTelemetryConfig. All
-   * other event types are controlled by the per-category enable/disable flags.
+   * Each event's `category` determines when it is captured. The CDP collector-health
+   * events (monitor_disconnected, monitor_reconnected, monitor_reconnect_failed,
+   * monitor_init_failed) use the `monitor` category, which is not user-configurable:
+   * it flows automatically whenever any CDP category (console, network, page,
+   * interaction) is captured, and is silent otherwise. monitor_screenshot uses the
+   * opt-in `screenshot` category. All other event types are controlled by their
+   * per-category enable/disable flags.
    */
   event: BrowserTelemetryEvent;
 
@@ -1529,7 +2009,11 @@ export interface TelemetryStreamParams {
 
 export declare namespace Telemetry {
   export {
+    type BrowserAPICallEvent as BrowserAPICallEvent,
     type BrowserCallStack as BrowserCallStack,
+    type BrowserCaptchaSolveResultEvent as BrowserCaptchaSolveResultEvent,
+    type BrowserCdpConnectEvent as BrowserCdpConnectEvent,
+    type BrowserCdpDisconnectEvent as BrowserCdpDisconnectEvent,
     type BrowserConsoleErrorEvent as BrowserConsoleErrorEvent,
     type BrowserConsoleLogEvent as BrowserConsoleLogEvent,
     type BrowserEventContext as BrowserEventContext,
@@ -1538,6 +2022,8 @@ export declare namespace Telemetry {
     type BrowserInteractionClickEvent as BrowserInteractionClickEvent,
     type BrowserInteractionKeyEvent as BrowserInteractionKeyEvent,
     type BrowserInteractionScrollSettledEvent as BrowserInteractionScrollSettledEvent,
+    type BrowserLiveViewConnectEvent as BrowserLiveViewConnectEvent,
+    type BrowserLiveViewDisconnectEvent as BrowserLiveViewDisconnectEvent,
     type BrowserMonitorDisconnectedEvent as BrowserMonitorDisconnectedEvent,
     type BrowserMonitorInitFailedEvent as BrowserMonitorInitFailedEvent,
     type BrowserMonitorReconnectFailedEvent as BrowserMonitorReconnectFailedEvent,
@@ -1555,6 +2041,8 @@ export declare namespace Telemetry {
     type BrowserPageNavigationEvent as BrowserPageNavigationEvent,
     type BrowserPageNavigationSettledEvent as BrowserPageNavigationSettledEvent,
     type BrowserPageTabOpenedEvent as BrowserPageTabOpenedEvent,
+    type BrowserServiceCrashedEvent as BrowserServiceCrashedEvent,
+    type BrowserSystemOomKillEvent as BrowserSystemOomKillEvent,
     type BrowserTelemetryCategoriesConfig as BrowserTelemetryCategoriesConfig,
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
