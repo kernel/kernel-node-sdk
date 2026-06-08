@@ -160,11 +160,11 @@ export class Browsers extends APIResource {
    * ```
    */
   retrieve(
-    id: string,
+    idOrName: string,
     query: BrowserRetrieveParams | null | undefined = {},
     options?: RequestOptions,
   ): APIPromise<BrowserRetrieveResponse> {
-    return this._client.get(path`/browsers/${id}`, { query, ...options });
+    return this._client.get(path`/browsers/${idOrName}`, { query, ...options });
   }
 
   /**
@@ -177,8 +177,12 @@ export class Browsers extends APIResource {
    * );
    * ```
    */
-  update(id: string, body: BrowserUpdateParams, options?: RequestOptions): APIPromise<BrowserUpdateResponse> {
-    return this._client.patch(path`/browsers/${id}`, { body, ...options });
+  update(
+    idOrName: string,
+    body: BrowserUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<BrowserUpdateResponse> {
+    return this._client.patch(path`/browsers/${idOrName}`, { body, ...options });
   }
 
   /**
@@ -225,7 +229,7 @@ export class Browsers extends APIResource {
   }
 
   /**
-   * Delete a browser session by ID
+   * Delete a browser session by ID or name
    *
    * @example
    * ```ts
@@ -234,8 +238,8 @@ export class Browsers extends APIResource {
    * );
    * ```
    */
-  deleteByID(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/browsers/${id}`, {
+  deleteByID(idOrName: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/browsers/${idOrName}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
