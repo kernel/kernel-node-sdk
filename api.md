@@ -375,6 +375,20 @@ Methods:
 - <code title="get /org/projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">retrieve</a>(id) -> ProjectLimits</code>
 - <code title="patch /org/projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">update</a>(id, { ...params }) -> ProjectLimits</code>
 
+# Organization
+
+## Limits
+
+Types:
+
+- <code><a href="./src/resources/organization/limits.ts">OrgLimits</a></code>
+- <code><a href="./src/resources/organization/limits.ts">UpdateOrgLimitsRequest</a></code>
+
+Methods:
+
+- <code title="get /org/limits">client.organization.limits.<a href="./src/resources/organization/limits.ts">retrieve</a>() -> OrgLimits</code>
+- <code title="patch /org/limits">client.organization.limits.<a href="./src/resources/organization/limits.ts">update</a>({ ...params }) -> OrgLimits</code>
+
 # APIKeys
 
 Types:

@@ -133,6 +133,7 @@ import {
   Profile,
   Tags,
 } from './resources/browsers/browsers';
+import { Organization } from './resources/organization/organization';
 import {
   CreateProjectRequest,
   Project,
@@ -941,6 +942,7 @@ export class Kernel {
    * Create and manage projects for resource isolation within an organization.
    */
   projects: API.Projects = new API.Projects(this);
+  organization: API.Organization = new API.Organization(this);
   /**
    * Create and manage API keys for organization and project-scoped access.
    */
@@ -962,6 +964,7 @@ Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
 Kernel.Credentials = Credentials;
 Kernel.Projects = Projects;
+Kernel.Organization = Organization;
 Kernel.APIKeys = APIKeys;
 Kernel.CredentialProviders = CredentialProviders;
 
@@ -1095,6 +1098,8 @@ export declare namespace Kernel {
     type ProjectUpdateParams as ProjectUpdateParams,
     type ProjectListParams as ProjectListParams,
   };
+
+  export { Organization as Organization };
 
   export {
     APIKeys as APIKeys,
