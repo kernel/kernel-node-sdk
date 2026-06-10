@@ -928,8 +928,8 @@ export interface BrowserCreateParams {
 
   /**
    * Optional human-readable name for the browser session, used to find it later in
-   * the dashboard. Must be unique among active sessions within the project. Set at
-   * creation time only.
+   * the dashboard. Must be unique among active sessions within the project. Can be
+   * changed later via PATCH /browsers/{id_or_name}.
    */
   name?: string;
 
@@ -961,7 +961,8 @@ export interface BrowserCreateParams {
 
   /**
    * Optional user-defined key-value tags for the browser session, used to find and
-   * group sessions later. Set at creation time only. Up to 50 pairs.
+   * group sessions later. Can be changed later via PATCH /browsers/{id_or_name}. Up
+   * to 50 pairs.
    */
   tags?: Tags;
 
@@ -1042,6 +1043,13 @@ export interface BrowserUpdateParams {
   disable_default_proxy?: boolean;
 
   /**
+   * Human-readable name for the browser session. Omit to leave unchanged, set to an
+   * empty string to clear the name. When set, must be unique among active sessions
+   * within the project.
+   */
+  name?: string | null;
+
+  /**
    * Profile to load into the browser session. Only allowed if the session does not
    * already have a profile loaded.
    */
@@ -1052,6 +1060,13 @@ export interface BrowserUpdateParams {
    * proxy.
    */
   proxy_id?: string | null;
+
+  /**
+   * User-defined key-value tags for the browser session. Omit to leave unchanged.
+   * Provide a map to replace the entire tag set (full replace, not a merge). Set to
+   * an empty object ({}) to clear all tags. Up to 50 pairs.
+   */
+  tags?: Tags | null;
 
   /**
    * Telemetry configuration. Omit, set to null, or set to an empty object ({}) to
