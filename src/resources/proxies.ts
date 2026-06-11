@@ -12,21 +12,21 @@ import { path } from '../internal/utils/path';
  */
 export class Proxies extends APIResource {
   /**
-   * Create a new proxy configuration for the caller's organization.
+   * Create a new proxy configuration in the resolved project.
    */
   create(body: ProxyCreateParams, options?: RequestOptions): APIPromise<ProxyCreateResponse> {
     return this._client.post('/proxies', { body, ...options });
   }
 
   /**
-   * Retrieve a proxy belonging to the caller's organization by ID.
+   * Retrieve a proxy in the resolved project by ID.
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<ProxyRetrieveResponse> {
     return this._client.get(path`/proxies/${id}`, options);
   }
 
   /**
-   * List proxies owned by the caller's organization.
+   * List proxies in the resolved project.
    */
   list(
     query: ProxyListParams | null | undefined = {},

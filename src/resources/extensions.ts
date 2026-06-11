@@ -14,7 +14,7 @@ import { path } from '../internal/utils/path';
  */
 export class Extensions extends APIResource {
   /**
-   * List extensions owned by the caller's organization.
+   * List extensions in the resolved project.
    *
    * @example
    * ```ts

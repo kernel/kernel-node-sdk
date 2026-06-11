@@ -699,8 +699,8 @@ export interface ManagedAuthCreateRequest {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   proxy?: ManagedAuthCreateRequest.Proxy;
 
@@ -748,8 +748,8 @@ export namespace ManagedAuthCreateRequest {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   export interface Proxy {
     /**
@@ -812,8 +812,8 @@ export interface ManagedAuthUpdateRequest {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   proxy?: ManagedAuthUpdateRequest.Proxy;
 
@@ -859,8 +859,8 @@ export namespace ManagedAuthUpdateRequest {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   export interface Proxy {
     /**
@@ -1215,8 +1215,8 @@ export interface ConnectionCreateParams {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   proxy?: ConnectionCreateParams.Proxy;
 
@@ -1264,8 +1264,8 @@ export namespace ConnectionCreateParams {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   export interface Proxy {
     /**
@@ -1325,8 +1325,8 @@ export interface ConnectionUpdateParams {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   proxy?: ConnectionUpdateParams.Proxy;
 
@@ -1372,8 +1372,8 @@ export namespace ConnectionUpdateParams {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   export interface Proxy {
     /**
@@ -1402,8 +1402,8 @@ export interface ConnectionListParams extends OffsetPaginationParams {
 
 export interface ConnectionLoginParams {
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   proxy?: ConnectionLoginParams.Proxy;
 
@@ -1416,8 +1416,8 @@ export interface ConnectionLoginParams {
 
 export namespace ConnectionLoginParams {
   /**
-   * Proxy selection. Provide either id or name. The proxy must belong to the
-   * caller's org.
+   * Proxy selection. Provide either id or name. The proxy must be in the same
+   * project as the resource referencing it.
    */
   export interface Proxy {
     /**

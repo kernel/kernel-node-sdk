@@ -60,8 +60,7 @@ export class Credentials extends APIResource {
   }
 
   /**
-   * List credentials owned by the caller's organization. Credential values are not
-   * returned.
+   * List credentials in the resolved project. Credential values are not returned.
    *
    * @example
    * ```ts
