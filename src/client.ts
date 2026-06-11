@@ -175,6 +175,8 @@ export interface ClientOptions {
    */
   apiKey?: string | undefined;
 
+  projectID?: string | null | undefined;
+
   /**
    * Specifies the environment to use for the API.
    *
@@ -258,6 +260,7 @@ export interface ClientOptions {
  */
 export class Kernel {
   apiKey: string;
+  projectID: string | null;
 
   baseURL: string;
   maxRetries: number;
@@ -277,6 +280,7 @@ export class Kernel {
    * API Client for interfacing with the Kernel API.
    *
    * @param {string | undefined} [opts.apiKey=process.env['KERNEL_API_KEY'] ?? undefined]
+   * @param {string | null | undefined} [opts.projectID]
    * @param {Environment} [opts.environment=production] - Specifies the environment URL to use for the API.
    * @param {string} [opts.baseURL=process.env['KERNEL_BASE_URL'] ?? https://api.onkernel.com/] - Override the default base URL for the API.
    * @param {number} [opts.timeout=1 minute] - The maximum amount of time (in milliseconds) the client will wait for a response before timing out.
@@ -289,6 +293,7 @@ export class Kernel {
   constructor({
     baseURL = readEnv('KERNEL_BASE_URL'),
     apiKey = readEnv('KERNEL_API_KEY'),
+    projectID = null,
     ...opts
   }: ClientOptions = {}) {
     // Check for Bun runtime in a way that avoids type errors if Bun is not defined
@@ -311,6 +316,7 @@ export class Kernel {
 
     const options: ClientOptions = {
       apiKey,
+      projectID,
       ...opts,
       baseURL,
       environment: opts.environment ?? 'production',
@@ -358,6 +364,7 @@ export class Kernel {
     this._options = options;
 
     this.apiKey = apiKey;
+    this.projectID = projectID;
   }
 
   /**
@@ -375,6 +382,7 @@ export class Kernel {
       fetch: this.rawFetch,
       fetchOptions: this.fetchOptions,
       apiKey: this.apiKey,
+      projectID: this.projectID,
       ...options,
     });
     client.browserRouteCache = this.browserRouteCache;
@@ -851,6 +859,7 @@ export class Kernel {
         'X-Stainless-Retry-Count': String(retryCount),
         ...(options.timeout ? { 'X-Stainless-Timeout': String(Math.trunc(options.timeout / 1000)) } : {}),
         ...getPlatformHeaders(),
+        'X-Kernel-Project-Id': this.projectID,
       },
       await this.authHeaders(options),
       this._options.defaultHeaders,
