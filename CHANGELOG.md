@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.67.0 (2026-06-11)
+
+Full Changelog: [v0.66.0...v0.67.0](https://github.com/kernel/kernel-node-sdk/compare/v0.66.0...v0.67.0)
+
+### Features
+
+* Add project_id SDK client option mapped to X-Kernel-Project-Id ([2de4df2](https://github.com/kernel/kernel-node-sdk/commit/2de4df21f6d2d2dd570bed37c4da34b2df34cf83))
+
+
+### Documentation
+
+* **api:** correct project-scoping descriptions in OpenAPI spec ([5320bde](https://github.com/kernel/kernel-node-sdk/commit/5320bdeec70aa344ccdf2c7f601574c655a8eac1))
+
 ## 0.66.0 (2026-06-10)
 
 Full Changelog: [v0.65.0...v0.66.0](https://github.com/kernel/kernel-node-sdk/compare/v0.65.0...v0.66.0)
