@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.66.0 (2026-06-10)
+
+Full Changelog: [v0.65.0...v0.66.0](https://github.com/kernel/kernel-node-sdk/compare/v0.65.0...v0.66.0)
+
+### Features
+
+* Add org-level default per-project concurrency cap ([b5aa208](https://github.com/kernel/kernel-node-sdk/commit/b5aa208786bf91940ba8e9efec4eaa34c2e9f547))
+* Support updating browser session name and tags via PATCH ([608cb36](https://github.com/kernel/kernel-node-sdk/commit/608cb360a226f5968f253ea3ab928231f649c12e))
+
 ## 0.65.0 (2026-06-08)
 
 Full Changelog: [v0.64.0...v0.65.0](https://github.com/kernel/kernel-node-sdk/compare/v0.64.0...v0.65.0)

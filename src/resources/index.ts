@@ -109,6 +109,7 @@ export {
   type InvocationFollowParams,
   type InvocationListResponsesOffsetPagination,
 } from './invocations';
+export { Organization } from './organization/organization';
 export { Profiles, type ProfileCreateParams, type ProfileListParams } from './profiles';
 export {
   Projects,
