@@ -57,7 +57,7 @@ export class BrowserPools extends APIResource {
   }
 
   /**
-   * List browser pools owned by the caller's organization.
+   * List browser pools in the resolved project.
    *
    * @example
    * ```ts
@@ -241,8 +241,8 @@ export namespace BrowserPool {
     profile?: Shared.BrowserProfile;
 
     /**
-     * Optional proxy to associate to the browser session. Must reference a proxy
-     * belonging to the caller's org.
+     * Optional proxy to associate to the browser session. Must reference a proxy in
+     * the same project as the browser session.
      */
     proxy_id?: string;
 
@@ -467,8 +467,8 @@ export interface BrowserPoolCreateParams {
   profile?: Shared.BrowserProfile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy
-   * belonging to the caller's org.
+   * Optional proxy to associate to the browser session. Must reference a proxy in
+   * the same project as the browser session.
    */
   proxy_id?: string;
 
@@ -559,8 +559,8 @@ export interface BrowserPoolUpdateParams {
   profile?: Shared.BrowserProfile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy
-   * belonging to the caller's org.
+   * Optional proxy to associate to the browser session. Must reference a proxy in
+   * the same project as the browser session.
    */
   proxy_id?: string;
 
