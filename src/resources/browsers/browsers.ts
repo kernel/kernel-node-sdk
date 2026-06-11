@@ -941,8 +941,8 @@ export interface BrowserCreateParams {
   profile?: Shared.BrowserProfile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy
-   * belonging to the caller's org.
+   * Optional proxy to associate to the browser session. Must reference a proxy in
+   * the same project as the browser session.
    */
   proxy_id?: string;
 
