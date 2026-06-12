@@ -148,15 +148,18 @@ export class OffsetPagination<Item> extends AbstractPage<Item> {
   }
 
   nextPageRequestOptions(): PageRequestOptions | null {
-    const offset = this.next_offset ?? 0;
-    const length = this.getPaginatedItems().length;
-    const currentCount = offset + length;
+    // X-Next-Offset already holds the offset where the next page starts;
+    // adding the current page length on top skips a full page per iteration.
+    const offset = this.next_offset;
+    if (offset == null) {
+      return null;
+    }
 
     return {
       ...this.options,
       query: {
         ...maybeObj(this.options.query),
-        offset: currentCount,
+        offset,
       },
     };
   }
