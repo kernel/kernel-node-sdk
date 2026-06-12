@@ -34,8 +34,12 @@ export class APIKeys extends APIResource {
    * const apiKey = await client.apiKeys.retrieve('id');
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<APIKey> {
-    return this._client.get(path`/org/api_keys/${id}`, options);
+  retrieve(
+    id: string,
+    query: APIKeyRetrieveParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<APIKey> {
+    return this._client.get(path`/org/api_keys/${id}`, { query, ...options });
   }
 
   /**
@@ -102,6 +106,12 @@ export interface APIKey {
   created_by: APIKey.CreatedBy;
 
   /**
+   * When the API key was deleted (soft-deleted). Null for keys that have not been
+   * deleted.
+   */
+  deleted_at: string | null;
+
+  /**
    * When the API key expires
    */
   expires_at: string | null;
@@ -126,6 +136,13 @@ export interface APIKey {
    * project name is unavailable.
    */
   project_name: string | null;
+
+  /**
+   * Derived lifecycle status of the API key. `active` means usable. `expired` means
+   * past its expires_at. `deleted` means it was deleted (soft-deleted) and can no
+   * longer authenticate. Deleted takes precedence over expired.
+   */
+  status: 'active' | 'expired' | 'deleted';
 }
 
 export namespace APIKey {
@@ -174,6 +191,14 @@ export interface APIKeyCreateParams {
   project_id?: string | null;
 }
 
+export interface APIKeyRetrieveParams {
+  /**
+   * When true, return the API key even if it has been deleted (soft-deleted), for
+   * audit purposes. Defaults to false, which returns 404 for a deleted key.
+   */
+  include_deleted?: boolean;
+}
+
 export interface APIKeyUpdateParams {
   /**
    * New API key name
@@ -182,6 +207,12 @@ export interface APIKeyUpdateParams {
 }
 
 export interface APIKeyListParams extends OffsetPaginationParams {
+  /**
+   * When true, include deleted (soft-deleted) API keys in the results for audit
+   * purposes. Defaults to false, which returns only live keys.
+   */
+  include_deleted?: boolean;
+
   /**
    * Case-insensitive substring match against API key name, creator, and project. API
    * key identifiers and masked keys match by exact value or prefix.
@@ -205,6 +236,7 @@ export declare namespace APIKeys {
     type CreatedAPIKey as CreatedAPIKey,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
+    type APIKeyRetrieveParams as APIKeyRetrieveParams,
     type APIKeyUpdateParams as APIKeyUpdateParams,
     type APIKeyListParams as APIKeyListParams,
   };
