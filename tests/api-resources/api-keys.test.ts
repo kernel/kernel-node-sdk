@@ -42,6 +42,14 @@ describe('resource apiKeys', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('retrieve: request options and params are passed correctly', async () => {
+    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
+    await expect(
+      client.apiKeys.retrieve('id', { include_deleted: true }, { path: '/_stainless_unknown_path' }),
+    ).rejects.toThrow(Kernel.NotFoundError);
+  });
+
+  // Mock server tests are disabled
   test.skip('update: only required params', async () => {
     const responsePromise = client.apiKeys.update('id', { name: 'new-api-name' });
     const rawResponse = await responsePromise.asResponse();
@@ -76,6 +84,7 @@ describe('resource apiKeys', () => {
     await expect(
       client.apiKeys.list(
         {
+          include_deleted: true,
           limit: 100,
           offset: 0,
           query: 'query',

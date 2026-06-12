@@ -23,6 +23,7 @@ import {
   APIKey,
   APIKeyCreateParams,
   APIKeyListParams,
+  APIKeyRetrieveParams,
   APIKeyUpdateParams,
   APIKeys,
   APIKeysOffsetPagination,
@@ -1158,6 +1159,7 @@ export declare namespace Kernel {
     type CreatedAPIKey as CreatedAPIKey,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
+    type APIKeyRetrieveParams as APIKeyRetrieveParams,
     type APIKeyUpdateParams as APIKeyUpdateParams,
     type APIKeyListParams as APIKeyListParams,
   };

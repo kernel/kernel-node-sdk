@@ -6,6 +6,7 @@ export {
   type APIKey,
   type CreatedAPIKey,
   type APIKeyCreateParams,
+  type APIKeyRetrieveParams,
   type APIKeyUpdateParams,
   type APIKeyListParams,
   type APIKeysOffsetPagination,
