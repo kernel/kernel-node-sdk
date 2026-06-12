@@ -152,6 +152,11 @@ export class OffsetPagination<Item> extends AbstractPage<Item> {
     // adding the current page length on top skips a full page per iteration.
     const offset = this.next_offset;
     if (offset == null) {
+      if (this.has_more) {
+        throw new KernelError(
+          'Server reported X-Has-More: true without an X-Next-Offset header; refusing to silently truncate pagination',
+        );
+      }
       return null;
     }
 
