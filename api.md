@@ -403,6 +403,7 @@ Methods:
 - <code title="patch /org/api_keys/{id}">client.apiKeys.<a href="./src/resources/api-keys.ts">update</a>(id, { ...params }) -> APIKey</code>
 - <code title="get /org/api_keys">client.apiKeys.<a href="./src/resources/api-keys.ts">list</a>({ ...params }) -> APIKeysOffsetPagination</code>
 - <code title="delete /org/api_keys/{id}">client.apiKeys.<a href="./src/resources/api-keys.ts">delete</a>(id) -> void</code>
+- <code title="post /org/api_keys/{id}/rotate">client.apiKeys.<a href="./src/resources/api-keys.ts">rotate</a>(id, { ...params }) -> CreatedAPIKey</code>
 
 # CredentialProviders
 

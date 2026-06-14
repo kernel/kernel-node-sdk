@@ -88,6 +88,24 @@ export class APIKeys extends APIResource {
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
   }
+
+  /**
+   * Rotate an API key. Issues a new key that copies the name and project of the
+   * rotated key, and schedules the rotated key to expire after a grace period so
+   * in-flight callers can swap over. The new plaintext key is returned once.
+   *
+   * @example
+   * ```ts
+   * const createdAPIKey = await client.apiKeys.rotate('id');
+   * ```
+   */
+  rotate(
+    id: string,
+    body: APIKeyRotateParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<CreatedAPIKey> {
+    return this._client.post(path`/org/api_keys/${id}/rotate`, { body, ...options });
+  }
 }
 
 export type APIKeysOffsetPagination = OffsetPagination<APIKey>;
@@ -230,6 +248,20 @@ export interface APIKeyListParams extends OffsetPaginationParams {
   sort_direction?: 'asc' | 'desc';
 }
 
+export interface APIKeyRotateParams {
+  /**
+   * Lifetime in days for the new key, up to 3650. Omit to reuse the rotated key's
+   * original lifetime, or never-expires if it had none.
+   */
+  days_to_expire?: number | null;
+
+  /**
+   * Grace period in days before the rotated key expires. Use 0 to expire it
+   * immediately. Omit for the default grace period of 7 days.
+   */
+  expire_in_days?: number | null;
+}
+
 export declare namespace APIKeys {
   export {
     type APIKey as APIKey,
@@ -239,5 +271,6 @@ export declare namespace APIKeys {
     type APIKeyRetrieveParams as APIKeyRetrieveParams,
     type APIKeyUpdateParams as APIKeyUpdateParams,
     type APIKeyListParams as APIKeyListParams,
+    type APIKeyRotateParams as APIKeyRotateParams,
   };
 }
