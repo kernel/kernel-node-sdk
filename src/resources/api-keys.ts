@@ -154,13 +154,6 @@ export interface APIKey {
    * project name is unavailable.
    */
   project_name: string | null;
-
-  /**
-   * Derived lifecycle status of the API key. `active` means usable. `expired` means
-   * past its expires_at. `deleted` means it was deleted (soft-deleted) and can no
-   * longer authenticate. Deleted takes precedence over expired.
-   */
-  status: 'active' | 'expired' | 'deleted';
 }
 
 export namespace APIKey {
@@ -226,8 +219,8 @@ export interface APIKeyUpdateParams {
 
 export interface APIKeyListParams extends OffsetPaginationParams {
   /**
-   * When true, include deleted (soft-deleted) API keys in the results for audit
-   * purposes. Defaults to false, which returns only live keys.
+   * Deprecated: use status=all instead. When true, include deleted (soft-deleted)
+   * API keys in the results for audit purposes.
    */
   include_deleted?: boolean;
 
@@ -246,6 +239,13 @@ export interface APIKeyListParams extends OffsetPaginationParams {
    * Sort direction for API keys.
    */
   sort_direction?: 'asc' | 'desc';
+
+  /**
+   * Filter API keys by status. "active" returns keys that are not deleted (default;
+   * expired-but-not-deleted keys are still included), "deleted" returns only
+   * soft-deleted keys, "all" returns both.
+   */
+  status?: 'active' | 'deleted' | 'all';
 }
 
 export interface APIKeyRotateParams {
