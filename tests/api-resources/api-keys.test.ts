@@ -90,6 +90,7 @@ describe('resource apiKeys', () => {
           query: 'query',
           sort_by: 'created_at',
           sort_direction: 'asc',
+          status: 'active',
         },
         { path: '/_stainless_unknown_path' },
       ),
