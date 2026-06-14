@@ -9,6 +9,7 @@ export {
   type APIKeyRetrieveParams,
   type APIKeyUpdateParams,
   type APIKeyListParams,
+  type APIKeyRotateParams,
   type APIKeysOffsetPagination,
 } from './api-keys';
 export {
