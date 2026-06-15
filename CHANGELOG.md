@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.68.0 (2026-06-15)
+
+Full Changelog: [v0.67.0...v0.68.0](https://github.com/kernel/kernel-node-sdk/compare/v0.67.0...v0.68.0)
+
+### Features
+
+* Add API key rotate endpoint ([c0d9f90](https://github.com/kernel/kernel-node-sdk/commit/c0d9f9023e79159def22465bb2249fdbd689cd98))
+* **api:** surface deleted/expired API keys for audit trail (KERNEL-1350) ([2b7164c](https://github.com/kernel/kernel-node-sdk/commit/2b7164c38b4ecc99faf594914a6e2c6b4b094afb))
+
+
+### Bug Fixes
+
+* **pagination:** fail loudly when X-Has-More contradicts a missing X-Next-Offset ([994749d](https://github.com/kernel/kernel-node-sdk/commit/994749dd56176dfae27a60d9b8df6bf10c335eb8))
+* **pagination:** stop on the X-Next-Offset 0 sentinel, not just has_more ([d318410](https://github.com/kernel/kernel-node-sdk/commit/d3184109680279c5c6565f730c874ae04c52a58d))
+* **pagination:** stop skipping a page per auto-pagination iteration ([f7bf2d9](https://github.com/kernel/kernel-node-sdk/commit/f7bf2d92d25c85be6b0b33d6ce738f75917dceff))
+
+
+### Styles
+
+* prettier-format pagination test ([16ee899](https://github.com/kernel/kernel-node-sdk/commit/16ee899f00f755d72db94fe7cd37c1af1770d51f))
+
+
+### Refactors
+
+* **api:** align API key audit surface with browser sibling (KERNEL-1350) ([faf4119](https://github.com/kernel/kernel-node-sdk/commit/faf4119ff60ad8805c20e01f05ea59684dc91205))
+
 ## 0.67.0 (2026-06-11)
 
 Full Changelog: [v0.66.0...v0.67.0](https://github.com/kernel/kernel-node-sdk/compare/v0.66.0...v0.67.0)
