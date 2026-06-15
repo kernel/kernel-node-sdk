@@ -2,9 +2,16 @@ import Kernel, { KernelError } from '@onkernel/sdk';
 import { OffsetPagination } from '@onkernel/sdk/core/pagination';
 import type { FinalRequestOptions } from '@onkernel/sdk/internal/request-options';
 
-const client = new Kernel({ apiKey: 'test-api-key', fetch: () => Promise.reject(new Error('unexpected request')) });
+const client = new Kernel({
+  apiKey: 'test-api-key',
+  fetch: () => Promise.reject(new Error('unexpected request')),
+});
 
-function pageWith(headers: Record<string, string>, items: unknown[], offset?: number): OffsetPagination<unknown> {
+function pageWith(
+  headers: Record<string, string>,
+  items: unknown[],
+  offset?: number,
+): OffsetPagination<unknown> {
   const options: FinalRequestOptions = {
     method: 'get',
     path: '/proxies',
