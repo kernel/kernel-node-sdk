@@ -34,9 +34,11 @@ describe('OffsetPagination', () => {
     expect(page.hasNextPage()).toBe(false);
   });
 
-  test('stops when X-Next-Offset is 0, the last-page sentinel', () => {
-    const page = pageWith({ 'x-next-offset': '0', 'x-has-more': 'false' }, new Array(50).fill({}), 100);
-    expect(page.hasNextPage()).toBe(false);
+  test('stops on the X-Next-Offset 0 sentinel even when X-Has-More is true', () => {
+    // Call nextPageRequestOptions directly with has_more=true so the has_more
+    // gate in hasNextPage() cannot mask it: the 0 offset alone must stop.
+    const page = pageWith({ 'x-next-offset': '0', 'x-has-more': 'true' }, new Array(50).fill({}), 100);
+    expect(page.nextPageRequestOptions()).toBeNull();
   });
 
   test('stops when X-Has-More is false even with a positive X-Next-Offset', () => {
