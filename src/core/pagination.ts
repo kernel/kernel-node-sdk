@@ -148,15 +148,29 @@ export class OffsetPagination<Item> extends AbstractPage<Item> {
   }
 
   nextPageRequestOptions(): PageRequestOptions | null {
-    const offset = this.next_offset ?? 0;
-    const length = this.getPaginatedItems().length;
-    const currentCount = offset + length;
+    // X-Next-Offset is the absolute start of the next page, or 0 on the last
+    // page (the API's stop sentinel). The old code added the current page
+    // length on top, skipping a full page per iteration. Only a positive
+    // offset advances; 0 is a value the server affirmatively sent to mean
+    // "no more", so we stop on it (matching the Go SDK pager).
+    const offset = this.next_offset;
+    if (offset == null) {
+      if (this.has_more) {
+        throw new KernelError(
+          'Server reported X-Has-More: true without an X-Next-Offset header; refusing to silently truncate pagination',
+        );
+      }
+      return null;
+    }
+    if (offset === 0) {
+      return null;
+    }
 
     return {
       ...this.options,
       query: {
         ...maybeObj(this.options.query),
-        offset: currentCount,
+        offset,
       },
     };
   }
