@@ -469,6 +469,11 @@ export interface DeploymentListParams extends OffsetPaginationParams {
    * Filter results by application version. Requires app_name to be set.
    */
   app_version?: string;
+
+  /**
+   * Search deployments by ID or app name.
+   */
+  query?: string;
 }
 
 export interface DeploymentFollowParams {

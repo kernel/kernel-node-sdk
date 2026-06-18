@@ -59,7 +59,14 @@ describe('resource proxies', () => {
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.proxies.list({ limit: 1, offset: 0 }, { path: '/_stainless_unknown_path' }),
+      client.proxies.list(
+        {
+          limit: 1,
+          offset: 0,
+          query: 'query',
+        },
+        { path: '/_stainless_unknown_path' },
+      ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 

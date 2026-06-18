@@ -609,7 +609,12 @@ export interface BrowserPoolUpdateParams {
   viewport?: Shared.BrowserViewport;
 }
 
-export interface BrowserPoolListParams extends OffsetPaginationParams {}
+export interface BrowserPoolListParams extends OffsetPaginationParams {
+  /**
+   * Search browser pools by name or ID.
+   */
+  query?: string;
+}
 
 export interface BrowserPoolDeleteParams {
   /**
