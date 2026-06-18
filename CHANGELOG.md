@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.69.0 (2026-06-18)
+
+Full Changelog: [v0.68.0...v0.69.0](https://github.com/kernel/kernel-node-sdk/compare/v0.68.0...v0.69.0)
+
+### Features
+
+* Add free-text search to remaining paginated list endpoints ([bc595a5](https://github.com/kernel/kernel-node-sdk/commit/bc595a51a8d1f53ec70b56ecf2fbc0ade8d471ff))
+
+
+### Bug Fixes
+
+* **client:** send content-type header for requests with an omitted optional body ([2cde4eb](https://github.com/kernel/kernel-node-sdk/commit/2cde4eb8a2469ffe31bad3462e9c3e3339d9bd7c))
+
 ## 0.68.0 (2026-06-15)
 
 Full Changelog: [v0.67.0...v0.68.0](https://github.com/kernel/kernel-node-sdk/compare/v0.67.0...v0.68.0)
