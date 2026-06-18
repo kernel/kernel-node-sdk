@@ -177,7 +177,12 @@ export interface ExtensionUploadResponse {
   name?: string | null;
 }
 
-export interface ExtensionListParams extends OffsetPaginationParams {}
+export interface ExtensionListParams extends OffsetPaginationParams {
+  /**
+   * Search extensions by name or ID.
+   */
+  query?: string;
+}
 
 export interface ExtensionDownloadFromChromeStoreParams {
   /**

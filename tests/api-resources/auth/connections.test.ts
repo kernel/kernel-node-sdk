@@ -91,6 +91,7 @@ describe('resource connections', () => {
           limit: 100,
           offset: 0,
           profile_name: 'profile_name',
+          query: 'query',
         },
         { path: '/_stainless_unknown_path' },
       ),

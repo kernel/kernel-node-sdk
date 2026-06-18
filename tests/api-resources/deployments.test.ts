@@ -54,6 +54,7 @@ describe('resource deployments', () => {
           app_version: 'app_version',
           limit: 1,
           offset: 0,
+          query: 'query',
         },
         { path: '/_stainless_unknown_path' },
       ),

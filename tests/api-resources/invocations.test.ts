@@ -88,6 +88,7 @@ describe('resource invocations', () => {
           deployment_id: 'deployment_id',
           limit: 1,
           offset: 0,
+          query: 'query',
           since: '2025-06-20T12:00:00Z',
           status: 'queued',
           version: 'version',

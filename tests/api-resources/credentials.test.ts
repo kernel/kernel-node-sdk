@@ -80,6 +80,7 @@ describe('resource credentials', () => {
           domain: 'domain',
           limit: 100,
           offset: 0,
+          query: 'query',
         },
         { path: '/_stainless_unknown_path' },
       ),

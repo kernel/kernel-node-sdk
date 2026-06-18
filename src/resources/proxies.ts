@@ -824,7 +824,12 @@ export namespace ProxyCreateParams {
   }
 }
 
-export interface ProxyListParams extends OffsetPaginationParams {}
+export interface ProxyListParams extends OffsetPaginationParams {
+  /**
+   * Search proxies by name, host, IP address, or ID.
+   */
+  query?: string;
+}
 
 export interface ProxyCheckParams {
   /**
