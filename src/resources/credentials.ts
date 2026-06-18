@@ -305,6 +305,11 @@ export interface CredentialListParams extends OffsetPaginationParams {
    * Filter by domain
    */
   domain?: string;
+
+  /**
+   * Search credentials by name, domain, or ID.
+   */
+  query?: string;
 }
 
 export declare namespace Credentials {

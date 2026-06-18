@@ -344,7 +344,12 @@ export interface CredentialProviderUpdateParams {
   priority?: number;
 }
 
-export interface CredentialProviderListParams extends OffsetPaginationParams {}
+export interface CredentialProviderListParams extends OffsetPaginationParams {
+  /**
+   * Search credential providers by name or ID.
+   */
+  query?: string;
+}
 
 export declare namespace CredentialProviders {
   export {

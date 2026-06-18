@@ -1398,6 +1398,11 @@ export interface ConnectionListParams extends OffsetPaginationParams {
    * Filter by profile name
    */
   profile_name?: string;
+
+  /**
+   * Search auth connections by ID, domain, or profile name.
+   */
+  query?: string;
 }
 
 export interface ConnectionLoginParams {

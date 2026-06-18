@@ -614,6 +614,11 @@ export interface InvocationListParams extends OffsetPaginationParams {
   deployment_id?: string;
 
   /**
+   * Search invocations by ID, app name, or action name.
+   */
+  query?: string;
+
+  /**
    * Show invocations that have started since the given time (RFC timestamps or
    * durations like 5m).
    */
