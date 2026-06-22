@@ -213,7 +213,9 @@ export namespace BrowserPool {
     extensions?: Array<Shared.BrowserExtension>;
 
     /**
-     * Percentage of the pool to fill per minute. Defaults to 10%.
+     * Percentage of the pool to fill per minute. Defaults to 10. The cap is 25 for
+     * most organizations but can be raised per-organization, so only the lower bound
+     * is enforced here.
      */
     fill_rate_per_minute?: number;
 
@@ -263,7 +265,7 @@ export namespace BrowserPool {
 
     /**
      * Default idle timeout in seconds for browsers acquired from this pool before they
-     * are destroyed. Defaults to 600 seconds if not specified
+     * are destroyed. Defaults to 600 seconds. Minimum 10, maximum 259200 (72 hours).
      */
     timeout_seconds?: number;
 
@@ -439,7 +441,9 @@ export interface BrowserPoolCreateParams {
   extensions?: Array<Shared.BrowserExtension>;
 
   /**
-   * Percentage of the pool to fill per minute. Defaults to 10%.
+   * Percentage of the pool to fill per minute. Defaults to 10. The cap is 25 for
+   * most organizations but can be raised per-organization, so only the lower bound
+   * is enforced here.
    */
   fill_rate_per_minute?: number;
 
@@ -489,7 +493,7 @@ export interface BrowserPoolCreateParams {
 
   /**
    * Default idle timeout in seconds for browsers acquired from this pool before they
-   * are destroyed. Defaults to 600 seconds if not specified
+   * are destroyed. Defaults to 600 seconds. Minimum 10, maximum 259200 (72 hours).
    */
   timeout_seconds?: number;
 
@@ -531,7 +535,9 @@ export interface BrowserPoolUpdateParams {
   extensions?: Array<Shared.BrowserExtension>;
 
   /**
-   * Percentage of the pool to fill per minute. Defaults to 10%.
+   * Percentage of the pool to fill per minute. Defaults to 10. The cap is 25 for
+   * most organizations but can be raised per-organization, so only the lower bound
+   * is enforced here.
    */
   fill_rate_per_minute?: number;
 
@@ -588,7 +594,7 @@ export interface BrowserPoolUpdateParams {
 
   /**
    * Default idle timeout in seconds for browsers acquired from this pool before they
-   * are destroyed. Defaults to 600 seconds if not specified
+   * are destroyed. Defaults to 600 seconds. Minimum 10, maximum 259200 (72 hours).
    */
   timeout_seconds?: number;
 
