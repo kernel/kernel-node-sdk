@@ -38,7 +38,7 @@ describe('resource browserPools', () => {
       proxy_id: 'proxy_id',
       start_url: 'https://example.com',
       stealth: true,
-      timeout_seconds: 60,
+      timeout_seconds: 10,
       viewport: {
         height: 800,
         width: 1280,
