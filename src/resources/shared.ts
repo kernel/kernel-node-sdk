@@ -79,18 +79,18 @@ export interface BrowserProfile {
  */
 export interface BrowserViewport {
   /**
-   * Browser window height in pixels.
+   * Browser window height in pixels. Any positive integer is accepted.
    */
   height: number;
 
   /**
-   * Browser window width in pixels.
+   * Browser window width in pixels. Any positive integer is accepted.
    */
   width: number;
 
   /**
-   * Display refresh rate in Hz. If omitted, automatically determined from width and
-   * height.
+   * Display refresh rate in Hz. Any positive integer is accepted; if omitted,
+   * automatically determined from width and height.
    */
   refresh_rate?: number;
 }
