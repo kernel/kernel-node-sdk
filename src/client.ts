@@ -87,6 +87,7 @@ import {
 import { KernelApp } from './core/app-framework';
 import {
   ExtensionDownloadFromChromeStoreParams,
+  ExtensionGetResponse,
   ExtensionListParams,
   ExtensionListResponse,
   ExtensionListResponsesOffsetPagination,
@@ -1117,6 +1118,7 @@ export declare namespace Kernel {
   export {
     Extensions as Extensions,
     type ExtensionListResponse as ExtensionListResponse,
+    type ExtensionGetResponse as ExtensionGetResponse,
     type ExtensionUploadResponse as ExtensionUploadResponse,
     type ExtensionListResponsesOffsetPagination as ExtensionListResponsesOffsetPagination,
     type ExtensionListParams as ExtensionListParams,
