@@ -3,6 +3,7 @@
 import { APIResource } from '../../core/resource';
 import * as TelemetryAPI from './telemetry';
 import { APIPromise } from '../../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
 import { Stream } from '../../core/streaming';
 import { buildHeaders } from '../../internal/headers';
 import { RequestOptions } from '../../internal/request-options';
@@ -12,6 +13,34 @@ import { path } from '../../internal/utils/path';
  * Stream live telemetry events from a browser session.
  */
 export class Telemetry extends APIResource {
+  /**
+   * Reads a page of telemetry events for the browser session in ascending sequence
+   * order. To page through results, pass the X-Next-Offset value from the previous
+   * response as offset and repeat while X-Has-More is true. Returns an empty list
+   * when telemetry data is unavailable.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const telemetryEventsResponse of client.browsers.telemetry.events(
+   *   'id',
+   * )) {
+   *   // ...
+   * }
+   * ```
+   */
+  events(
+    id: string,
+    query: TelemetryEventsParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<TelemetryEventsResponsesOffsetPagination, TelemetryEventsResponse> {
+    return this._client.getAPIList(
+      path`/browsers/${id}/telemetry/events`,
+      OffsetPagination<TelemetryEventsResponse>,
+      { query, ...options },
+    );
+  }
+
   /**
    * Streams browser telemetry events as a server-sent events (SSE) stream. The
    * stream closes when the browser session terminates. Each event frame includes an
@@ -50,6 +79,8 @@ export class Telemetry extends APIResource {
     }) as APIPromise<Stream<TelemetryStreamResponse>>;
   }
 }
+
+export type TelemetryEventsResponsesOffsetPagination = OffsetPagination<TelemetryEventsResponse>;
 
 /**
  * An agent-driven HTTP call handled by the in-VM API server.
@@ -1980,6 +2011,32 @@ export type BrowserTelemetryEvent =
  * Each SSE data: frame carries one envelope as JSON. The seq value is also emitted
  * as the SSE id: field so clients can pass it as Last-Event-ID on reconnect.
  */
+export interface TelemetryEventsResponse {
+  /**
+   * Union type representing any browser telemetry event. Discriminated on `type`.
+   * Each event's `category` determines when it is captured. The CDP collector-health
+   * events (monitor_disconnected, monitor_reconnected, monitor_reconnect_failed,
+   * monitor_init_failed) use the `monitor` category, which is not user-configurable:
+   * it flows automatically whenever any CDP category (console, network, page,
+   * interaction) is captured, and is silent otherwise. monitor_screenshot uses the
+   * opt-in `screenshot` category. All other event types are controlled by their
+   * per-category enable/disable flags.
+   */
+  event: BrowserTelemetryEvent;
+
+  /**
+   * Process-monotonic sequence number assigned by the browser VM. Pass as
+   * Last-Event-ID on reconnect to resume without gaps. Gaps in received seq values
+   * indicate dropped events.
+   */
+  seq: number;
+}
+
+/**
+ * Envelope wrapping a browser telemetry event with its monotonic sequence number.
+ * Each SSE data: frame carries one envelope as JSON. The seq value is also emitted
+ * as the SSE id: field so clients can pass it as Last-Event-ID on reconnect.
+ */
 export interface TelemetryStreamResponse {
   /**
    * Union type representing any browser telemetry event. Discriminated on `type`.
@@ -1999,6 +2056,37 @@ export interface TelemetryStreamResponse {
    * indicate dropped events.
    */
   seq: number;
+}
+
+export interface TelemetryEventsParams extends OffsetPaginationParams {
+  /**
+   * Restrict results to these event categories. Repeat the parameter for multiple
+   * values.
+   */
+  category?: Array<
+    | 'console'
+    | 'network'
+    | 'page'
+    | 'interaction'
+    | 'control'
+    | 'connection'
+    | 'system'
+    | 'screenshot'
+    | 'captcha'
+    | 'monitor'
+  >;
+
+  /**
+   * Start of the window: an RFC-3339 timestamp, or a duration like 5m meaning that
+   * long ago. Defaults to 5m. Ignored when offset is set.
+   */
+  since?: string;
+
+  /**
+   * End of the window (exclusive): an RFC-3339 timestamp, or a duration like 5m
+   * meaning that long ago.
+   */
+  until?: string;
 }
 
 export interface TelemetryStreamParams {
@@ -2057,7 +2145,10 @@ export declare namespace Telemetry {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type TelemetryEventsResponse as TelemetryEventsResponse,
     type TelemetryStreamResponse as TelemetryStreamResponse,
+    type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,
+    type TelemetryEventsParams as TelemetryEventsParams,
     type TelemetryStreamParams as TelemetryStreamParams,
   };
 }

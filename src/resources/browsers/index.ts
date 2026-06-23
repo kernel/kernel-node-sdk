@@ -120,6 +120,9 @@ export {
   type BrowserTelemetryCategoryConfig,
   type BrowserTelemetryConfig,
   type BrowserTelemetryEvent,
+  type TelemetryEventsResponse,
   type TelemetryStreamResponse,
+  type TelemetryEventsParams,
   type TelemetryStreamParams,
+  type TelemetryEventsResponsesOffsetPagination,
 } from './telemetry';

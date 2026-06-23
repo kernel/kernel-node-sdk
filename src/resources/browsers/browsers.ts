@@ -91,6 +91,9 @@ import {
   BrowserTelemetryConfig,
   BrowserTelemetryEvent,
   Telemetry as TelemetryAPITelemetry,
+  TelemetryEventsParams,
+  TelemetryEventsResponse,
+  TelemetryEventsResponsesOffsetPagination,
   TelemetryStreamParams,
   TelemetryStreamResponse,
 } from './telemetry';
@@ -1261,7 +1264,10 @@ export declare namespace Browsers {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type TelemetryEventsResponse as TelemetryEventsResponse,
     type TelemetryStreamResponse as TelemetryStreamResponse,
+    type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,
+    type TelemetryEventsParams as TelemetryEventsParams,
     type TelemetryStreamParams as TelemetryStreamParams,
   };
 
