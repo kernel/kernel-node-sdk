@@ -128,10 +128,12 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoryConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">TelemetryEventsResponse</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">TelemetryStreamResponse</a></code>
 
 Methods:
 
+- <code title="get /browsers/{id}/telemetry/events">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">events</a>(id, { ...params }) -> TelemetryEventsResponsesOffsetPagination</code>
 - <code title="get /browsers/{id}/telemetry/stream">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">stream</a>(id, { ...params }) -> TelemetryStreamResponse</code>
 
 ## Replays
