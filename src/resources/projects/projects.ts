@@ -30,7 +30,7 @@ export class Projects extends APIResource {
   }
 
   /**
-   * Get a project by ID.
+   * Get a project by its ID or by its name. Names are unique within an organization.
    *
    * @example
    * ```ts
