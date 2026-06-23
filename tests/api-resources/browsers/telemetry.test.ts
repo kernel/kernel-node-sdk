@@ -26,7 +26,7 @@ describe('resource telemetry', () => {
     await expect(
       client.browsers.telemetry.stream(
         'id',
-        { 'Last-Event-ID': 'Last-Event-ID' },
+        { replay: 'replay', 'Last-Event-ID': 'Last-Event-ID' },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);
