@@ -647,6 +647,13 @@ export interface BrowserPoolAcquireParams {
   name?: string;
 
   /**
+   * Optional URL to navigate the acquired browser to. Overrides the pool's start_url
+   * for this acquire only. Best-effort: failures to navigate do not fail the
+   * acquire.
+   */
+  start_url?: string;
+
+  /**
    * Optional user-defined key-value tags for the acquired browser session, used to
    * find and group sessions later. Applies to this lease only and are cleared when
    * the browser is released back to the pool. Up to 50 pairs.
