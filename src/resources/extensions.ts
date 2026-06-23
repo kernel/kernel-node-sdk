@@ -98,6 +98,19 @@ export class Extensions extends APIResource {
   }
 
   /**
+   * Get an extension's metadata (name, size, timestamps) by ID or name, without
+   * downloading the archive.
+   *
+   * @example
+   * ```ts
+   * const extension = await client.extensions.get('id_or_name');
+   * ```
+   */
+  get(idOrName: string, options?: RequestOptions): APIPromise<ExtensionGetResponse> {
+    return this._client.get(path`/extensions/${idOrName}/metadata`, options);
+  }
+
+  /**
    * Upload a zip file containing an unpacked browser extension. Optionally provide a
    * unique name for later reference.
    *
@@ -119,6 +132,37 @@ export type ExtensionListResponsesOffsetPagination = OffsetPagination<ExtensionL
  * A browser extension uploaded to Kernel.
  */
 export interface ExtensionListResponse {
+  /**
+   * Unique identifier for the extension
+   */
+  id: string;
+
+  /**
+   * Timestamp when the extension was created
+   */
+  created_at: string;
+
+  /**
+   * Size of the extension archive in bytes
+   */
+  size_bytes: number;
+
+  /**
+   * Timestamp when the extension was last used
+   */
+  last_used_at?: string | null;
+
+  /**
+   * Optional, easier-to-reference name for the extension. Must be unique within the
+   * project.
+   */
+  name?: string | null;
+}
+
+/**
+ * A browser extension uploaded to Kernel.
+ */
+export interface ExtensionGetResponse {
   /**
    * Unique identifier for the extension
    */
@@ -211,6 +255,7 @@ export interface ExtensionUploadParams {
 export declare namespace Extensions {
   export {
     type ExtensionListResponse as ExtensionListResponse,
+    type ExtensionGetResponse as ExtensionGetResponse,
     type ExtensionUploadResponse as ExtensionUploadResponse,
     type ExtensionListResponsesOffsetPagination as ExtensionListResponsesOffsetPagination,
     type ExtensionListParams as ExtensionListParams,

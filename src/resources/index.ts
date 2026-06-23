@@ -90,6 +90,7 @@ export {
 export {
   Extensions,
   type ExtensionListResponse,
+  type ExtensionGetResponse,
   type ExtensionUploadResponse,
   type ExtensionListParams,
   type ExtensionDownloadFromChromeStoreParams,

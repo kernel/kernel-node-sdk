@@ -301,6 +301,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/extensions.ts">ExtensionListResponse</a></code>
+- <code><a href="./src/resources/extensions.ts">ExtensionGetResponse</a></code>
 - <code><a href="./src/resources/extensions.ts">ExtensionUploadResponse</a></code>
 
 Methods:
@@ -309,6 +310,7 @@ Methods:
 - <code title="delete /extensions/{id_or_name}">client.extensions.<a href="./src/resources/extensions.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /extensions/{id_or_name}">client.extensions.<a href="./src/resources/extensions.ts">download</a>(idOrName) -> Response</code>
 - <code title="get /extensions/from_chrome_store">client.extensions.<a href="./src/resources/extensions.ts">downloadFromChromeStore</a>({ ...params }) -> Response</code>
+- <code title="get /extensions/{id_or_name}/metadata">client.extensions.<a href="./src/resources/extensions.ts">get</a>(idOrName) -> ExtensionGetResponse</code>
 - <code title="post /extensions">client.extensions.<a href="./src/resources/extensions.ts">upload</a>({ ...params }) -> ExtensionUploadResponse</code>
 
 # BrowserPools
