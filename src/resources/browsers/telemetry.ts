@@ -20,7 +20,8 @@ export class Telemetry extends APIResource {
    * set; all frames carry JSON in the data: field. A keepalive comment frame is sent
    * every 15 seconds when no events arrive. Returns 404 if the browser session does
    * not exist. If telemetry was not enabled on the session, the stream opens but no
-   * events are delivered.
+   * events are delivered. Fresh connections only see new events; pass replay=all to
+   * start from the oldest retained event instead.
    *
    * @example
    * ```ts
@@ -34,8 +35,9 @@ export class Telemetry extends APIResource {
     params: TelemetryStreamParams | undefined = {},
     options?: RequestOptions,
   ): APIPromise<Stream<TelemetryStreamResponse>> {
-    const { 'Last-Event-ID': lastEventID } = params ?? {};
+    const { 'Last-Event-ID': lastEventID, ...query } = params ?? {};
     return this._client.get(path`/browsers/${id}/telemetry/stream`, {
+      query,
       ...options,
       headers: buildHeaders([
         {
@@ -2001,8 +2003,16 @@ export interface TelemetryStreamResponse {
 
 export interface TelemetryStreamParams {
   /**
-   * Last event sequence number for SSE reconnection (sent by SSE clients on
-   * reconnect)
+   * Query param: Pass `all` to start from the oldest retained event instead of only
+   * new events; any other value is treated as from-now. The buffer is bounded, so
+   * the first event id may be greater than 1 if older events were evicted.
+   */
+  replay?: string;
+
+  /**
+   * Header param: Last event sequence number for SSE reconnection (sent by SSE
+   * clients on reconnect). Takes precedence over replay when both are present, so
+   * reconnect resumes instead of re-replaying.
    */
   'Last-Event-ID'?: string;
 }
