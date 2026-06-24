@@ -18,6 +18,12 @@ export {
   type AppListParams,
   type AppListResponsesOffsetPagination,
 } from './apps';
+export {
+  AuditLogs,
+  type AuditLogEntry,
+  type AuditLogListParams,
+  type AuditLogEntriesPageTokenPagination,
+} from './audit-logs';
 export { Auth } from './auth/auth';
 export {
   BrowserPools,

@@ -107,6 +107,62 @@ export class PagePromise<
   }
 }
 
+export type PageTokenPaginationResponse<Item> = Item[];
+
+export interface PageTokenPaginationParams {
+  page_token?: string;
+
+  limit?: number;
+}
+
+export class PageTokenPagination<Item> extends AbstractPage<Item> {
+  items: Array<Item>;
+
+  next_page_token: string | null;
+
+  has_more: boolean | null;
+
+  constructor(
+    client: Kernel,
+    response: Response,
+    body: PageTokenPaginationResponse<Item>,
+    options: FinalRequestOptions,
+  ) {
+    super(client, response, body, options);
+
+    this.items = body || [];
+    this.next_page_token = this.response.headers.get('x-next-page-token') ?? null;
+    this.has_more = maybeCoerceBoolean(this.response.headers.get('x-has-more')) ?? null;
+  }
+
+  getPaginatedItems(): Item[] {
+    return this.items ?? [];
+  }
+
+  override hasNextPage(): boolean {
+    if (this.has_more === false) {
+      return false;
+    }
+
+    return super.hasNextPage();
+  }
+
+  nextPageRequestOptions(): PageRequestOptions | null {
+    const cursor = this.next_page_token;
+    if (!cursor) {
+      return null;
+    }
+
+    return {
+      ...this.options,
+      query: {
+        ...maybeObj(this.options.query),
+        page_token: cursor,
+      },
+    };
+  }
+}
+
 export type OffsetPaginationResponse<Item> = Item[];
 
 export interface OffsetPaginationParams {
