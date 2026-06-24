@@ -393,6 +393,16 @@ Methods:
 - <code title="get /org/limits">client.organization.limits.<a href="./src/resources/organization/limits.ts">retrieve</a>() -> OrgLimits</code>
 - <code title="patch /org/limits">client.organization.limits.<a href="./src/resources/organization/limits.ts">update</a>({ ...params }) -> OrgLimits</code>
 
+# AuditLogs
+
+Types:
+
+- <code><a href="./src/resources/audit-logs.ts">AuditLogEntry</a></code>
+
+Methods:
+
+- <code title="get /audit-logs">client.auditLogs.<a href="./src/resources/audit-logs.ts">list</a>({ ...params }) -> AuditLogEntriesPageTokenPagination</code>
+
 # APIKeys
 
 Types:

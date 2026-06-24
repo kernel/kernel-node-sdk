@@ -15,7 +15,13 @@ import { stringifyQuery } from './internal/utils/query';
 import { VERSION } from './version';
 import * as Errors from './core/error';
 import * as Pagination from './core/pagination';
-import { AbstractPage, type OffsetPaginationParams, OffsetPaginationResponse } from './core/pagination';
+import {
+  AbstractPage,
+  type OffsetPaginationParams,
+  OffsetPaginationResponse,
+  type PageTokenPaginationParams,
+  PageTokenPaginationResponse,
+} from './core/pagination';
 import * as Uploads from './core/uploads';
 import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
@@ -36,6 +42,12 @@ import {
   browserRoutingSubresourcesFromEnv,
   createRoutingFetch,
 } from './lib/browser-routing';
+import {
+  AuditLogEntriesPageTokenPagination,
+  AuditLogEntry,
+  AuditLogListParams,
+  AuditLogs,
+} from './resources/audit-logs';
 import {
   BrowserPool,
   BrowserPoolAcquireParams,
@@ -1006,6 +1018,10 @@ export class Kernel {
   projects: API.Projects = new API.Projects(this);
   organization: API.Organization = new API.Organization(this);
   /**
+   * Read audit log records for the authenticated organization.
+   */
+  auditLogs: API.AuditLogs = new API.AuditLogs(this);
+  /**
    * Create and manage API keys for organization and project-scoped access.
    */
   apiKeys: API.APIKeys = new API.APIKeys(this);
@@ -1027,11 +1043,18 @@ Kernel.BrowserPools = BrowserPools;
 Kernel.Credentials = Credentials;
 Kernel.Projects = Projects;
 Kernel.Organization = Organization;
+Kernel.AuditLogs = AuditLogs;
 Kernel.APIKeys = APIKeys;
 Kernel.CredentialProviders = CredentialProviders;
 
 export declare namespace Kernel {
   export type RequestOptions = Opts.RequestOptions;
+
+  export import PageTokenPagination = Pagination.PageTokenPagination;
+  export {
+    type PageTokenPaginationParams as PageTokenPaginationParams,
+    type PageTokenPaginationResponse as PageTokenPaginationResponse,
+  };
 
   export import OffsetPagination = Pagination.OffsetPagination;
   export {
@@ -1163,6 +1186,13 @@ export declare namespace Kernel {
   };
 
   export { Organization as Organization };
+
+  export {
+    AuditLogs as AuditLogs,
+    type AuditLogEntry as AuditLogEntry,
+    type AuditLogEntriesPageTokenPagination as AuditLogEntriesPageTokenPagination,
+    type AuditLogListParams as AuditLogListParams,
+  };
 
   export {
     APIKeys as APIKeys,
