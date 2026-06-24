@@ -28,7 +28,10 @@ export class BrowserRouteCache {
 }
 
 const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
-const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl', 'telemetry'];
+// Path prefixes eligible for direct-to-VM routing. "telemetry/stream" is the live
+// SSE endpoint (served by the VM); "telemetry/events" is a historical read served
+// by the control plane (S2) and must NOT be here.
+const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl', 'telemetry/stream'];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
 const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/?$/;
 const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
@@ -62,7 +65,7 @@ export function createRoutingFetch(
     cache: BrowserRouteCache;
   },
 ): Fetch {
-  const allowed = new Set([...subresources].map((value) => value.trim()).filter(Boolean));
+  const allowed = [...subresources].map((value) => value.trim().replace(/^\/+|\/+$/g, '')).filter(Boolean);
   const apiOrigin = new URL(apiBaseURL).origin;
 
   return async (input, init) => {
@@ -202,6 +205,16 @@ function populateCache(value: unknown, cache: BrowserRouteCache): void {
   }
 }
 
+// matchesDirectVMPrefix reports whether tail (the path after browsers/{id}/) is
+// covered by an allow prefix, matching on segment boundaries: "telemetry/stream"
+// matches "telemetry/stream" and "telemetry/stream/...", but not "telemetry/events"
+// or "telemetry/streamfoo". Keeps historical control-plane reads (telemetry/events,
+// served from S2) off the VM.
+export function matchesDirectVMPrefix(tail: string, prefixes: readonly string[]): boolean {
+  const t = tail.replace(/^\/+|\/+$/g, '');
+  return prefixes.some((p) => t === p || t.startsWith(p + '/'));
+}
+
 async function routeRequest(
   innerFetch: Fetch,
   {
@@ -214,7 +227,7 @@ async function routeRequest(
     request: Request;
   },
   apiOrigin: string,
-  allowed: ReadonlySet<string>,
+  allowed: readonly string[],
   cache: BrowserRouteCache,
 ): Promise<Response> {
   const url = new URL(request.url);
@@ -229,7 +242,7 @@ async function routeRequest(
 
   const sessionId = decodeURIComponent(match[1] ?? '');
   const subresource = match[2] ?? '';
-  if (!sessionId || !allowed.has(subresource)) {
+  if (!sessionId || !matchesDirectVMPrefix(subresource + (match[3] ?? ''), allowed)) {
     return innerFetch(input, init);
   }
   const route = cache.get(sessionId);

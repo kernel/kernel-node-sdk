@@ -4,6 +4,7 @@ import {
   BrowserRouteCache,
   browserRoutingSubresourcesFromEnv,
   createRoutingFetch,
+  matchesDirectVMPrefix,
 } from '../../src/lib/browser-routing';
 
 describe('browser routing', () => {
@@ -381,10 +382,21 @@ describe('browser routing', () => {
     ).rejects.toThrow(/unsupported HTTP method/i);
   });
 
-  test('defaults browser routing subresources to curl and telemetry when env is unset', async () => {
+  test('defaults browser routing subresources to curl and telemetry/stream when env is unset', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
-      expect(browserRoutingSubresourcesFromEnv()).toEqual(['curl', 'telemetry']);
+      expect(browserRoutingSubresourcesFromEnv()).toEqual(['curl', 'telemetry/stream']);
     });
+  });
+
+  test('allowlist matching is segment-boundary aware (telemetry/events stays on the control plane)', () => {
+    const prefixes = ['curl', 'telemetry/stream'];
+    expect(matchesDirectVMPrefix('telemetry/stream', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('telemetry/stream/x', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('telemetry/events', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('telemetry/streaming-config', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('telemetry', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('curl/raw', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('fs/read', prefixes)).toBe(false);
   });
 
   test('routes telemetry stream calls to the VM /telemetry/stream path by default', async () => {
