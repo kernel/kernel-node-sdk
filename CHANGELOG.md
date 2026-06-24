@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.70.0 (2026-06-24)
+
+Full Changelog: [v0.69.0...v0.70.0](https://github.com/kernel/kernel-node-sdk/compare/v0.69.0...v0.70.0)
+
+### Features
+
+* Add GET /browsers/{id}/telemetry/events (read from S2) ([ea6e530](https://github.com/kernel/kernel-node-sdk/commit/ea6e530b0b5a6a0c9894d210d11561cafd6efce0))
+* Align browser-pool timeout/viewport/fill-rate contract with implementation; reject save_changes on update ([3d11ac3](https://github.com/kernel/kernel-node-sdk/commit/3d11ac39a69d4ac0692e3a382d7fe8a7c09a6b18))
+* api: support per-acquire start_url override on browser pool acquire ([9c18267](https://github.com/kernel/kernel-node-sdk/commit/9c182671033468c6d1ee262938cf69991310947e))
+* **api:** add GET /extensions/{id_or_name}/metadata ([7d4d430](https://github.com/kernel/kernel-node-sdk/commit/7d4d43047db620474d7216543516775a56598b5d))
+* **api:** resolve GET /org/projects/{id} by ID or name ([8503b01](https://github.com/kernel/kernel-node-sdk/commit/8503b0141181d9501710befe7e4b592631250feb))
+* Forward replay param through telemetry stream passthrough ([feafd18](https://github.com/kernel/kernel-node-sdk/commit/feafd18c80e73aa304dd3628d23f10dc288c8ab8))
+
+
+### Bug Fixes
+
+* don't misroute telemetry/events to the browser VM ([2f75392](https://github.com/kernel/kernel-node-sdk/commit/2f75392bef0d5fabebcf0d6e86f3a8ea8794138e))
+
 ## 0.69.0 (2026-06-18)
 
 Full Changelog: [v0.68.0...v0.69.0](https://github.com/kernel/kernel-node-sdk/compare/v0.68.0...v0.69.0)
