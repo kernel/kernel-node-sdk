@@ -152,9 +152,38 @@ export class Connections extends APIResource {
   ): APIPromise<SubmitFieldsResponse> {
     return this._client.post(path`/auth/connections/${id}/submit`, { body, ...options });
   }
+
+  /**
+   * Returns a chronological timeline of events for an auth connection — login
+   * attempts, automatic re-auth attempts, and health checks. Events are returned
+   * newest-first.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const managedAuthTimelineEvent of client.auth.connections.timeline(
+   *   'id',
+   * )) {
+   *   // ...
+   * }
+   * ```
+   */
+  timeline(
+    id: string,
+    query: ConnectionTimelineParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<ManagedAuthTimelineEventsOffsetPagination, ManagedAuthTimelineEvent> {
+    return this._client.getAPIList(
+      path`/auth/connections/${id}/timeline`,
+      OffsetPagination<ManagedAuthTimelineEvent>,
+      { query, ...options },
+    );
+  }
 }
 
 export type ManagedAuthsOffsetPagination = OffsetPagination<ManagedAuth>;
+
+export type ManagedAuthTimelineEventsOffsetPagination = OffsetPagination<ManagedAuthTimelineEvent>;
 
 /**
  * Response from starting a login flow
@@ -762,6 +791,81 @@ export namespace ManagedAuthCreateRequest {
      */
     name?: string;
   }
+}
+
+/**
+ * A single event in an auth connection's history — a login attempt, an automatic
+ * re-auth attempt, or a health check.
+ */
+export interface ManagedAuthTimelineEvent {
+  /**
+   * Identifier of the underlying login/reauth session or health check.
+   */
+  id: string;
+
+  /**
+   * Outcome of the event. For login/reauth events this is the flow status
+   * (IN_PROGRESS, SUCCESS, EXPIRED, CANCELED, FAILED). For health_check events it is
+   * the observed session state (AUTHENTICATED, NEEDS_AUTH).
+   */
+  status: 'IN_PROGRESS' | 'SUCCESS' | 'EXPIRED' | 'CANCELED' | 'FAILED' | 'AUTHENTICATED' | 'NEEDS_AUTH';
+
+  /**
+   * When the event occurred.
+   */
+  timestamp: string;
+
+  /**
+   * The kind of event. "login" and "reauth" are authentication attempts;
+   * "health_check" is a periodic session-validity check.
+   */
+  type: 'login' | 'reauth' | 'health_check';
+
+  /**
+   * Machine-readable error code. Present when a login/reauth event failed.
+   */
+  error_code?: string;
+
+  /**
+   * Human-readable error message. Present when a login/reauth event failed.
+   */
+  error_message?: string;
+
+  /**
+   * The session state observed before this event. Present for health_check events
+   * that recorded a prior state.
+   */
+  previous_status?: 'AUTHENTICATED' | 'NEEDS_AUTH';
+
+  /**
+   * Replay recording ID for the event's browser session, if session recording was
+   * enabled.
+   */
+  replay_id?: string;
+
+  /**
+   * The step the flow reached. Present for login/reauth events.
+   */
+  step?:
+    | 'INITIALIZED'
+    | 'DISCOVERING'
+    | 'AWAITING_INPUT'
+    | 'AWAITING_EXTERNAL_ACTION'
+    | 'AWAITING_HUMAN_INTERVENTION'
+    | 'SUBMITTING'
+    | 'COMPLETED'
+    | 'EXPIRED';
+
+  /**
+   * When the event was last updated. Present for login/reauth events.
+   */
+  updated_at?: string;
+
+  /**
+   * Visible error message from the website (e.g., 'Incorrect password'). Present
+   * when the website displayed an error during the attempt.
+   */
+  website_error?: string;
 }
 
 /**
@@ -1466,20 +1570,30 @@ export interface ConnectionSubmitParams {
   sso_provider?: string;
 }
 
+export interface ConnectionTimelineParams extends OffsetPaginationParams {
+  /**
+   * Filter the timeline to a single event type.
+   */
+  type?: 'login' | 'reauth' | 'health_check';
+}
+
 export declare namespace Connections {
   export {
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,
+    type ManagedAuthTimelineEvent as ManagedAuthTimelineEvent,
     type ManagedAuthUpdateRequest as ManagedAuthUpdateRequest,
     type SubmitFieldsRequest as SubmitFieldsRequest,
     type SubmitFieldsResponse as SubmitFieldsResponse,
     type ConnectionFollowResponse as ConnectionFollowResponse,
     type ManagedAuthsOffsetPagination as ManagedAuthsOffsetPagination,
+    type ManagedAuthTimelineEventsOffsetPagination as ManagedAuthTimelineEventsOffsetPagination,
     type ConnectionCreateParams as ConnectionCreateParams,
     type ConnectionUpdateParams as ConnectionUpdateParams,
     type ConnectionListParams as ConnectionListParams,
     type ConnectionLoginParams as ConnectionLoginParams,
     type ConnectionSubmitParams as ConnectionSubmitParams,
+    type ConnectionTimelineParams as ConnectionTimelineParams,
   };
 }

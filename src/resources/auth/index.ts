@@ -6,6 +6,7 @@ export {
   type LoginResponse,
   type ManagedAuth,
   type ManagedAuthCreateRequest,
+  type ManagedAuthTimelineEvent,
   type ManagedAuthUpdateRequest,
   type SubmitFieldsRequest,
   type SubmitFieldsResponse,
@@ -15,5 +16,7 @@ export {
   type ConnectionListParams,
   type ConnectionLoginParams,
   type ConnectionSubmitParams,
+  type ConnectionTimelineParams,
   type ManagedAuthsOffsetPagination,
+  type ManagedAuthTimelineEventsOffsetPagination,
 } from './connections';
