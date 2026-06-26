@@ -15,7 +15,10 @@ import { path } from '../internal/utils/path';
  */
 export class BrowserPools extends APIResource {
   /**
-   * Create a new browser pool with the specified configuration and size.
+   * Create a new browser pool with the specified configuration and size. Pooled
+   * browsers load their profile read-only: any save_changes on the profile is
+   * ignored (not rejected), so pooled browsers never persist changes back to the
+   * profile.
    *
    * @example
    * ```ts
@@ -43,7 +46,9 @@ export class BrowserPools extends APIResource {
   }
 
   /**
-   * Updates the configuration used to create browsers in the pool.
+   * Updates the configuration used to create browsers in the pool. As with creation,
+   * save_changes on the pool profile is ignored (not rejected); pooled browsers
+   * never persist changes back to the profile.
    *
    * @example
    * ```ts
@@ -236,11 +241,14 @@ export namespace BrowserPool {
     name?: string;
 
     /**
-     * Profile selection for the browser session. Provide either id or name. If
-     * specified, the matching profile will be loaded into the browser session.
-     * Profiles must be created beforehand.
+     * Profile selection for browsers in a pool. Provide either id or name. The
+     * matching profile is loaded into every browser in the pool. Profiles must be
+     * created beforehand. Unlike single browser sessions, pools load the profile
+     * read-only and never persist changes back to it, so save_changes is omitted here.
+     * Any save_changes value sent on a pool profile is silently ignored rather than
+     * rejected, so callers reusing a single-session profile object will not error.
      */
-    profile?: Shared.BrowserProfile;
+    profile?: BrowserPoolConfig.Profile;
 
     /**
      * Optional proxy to associate to the browser session. Must reference a proxy in
@@ -284,6 +292,29 @@ export namespace BrowserPool {
      * bandwidth reasonable).
      */
     viewport?: Shared.BrowserViewport;
+  }
+
+  export namespace BrowserPoolConfig {
+    /**
+     * Profile selection for browsers in a pool. Provide either id or name. The
+     * matching profile is loaded into every browser in the pool. Profiles must be
+     * created beforehand. Unlike single browser sessions, pools load the profile
+     * read-only and never persist changes back to it, so save_changes is omitted here.
+     * Any save_changes value sent on a pool profile is silently ignored rather than
+     * rejected, so callers reusing a single-session profile object will not error.
+     */
+    export interface Profile {
+      /**
+       * Profile ID to load for browsers in this pool
+       */
+      id?: string;
+
+      /**
+       * Profile name to load for browsers in this pool (instead of id). Must be 1-255
+       * characters, using letters, numbers, dots, underscores, or hyphens.
+       */
+      name?: string;
+    }
   }
 }
 
@@ -464,11 +495,14 @@ export interface BrowserPoolCreateParams {
   name?: string;
 
   /**
-   * Profile selection for the browser session. Provide either id or name. If
-   * specified, the matching profile will be loaded into the browser session.
-   * Profiles must be created beforehand.
+   * Profile selection for browsers in a pool. Provide either id or name. The
+   * matching profile is loaded into every browser in the pool. Profiles must be
+   * created beforehand. Unlike single browser sessions, pools load the profile
+   * read-only and never persist changes back to it, so save_changes is omitted here.
+   * Any save_changes value sent on a pool profile is silently ignored rather than
+   * rejected, so callers reusing a single-session profile object will not error.
    */
-  profile?: Shared.BrowserProfile;
+  profile?: BrowserPoolCreateParams.Profile;
 
   /**
    * Optional proxy to associate to the browser session. Must reference a proxy in
@@ -512,6 +546,29 @@ export interface BrowserPoolCreateParams {
    * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
+}
+
+export namespace BrowserPoolCreateParams {
+  /**
+   * Profile selection for browsers in a pool. Provide either id or name. The
+   * matching profile is loaded into every browser in the pool. Profiles must be
+   * created beforehand. Unlike single browser sessions, pools load the profile
+   * read-only and never persist changes back to it, so save_changes is omitted here.
+   * Any save_changes value sent on a pool profile is silently ignored rather than
+   * rejected, so callers reusing a single-session profile object will not error.
+   */
+  export interface Profile {
+    /**
+     * Profile ID to load for browsers in this pool
+     */
+    id?: string;
+
+    /**
+     * Profile name to load for browsers in this pool (instead of id). Must be 1-255
+     * characters, using letters, numbers, dots, underscores, or hyphens.
+     */
+    name?: string;
+  }
 }
 
 export interface BrowserPoolUpdateParams {
@@ -558,11 +615,14 @@ export interface BrowserPoolUpdateParams {
   name?: string;
 
   /**
-   * Profile selection for the browser session. Provide either id or name. If
-   * specified, the matching profile will be loaded into the browser session.
-   * Profiles must be created beforehand.
+   * Profile selection for browsers in a pool. Provide either id or name. The
+   * matching profile is loaded into every browser in the pool. Profiles must be
+   * created beforehand. Unlike single browser sessions, pools load the profile
+   * read-only and never persist changes back to it, so save_changes is omitted here.
+   * Any save_changes value sent on a pool profile is silently ignored rather than
+   * rejected, so callers reusing a single-session profile object will not error.
    */
-  profile?: Shared.BrowserProfile;
+  profile?: BrowserPoolUpdateParams.Profile;
 
   /**
    * Optional proxy to associate to the browser session. Must reference a proxy in
@@ -613,6 +673,29 @@ export interface BrowserPoolUpdateParams {
    * bandwidth reasonable).
    */
   viewport?: Shared.BrowserViewport;
+}
+
+export namespace BrowserPoolUpdateParams {
+  /**
+   * Profile selection for browsers in a pool. Provide either id or name. The
+   * matching profile is loaded into every browser in the pool. Profiles must be
+   * created beforehand. Unlike single browser sessions, pools load the profile
+   * read-only and never persist changes back to it, so save_changes is omitted here.
+   * Any save_changes value sent on a pool profile is silently ignored rather than
+   * rejected, so callers reusing a single-session profile object will not error.
+   */
+  export interface Profile {
+    /**
+     * Profile ID to load for browsers in this pool
+     */
+    id?: string;
+
+    /**
+     * Profile name to load for browsers in this pool (instead of id). Must be 1-255
+     * characters, using letters, numbers, dots, underscores, or hyphens.
+     */
+    name?: string;
+  }
 }
 
 export interface BrowserPoolListParams extends OffsetPaginationParams {
