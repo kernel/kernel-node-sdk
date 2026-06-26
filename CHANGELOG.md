@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.71.1 (2026-06-26)
+
+Full Changelog: [v0.71.0...v0.71.1](https://github.com/kernel/kernel-node-sdk/compare/v0.71.0...v0.71.1)
+
+### Bug Fixes
+
+* **api:** browser pool profile omits save_changes (BrowserPoolProfile) ([41f382e](https://github.com/kernel/kernel-node-sdk/commit/41f382e07d767dd998533de4e2904f5db46b1ea8))
+
 ## 0.71.0 (2026-06-26)
 
 Full Changelog: [v0.70.0...v0.71.0](https://github.com/kernel/kernel-node-sdk/compare/v0.70.0...v0.71.0)
