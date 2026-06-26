@@ -30,11 +30,7 @@ describe('resource browserPools', () => {
       headless: false,
       kiosk_mode: true,
       name: 'my-pool',
-      profile: {
-        id: 'id',
-        name: 'name',
-        save_changes: true,
-      },
+      profile: { id: 'id', name: 'name' },
       proxy_id: 'proxy_id',
       start_url: 'https://example.com',
       stealth: true,
