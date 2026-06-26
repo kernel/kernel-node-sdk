@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.71.0 (2026-06-26)
+
+Full Changelog: [v0.70.0...v0.71.0](https://github.com/kernel/kernel-node-sdk/compare/v0.70.0...v0.71.0)
+
+### Features
+
+* Add auth connection event timeline endpoint ([460845e](https://github.com/kernel/kernel-node-sdk/commit/460845e5171937bc16bbcb03b93bf95f659b8e64))
+* Expose audit logs in public SDK ([e08b560](https://github.com/kernel/kernel-node-sdk/commit/e08b560f83fd5532f2e45940dd2b92bdbbe27951))
+
 ## 0.70.0 (2026-06-24)
 
 Full Changelog: [v0.69.0...v0.70.0](https://github.com/kernel/kernel-node-sdk/compare/v0.69.0...v0.70.0)
