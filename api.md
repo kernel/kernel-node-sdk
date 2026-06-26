@@ -265,6 +265,7 @@ Types:
 - <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuthTimelineEvent</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthUpdateRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">SubmitFieldsRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">SubmitFieldsResponse</a></code>
@@ -280,6 +281,7 @@ Methods:
 - <code title="get /auth/connections/{id}/events">client.auth.connections.<a href="./src/resources/auth/connections.ts">follow</a>(id) -> ConnectionFollowResponse</code>
 - <code title="post /auth/connections/{id}/login">client.auth.connections.<a href="./src/resources/auth/connections.ts">login</a>(id, { ...params }) -> LoginResponse</code>
 - <code title="post /auth/connections/{id}/submit">client.auth.connections.<a href="./src/resources/auth/connections.ts">submit</a>(id, { ...params }) -> SubmitFieldsResponse</code>
+- <code title="get /auth/connections/{id}/timeline">client.auth.connections.<a href="./src/resources/auth/connections.ts">timeline</a>(id, { ...params }) -> ManagedAuthTimelineEventsOffsetPagination</code>
 
 # Proxies
 
