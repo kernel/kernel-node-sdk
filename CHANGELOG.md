@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.72.0 (2026-06-26)
+
+Full Changelog: [v0.71.1...v0.72.0](https://github.com/kernel/kernel-node-sdk/compare/v0.71.1...v0.72.0)
+
+### ⚠ BREAKING CHANGES
+
+* browser pool `profile` is now `BrowserPoolProfile` (id/name only); `save_changes` is no longer accepted on pool profiles. Wire-compatible for inline callers; typed callers must update. Sending `save_changes` on a pool used to return `400` and is now silently ignored.
+
+### Chores
+
+* re-release browser pool profile change as 0.72.0 ([3efca49](https://github.com/kernel/kernel-node-sdk/commit/3efca4930b67cb8460bc8c3880cc38fa8d026309))
+
 ## 0.71.1 (2026-06-26)
 
 Full Changelog: [v0.71.0...v0.71.1](https://github.com/kernel/kernel-node-sdk/compare/v0.71.0...v0.71.1)
