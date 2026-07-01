@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.73.0 (2026-07-01)
+
+Full Changelog: [v0.72.0...v0.73.0](https://github.com/kernel/kernel-node-sdk/compare/v0.72.0...v0.73.0)
+
+### Features
+
+* Add hidden audit-logs export endpoint ([14db0ea](https://github.com/kernel/kernel-node-sdk/commit/14db0ea3dfa7c2f0bd2f8f50e8b0415866a3f512))
+
 ## 0.72.0 (2026-06-26)
 
 Full Changelog: [v0.71.1...v0.72.0](https://github.com/kernel/kernel-node-sdk/compare/v0.71.1...v0.72.0)
