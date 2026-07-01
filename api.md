@@ -404,6 +404,7 @@ Types:
 Methods:
 
 - <code title="get /audit-logs">client.auditLogs.<a href="./src/resources/audit-logs.ts">list</a>({ ...params }) -> AuditLogEntriesPageTokenPagination</code>
+- <code title="get /audit-logs/export/chunk">client.auditLogs.<a href="./src/resources/audit-logs.ts">exportChunk</a>({ ...params }) -> Response</code>
 
 # APIKeys
 
