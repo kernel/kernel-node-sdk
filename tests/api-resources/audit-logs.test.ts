@@ -38,4 +38,21 @@ describe('resource auditLogs', () => {
       service: 'service',
     });
   });
+
+  // Mock server tests are disabled
+  test.skip('exportChunk: required and optional params', async () => {
+    const response = await client.auditLogs.exportChunk({
+      end: '2026-01-02T00:00:00Z',
+      start: '2026-01-01T00:00:00Z',
+      auth_strategy: 'auth_strategy',
+      cursor: 'cursor',
+      exclude_method: 'exclude_method',
+      format: 'jsonl',
+      limit: 1,
+      method: 'method',
+      search: 'search',
+      search_user_id: ['string'],
+      service: 'service',
+    });
+  });
 });

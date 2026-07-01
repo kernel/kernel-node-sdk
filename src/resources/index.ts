@@ -22,6 +22,7 @@ export {
   AuditLogs,
   type AuditLogEntry,
   type AuditLogListParams,
+  type AuditLogExportChunkParams,
   type AuditLogEntriesPageTokenPagination,
 } from './audit-logs';
 export { Auth } from './auth/auth';

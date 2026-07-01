@@ -45,6 +45,7 @@ import {
 import {
   AuditLogEntriesPageTokenPagination,
   AuditLogEntry,
+  AuditLogExportChunkParams,
   AuditLogListParams,
   AuditLogs,
 } from './resources/audit-logs';
@@ -1192,6 +1193,7 @@ export declare namespace Kernel {
     type AuditLogEntry as AuditLogEntry,
     type AuditLogEntriesPageTokenPagination as AuditLogEntriesPageTokenPagination,
     type AuditLogListParams as AuditLogListParams,
+    type AuditLogExportChunkParams as AuditLogExportChunkParams,
   };
 
   export {
