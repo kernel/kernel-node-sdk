@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.74.0 (2026-07-02)
+
+Full Changelog: [v0.73.0...v0.74.0](https://github.com/kernel/kernel-node-sdk/compare/v0.73.0...v0.74.0)
+
+### Features
+
+* Add tablet and mobile viewport presets to pool dashboard ([c1000cb](https://github.com/kernel/kernel-node-sdk/commit/c1000cb259c7bd06b220987fa5c641a963cb45c3))
+
 ## 0.73.0 (2026-07-01)
 
 Full Changelog: [v0.72.0...v0.73.0](https://github.com/kernel/kernel-node-sdk/compare/v0.72.0...v0.73.0)
