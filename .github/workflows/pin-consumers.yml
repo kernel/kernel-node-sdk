@@ -1,0 +1,159 @@
+name: Pin SDK Consumers
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SDK version to pin, with or without leading v'
+        required: true
+        type: string
+  workflow_run:
+    workflows: ['Publish NPM']
+    types: [completed]
+
+jobs:
+  pin-consumers:
+    name: pin consumers
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'kernel/kernel-node-sdk' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'release'))
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve SDK version
+        id: version
+        env:
+          DISPATCH_VERSION: ${{ github.event.inputs.version }}
+          WORKFLOW_RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          raw="${DISPATCH_VERSION:-${WORKFLOW_RUN_HEAD_BRANCH:-}}"
+          version="${raw#v}"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            if [ -n "$DISPATCH_VERSION" ]; then
+              echo "Invalid SDK version: $DISPATCH_VERSION" >&2
+              exit 2
+            fi
+
+            raw="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 10 --json tagName,publishedAt --jq 'sort_by(.publishedAt) | last | .tagName')"
+            version="${raw#v}"
+          fi
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid SDK version: $version" >&2
+            exit 2
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "branch_suffix=${version//./-}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: kernel,kernel-mcp-server
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "kernel-internal[bot]"
+          git config --global user.email "260533166+kernel-internal[bot]@users.noreply.github.com"
+
+      - name: Pin dashboard dependency
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SDK_VERSION: ${{ steps.version.outputs.version }}
+          BRANCH_SUFFIX: ${{ steps.version.outputs.branch_suffix }}
+        run: |
+          set -euo pipefail
+
+          repo="kernel/kernel"
+          workdir="$RUNNER_TEMP/kernel"
+          branch="automation/pin-node-sdk-$BRANCH_SUFFIX"
+
+          gh repo clone "$repo" "$workdir" -- --depth 1
+          cd "$workdir"
+          git switch -c "$branch"
+
+          node "$GITHUB_WORKSPACE/scripts/utils/pin-sdk-consumer.mjs" packages/dashboard/package.json "$SDK_VERSION"
+          bun install
+
+          if git diff --quiet; then
+            echo "Dashboard already pins @onkernel/sdk@$SDK_VERSION"
+            exit 0
+          fi
+
+          git add packages/dashboard/package.json bun.lock
+          git commit -m "chore(dashboard): pin @onkernel/sdk to $SDK_VERSION"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git" "HEAD:$branch" --force-with-lease
+
+          if gh pr view "$branch" --repo "$repo" >/dev/null 2>&1; then
+            echo "Dashboard pin PR already exists for $branch"
+          else
+            gh pr create \
+              --repo "$repo" \
+              --base main \
+              --head "$branch" \
+              --title "chore(dashboard): pin @onkernel/sdk to $SDK_VERSION" \
+              --body "Pins the dashboard to @onkernel/sdk@$SDK_VERSION and refreshes bun.lock so dashboard consumes the newly released Node SDK exactly."
+          fi
+
+      - name: Pin MCP dependency
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SDK_VERSION: ${{ steps.version.outputs.version }}
+          BRANCH_SUFFIX: ${{ steps.version.outputs.branch_suffix }}
+        run: |
+          set -euo pipefail
+
+          repo="kernel/kernel-mcp-server"
+          workdir="$RUNNER_TEMP/kernel-mcp-server"
+          branch="automation/pin-node-sdk-$BRANCH_SUFFIX"
+
+          gh repo clone "$repo" "$workdir" -- --depth 1
+          cd "$workdir"
+          git switch -c "$branch"
+
+          node "$GITHUB_WORKSPACE/scripts/utils/pin-sdk-consumer.mjs" package.json "$SDK_VERSION"
+          bun install
+
+          if git diff --quiet; then
+            echo "MCP already pins @onkernel/sdk@$SDK_VERSION"
+            exit 0
+          fi
+
+          git add package.json bun.lock
+          git commit -m "chore: pin @onkernel/sdk to $SDK_VERSION"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git" "HEAD:$branch" --force-with-lease
+
+          if gh pr view "$branch" --repo "$repo" >/dev/null 2>&1; then
+            echo "MCP pin PR already exists for $branch"
+          else
+            gh pr create \
+              --repo "$repo" \
+              --base main \
+              --head "$branch" \
+              --title "chore: pin @onkernel/sdk to $SDK_VERSION" \
+              --body "Pins the MCP server to @onkernel/sdk@$SDK_VERSION and refreshes bun.lock so MCP consumes the newly released Node SDK exactly."
+          fi
