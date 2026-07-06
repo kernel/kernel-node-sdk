@@ -30,6 +30,7 @@ describe('resource telemetry', () => {
           category: ['console'],
           limit: 1,
           offset: 0,
+          order: 'order',
           since: 'since',
           until: 'until',
         },
