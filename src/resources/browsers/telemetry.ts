@@ -14,10 +14,10 @@ import { path } from '../../internal/utils/path';
  */
 export class Telemetry extends APIResource {
   /**
-   * Reads a page of telemetry events for the browser session in ascending sequence
-   * order. To page through results, pass the X-Next-Offset value from the previous
-   * response as offset and repeat while X-Has-More is true. Returns an empty list
-   * when telemetry data is unavailable.
+   * Reads a page of telemetry events for the browser session. To page through
+   * results, pass the X-Next-Offset value from the previous response as offset and
+   * repeat while X-Has-More is true. Returns an empty list when telemetry data is
+   * unavailable.
    *
    * @example
    * ```ts
@@ -2075,6 +2075,16 @@ export interface TelemetryEventsParams extends OffsetPaginationParams {
     | 'captcha'
     | 'monitor'
   >;
+
+  /**
+   * Read direction. asc (default) reads oldest first, starting from since or the
+   * offset cursor. desc reads newest first: each request returns one page of up to
+   * limit records ending at the offset cursor (or until, or the newest archived
+   * event); combining desc with since is rejected with a 400. In either direction
+   * the category filter applies within the page, so a filtered page may be empty
+   * while X-Has-More is true.
+   */
+  order?: string;
 
   /**
    * Start of the window: an RFC-3339 timestamp, or a duration like 5m meaning that
