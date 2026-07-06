@@ -581,8 +581,12 @@ export interface BrowserPoolUpdateParams {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Whether to discard all idle browsers and rebuild the pool immediately. Defaults
-   * to false.
+   * Whether to discard all idle browsers and rebuild them immediately with the new
+   * configuration. Defaults to false. Only browsers that are idle when the update
+   * runs are rebuilt. A browser that is in use during the update keeps its original
+   * configuration, and if it is later released with `reuse: true` it returns to the
+   * pool with that stale configuration until it is discarded (by this flag on a
+   * later update, or by flushing the pool).
    */
   discard_all_idle?: boolean;
 
@@ -752,7 +756,10 @@ export interface BrowserPoolReleaseParams {
 
   /**
    * Whether to reuse the browser instance or destroy it and create a new one.
-   * Defaults to true.
+   * Defaults to true. A reused browser keeps the configuration it was created with,
+   * so it does not pick up pool configuration changes made while it was in use.
+   * Release with `reuse: false`, or flush the pool afterward, to rebuild it with the
+   * current configuration.
    */
   reuse?: boolean;
 }
