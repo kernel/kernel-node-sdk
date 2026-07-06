@@ -47,7 +47,9 @@ export interface AppListResponse {
   deployment: string;
 
   /**
-   * Environment variables configured for this app version
+   * Environment variables configured for this app version. Values are redacted for
+   * API key, OAuth, and managed-auth callers, which receive every key with an empty
+   * string value. Only dashboard sessions receive the actual values.
    */
   env_vars: { [key: string]: string };
 
