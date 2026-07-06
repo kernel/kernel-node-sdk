@@ -159,7 +159,9 @@ export namespace DeploymentStateEvent {
     entrypoint_rel_path?: string;
 
     /**
-     * Environment variables configured for this deployment
+     * Environment variables configured for this deployment. Values are redacted for
+     * API key, OAuth, and managed-auth callers, which receive every key with an empty
+     * string value. Only dashboard sessions receive the actual values.
      */
     env_vars?: { [key: string]: string };
 
@@ -205,7 +207,9 @@ export interface DeploymentCreateResponse {
   entrypoint_rel_path?: string;
 
   /**
-   * Environment variables configured for this deployment
+   * Environment variables configured for this deployment. Values are redacted for
+   * API key, OAuth, and managed-auth callers, which receive every key with an empty
+   * string value. Only dashboard sessions receive the actual values.
    */
   env_vars?: { [key: string]: string };
 
@@ -250,7 +254,9 @@ export interface DeploymentRetrieveResponse {
   entrypoint_rel_path?: string;
 
   /**
-   * Environment variables configured for this deployment
+   * Environment variables configured for this deployment. Values are redacted for
+   * API key, OAuth, and managed-auth callers, which receive every key with an empty
+   * string value. Only dashboard sessions receive the actual values.
    */
   env_vars?: { [key: string]: string };
 
@@ -295,7 +301,9 @@ export interface DeploymentListResponse {
   entrypoint_rel_path?: string;
 
   /**
-   * Environment variables configured for this deployment
+   * Environment variables configured for this deployment. Values are redacted for
+   * API key, OAuth, and managed-auth callers, which receive every key with an empty
+   * string value. Only dashboard sessions receive the actual values.
    */
   env_vars?: { [key: string]: string };
 
@@ -361,7 +369,8 @@ export namespace DeploymentFollowResponse {
     version: string;
 
     /**
-     * Environment variables configured for this app version
+     * Environment variables configured for this app version. Not currently populated
+     * on streamed app_version_summary events.
      */
     env_vars?: { [key: string]: string };
   }
