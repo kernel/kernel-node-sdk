@@ -75,7 +75,8 @@ export class APIKeys extends APIResource {
   }
 
   /**
-   * Delete an API key.
+   * Delete an API key. A key cannot delete itself; use a different key to delete
+   * this one.
    *
    * @example
    * ```ts
