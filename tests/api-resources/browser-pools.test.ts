@@ -32,6 +32,7 @@ describe('resource browserPools', () => {
       name: 'my-pool',
       profile: { id: 'id', name: 'name' },
       proxy_id: 'proxy_id',
+      refresh_on_profile_update: true,
       start_url: 'https://example.com',
       stealth: true,
       timeout_seconds: 10,
