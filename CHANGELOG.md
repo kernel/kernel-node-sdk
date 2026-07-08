@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.75.0 (2026-07-08)
+
+Full Changelog: [v0.74.0...v0.75.0](https://github.com/kernel/kernel-node-sdk/compare/v0.74.0...v0.75.0)
+
+### Features
+
+* Accept comma-separated search_user_id in audit-logs endpoints ([3de38df](https://github.com/kernel/kernel-node-sdk/commit/3de38dfc16bdca8ebcdab22eec87b253e3fb49ce))
+* Auto-flush pools when a managed auth profile re-authenticates ([bb7b59e](https://github.com/kernel/kernel-node-sdk/commit/bb7b59ef8b3690bac2c34c50e5865e68a021c890))
+* Document env var redaction on deployment and app reads ([aff324f](https://github.com/kernel/kernel-node-sdk/commit/aff324f5a779b188da8a3ab1f7d18726b35a2853))
+* Expose resolved profile_id and extension_ids on browser pool reads ([9ad5716](https://github.com/kernel/kernel-node-sdk/commit/9ad571674fe95c1acb44f47ffbfdeaa7c81cdb5e))
+* Reject API key self-deletion ([9cac0f1](https://github.com/kernel/kernel-node-sdk/commit/9cac0f1dc231364362b3b1f7f9a0f48259205864))
+* Revert "Store and return a sha256 checksum for uploaded extensions (#… ([4b702a9](https://github.com/kernel/kernel-node-sdk/commit/4b702a92fd902bdf6b259e194a81e3ef0857149f))
+* Store and return a sha256 checksum for uploaded extensions ([44b2c99](https://github.com/kernel/kernel-node-sdk/commit/44b2c99671cef89a61e2f84e734eb8800351bb20))
+* Store and return a sha256 checksum for uploaded extensions (reland) ([5782907](https://github.com/kernel/kernel-node-sdk/commit/5782907899949dd9aafadefd8d3887cb3b7d4d16))
+
+
+### Documentation
+
+* **api:** clarify reuse/discard_all_idle pool config staleness ([83fd84c](https://github.com/kernel/kernel-node-sdk/commit/83fd84c9c88bb7764fe8f7fdfba0523485906a2c))
+
 ## 0.74.0 (2026-07-06)
 
 Full Changelog: [v0.73.0...v0.74.0](https://github.com/kernel/kernel-node-sdk/compare/v0.73.0...v0.74.0)
