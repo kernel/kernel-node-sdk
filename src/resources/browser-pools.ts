@@ -189,9 +189,25 @@ export interface BrowserPool {
   created_at: string;
 
   /**
+   * Resolved extension IDs attached to the pool, in configured load order. Empty
+   * when no extensions are attached. Authoritative for programmatic consumers; the
+   * extensions inside `browser_pool_config` reflect the configured selector (echoed
+   * as sent on create).
+   */
+  extension_ids: Array<string>;
+
+  /**
    * Browser pool name, if set
    */
   name?: string;
+
+  /**
+   * Resolved profile ID the pool is attached to. Omitted when no profile is
+   * attached. Authoritative for programmatic consumers; the profile inside
+   * `browser_pool_config` reflects the configured selector (echoed as sent on
+   * create).
+   */
+  profile_id?: string;
 }
 
 export namespace BrowserPool {
