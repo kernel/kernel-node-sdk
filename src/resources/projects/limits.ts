@@ -49,14 +49,16 @@ export interface ProjectLimits {
   max_concurrent_invocations?: number | null;
 
   /**
-   * Maximum concurrent browser sessions for this project. Null means no
-   * project-level cap.
+   * Maximum concurrent browsers for this project, covering both on-demand sessions
+   * (`browsers.create()`) and browser pool reservations. Null means no project-level
+   * cap.
    */
   max_concurrent_sessions?: number | null;
 
   /**
-   * Maximum pooled sessions capacity for this project. Null means no project-level
-   * cap.
+   * @deprecated Deprecated: pooled browsers now count toward
+   * `max_concurrent_sessions`. Always null once the unified concurrency limit is
+   * enabled for your organization.
    */
   max_pooled_sessions?: number | null;
 }
@@ -69,14 +71,16 @@ export interface UpdateProjectLimitsRequest {
   max_concurrent_invocations?: number | null;
 
   /**
-   * Maximum concurrent browser sessions for this project. Set to 0 to remove the
-   * cap; omit to leave unchanged.
+   * Maximum concurrent browsers for this project, covering both on-demand sessions
+   * and browser pool reservations. Set to 0 to remove the cap; omit to leave
+   * unchanged.
    */
   max_concurrent_sessions?: number | null;
 
   /**
-   * Maximum pooled sessions capacity for this project. Set to 0 to remove the cap;
-   * omit to leave unchanged.
+   * @deprecated Deprecated: pooled browsers now count toward
+   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400
+   * once the unified concurrency limit is enabled for your organization.
    */
   max_pooled_sessions?: number | null;
 }
@@ -89,14 +93,16 @@ export interface LimitUpdateParams {
   max_concurrent_invocations?: number | null;
 
   /**
-   * Maximum concurrent browser sessions for this project. Set to 0 to remove the
-   * cap; omit to leave unchanged.
+   * Maximum concurrent browsers for this project, covering both on-demand sessions
+   * and browser pool reservations. Set to 0 to remove the cap; omit to leave
+   * unchanged.
    */
   max_concurrent_sessions?: number | null;
 
   /**
-   * Maximum pooled sessions capacity for this project. Set to 0 to remove the cap;
-   * omit to leave unchanged.
+   * @deprecated Deprecated: pooled browsers now count toward
+   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400
+   * once the unified concurrency limit is enabled for your organization.
    */
   max_pooled_sessions?: number | null;
 }
