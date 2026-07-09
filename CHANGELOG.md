@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.76.0 (2026-07-09)
+
+Full Changelog: [v0.75.0...v0.76.0](https://github.com/kernel/kernel-node-sdk/compare/v0.75.0...v0.76.0)
+
+### Features
+
+* Layer telemetry request config onto the default set ([e0ac507](https://github.com/kernel/kernel-node-sdk/commit/e0ac5077b0114f4ed5dac88d405de15bd3459dde))
+* Return credential value keys and support removing values on update ([050b83a](https://github.com/kernel/kernel-node-sdk/commit/050b83af9255031541f9db398cbdca1d53a25d8d))
+
 ## 0.75.0 (2026-07-08)
 
 Full Changelog: [v0.74.0...v0.75.0](https://github.com/kernel/kernel-node-sdk/compare/v0.74.0...v0.75.0)
