@@ -1014,18 +1014,27 @@ export namespace BrowserCreateParams {
    */
   export interface Telemetry {
     /**
-     * Per-category capture flags. Selection is opt-in: only the categories set to
-     * enabled=true are captured; anything omitted is off. If enabled is true and
-     * browser is omitted or empty, the default category set is used. A browser config
-     * that enables nothing stops capture on update and starts no capture on create.
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
     /**
-     * Request shortcut for browser telemetry capture. True enables capture using the
-     * default category set unless browser category settings are provided. False stops
-     * capture on update and starts no capture on create. enabled=false cannot be
-     * combined with browser category settings.
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
      */
     enabled?: boolean;
   }
@@ -1096,18 +1105,27 @@ export namespace BrowserUpdateParams {
    */
   export interface Telemetry {
     /**
-     * Per-category capture flags. Selection is opt-in: only the categories set to
-     * enabled=true are captured; anything omitted is off. If enabled is true and
-     * browser is omitted or empty, the default category set is used. A browser config
-     * that enables nothing stops capture on update and starts no capture on create.
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
     /**
-     * Request shortcut for browser telemetry capture. True enables capture using the
-     * default category set unless browser category settings are provided. False stops
-     * capture on update and starts no capture on create. enabled=false cannot be
-     * combined with browser category settings.
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
      */
     enabled?: boolean;
   }

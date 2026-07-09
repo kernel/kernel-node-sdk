@@ -1879,12 +1879,11 @@ export namespace BrowserSystemOomKillEvent {
 }
 
 /**
- * Per-category telemetry capture settings. Selection is opt-in: set a category to
- * enabled=true to capture it; anything omitted is off. The default set (used by
- * enabled=true with no per-category settings) is the lightweight operational
- * signals: control, connection, system, captcha. The CDP categories (console,
- * network, page, interaction) and screenshot are off by default and must be opted
- * into.
+ * Per-category telemetry capture settings layered onto the default set. The
+ * operational signals (control, connection, system, captcha) are on by default and
+ * are opt-out: set one to enabled=false to stop capturing it. The CDP categories
+ * (console, network, page, interaction) and screenshot are off by default and are
+ * opt-in: set enabled=true to capture them.
  */
 export interface BrowserTelemetryCategoriesConfig {
   /**
@@ -1948,8 +1947,9 @@ export interface BrowserTelemetryCategoriesConfig {
  */
 export interface BrowserTelemetryCategoryConfig {
   /**
-   * Whether this category is captured. Selection is opt-in, so an omitted category
-   * is not captured.
+   * Whether this category is captured. Operational categories (control, connection,
+   * system, captcha) default to true; set false to opt out. CDP categories (console,
+   * network, page, interaction) and screenshot default to false; set true to opt in.
    */
   enabled?: boolean;
 }
