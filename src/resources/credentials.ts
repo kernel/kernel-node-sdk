@@ -202,6 +202,13 @@ export interface Credential {
    * When the totp_code expires. Only included when totp_code is present.
    */
   totp_code_expires_at?: string;
+
+  /**
+   * The field names stored in this credential's values (e.g., username, password).
+   * Values themselves are never returned. Included on single-credential responses
+   * (create, get by id or name, update); omitted from list responses.
+   */
+  value_keys?: Array<string>;
 }
 
 /**
@@ -212,6 +219,12 @@ export interface UpdateCredentialRequest {
    * New name for the credential
    */
   name?: string;
+
+  /**
+   * Field names to remove from the credential's stored values. Removals are applied
+   * before `values` are merged, so a key present in both is kept with its new value.
+   */
+  remove_value_keys?: Array<string>;
 
   /**
    * If set, indicates this credential should be used with the specified SSO
@@ -280,6 +293,12 @@ export interface CredentialUpdateParams {
    * New name for the credential
    */
   name?: string;
+
+  /**
+   * Field names to remove from the credential's stored values. Removals are applied
+   * before `values` are merged, so a key present in both is kept with its new value.
+   */
+  remove_value_keys?: Array<string>;
 
   /**
    * If set, indicates this credential should be used with the specified SSO
