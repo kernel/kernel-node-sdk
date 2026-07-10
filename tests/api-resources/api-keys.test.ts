@@ -86,6 +86,7 @@ describe('resource apiKeys', () => {
         {
           include_deleted: true,
           limit: 100,
+          name: 'name',
           offset: 0,
           query: 'query',
           sort_by: 'created_at',

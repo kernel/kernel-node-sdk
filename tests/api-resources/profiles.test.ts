@@ -68,6 +68,7 @@ describe('resource profiles', () => {
       client.profiles.list(
         {
           limit: 1,
+          name: 'name',
           offset: 0,
           query: 'query',
         },

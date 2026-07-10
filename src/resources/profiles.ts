@@ -139,6 +139,14 @@ export interface ProfileUpdateParams {
 
 export interface ProfileListParams extends OffsetPaginationParams {
   /**
+   * Exact-match filter on profile name using the database collation. In production,
+   * matching is case- and accent-insensitive. During the default-project migration,
+   * unscoped requests prefer a concrete default-project profile over a legacy
+   * unscoped profile with the same name.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against profile name or ID.
    */
   query?: string;

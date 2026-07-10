@@ -737,6 +737,14 @@ export namespace BrowserPoolUpdateParams {
 
 export interface BrowserPoolListParams extends OffsetPaginationParams {
   /**
+   * Exact-match filter on browser pool name using the database collation. In
+   * production, matching is case- and accent-insensitive. During the default-project
+   * migration, unscoped requests prefer a concrete default-project browser pool over
+   * a legacy unscoped browser pool with the same name.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against browser pool name. IDs match by exact
    * value.
    */

@@ -87,6 +87,7 @@ describe('resource browserPools', () => {
       client.browserPools.list(
         {
           limit: 1,
+          name: 'name',
           offset: 0,
           query: 'query',
         },

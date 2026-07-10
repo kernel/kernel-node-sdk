@@ -1037,6 +1037,13 @@ export interface ProxyUpdateParams {
 
 export interface ProxyListParams extends OffsetPaginationParams {
   /**
+   * Exact-match filter on proxy name using the database collation. In production,
+   * matching is case- and accent-insensitive. Names are not required to be unique,
+   * so multiple proxies may match.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against proxy name, host, or IP address. IDs
    * match by exact value.
    */
