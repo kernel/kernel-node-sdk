@@ -120,7 +120,12 @@ export {
   type InvocationListResponsesOffsetPagination,
 } from './invocations';
 export { Organization } from './organization/organization';
-export { Profiles, type ProfileCreateParams, type ProfileListParams } from './profiles';
+export {
+  Profiles,
+  type ProfileCreateParams,
+  type ProfileUpdateParams,
+  type ProfileListParams,
+} from './profiles';
 export {
   Projects,
   type CreateProjectRequest,
@@ -135,9 +140,11 @@ export {
   Proxies,
   type ProxyCreateResponse,
   type ProxyRetrieveResponse,
+  type ProxyUpdateResponse,
   type ProxyListResponse,
   type ProxyCheckResponse,
   type ProxyCreateParams,
+  type ProxyUpdateParams,
   type ProxyListParams,
   type ProxyCheckParams,
   type ProxyListResponsesOffsetPagination,

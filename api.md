@@ -252,6 +252,7 @@ Methods:
 
 - <code title="post /profiles">client.profiles.<a href="./src/resources/profiles.ts">create</a>({ ...params }) -> Profile</code>
 - <code title="get /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">retrieve</a>(idOrName) -> Profile</code>
+- <code title="patch /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">update</a>(idOrName, { ...params }) -> Profile</code>
 - <code title="get /profiles">client.profiles.<a href="./src/resources/profiles.ts">list</a>({ ...params }) -> ProfilesOffsetPagination</code>
 - <code title="delete /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /profiles/{id_or_name}/download">client.profiles.<a href="./src/resources/profiles.ts">download</a>(idOrName) -> Response</code>
@@ -289,6 +290,7 @@ Types:
 
 - <code><a href="./src/resources/proxies.ts">ProxyCreateResponse</a></code>
 - <code><a href="./src/resources/proxies.ts">ProxyRetrieveResponse</a></code>
+- <code><a href="./src/resources/proxies.ts">ProxyUpdateResponse</a></code>
 - <code><a href="./src/resources/proxies.ts">ProxyListResponse</a></code>
 - <code><a href="./src/resources/proxies.ts">ProxyCheckResponse</a></code>
 
@@ -296,6 +298,7 @@ Methods:
 
 - <code title="post /proxies">client.proxies.<a href="./src/resources/proxies.ts">create</a>({ ...params }) -> ProxyCreateResponse</code>
 - <code title="get /proxies/{id}">client.proxies.<a href="./src/resources/proxies.ts">retrieve</a>(id) -> ProxyRetrieveResponse</code>
+- <code title="patch /proxies/{id}">client.proxies.<a href="./src/resources/proxies.ts">update</a>(id, { ...params }) -> ProxyUpdateResponse</code>
 - <code title="get /proxies">client.proxies.<a href="./src/resources/proxies.ts">list</a>({ ...params }) -> ProxyListResponsesOffsetPagination</code>
 - <code title="delete /proxies/{id}">client.proxies.<a href="./src/resources/proxies.ts">delete</a>(id) -> void</code>
 - <code title="post /proxies/{id}/check">client.proxies.<a href="./src/resources/proxies.ts">check</a>(id, { ...params }) -> ProxyCheckResponse</code>

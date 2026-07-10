@@ -123,7 +123,7 @@ import {
   InvocationUpdateResponse,
   Invocations,
 } from './resources/invocations';
-import { ProfileCreateParams, ProfileListParams, Profiles } from './resources/profiles';
+import { ProfileCreateParams, ProfileListParams, ProfileUpdateParams, Profiles } from './resources/profiles';
 import {
   Proxies,
   ProxyCheckParams,
@@ -134,6 +134,8 @@ import {
   ProxyListResponse,
   ProxyListResponsesOffsetPagination,
   ProxyRetrieveResponse,
+  ProxyUpdateParams,
+  ProxyUpdateResponse,
 } from './resources/proxies';
 import { Auth } from './resources/auth/auth';
 import {
@@ -1122,6 +1124,7 @@ export declare namespace Kernel {
   export {
     Profiles as Profiles,
     type ProfileCreateParams as ProfileCreateParams,
+    type ProfileUpdateParams as ProfileUpdateParams,
     type ProfileListParams as ProfileListParams,
   };
 
@@ -1131,10 +1134,12 @@ export declare namespace Kernel {
     Proxies as Proxies,
     type ProxyCreateResponse as ProxyCreateResponse,
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
+    type ProxyUpdateResponse as ProxyUpdateResponse,
     type ProxyListResponse as ProxyListResponse,
     type ProxyCheckResponse as ProxyCheckResponse,
     type ProxyListResponsesOffsetPagination as ProxyListResponsesOffsetPagination,
     type ProxyCreateParams as ProxyCreateParams,
+    type ProxyUpdateParams as ProxyUpdateParams,
     type ProxyListParams as ProxyListParams,
     type ProxyCheckParams as ProxyCheckParams,
   };
