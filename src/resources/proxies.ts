@@ -13,6 +13,13 @@ import { path } from '../internal/utils/path';
 export class Proxies extends APIResource {
   /**
    * Create a new proxy configuration in the resolved project.
+   *
+   * @example
+   * ```ts
+   * const proxy = await client.proxies.create({
+   *   type: 'datacenter',
+   * });
+   * ```
    */
   create(body: ProxyCreateParams, options?: RequestOptions): APIPromise<ProxyCreateResponse> {
     return this._client.post('/proxies', { body, ...options });
@@ -20,13 +27,43 @@ export class Proxies extends APIResource {
 
   /**
    * Retrieve a proxy in the resolved project by ID.
+   *
+   * @example
+   * ```ts
+   * const proxy = await client.proxies.retrieve('id');
+   * ```
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<ProxyRetrieveResponse> {
     return this._client.get(path`/proxies/${id}`, options);
   }
 
   /**
+   * Update a proxy's name. Proxy names are not unique and are not ID-or-name
+   * addressable on this endpoint; duplicate names are allowed. Name-based
+   * session-create lookups can remain ambiguous until callers resolve proxies by ID
+   * or the API adds a stronger uniqueness contract.
+   *
+   * @example
+   * ```ts
+   * const proxy = await client.proxies.update('id', {
+   *   name: 'my-renamed-proxy',
+   * });
+   * ```
+   */
+  update(id: string, body: ProxyUpdateParams, options?: RequestOptions): APIPromise<ProxyUpdateResponse> {
+    return this._client.patch(path`/proxies/${id}`, { body, ...options });
+  }
+
+  /**
    * List proxies in the resolved project.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const proxyListResponse of client.proxies.list()) {
+   *   // ...
+   * }
+   * ```
    */
   list(
     query: ProxyListParams | null | undefined = {},
@@ -37,6 +74,11 @@ export class Proxies extends APIResource {
 
   /**
    * Soft delete a proxy. Sessions referencing it are not modified.
+   *
+   * @example
+   * ```ts
+   * await client.proxies.delete('id');
+   * ```
    */
   delete(id: string, options?: RequestOptions): APIPromise<void> {
     return this._client.delete(path`/proxies/${id}`, {
@@ -52,6 +94,11 @@ export class Proxies extends APIResource {
    * exit IP. For residential and mobile proxies, the exit node varies between
    * requests, so this validates proxy configuration and connectivity rather than
    * guaranteeing site-specific reachability.
+   *
+   * @example
+   * ```ts
+   * const response = await client.proxies.check('id');
+   * ```
    */
   check(
     id: string,
@@ -274,6 +321,162 @@ export interface ProxyRetrieveResponse {
 }
 
 export namespace ProxyRetrieveResponse {
+  /**
+   * Configuration for a datacenter proxy.
+   */
+  export interface DatacenterProxyConfig {
+    /**
+     * ISO 3166 country code. Defaults to US if not provided.
+     */
+    country?: string;
+  }
+
+  /**
+   * Configuration for an ISP proxy.
+   */
+  export interface IspProxyConfig {
+    /**
+     * ISO 3166 country code. Defaults to US if not provided.
+     */
+    country?: string;
+  }
+
+  /**
+   * Configuration for residential proxies.
+   */
+  export interface ResidentialProxyConfig {
+    /**
+     * Autonomous system number. See https://bgp.potaroo.net/cidr/autnums.html
+     */
+    asn?: string;
+
+    /**
+     * City name (no spaces, e.g. `sanfrancisco`). If provided, `country` must also be
+     * provided.
+     */
+    city?: string;
+
+    /**
+     * ISO 3166 country code.
+     */
+    country?: string;
+
+    /**
+     * @deprecated Operating system of the residential device.
+     */
+    os?: 'windows' | 'macos' | 'android';
+
+    /**
+     * Two-letter state code.
+     */
+    state?: string;
+
+    /**
+     * US ZIP code.
+     */
+    zip?: string;
+  }
+
+  /**
+   * Configuration for mobile proxies.
+   */
+  export interface MobileProxyConfig {
+    /**
+     * Provider city alias. Mobile carrier routing can make observed geo vary.
+     */
+    city?: string;
+
+    /**
+     * ISO 3166 country code
+     */
+    country?: string;
+
+    /**
+     * US-only state code. Mobile carrier routing can make observed geo vary.
+     */
+    state?: string;
+  }
+
+  /**
+   * Configuration for a custom proxy (e.g., private proxy server).
+   */
+  export interface CustomProxyConfig {
+    /**
+     * Proxy host address or IP.
+     */
+    host: string;
+
+    /**
+     * Proxy port.
+     */
+    port: number;
+
+    /**
+     * Whether the proxy has a password.
+     */
+    has_password?: boolean;
+
+    /**
+     * Username for proxy authentication.
+     */
+    username?: string;
+  }
+}
+
+/**
+ * Configuration for routing traffic through a proxy.
+ */
+export interface ProxyUpdateResponse {
+  /**
+   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
+   * worst: `mobile` > `residential` > `isp` > `datacenter`.
+   */
+  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+
+  id?: string;
+
+  /**
+   * Hostnames that should bypass the parent proxy and connect directly.
+   */
+  bypass_hosts?: Array<string>;
+
+  /**
+   * Configuration specific to the selected proxy `type`.
+   */
+  config?:
+    | ProxyUpdateResponse.DatacenterProxyConfig
+    | ProxyUpdateResponse.IspProxyConfig
+    | ProxyUpdateResponse.ResidentialProxyConfig
+    | ProxyUpdateResponse.MobileProxyConfig
+    | ProxyUpdateResponse.CustomProxyConfig;
+
+  /**
+   * IP address that the proxy uses when making requests.
+   */
+  ip_address?: string;
+
+  /**
+   * Timestamp of the last health check performed on this proxy.
+   */
+  last_checked?: string;
+
+  /**
+   * Readable name of the proxy.
+   */
+  name?: string;
+
+  /**
+   * Protocol to use for the proxy connection.
+   */
+  protocol?: 'http' | 'https';
+
+  /**
+   * Current health status of the proxy.
+   */
+  status?: 'available' | 'unavailable';
+}
+
+export namespace ProxyUpdateResponse {
   /**
    * Configuration for a datacenter proxy.
    */
@@ -824,6 +1027,14 @@ export namespace ProxyCreateParams {
   }
 }
 
+export interface ProxyUpdateParams {
+  /**
+   * New proxy name. Proxy names are trimmed and length-checked only; duplicates are
+   * allowed because proxies are updated by ID, not by name.
+   */
+  name: string;
+}
+
 export interface ProxyListParams extends OffsetPaginationParams {
   /**
    * Search proxies by name, host, IP address, or ID.
@@ -853,10 +1064,12 @@ export declare namespace Proxies {
   export {
     type ProxyCreateResponse as ProxyCreateResponse,
     type ProxyRetrieveResponse as ProxyRetrieveResponse,
+    type ProxyUpdateResponse as ProxyUpdateResponse,
     type ProxyListResponse as ProxyListResponse,
     type ProxyCheckResponse as ProxyCheckResponse,
     type ProxyListResponsesOffsetPagination as ProxyListResponsesOffsetPagination,
     type ProxyCreateParams as ProxyCreateParams,
+    type ProxyUpdateParams as ProxyUpdateParams,
     type ProxyListParams as ProxyListParams,
     type ProxyCheckParams as ProxyCheckParams,
   };
