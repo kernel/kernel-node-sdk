@@ -68,6 +68,7 @@ describe('resource projects', () => {
       client.projects.list(
         {
           limit: 100,
+          name: 'name',
           offset: 0,
           query: 'query',
         },

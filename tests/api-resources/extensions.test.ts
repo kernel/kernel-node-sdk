@@ -27,6 +27,7 @@ describe('resource extensions', () => {
       client.extensions.list(
         {
           limit: 1,
+          name: 'name',
           offset: 0,
           query: 'query',
         },

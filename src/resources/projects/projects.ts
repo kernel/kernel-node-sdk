@@ -156,6 +156,12 @@ export interface ProjectUpdateParams {
 
 export interface ProjectListParams extends OffsetPaginationParams {
   /**
+   * Exact-match filter on project name using the database collation. In production,
+   * matching is case- and accent-insensitive.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against project name
    */
   query?: string;
