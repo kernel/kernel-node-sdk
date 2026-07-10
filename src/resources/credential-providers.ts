@@ -346,7 +346,8 @@ export interface CredentialProviderUpdateParams {
 
 export interface CredentialProviderListParams extends OffsetPaginationParams {
   /**
-   * Search credential providers by name or ID.
+   * Case-insensitive substring match against credential provider name. IDs match by
+   * exact value.
    */
   query?: string;
 }
