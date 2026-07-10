@@ -729,7 +729,9 @@ export interface ManagedAuthCreateRequest {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   proxy?: ManagedAuthCreateRequest.Proxy;
 
@@ -778,7 +780,9 @@ export namespace ManagedAuthCreateRequest {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   export interface Proxy {
     /**
@@ -917,7 +921,9 @@ export interface ManagedAuthUpdateRequest {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   proxy?: ManagedAuthUpdateRequest.Proxy;
 
@@ -964,7 +970,9 @@ export namespace ManagedAuthUpdateRequest {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   export interface Proxy {
     /**
@@ -1320,7 +1328,9 @@ export interface ConnectionCreateParams {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   proxy?: ConnectionCreateParams.Proxy;
 
@@ -1369,7 +1379,9 @@ export namespace ConnectionCreateParams {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   export interface Proxy {
     /**
@@ -1430,7 +1442,9 @@ export interface ConnectionUpdateParams {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   proxy?: ConnectionUpdateParams.Proxy;
 
@@ -1477,7 +1491,9 @@ export namespace ConnectionUpdateParams {
 
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   export interface Proxy {
     /**
@@ -1512,7 +1528,9 @@ export interface ConnectionListParams extends OffsetPaginationParams {
 export interface ConnectionLoginParams {
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   proxy?: ConnectionLoginParams.Proxy;
 
@@ -1526,7 +1544,9 @@ export interface ConnectionLoginParams {
 export namespace ConnectionLoginParams {
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it.
+   * project as the resource referencing it. When selecting by name, the name must
+   * match exactly one active proxy in the project. Ambiguous names return a 400; use
+   * id for stable references.
    */
   export interface Proxy {
     /**

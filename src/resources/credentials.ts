@@ -326,7 +326,8 @@ export interface CredentialListParams extends OffsetPaginationParams {
   domain?: string;
 
   /**
-   * Search credentials by name, domain, or ID.
+   * Case-insensitive substring match against credential name or domain. IDs match by
+   * exact value.
    */
   query?: string;
 }

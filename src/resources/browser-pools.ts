@@ -737,7 +737,8 @@ export namespace BrowserPoolUpdateParams {
 
 export interface BrowserPoolListParams extends OffsetPaginationParams {
   /**
-   * Search browser pools by name or ID.
+   * Case-insensitive substring match against browser pool name. IDs match by exact
+   * value.
    */
   query?: string;
 }

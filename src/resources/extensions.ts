@@ -250,7 +250,8 @@ export interface ExtensionUploadResponse {
 
 export interface ExtensionListParams extends OffsetPaginationParams {
   /**
-   * Search extensions by name or ID.
+   * Case-insensitive substring match against extension name. IDs match by exact
+   * value.
    */
   query?: string;
 }
