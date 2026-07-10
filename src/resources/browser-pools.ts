@@ -275,8 +275,8 @@ export namespace BrowserPool {
 
     /**
      * When true, flush idle browsers when the profile the pool uses is updated, so
-     * pool browsers pick up the latest profile data. Requires a profile to be set on
-     * the pool.
+     * pool browsers pick up the latest profile data. When a profile is provided during
+     * creation, this defaults to true. Requires a profile to be set on the pool.
      */
     refresh_on_profile_update?: boolean;
 
@@ -535,8 +535,8 @@ export interface BrowserPoolCreateParams {
 
   /**
    * When true, flush idle browsers when the profile the pool uses is updated, so
-   * pool browsers pick up the latest profile data. Requires a profile to be set on
-   * the pool.
+   * pool browsers pick up the latest profile data. When a profile is provided during
+   * creation, this defaults to true. Requires a profile to be set on the pool.
    */
   refresh_on_profile_update?: boolean;
 
@@ -667,7 +667,10 @@ export interface BrowserPoolUpdateParams {
 
   /**
    * If provided, replaces whether idle browsers are flushed when the profile the
-   * pool uses is updated. Requires a profile to be set on the pool.
+   * pool uses is updated. When the pool's profile reference is changed (including
+   * newly attached) and this field is omitted, it defaults to true. Re-sending the
+   * same profile reference leaves this setting unchanged. Clearing the profile also
+   * disables this setting. Requires a profile to be set on the pool.
    */
   refresh_on_profile_update?: boolean;
 
