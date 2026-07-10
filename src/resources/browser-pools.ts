@@ -216,7 +216,7 @@ export namespace BrowserPool {
    */
   export interface BrowserPoolConfig {
     /**
-     * Number of browsers to maintain in the pool. The maximum size is determined by
+     * Number of browsers maintained in the pool. The maximum size is determined by
      * your organization's pooled sessions limit (the sum of all pool sizes cannot
      * exceed your limit).
      */
@@ -226,7 +226,8 @@ export namespace BrowserPool {
      * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
      * Keys are Chrome enterprise policy names; values must match their expected types.
      * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
-     * https://chromeenterprise.google/policies/
+     * https://chromeenterprise.google/policies/ The serialized JSON payload is capped
+     * at 5 MiB.
      */
     chrome_policy?: { [key: string]: unknown };
 
@@ -236,14 +237,13 @@ export namespace BrowserPool {
     extensions?: Array<Shared.BrowserExtension>;
 
     /**
-     * Percentage of the pool to fill per minute. Defaults to 10. The cap is 25 for
-     * most organizations but can be raised per-organization, so only the lower bound
-     * is enforced here.
+     * Percentage of the pool to fill per minute. The cap is 25 for most organizations
+     * but can be raised per-organization, so only the lower bound is enforced here.
      */
     fill_rate_per_minute?: number;
 
     /**
-     * If true, launches the browser using a headless image. Defaults to false.
+     * If true, launches the browser using a headless image.
      */
     headless?: boolean;
 
@@ -268,8 +268,8 @@ export namespace BrowserPool {
     profile?: BrowserPoolConfig.Profile;
 
     /**
-     * Optional proxy to associate to the browser session. Must reference a proxy in
-     * the same project as the browser session.
+     * Optional proxy associated to the browser session. References a proxy in the same
+     * project as the browser session.
      */
     proxy_id?: string;
 
@@ -297,7 +297,7 @@ export namespace BrowserPool {
 
     /**
      * Default idle timeout in seconds for browsers acquired from this pool before they
-     * are destroyed. Defaults to 600 seconds. Minimum 10, maximum 259200 (72 hours).
+     * are destroyed. Minimum 10, maximum 259200 (72 hours).
      */
     timeout_seconds?: number;
 
@@ -485,7 +485,8 @@ export interface BrowserPoolCreateParams {
    * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
    * Keys are Chrome enterprise policy names; values must match their expected types.
    * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
-   * https://chromeenterprise.google/policies/
+   * https://chromeenterprise.google/policies/ The serialized JSON payload is capped
+   * at 5 MiB.
    */
   chrome_policy?: { [key: string]: unknown };
 
@@ -508,7 +509,7 @@ export interface BrowserPoolCreateParams {
 
   /**
    * If true, launches the browser in kiosk mode to hide address bar and tabs in live
-   * view.
+   * view. Defaults to false.
    */
   kiosk_mode?: boolean;
 
@@ -550,7 +551,7 @@ export interface BrowserPoolCreateParams {
 
   /**
    * If true, launches the browser in stealth mode to reduce detection by anti-bot
-   * mechanisms.
+   * mechanisms. Defaults to false.
    */
   stealth?: boolean;
 
@@ -601,10 +602,12 @@ export namespace BrowserPoolCreateParams {
 
 export interface BrowserPoolUpdateParams {
   /**
-   * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
-   * Keys are Chrome enterprise policy names; values must match their expected types.
+   * If provided, replaces the custom Chrome enterprise policy overrides applied to
+   * all browsers in this pool. Empty object clears any previously-set policy. Keys
+   * are Chrome enterprise policy names; values must match their expected types.
    * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
-   * https://chromeenterprise.google/policies/
+   * https://chromeenterprise.google/policies/ The serialized JSON payload is capped
+   * at 5 MiB.
    */
   chrome_policy?: { [key: string]: unknown };
 
@@ -619,30 +622,31 @@ export interface BrowserPoolUpdateParams {
   discard_all_idle?: boolean;
 
   /**
-   * List of browser extensions to load into the session. Provide each by id or name.
+   * If provided, replaces the extension list. Empty array clears all
+   * previously-selected extensions. Omit this field to leave extensions unchanged.
    */
   extensions?: Array<Shared.BrowserExtension>;
 
   /**
-   * Percentage of the pool to fill per minute. Defaults to 10. The cap is 25 for
-   * most organizations but can be raised per-organization, so only the lower bound
-   * is enforced here.
+   * If provided, replaces the percentage of the pool to fill per minute. The cap is
+   * 25 for most organizations but can be raised per-organization, so only the lower
+   * bound is enforced here.
    */
   fill_rate_per_minute?: number;
 
   /**
-   * If true, launches the browser using a headless image. Defaults to false.
+   * If provided, replaces whether browsers launch using a headless image.
    */
   headless?: boolean;
 
   /**
-   * If true, launches the browser in kiosk mode to hide address bar and tabs in live
-   * view.
+   * If provided, replaces whether browsers launch in kiosk mode.
    */
   kiosk_mode?: boolean;
 
   /**
-   * Optional name for the browser pool. Must be unique within the project.
+   * If provided, replaces the pool name. Empty string is a no-op; the pool name
+   * cannot be cleared or reset to empty once assigned.
    */
   name?: string;
 
@@ -656,43 +660,39 @@ export interface BrowserPoolUpdateParams {
   profile?: BrowserPoolUpdateParams.Profile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy in
-   * the same project as the browser session.
+   * Empty string clears the previously-selected proxy. Omit this field to leave the
+   * proxy unchanged.
    */
   proxy_id?: string;
 
   /**
-   * When true, flush idle browsers when the profile the pool uses is updated, so
-   * pool browsers pick up the latest profile data. Requires a profile to be set on
-   * the pool.
+   * If provided, replaces whether idle browsers are flushed when the profile the
+   * pool uses is updated. Requires a profile to be set on the pool.
    */
   refresh_on_profile_update?: boolean;
 
   /**
-   * Number of browsers to maintain in the pool. The maximum size is determined by
-   * your organization's pooled sessions limit (the sum of all pool sizes cannot
-   * exceed your limit).
+   * If provided, replaces the number of browsers to maintain in the pool. The
+   * maximum size is determined by your organization's pooled sessions limit (the sum
+   * of all pool sizes cannot exceed your limit).
    */
   size?: number;
 
   /**
-   * Optional URL to navigate to when a new browser is warmed into the pool.
-   * Best-effort: failures to navigate do not fail pool fill. Only applied to
-   * newly-warmed browsers; browsers reused via release/acquire keep whatever URL the
-   * previous lease left them on. Accepts any URL Chromium can resolve, including
-   * chrome:// pages.
+   * If provided, replaces the URL to navigate to when a new browser is warmed into
+   * the pool. Empty string clears the previously-set URL. Omit this field to leave
+   * it unchanged.
    */
   start_url?: string;
 
   /**
-   * If true, launches the browser in stealth mode to reduce detection by anti-bot
-   * mechanisms.
+   * If provided, replaces whether browsers launch in stealth mode.
    */
   stealth?: boolean;
 
   /**
-   * Default idle timeout in seconds for browsers acquired from this pool before they
-   * are destroyed. Defaults to 600 seconds. Minimum 10, maximum 259200 (72 hours).
+   * If provided, replaces the default idle timeout in seconds for browsers acquired
+   * from this pool before they are destroyed. Minimum 10, maximum 259200 (72 hours).
    */
   timeout_seconds?: number;
 
