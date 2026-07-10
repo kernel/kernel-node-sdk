@@ -166,6 +166,39 @@ export namespace DeploymentStateEvent {
     env_vars?: { [key: string]: string };
 
     /**
+     * Hex-encoded SHA-256 checksum of the source archive. For file uploads, this
+     * hashes the uploaded archive; for GitHub-sourced deployments, this hashes the
+     * GitHub archive downloaded by the API. Omitted for deployments created before
+     * this field was recorded.
+     */
+    source_checksum?: string;
+
+    /**
+     * For GitHub-sourced deployments, the subpath within the repository that was used
+     * as the deploy root. Omitted when the repo root was used or for file uploads.
+     */
+    source_path?: string;
+
+    /**
+     * For GitHub-sourced deployments, the git ref as requested at deploy time (branch,
+     * tag, or commit SHA — not resolved to a commit). Omitted for file uploads.
+     */
+    source_ref?: string;
+
+    /**
+     * Origin of the deployed source code. This is read-only response provenance;
+     * `file` indicates an uploaded archive and `github` indicates a repository fetched
+     * by the API.
+     */
+    source_type?: 'file' | 'github';
+
+    /**
+     * For GitHub-sourced deployments, the repository URL that was fetched. Omitted for
+     * file uploads.
+     */
+    source_url?: string;
+
+    /**
      * Status reason
      */
     status_reason?: string;
@@ -212,6 +245,39 @@ export interface DeploymentCreateResponse {
    * string value. Only dashboard sessions receive the actual values.
    */
   env_vars?: { [key: string]: string };
+
+  /**
+   * Hex-encoded SHA-256 checksum of the source archive. For file uploads, this
+   * hashes the uploaded archive; for GitHub-sourced deployments, this hashes the
+   * GitHub archive downloaded by the API. Omitted for deployments created before
+   * this field was recorded.
+   */
+  source_checksum?: string;
+
+  /**
+   * For GitHub-sourced deployments, the subpath within the repository that was used
+   * as the deploy root. Omitted when the repo root was used or for file uploads.
+   */
+  source_path?: string;
+
+  /**
+   * For GitHub-sourced deployments, the git ref as requested at deploy time (branch,
+   * tag, or commit SHA — not resolved to a commit). Omitted for file uploads.
+   */
+  source_ref?: string;
+
+  /**
+   * Origin of the deployed source code. This is read-only response provenance;
+   * `file` indicates an uploaded archive and `github` indicates a repository fetched
+   * by the API.
+   */
+  source_type?: 'file' | 'github';
+
+  /**
+   * For GitHub-sourced deployments, the repository URL that was fetched. Omitted for
+   * file uploads.
+   */
+  source_url?: string;
 
   /**
    * Status reason
@@ -261,6 +327,39 @@ export interface DeploymentRetrieveResponse {
   env_vars?: { [key: string]: string };
 
   /**
+   * Hex-encoded SHA-256 checksum of the source archive. For file uploads, this
+   * hashes the uploaded archive; for GitHub-sourced deployments, this hashes the
+   * GitHub archive downloaded by the API. Omitted for deployments created before
+   * this field was recorded.
+   */
+  source_checksum?: string;
+
+  /**
+   * For GitHub-sourced deployments, the subpath within the repository that was used
+   * as the deploy root. Omitted when the repo root was used or for file uploads.
+   */
+  source_path?: string;
+
+  /**
+   * For GitHub-sourced deployments, the git ref as requested at deploy time (branch,
+   * tag, or commit SHA — not resolved to a commit). Omitted for file uploads.
+   */
+  source_ref?: string;
+
+  /**
+   * Origin of the deployed source code. This is read-only response provenance;
+   * `file` indicates an uploaded archive and `github` indicates a repository fetched
+   * by the API.
+   */
+  source_type?: 'file' | 'github';
+
+  /**
+   * For GitHub-sourced deployments, the repository URL that was fetched. Omitted for
+   * file uploads.
+   */
+  source_url?: string;
+
+  /**
    * Status reason
    */
   status_reason?: string;
@@ -306,6 +405,39 @@ export interface DeploymentListResponse {
    * string value. Only dashboard sessions receive the actual values.
    */
   env_vars?: { [key: string]: string };
+
+  /**
+   * Hex-encoded SHA-256 checksum of the source archive. For file uploads, this
+   * hashes the uploaded archive; for GitHub-sourced deployments, this hashes the
+   * GitHub archive downloaded by the API. Omitted for deployments created before
+   * this field was recorded.
+   */
+  source_checksum?: string;
+
+  /**
+   * For GitHub-sourced deployments, the subpath within the repository that was used
+   * as the deploy root. Omitted when the repo root was used or for file uploads.
+   */
+  source_path?: string;
+
+  /**
+   * For GitHub-sourced deployments, the git ref as requested at deploy time (branch,
+   * tag, or commit SHA — not resolved to a commit). Omitted for file uploads.
+   */
+  source_ref?: string;
+
+  /**
+   * Origin of the deployed source code. This is read-only response provenance;
+   * `file` indicates an uploaded archive and `github` indicates a repository fetched
+   * by the API.
+   */
+  source_type?: 'file' | 'github';
+
+  /**
+   * For GitHub-sourced deployments, the repository URL that was fetched. Omitted for
+   * file uploads.
+   */
+  source_url?: string;
 
   /**
    * Status reason
