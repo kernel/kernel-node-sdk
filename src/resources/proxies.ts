@@ -1037,7 +1037,8 @@ export interface ProxyUpdateParams {
 
 export interface ProxyListParams extends OffsetPaginationParams {
   /**
-   * Search proxies by name, host, IP address, or ID.
+   * Case-insensitive substring match against proxy name, host, or IP address. IDs
+   * match by exact value.
    */
   query?: string;
 }

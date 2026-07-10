@@ -139,7 +139,7 @@ export interface ProfileUpdateParams {
 
 export interface ProfileListParams extends OffsetPaginationParams {
   /**
-   * Search profiles by name or ID.
+   * Case-insensitive substring match against profile name or ID.
    */
   query?: string;
 }

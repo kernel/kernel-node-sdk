@@ -141,7 +141,8 @@ export interface APIKey {
   masked_key: string;
 
   /**
-   * API key name
+   * Label for the API key. API keys are not addressable by name; use the ID or key
+   * identifier for stable references.
    */
   name: string;
 
@@ -188,7 +189,7 @@ export interface CreatedAPIKey extends APIKey {
 
 export interface APIKeyCreateParams {
   /**
-   * API key name (1-255 characters)
+   * Label for the API key (1-255 characters). API keys are not addressable by name.
    */
   name: string;
 
