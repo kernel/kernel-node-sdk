@@ -227,6 +227,14 @@ export interface APIKeyListParams extends OffsetPaginationParams {
   include_deleted?: boolean;
 
   /**
+   * Exact-match filter on API key name using the database collation. In production,
+   * matching is case- and accent-insensitive. Names are not required to be unique,
+   * so multiple keys may match. When status=all or include_deleted=true is set,
+   * soft-deleted keys with the same name may also match.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against API key name, creator, and project. API
    * key identifiers and masked keys match by exact value or prefix.
    */

@@ -250,6 +250,14 @@ export interface ExtensionUploadResponse {
 
 export interface ExtensionListParams extends OffsetPaginationParams {
   /**
+   * Exact-match filter on extension name using the database collation. In
+   * production, matching is case- and accent-insensitive. During the default-project
+   * migration, unscoped requests prefer a concrete default-project extension over a
+   * legacy unscoped extension with the same name.
+   */
+  name?: string;
+
+  /**
    * Case-insensitive substring match against extension name. IDs match by exact
    * value.
    */
