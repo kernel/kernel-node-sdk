@@ -119,7 +119,7 @@ export interface AuditLogListParams extends PageTokenPaginationParams {
   /**
    * Filter out results by HTTP method.
    */
-  exclude_method?: string;
+  exclude_method?: Array<string>;
 
   /**
    * Filter by HTTP method.
@@ -166,7 +166,7 @@ export interface AuditLogExportChunkParams {
   /**
    * Filter out results by HTTP method.
    */
-  exclude_method?: string;
+  exclude_method?: Array<string>;
 
   /**
    * Encoding for the returned chunk.
