@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.78.0 (2026-07-13)
+
+Full Changelog: [v0.76.0...v0.78.0](https://github.com/kernel/kernel-node-sdk/compare/v0.76.0...v0.78.0)
+
+### Features
+
+* Add exact-match name filter to list endpoints ([dd94a68](https://github.com/kernel/kernel-node-sdk/commit/dd94a6824da367c28f29a41a50ff220a7bbd0015))
+* Add name-only rename for profiles and proxies ([2fe4124](https://github.com/kernel/kernel-node-sdk/commit/2fe41244b7e184914c6858a9533132d65b4380ba))
+* Auto-default refresh_on_profile_update when browser pool profile changes ([adaf037](https://github.com/kernel/kernel-node-sdk/commit/adaf0372de1e2eaf1450a93d510c51f9b843957c))
+* Document name uniqueness and query match semantics ([670f7c3](https://github.com/kernel/kernel-node-sdk/commit/670f7c32c4c63064198a53bab24117354a26832d))
+* Expose telemetry exception message in API/SDK ([ddf0a65](https://github.com/kernel/kernel-node-sdk/commit/ddf0a65dc7fb1a64e299173462266a09af0d2605))
+* Make the browser pool OpenAPI contract truthful ([cfc4539](https://github.com/kernel/kernel-node-sdk/commit/cfc45396ab79ee020ffd927ea2cd40291b5496bb))
+* Persist and echo deployment source identity ([f8605df](https://github.com/kernel/kernel-node-sdk/commit/f8605df3e781a05a2beddb933273b0eb4fb0d24b))
+* Support multiple audit log method exclusions ([a3b8713](https://github.com/kernel/kernel-node-sdk/commit/a3b871374783991780c24b16fee40945c4e383fd))
+
+
+### Bug Fixes
+
+* **ci:** bump @arethetypeswrong/cli to ^0.18.0 and run CI workflows on Node 24 ([6fca519](https://github.com/kernel/kernel-node-sdk/commit/6fca5191da0d3c4512a74e3246df0591459b6d29))
+
+
+### Documentation
+
+* **openapi:** describe unified concurrency limit, deprecate max_pooled_sessions (CUS-275) ([37d3e27](https://github.com/kernel/kernel-node-sdk/commit/37d3e277f98b068f23c5fc85e7b26269c254827c))
+
 ## 0.76.0 (2026-07-09)
 
 Full Changelog: [v0.75.0...v0.76.0](https://github.com/kernel/kernel-node-sdk/compare/v0.75.0...v0.76.0)
