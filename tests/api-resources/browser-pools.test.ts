@@ -35,6 +35,20 @@ describe('resource browserPools', () => {
       refresh_on_profile_update: true,
       start_url: 'https://example.com',
       stealth: true,
+      telemetry: {
+        browser: {
+          captcha: { enabled: true },
+          connection: { enabled: true },
+          console: { enabled: true },
+          control: { enabled: true },
+          interaction: { enabled: true },
+          network: { enabled: true },
+          page: { enabled: true },
+          screenshot: { enabled: true },
+          system: { enabled: true },
+        },
+        enabled: true,
+      },
       timeout_seconds: 10,
       viewport: {
         height: 800,
