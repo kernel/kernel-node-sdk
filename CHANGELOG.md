@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.79.0 (2026-07-15)
+
+Full Changelog: [v0.78.1...v0.79.0](https://github.com/kernel/kernel-node-sdk/compare/v0.78.1...v0.79.0)
+
+### Features
+
+* Add telemetry support for browser pools with BAA enforcement ([20bce96](https://github.com/kernel/kernel-node-sdk/commit/20bce962d516cc11955689abd0c6c74a2d2ba76d))
+
 ## 0.78.1 (2026-07-15)
 
 Full Changelog: [v0.78.0...v0.78.1](https://github.com/kernel/kernel-node-sdk/compare/v0.78.0...v0.78.1)
