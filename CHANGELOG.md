@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.78.1 (2026-07-15)
+
+Full Changelog: [v0.78.0...v0.78.1](https://github.com/kernel/kernel-node-sdk/compare/v0.78.0...v0.78.1)
+
+### Features
+
+* Default dashboard browser pools to 25% fill rate ([55708d5](https://github.com/kernel/kernel-node-sdk/commit/55708d5e414392e2748e747be931e5d9dafdf62e))
+
 ## 0.78.0 (2026-07-13)
 
 Full Changelog: [v0.76.0...v0.78.0](https://github.com/kernel/kernel-node-sdk/compare/v0.76.0...v0.78.0)
