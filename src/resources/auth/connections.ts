@@ -353,6 +353,12 @@ export interface ManagedAuth {
     | 'requires_email_code';
 
   /**
+   * Canonical choices awaiting selection. Prefer this over pending_sso_buttons,
+   * mfa_options, and sign_in_options when present.
+   */
+  choices?: Array<ManagedAuth.Choice> | null;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -382,6 +388,12 @@ export interface ManagedAuth {
    * flow_step=awaiting_external_action)
    */
   external_action_message?: string | null;
+
+  /**
+   * Canonical fields awaiting input. Prefer this over discovered_fields when
+   * present.
+   */
+  fields?: Array<ManagedAuth.Field> | null;
 
   /**
    * When the current flow expires (null when no flow in progress). A flow past this
@@ -504,6 +516,43 @@ export interface ManagedAuth {
 
 export namespace ManagedAuth {
   /**
+   * Canonical auth-flow choice awaiting user selection.
+   */
+  export interface Choice {
+    /**
+     * Stable choice identifier for canonical submit.
+     */
+    id: string;
+
+    /**
+     * Human-readable choice label.
+     */
+    label: string;
+
+    /**
+     * Choice type.
+     */
+    type:
+      | 'mfa_method'
+      | 'sso_provider'
+      | 'sign_in_method'
+      | 'auth_method'
+      | 'identifier_method'
+      | 'account'
+      | 'other';
+
+    /**
+     * Additional context for the choice.
+     */
+    description?: string | null;
+
+    /**
+     * Selector for the visible choice, when available.
+     */
+    observed_selector?: string | null;
+  }
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -575,6 +624,41 @@ export namespace ManagedAuth {
 
     /**
      * Whether field is required
+     */
+    required?: boolean;
+  }
+
+  /**
+   * Canonical field awaiting user input.
+   */
+  export interface Field {
+    /**
+     * Stable field identifier for canonical submit.
+     */
+    id: string;
+
+    /**
+     * Credential reference name to store the submitted value under.
+     */
+    ref: string;
+
+    /**
+     * Managed-auth field type.
+     */
+    type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+
+    /**
+     * Human-readable label shown to the user.
+     */
+    label?: string;
+
+    /**
+     * Selector for the visible field, when available.
+     */
+    observed_selector?: string | null;
+
+    /**
+     * Whether this field is required.
      */
     required?: boolean;
   }
@@ -989,10 +1073,17 @@ export namespace ManagedAuthUpdateRequest {
 
 /**
  * Request to submit field values, click an SSO button, select an MFA method, or
- * select a sign-in option. Provide exactly one of fields, sso_button_selector,
- * sso_provider, mfa_option_id, or sign_in_option_id.
+ * select a sign-in option. Prefer canonical selected_choice_id/field_values when
+ * the API returns fields/choices; legacy
+ * fields/sso_button_selector/sso_provider/mfa_option_id/sign_in_option_id remain
+ * supported during deprecation.
  */
 export interface SubmitFieldsRequest {
+  /**
+   * Canonical map of field ID to submitted value.
+   */
+  field_values?: { [key: string]: string };
+
   /**
    * Map of field name to value
    */
@@ -1002,6 +1093,11 @@ export interface SubmitFieldsRequest {
    * The MFA method type to select (when mfa_options were returned)
    */
   mfa_option_id?: string;
+
+  /**
+   * Canonical choice ID selected by the user.
+   */
+  selected_choice_id?: string;
 
   /**
    * The sign-in option ID to select (when sign_in_options were returned)
@@ -1065,6 +1161,12 @@ export namespace ConnectionFollowResponse {
     timestamp: string;
 
     /**
+     * Canonical choices awaiting selection. Prefer this over pending_sso_buttons,
+     * mfa_options, and sign_in_options when present.
+     */
+    choices?: Array<ManagedAuthStateEvent.Choice>;
+
+    /**
      * Fields awaiting input (present when flow_step=AWAITING_INPUT; may also be
      * present with AWAITING_EXTERNAL_ACTION as fallback actions).
      */
@@ -1085,6 +1187,12 @@ export namespace ConnectionFollowResponse {
      * flow_step=AWAITING_EXTERNAL_ACTION).
      */
     external_action_message?: string;
+
+    /**
+     * Canonical fields awaiting input. Prefer this over discovered_fields when
+     * present.
+     */
+    fields?: Array<ManagedAuthStateEvent.Field>;
 
     /**
      * Type of the current flow.
@@ -1134,6 +1242,43 @@ export namespace ConnectionFollowResponse {
 
   export namespace ManagedAuthStateEvent {
     /**
+     * Canonical auth-flow choice awaiting user selection.
+     */
+    export interface Choice {
+      /**
+       * Stable choice identifier for canonical submit.
+       */
+      id: string;
+
+      /**
+       * Human-readable choice label.
+       */
+      label: string;
+
+      /**
+       * Choice type.
+       */
+      type:
+        | 'mfa_method'
+        | 'sso_provider'
+        | 'sign_in_method'
+        | 'auth_method'
+        | 'identifier_method'
+        | 'account'
+        | 'other';
+
+      /**
+       * Additional context for the choice.
+       */
+      description?: string | null;
+
+      /**
+       * Selector for the visible choice, when available.
+       */
+      observed_selector?: string | null;
+    }
+
+    /**
      * A discovered form field
      */
     export interface DiscoveredField {
@@ -1176,6 +1321,41 @@ export namespace ConnectionFollowResponse {
 
       /**
        * Whether field is required
+       */
+      required?: boolean;
+    }
+
+    /**
+     * Canonical field awaiting user input.
+     */
+    export interface Field {
+      /**
+       * Stable field identifier for canonical submit.
+       */
+      id: string;
+
+      /**
+       * Credential reference name to store the submitted value under.
+       */
+      ref: string;
+
+      /**
+       * Managed-auth field type.
+       */
+      type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+
+      /**
+       * Human-readable label shown to the user.
+       */
+      label?: string;
+
+      /**
+       * Selector for the visible field, when available.
+       */
+      observed_selector?: string | null;
+
+      /**
+       * Whether this field is required.
        */
       required?: boolean;
     }
@@ -1563,6 +1743,11 @@ export namespace ConnectionLoginParams {
 
 export interface ConnectionSubmitParams {
   /**
+   * Canonical map of field ID to submitted value.
+   */
+  field_values?: { [key: string]: string };
+
+  /**
    * Map of field name to value
    */
   fields?: { [key: string]: string };
@@ -1571,6 +1756,11 @@ export interface ConnectionSubmitParams {
    * The MFA method type to select (when mfa_options were returned)
    */
   mfa_option_id?: string;
+
+  /**
+   * Canonical choice ID selected by the user.
+   */
+  selected_choice_id?: string;
 
   /**
    * The sign-in option ID to select (when sign_in_options were returned)
