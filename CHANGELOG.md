@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.80.0 (2026-07-19)
+
+Full Changelog: [v0.79.0...v0.80.0](https://github.com/kernel/kernel-node-sdk/compare/v0.79.0...v0.80.0)
+
+### Features
+
+* Add example to ProxyCheckRequest.url so API reference sample shows it ([bd1c0ca](https://github.com/kernel/kernel-node-sdk/commit/bd1c0ca24864a06051c2deb0ef97d46a5d822caa))
+* Expose browser sessions on auth timeline events ([9250344](https://github.com/kernel/kernel-node-sdk/commit/925034471eabbf215130abd829265d4c8e9a059a))
+* **managed-auth:** add TS CUA worker contract (KERNEL-1456) ([0a5405f](https://github.com/kernel/kernel-node-sdk/commit/0a5405f257c7fd6138f1a25adba598b672f30b06))
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([868a6e1](https://github.com/kernel/kernel-node-sdk/commit/868a6e1318fd09b9c54bab3f64c15d1682668c54))
+
 ## 0.79.0 (2026-07-15)
 
 Full Changelog: [v0.78.1...v0.79.0](https://github.com/kernel/kernel-node-sdk/compare/v0.78.1...v0.79.0)
