@@ -910,6 +910,11 @@ export interface ManagedAuthTimelineEvent {
   type: 'login' | 'reauth' | 'health_check';
 
   /**
+   * Browser session that produced the event, if one was created.
+   */
+  browser_session_id?: string;
+
+  /**
    * Machine-readable error code. Present when a login/reauth event failed.
    */
   error_code?: string;
