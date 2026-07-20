@@ -1,0 +1,140 @@
+import { createHash } from 'node:crypto';
+import { open, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import Kernel from '@onkernel/sdk';
+
+const checksum = (body: string) => createHash('sha256').update(body).digest('hex');
+
+const chunkResponse = (body: string, rows: number, hasMore: boolean, nextCursor?: string) =>
+  new Response(body, {
+    headers: {
+      'content-type': 'application/octet-stream',
+      'x-content-sha256': checksum(body),
+      'x-has-more': String(hasMore),
+      'x-row-count': String(rows),
+      ...(nextCursor ? { 'x-next-cursor': nextCursor } : {}),
+    },
+  });
+
+const requestURL = (input: string | URL | Request) =>
+  typeof input === 'string' ? input
+  : input instanceof URL ? input.toString()
+  : input.url;
+
+describe('audit log download', () => {
+  test('writes verified chunks and reports progress', async () => {
+    const cursors: Array<string | null> = [];
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async (input) => {
+        const url = new URL(requestURL(input));
+        cursors.push(url.searchParams.get('cursor'));
+        return cursors.length === 1 ?
+            chunkResponse('first', 2, true, 'next')
+          : chunkResponse('second', 1, false);
+      },
+    });
+    const chunks: Uint8Array[] = [];
+    const progress: Array<{ bytesWritten: number; chunks: number; rows: number; chunkRows: number }> = [];
+
+    const result = await client.auditLogs.download(
+      {
+        start: '2026-06-01T00:00:00Z',
+        end: '2026-06-02T00:00:00Z',
+        format: 'jsonl.gz',
+      },
+      {
+        write(chunk) {
+          chunks.push(chunk);
+        },
+      },
+      {
+        onProgress(update) {
+          progress.push(update);
+        },
+      },
+    );
+
+    expect(cursors).toEqual([null, 'next']);
+    expect(Buffer.concat(chunks).toString()).toBe('firstsecond');
+    expect(result).toEqual({ bytesWritten: 11, chunks: 2, rows: 3 });
+    expect(progress).toEqual([
+      { bytesWritten: 5, chunks: 1, rows: 2, chunkRows: 2 },
+      { bytesWritten: 11, chunks: 2, rows: 3, chunkRows: 1 },
+    ]);
+  });
+
+  test('writes to a Node file handle', async () => {
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => chunkResponse('chunk', 1, false),
+    });
+    const directory = await mkdtemp(join(tmpdir(), 'kernel-audit-logs-'));
+    const path = join(directory, 'audit-logs.jsonl.gz');
+
+    try {
+      const file = await open(path, 'w');
+      try {
+        await client.auditLogs.download({ start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' }, file);
+      } finally {
+        await file.close();
+      }
+      expect(await readFile(path, 'utf8')).toBe('chunk');
+    } finally {
+      await rm(directory, { recursive: true });
+    }
+  });
+
+  test('rejects an invalid next cursor before writing', async () => {
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => chunkResponse('chunk', 1, true),
+    });
+    const write = jest.fn();
+
+    await expect(
+      client.auditLogs.download({ start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' }, { write }),
+    ).rejects.toThrow('response has invalid X-Next-Cursor header');
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  test('retries a checksum mismatch without writing the bad chunk', async () => {
+    let attempts = 0;
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => {
+        attempts += 1;
+        if (attempts === 1) {
+          return new Response('bad', {
+            headers: {
+              'x-content-sha256': checksum('good'),
+              'x-has-more': 'false',
+              'x-row-count': '1',
+            },
+          });
+        }
+        return chunkResponse('good', 1, false);
+      },
+    });
+    const chunks: Uint8Array[] = [];
+
+    const download = client.auditLogs.download(
+      { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+      {
+        write(chunk) {
+          chunks.push(chunk);
+        },
+      },
+    );
+    await download;
+
+    expect(attempts).toBe(2);
+    expect(Buffer.concat(chunks).toString()).toBe('good');
+  });
+});

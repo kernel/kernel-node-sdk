@@ -5,6 +5,22 @@ import { APIPromise } from '../core/api-promise';
 import { PagePromise, PageTokenPagination, type PageTokenPaginationParams } from '../core/pagination';
 import { buildHeaders } from '../internal/headers';
 import { RequestOptions } from '../internal/request-options';
+import {
+  downloadAuditLogs,
+  type AuditLogDownloadDestination,
+  type AuditLogDownloadOptions,
+  type AuditLogDownloadParams,
+  type AuditLogDownloadProgress,
+  type AuditLogDownloadResult,
+} from '../lib/audit-log-download';
+
+export type {
+  AuditLogDownloadDestination,
+  AuditLogDownloadOptions,
+  AuditLogDownloadParams,
+  AuditLogDownloadProgress,
+  AuditLogDownloadResult,
+} from '../lib/audit-log-download';
 
 /**
  * Read audit log records for the authenticated organization.
@@ -33,6 +49,24 @@ export class AuditLogs extends APIResource {
       headers: buildHeaders([{ Accept: 'application/octet-stream' }, options?.headers]),
       __binaryResponse: true,
     });
+  }
+
+  /**
+   * Download a complete audit log export to a writable destination. The SDK
+   * verifies every chunk and retries transient transfer failures. It does not
+   * close the destination.
+   */
+  download(
+    query: AuditLogDownloadParams,
+    destination: AuditLogDownloadDestination,
+    options?: AuditLogDownloadOptions,
+  ): Promise<AuditLogDownloadResult> {
+    return downloadAuditLogs(
+      (chunkQuery, chunkOptions) => this.exportChunk(chunkQuery, chunkOptions),
+      query,
+      destination,
+      options,
+    );
   }
 }
 
@@ -205,5 +239,10 @@ export declare namespace AuditLogs {
     type AuditLogEntriesPageTokenPagination as AuditLogEntriesPageTokenPagination,
     type AuditLogListParams as AuditLogListParams,
     type AuditLogExportChunkParams as AuditLogExportChunkParams,
+    type AuditLogDownloadDestination as AuditLogDownloadDestination,
+    type AuditLogDownloadOptions as AuditLogDownloadOptions,
+    type AuditLogDownloadParams as AuditLogDownloadParams,
+    type AuditLogDownloadProgress as AuditLogDownloadProgress,
+    type AuditLogDownloadResult as AuditLogDownloadResult,
   };
 }
