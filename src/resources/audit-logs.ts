@@ -54,7 +54,9 @@ export class AuditLogs extends APIResource {
   /**
    * Download a complete audit log export to a writable destination. The SDK
    * verifies every chunk and retries transient transfer failures. It does not
-   * close the destination.
+   * close the destination. If the download fails, the destination may contain
+   * a partial export; use a temporary file and atomic rename when the completed
+   * export must be published atomically.
    */
   download(
     query: AuditLogDownloadParams,

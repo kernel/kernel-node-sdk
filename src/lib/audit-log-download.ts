@@ -1,8 +1,8 @@
-import { APIConnectionError, APIError, APIUserAbortError, KernelError } from '../core/error';
+import { APIUserAbortError, KernelError } from '../core/error';
 import type { RequestOptions } from '../internal/request-options';
 import type { AuditLogExportChunkParams } from '../resources/audit-logs';
 
-const DOWNLOAD_ATTEMPTS = 7;
+const DEFAULT_MAX_TRANSFER_RETRIES = 6;
 const MAX_RETRY_DELAY_MS = 8_000;
 
 export class AuditLogDownloadError extends KernelError {}
@@ -28,9 +28,10 @@ export interface AuditLogDownloadDestination {
 export interface AuditLogDownloadOptions
   extends Omit<
     RequestOptions,
-    'method' | 'path' | 'query' | 'body' | 'maxRetries' | 'stream' | '__binaryResponse' | '__streamClass'
+    'method' | 'path' | 'query' | 'body' | 'stream' | '__binaryResponse' | '__streamClass'
   > {
   onProgress?(progress: AuditLogDownloadProgress): void | Promise<void>;
+  maxTransferRetries?: number;
 }
 
 type FetchChunk = (query: AuditLogExportChunkParams, options?: RequestOptions) => Promise<Response>;
@@ -45,16 +46,28 @@ export async function downloadAuditLogs(
     throw new TypeError('audit log download destination must provide write()');
   }
 
-  const { onProgress, ...requestOptions } = options;
+  const { onProgress, maxTransferRetries = DEFAULT_MAX_TRANSFER_RETRIES, ...requestOptions } = options;
+  if (!Number.isInteger(maxTransferRetries) || maxTransferRetries < 0) {
+    throw new TypeError('maxTransferRetries must be a non-negative integer');
+  }
   let cursor: string | undefined;
   const result: AuditLogDownloadResult = { bytesWritten: 0, chunks: 0, rows: 0 };
+  const seenCursors = new Set<string>();
 
   while (true) {
-    const chunk = await fetchVerifiedChunk(fetchChunk, cursor ? { ...query, cursor } : query, {
-      ...requestOptions,
-      maxRetries: 0,
-    });
+    const chunk = await fetchVerifiedChunk(
+      fetchChunk,
+      cursor ? { ...query, cursor } : query,
+      requestOptions,
+      maxTransferRetries,
+    );
     const { nextCursor, hasMore, rows } = parseChunkHeaders(chunk.headers, cursor);
+    if (hasMore && nextCursor) {
+      if (seenCursors.has(nextCursor)) {
+        throw new AuditLogDownloadError('response repeated X-Next-Cursor header');
+      }
+      seenCursors.add(nextCursor);
+    }
     await writeChunk(destination, chunk.body);
 
     cursor = nextCursor;
@@ -74,10 +87,11 @@ async function fetchVerifiedChunk(
   fetchChunk: FetchChunk,
   query: AuditLogExportChunkParams,
   options: RequestOptions,
+  maxTransferRetries: number,
 ): Promise<{ body: Uint8Array; headers: Headers }> {
-  for (let attempt = 1; ; attempt += 1) {
+  for (let retries = 0; ; retries += 1) {
+    const response = await fetchChunk(query, options);
     try {
-      const response = await fetchChunk(query, options);
       const body = new Uint8Array(await response.arrayBuffer());
       const expected = response.headers.get('x-content-sha256');
       if (!expected) {
@@ -91,10 +105,10 @@ async function fetchVerifiedChunk(
       }
       return { body, headers: response.headers };
     } catch (error) {
-      if (attempt === DOWNLOAD_ATTEMPTS || !isRetryable(error, options.signal)) {
+      if (retries === maxTransferRetries || options.signal?.aborted || error instanceof APIUserAbortError) {
         throw error;
       }
-      await retryDelay(attempt, options.signal);
+      await retryDelay(retries + 1, options.signal);
     }
   }
 }
@@ -126,19 +140,8 @@ function parseChunkHeaders(
 }
 
 async function sha256Hex(body: Uint8Array): Promise<string> {
-  const subtle = globalThis.crypto?.subtle ?? (await import('node:crypto')).webcrypto.subtle;
-  const digest = await subtle.digest('SHA-256', body);
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', body);
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function isRetryable(error: unknown, signal: AbortSignal | null | undefined): boolean {
-  if (signal?.aborted || error instanceof APIUserAbortError) {
-    return false;
-  }
-  if (error instanceof APIError && !(error instanceof APIConnectionError)) {
-    return error.status === 429 || (error.status !== undefined && error.status >= 500);
-  }
-  return true;
 }
 
 async function retryDelay(attempt: number, signal: AbortSignal | null | undefined): Promise<void> {

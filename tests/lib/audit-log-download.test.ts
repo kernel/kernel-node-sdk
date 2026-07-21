@@ -137,4 +137,78 @@ describe('audit log download', () => {
     expect(attempts).toBe(2);
     expect(Buffer.concat(chunks).toString()).toBe('good');
   });
+
+  test('respects request retry options', async () => {
+    let attempts = 0;
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => {
+        attempts += 1;
+        return new Response(JSON.stringify({ message: 'temporary failure' }), {
+          status: 500,
+          headers: { 'content-type': 'application/json', 'x-should-retry': 'false' },
+        });
+      },
+    });
+
+    await expect(
+      client.auditLogs.download(
+        { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+        { write() {} },
+        { maxRetries: 0 },
+      ),
+    ).rejects.toThrow('500');
+    expect(attempts).toBe(1);
+  });
+
+  test('respects transfer retry options', async () => {
+    let attempts = 0;
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => {
+        attempts += 1;
+        return new Response('bad', {
+          headers: {
+            'x-content-sha256': checksum('good'),
+            'x-has-more': 'false',
+            'x-row-count': '1',
+          },
+        });
+      },
+    });
+
+    await expect(
+      client.auditLogs.download(
+        { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+        { write() {} },
+        { maxTransferRetries: 0 },
+      ),
+    ).rejects.toThrow('checksum mismatch');
+    expect(attempts).toBe(1);
+  });
+
+  test('rejects a cursor cycle before writing duplicate data', async () => {
+    let attempts = 0;
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => {
+        attempts += 1;
+        if (attempts === 1) return chunkResponse('first', 1, true, 'a');
+        if (attempts === 2) return chunkResponse('second', 1, true, 'b');
+        return chunkResponse('duplicate', 1, true, 'a');
+      },
+    });
+    const chunks: Uint8Array[] = [];
+
+    await expect(
+      client.auditLogs.download(
+        { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+        { write: (chunk) => void chunks.push(chunk) },
+      ),
+    ).rejects.toThrow('response repeated X-Next-Cursor header');
+    expect(Buffer.concat(chunks).toString()).toBe('firstsecond');
+  });
 });
