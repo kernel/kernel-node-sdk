@@ -6,6 +6,15 @@ export { type Uploadable, toFile } from './core/uploads';
 export { APIPromise } from './core/api-promise';
 export { Kernel, type ClientOptions } from './client';
 export { type BrowserFetchInit } from './lib/browser-fetch';
+export {
+  AuditLogDownloadError,
+  type AuditLogDownloadDestination,
+  type AuditLogDownloadOptions,
+  type AuditLogDownloadParams,
+  type AuditLogDownloadProgress,
+  type AuditLogDownloadResult,
+  type AuditLogDownloadWriteResult,
+} from './lib/audit-log-download';
 export { BrowserRouteCache, type BrowserRoute } from './lib/browser-routing';
 export { PagePromise } from './core/pagination';
 export {
