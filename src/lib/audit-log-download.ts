@@ -118,14 +118,18 @@ async function fetchVerifiedChunk(
     }, timeout);
     try {
       const body = new Uint8Array(await response.arrayBuffer());
+      clearTimeout(timer);
+      if (options.signal?.aborted) {
+        throw new APIUserAbortError();
+      }
+      if (bodyTimedOut) {
+        throw new APIConnectionTimeoutError();
+      }
       const expected = response.headers.get('x-content-sha256');
       if (!expected) {
         throw new AuditLogDownloadError('response missing X-Content-Sha256 header');
       }
       const actual = await sha256Hex(body);
-      if (bodyTimedOut) {
-        throw new APIConnectionTimeoutError();
-      }
       if (options.signal?.aborted) {
         throw new APIUserAbortError();
       }
@@ -136,10 +140,10 @@ async function fetchVerifiedChunk(
       }
       return { body, headers: response.headers };
     } catch (error) {
-      if (bodyTimedOut) {
-        error = new APIConnectionTimeoutError();
-      } else if (options.signal?.aborted && !(error instanceof APIUserAbortError)) {
+      if (options.signal?.aborted && !(error instanceof APIUserAbortError)) {
         error = new APIUserAbortError();
+      } else if (bodyTimedOut) {
+        error = new APIConnectionTimeoutError();
       }
       if (retries === maxTransferRetries || error instanceof APIUserAbortError) {
         throw error;

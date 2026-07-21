@@ -262,6 +262,33 @@ describe('audit log download', () => {
     ).rejects.toBeInstanceOf(APIConnectionTimeoutError);
   });
 
+  test('does not apply the body timeout to checksum verification', async () => {
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => chunkResponse('chunk', 1, false),
+    });
+    const digest = globalThis.crypto.subtle.digest.bind(globalThis.crypto.subtle);
+    const digestSpy = jest
+      .spyOn(globalThis.crypto.subtle, 'digest')
+      .mockImplementation(async (algorithm, data) => {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        return digest(algorithm, data);
+      });
+
+    try {
+      await expect(
+        client.auditLogs.download(
+          { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+          { write() {} },
+          { timeout: 10, maxTransferRetries: 0 },
+        ),
+      ).resolves.toEqual({ bytesWritten: 5, chunks: 1, rows: 1 });
+    } finally {
+      digestSpy.mockRestore();
+    }
+  });
+
   test('maps cancellation during a response body read to APIUserAbortError', async () => {
     const controller = new AbortController();
     const client = new Kernel({
