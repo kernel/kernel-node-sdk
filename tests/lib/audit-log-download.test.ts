@@ -103,6 +103,42 @@ describe('audit log download', () => {
     expect(write).not.toHaveBeenCalled();
   });
 
+  test.each(['', '1.0', '50001'])('rejects invalid row count %p', async (rowCount) => {
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async () => {
+        const response = chunkResponse('chunk', 1, false);
+        response.headers.set('x-row-count', rowCount);
+        return response;
+      },
+    });
+    const write = jest.fn();
+
+    await expect(
+      client.auditLogs.download({ start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' }, { write }),
+    ).rejects.toThrow('response missing or invalid X-Row-Count header');
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  test.each([NaN, 0.5, { bytesWritten: NaN }, { bytesWritten: 0.5 }])(
+    'rejects invalid destination write result %p',
+    async (writeResult) => {
+      const client = new Kernel({
+        apiKey: 'test',
+        baseURL: 'https://api.example',
+        fetch: async () => chunkResponse('chunk', 1, false),
+      });
+
+      await expect(
+        client.auditLogs.download(
+          { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+          { write: () => writeResult },
+        ),
+      ).rejects.toThrow('audit log download destination performed a short write');
+    },
+  );
+
   test('retries a checksum mismatch without writing the bad chunk', async () => {
     let attempts = 0;
     const client = new Kernel({

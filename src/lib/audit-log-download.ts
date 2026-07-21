@@ -3,6 +3,7 @@ import type { RequestOptions } from '../internal/request-options';
 import type { AuditLogExportChunkParams } from '../resources/audit-logs';
 
 const DEFAULT_MAX_TRANSFER_RETRIES = 6;
+const MAX_CHUNK_ROWS = 50_000;
 const MAX_RETRY_DELAY_MS = 8_000;
 
 export class AuditLogDownloadError extends KernelError {}
@@ -124,8 +125,11 @@ function parseChunkHeaders(
   const hasMore = hasMoreValue === 'true';
 
   const rowCount = headers.get('x-row-count');
-  const rows = rowCount === null ? NaN : Number(rowCount);
-  if (!Number.isSafeInteger(rows) || rows < 0) {
+  if (rowCount === null || !/^[0-9]+$/.test(rowCount)) {
+    throw new AuditLogDownloadError('response missing or invalid X-Row-Count header');
+  }
+  const rows = Number(rowCount);
+  if (!Number.isSafeInteger(rows) || rows > MAX_CHUNK_ROWS) {
     throw new AuditLogDownloadError('response missing or invalid X-Row-Count header');
   }
 
@@ -168,20 +172,21 @@ async function writeChunk(destination: AuditLogDownloadDestination, body: Uint8A
   while (offset < body.byteLength) {
     const result = await destination.write(offset === 0 ? body : body.subarray(offset));
     if (typeof result === 'number') {
-      if (result <= 0 || result > body.byteLength - offset) {
-        throw new AuditLogDownloadError('audit log download destination performed a short write');
-      }
-      offset += result;
+      offset += validateWriteCount(result, body.byteLength - offset);
       continue;
     }
     if (result && typeof result === 'object' && 'bytesWritten' in result) {
       const bytesWritten = (result as { bytesWritten: number }).bytesWritten;
-      if (bytesWritten <= 0 || bytesWritten > body.byteLength - offset) {
-        throw new AuditLogDownloadError('audit log download destination performed a short write');
-      }
-      offset += bytesWritten;
+      offset += validateWriteCount(bytesWritten, body.byteLength - offset);
       continue;
     }
     return;
   }
+}
+
+function validateWriteCount(value: number, remaining: number): number {
+  if (!Number.isSafeInteger(value) || value <= 0 || value > remaining) {
+    throw new AuditLogDownloadError('audit log download destination performed a short write');
+  }
+  return value;
 }
