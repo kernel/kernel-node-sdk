@@ -8,7 +8,7 @@ const MAX_RETRY_DELAY_MS = 8_000;
 
 export class AuditLogDownloadError extends KernelError {}
 
-export type AuditLogDownloadParams = Omit<AuditLogExportChunkParams, 'cursor'>;
+export type AuditLogDownloadParams = Omit<AuditLogExportChunkParams, 'cursor' | 'format'>;
 
 export interface AuditLogDownloadResult {
   bytesWritten: number;

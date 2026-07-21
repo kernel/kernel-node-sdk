@@ -47,12 +47,14 @@ const stalledChunkResponse = (signal: AbortSignal) =>
 describe('audit log download', () => {
   test('writes verified chunks and reports progress', async () => {
     const cursors: Array<string | null> = [];
+    const formats: Array<string | null> = [];
     const client = new Kernel({
       apiKey: 'test',
       baseURL: 'https://api.example',
       fetch: async (input) => {
         const url = new URL(requestURL(input));
         cursors.push(url.searchParams.get('cursor'));
+        formats.push(url.searchParams.get('format'));
         return cursors.length === 1 ?
             chunkResponse('first', 2, true, 'next')
           : chunkResponse('second', 1, false);
@@ -65,7 +67,6 @@ describe('audit log download', () => {
       {
         start: '2026-06-01T00:00:00Z',
         end: '2026-06-02T00:00:00Z',
-        format: 'jsonl.gz',
       },
       {
         write(chunk) {
@@ -80,6 +81,7 @@ describe('audit log download', () => {
     );
 
     expect(cursors).toEqual([null, 'next']);
+    expect(formats).toEqual([null, null]);
     expect(Buffer.concat(chunks).toString()).toBe('firstsecond');
     expect(result).toEqual({ bytesWritten: 11, chunks: 2, rows: 3 });
     expect(progress).toEqual([
