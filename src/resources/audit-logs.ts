@@ -67,6 +67,7 @@ export class AuditLogs extends APIResource {
       (chunkQuery, chunkOptions) => this.exportChunk(chunkQuery, chunkOptions),
       query,
       destination,
+      this._client.timeout,
       options,
     );
   }

@@ -3,7 +3,7 @@ import { open, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import Kernel from '@onkernel/sdk';
+import Kernel, { APIConnectionTimeoutError, APIUserAbortError } from '@onkernel/sdk';
 
 const checksum = (body: string) => createHash('sha256').update(body).digest('hex');
 
@@ -22,6 +22,27 @@ const requestURL = (input: string | URL | Request) =>
   typeof input === 'string' ? input
   : input instanceof URL ? input.toString()
   : input.url;
+
+const stalledChunkResponse = (signal: AbortSignal) =>
+  new Response(
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('partial'));
+        signal.addEventListener(
+          'abort',
+          () => controller.error(new DOMException('This operation was aborted', 'AbortError')),
+          { once: true },
+        );
+      },
+    }),
+    {
+      headers: {
+        'x-content-sha256': checksum('partial'),
+        'x-has-more': 'false',
+        'x-row-count': '1',
+      },
+    },
+  );
 
 describe('audit log download', () => {
   test('writes verified chunks and reports progress', async () => {
@@ -223,6 +244,40 @@ describe('audit log download', () => {
       ),
     ).rejects.toThrow('checksum mismatch');
     expect(attempts).toBe(1);
+  });
+
+  test('times out a stalled response body', async () => {
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async (_input, init) => stalledChunkResponse(init?.signal as AbortSignal),
+    });
+
+    await expect(
+      client.auditLogs.download(
+        { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+        { write() {} },
+        { timeout: 10, maxTransferRetries: 0 },
+      ),
+    ).rejects.toBeInstanceOf(APIConnectionTimeoutError);
+  });
+
+  test('maps cancellation during a response body read to APIUserAbortError', async () => {
+    const controller = new AbortController();
+    const client = new Kernel({
+      apiKey: 'test',
+      baseURL: 'https://api.example',
+      fetch: async (_input, init) => stalledChunkResponse(init?.signal as AbortSignal),
+    });
+
+    const download = client.auditLogs.download(
+      { start: '2026-06-01T00:00:00Z', end: '2026-06-02T00:00:00Z' },
+      { write() {} },
+      { signal: controller.signal, maxTransferRetries: 0 },
+    );
+    setTimeout(() => controller.abort(), 0);
+
+    await expect(download).rejects.toBeInstanceOf(APIUserAbortError);
   });
 
   test('rejects a cursor cycle before writing duplicate data', async () => {

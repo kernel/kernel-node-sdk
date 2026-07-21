@@ -1,4 +1,4 @@
-import { APIUserAbortError, KernelError } from '../core/error';
+import { APIConnectionTimeoutError, APIUserAbortError, KernelError } from '../core/error';
 import type { RequestOptions } from '../internal/request-options';
 import type { AuditLogExportChunkParams } from '../resources/audit-logs';
 
@@ -41,6 +41,7 @@ export async function downloadAuditLogs(
   fetchChunk: FetchChunk,
   query: AuditLogDownloadParams,
   destination: AuditLogDownloadDestination,
+  defaultTimeout: number,
   options: AuditLogDownloadOptions = {},
 ): Promise<AuditLogDownloadResult> {
   if (!destination || typeof destination.write !== 'function') {
@@ -51,6 +52,7 @@ export async function downloadAuditLogs(
   if (!Number.isInteger(maxTransferRetries) || maxTransferRetries < 0) {
     throw new TypeError('maxTransferRetries must be a non-negative integer');
   }
+  const timeout = requestOptions.timeout ?? defaultTimeout;
   let cursor: string | undefined;
   const result: AuditLogDownloadResult = { bytesWritten: 0, chunks: 0, rows: 0 };
   const seenCursors = new Set<string>();
@@ -61,6 +63,7 @@ export async function downloadAuditLogs(
       cursor ? { ...query, cursor } : query,
       requestOptions,
       maxTransferRetries,
+      timeout,
     );
     const { nextCursor, hasMore, rows } = parseChunkHeaders(chunk.headers, cursor);
     if (hasMore && nextCursor) {
@@ -89,9 +92,30 @@ async function fetchVerifiedChunk(
   query: AuditLogExportChunkParams,
   options: RequestOptions,
   maxTransferRetries: number,
+  timeout: number,
 ): Promise<{ body: Uint8Array; headers: Headers }> {
   for (let retries = 0; ; retries += 1) {
-    const response = await fetchChunk(query, options);
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    if (options.signal?.aborted) {
+      controller.abort();
+    } else {
+      options.signal?.addEventListener('abort', onAbort, { once: true });
+    }
+
+    let response: Response;
+    try {
+      response = await fetchChunk(query, { ...options, signal: controller.signal });
+    } catch (error) {
+      options.signal?.removeEventListener('abort', onAbort);
+      throw error;
+    }
+
+    let bodyTimedOut = false;
+    const timer = setTimeout(() => {
+      bodyTimedOut = true;
+      controller.abort();
+    }, timeout);
     try {
       const body = new Uint8Array(await response.arrayBuffer());
       const expected = response.headers.get('x-content-sha256');
@@ -99,6 +123,12 @@ async function fetchVerifiedChunk(
         throw new AuditLogDownloadError('response missing X-Content-Sha256 header');
       }
       const actual = await sha256Hex(body);
+      if (bodyTimedOut) {
+        throw new APIConnectionTimeoutError();
+      }
+      if (options.signal?.aborted) {
+        throw new APIUserAbortError();
+      }
       if (actual !== expected) {
         throw new AuditLogDownloadError(
           `audit log chunk checksum mismatch (got ${actual}, want ${expected})`,
@@ -106,10 +136,18 @@ async function fetchVerifiedChunk(
       }
       return { body, headers: response.headers };
     } catch (error) {
-      if (retries === maxTransferRetries || options.signal?.aborted || error instanceof APIUserAbortError) {
+      if (bodyTimedOut) {
+        error = new APIConnectionTimeoutError();
+      } else if (options.signal?.aborted && !(error instanceof APIUserAbortError)) {
+        error = new APIUserAbortError();
+      }
+      if (retries === maxTransferRetries || error instanceof APIUserAbortError) {
         throw error;
       }
       await retryDelay(retries + 1, options.signal);
+    } finally {
+      clearTimeout(timer);
+      options.signal?.removeEventListener('abort', onAbort);
     }
   }
 }
