@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.81.0 (2026-07-21)
+
+Full Changelog: [v0.80.0...v0.81.0](https://github.com/kernel/kernel-node-sdk/compare/v0.80.0...v0.81.0)
+
+### Features
+
+* add complete audit log downloads ([6cb8e9e](https://github.com/kernel/kernel-node-sdk/commit/6cb8e9e38540b5e2954a6304b61b848fca70909e))
+
 ## 0.80.0 (2026-07-19)
 
 Full Changelog: [v0.79.0...v0.80.0](https://github.com/kernel/kernel-node-sdk/compare/v0.79.0...v0.80.0)
