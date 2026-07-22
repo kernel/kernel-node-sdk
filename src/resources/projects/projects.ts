@@ -91,7 +91,7 @@ export type ProjectsOffsetPagination = OffsetPagination<Project>;
 
 export interface CreateProjectRequest {
   /**
-   * Project name (1-255 characters)
+   * Project name (1-255 Unicode code points)
    */
   name: string;
 }
@@ -125,7 +125,7 @@ export interface Project {
 
 export interface UpdateProjectRequest {
   /**
-   * New project name
+   * New project name (1-255 Unicode code points)
    */
   name?: string;
 
@@ -137,14 +137,14 @@ export interface UpdateProjectRequest {
 
 export interface ProjectCreateParams {
   /**
-   * Project name (1-255 characters)
+   * Project name (1-255 Unicode code points)
    */
   name: string;
 }
 
 export interface ProjectUpdateParams {
   /**
-   * New project name
+   * New project name (1-255 Unicode code points)
    */
   name?: string;
 
