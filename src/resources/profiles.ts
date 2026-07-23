@@ -121,7 +121,7 @@ export class Profiles extends APIResource {
     return this._client.get(path`/profiles/${idOrName}/download`, {
       query,
       ...options,
-      headers: buildHeaders([{ Accept: 'application/zstd' }, options?.headers]),
+      headers: buildHeaders([{ Accept: 'application/octet-stream' }, options?.headers]),
       __binaryResponse: true,
     });
   }
