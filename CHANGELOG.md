@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.82.0 (2026-07-23)
+
+Full Changelog: [v0.81.0...v0.82.0](https://github.com/kernel/kernel-node-sdk/compare/v0.81.0...v0.82.0)
+
+### Features
+
+* Count project names by Unicode code point ([c8134ef](https://github.com/kernel/kernel-node-sdk/commit/c8134eff380d31547e87ee8b77aac5d3a47a5774))
+* Stream profile downloads as tar archives ([cae7386](https://github.com/kernel/kernel-node-sdk/commit/cae7386b5177282c885527ad3a14a6c15a25128a))
+* Use format-neutral profile download Accept header ([679c015](https://github.com/kernel/kernel-node-sdk/commit/679c015c3756034fc76a8261ca5c1c507e1f7ec0))
+
 ## 0.81.0 (2026-07-21)
 
 Full Changelog: [v0.80.0...v0.81.0](https://github.com/kernel/kernel-node-sdk/compare/v0.80.0...v0.81.0)
