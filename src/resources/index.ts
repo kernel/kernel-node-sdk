@@ -125,6 +125,7 @@ export {
   type ProfileCreateParams,
   type ProfileUpdateParams,
   type ProfileListParams,
+  type ProfileDownloadParams,
 } from './profiles';
 export {
   Projects,

@@ -98,7 +98,10 @@ export class Profiles extends APIResource {
   }
 
   /**
-   * Returns a zstd-compressed tar file of the full user-data directory.
+   * Downloads the profile in its stored format by default. Current profiles are
+   * returned as zstd-compressed tar archives, while legacy profiles remain JSON. Set
+   * `format=tar` to decompress current profiles during download; legacy profiles
+   * remain JSON.
    *
    * @example
    * ```ts
@@ -110,10 +113,15 @@ export class Profiles extends APIResource {
    * console.log(content);
    * ```
    */
-  download(idOrName: string, options?: RequestOptions): APIPromise<Response> {
+  download(
+    idOrName: string,
+    query: ProfileDownloadParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<Response> {
     return this._client.get(path`/profiles/${idOrName}/download`, {
+      query,
       ...options,
-      headers: buildHeaders([{ Accept: 'application/octet-stream' }, options?.headers]),
+      headers: buildHeaders([{ Accept: 'application/zstd' }, options?.headers]),
       __binaryResponse: true,
     });
   }
@@ -152,11 +160,20 @@ export interface ProfileListParams extends OffsetPaginationParams {
   query?: string;
 }
 
+export interface ProfileDownloadParams {
+  /**
+   * Response format for current profile archives. Legacy profiles are always
+   * returned as JSON.
+   */
+  format?: 'tar.zst' | 'tar';
+}
+
 export declare namespace Profiles {
   export {
     type ProfileCreateParams as ProfileCreateParams,
     type ProfileUpdateParams as ProfileUpdateParams,
     type ProfileListParams as ProfileListParams,
+    type ProfileDownloadParams as ProfileDownloadParams,
   };
 }
 
