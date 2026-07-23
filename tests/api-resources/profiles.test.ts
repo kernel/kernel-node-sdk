@@ -88,4 +88,12 @@ describe('resource profiles', () => {
     expect(dataAndResponse.data).toBe(response);
     expect(dataAndResponse.response).toBe(rawResponse);
   });
+
+  // Mock server tests are disabled
+  test.skip('download: request options and params are passed correctly', async () => {
+    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
+    await expect(
+      client.profiles.download('id_or_name', { format: 'tar.zst' }, { path: '/_stainless_unknown_path' }),
+    ).rejects.toThrow(Kernel.NotFoundError);
+  });
 });

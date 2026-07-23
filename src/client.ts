@@ -123,7 +123,13 @@ import {
   InvocationUpdateResponse,
   Invocations,
 } from './resources/invocations';
-import { ProfileCreateParams, ProfileListParams, ProfileUpdateParams, Profiles } from './resources/profiles';
+import {
+  ProfileCreateParams,
+  ProfileDownloadParams,
+  ProfileListParams,
+  ProfileUpdateParams,
+  Profiles,
+} from './resources/profiles';
 import {
   Proxies,
   ProxyCheckParams,
@@ -1126,6 +1132,7 @@ export declare namespace Kernel {
     type ProfileCreateParams as ProfileCreateParams,
     type ProfileUpdateParams as ProfileUpdateParams,
     type ProfileListParams as ProfileListParams,
+    type ProfileDownloadParams as ProfileDownloadParams,
   };
 
   export { Auth as Auth };
