@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.83.0 (2026-07-24)
+
+Full Changelog: [v0.82.0...v0.83.0](https://github.com/kernel/kernel-node-sdk/compare/v0.82.0...v0.83.0)
+
+### Features
+
+* Add browser telemetry to managed auth connections ([ca05977](https://github.com/kernel/kernel-node-sdk/commit/ca05977445e8dadc50de7a82bc238017ac43a944))
+
 ## 0.82.0 (2026-07-23)
 
 Full Changelog: [v0.81.0...v0.82.0](https://github.com/kernel/kernel-node-sdk/compare/v0.81.0...v0.82.0)
