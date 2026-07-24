@@ -30,6 +30,20 @@ describe('resource connections', () => {
       profile_name: 'user-123',
       allowed_domains: ['login.netflix.com', 'auth.netflix.com'],
       auto_reauth: true,
+      browser_telemetry: {
+        browser: {
+          captcha: { enabled: true },
+          connection: { enabled: true },
+          console: { enabled: true },
+          control: { enabled: true },
+          interaction: { enabled: true },
+          network: { enabled: true },
+          page: { enabled: true },
+          screenshot: { enabled: true },
+          system: { enabled: true },
+        },
+        enabled: true,
+      },
       credential: {
         auto: true,
         name: 'my-netflix-creds',
@@ -141,6 +155,20 @@ describe('resource connections', () => {
       client.auth.connections.login(
         'id',
         {
+          browser_telemetry: {
+            browser: {
+              captcha: { enabled: true },
+              connection: { enabled: true },
+              console: { enabled: true },
+              control: { enabled: true },
+              interaction: { enabled: true },
+              network: { enabled: true },
+              page: { enabled: true },
+              screenshot: { enabled: true },
+              system: { enabled: true },
+            },
+            enabled: true,
+          },
           proxy: { id: 'id', name: 'name' },
           record_session: true,
         },
