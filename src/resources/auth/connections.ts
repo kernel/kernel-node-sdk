@@ -2,6 +2,7 @@
 
 import { APIResource } from '../../core/resource';
 import * as Shared from '../shared';
+import * as TelemetryAPI from '../browsers/telemetry';
 import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
 import { Stream } from '../../core/streaming';
@@ -298,6 +299,13 @@ export interface ManagedAuth {
   browser_session_id?: string | null;
 
   /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. The exact create-browser configuration is preserved and can be
+   * overridden per-login.
+   */
+  browser_telemetry?: ManagedAuth.BrowserTelemetry | null;
+
+  /**
    * Whether Kernel can automatically re-authenticate this connection when the
    * session expires. Requires a prior successful login plus either a Kernel
    * credential or an external credential reference. See `can_reauth_reason` for the
@@ -515,6 +523,38 @@ export interface ManagedAuth {
 }
 
 export namespace ManagedAuth {
+  /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. The exact create-browser configuration is preserved and can be
+   * overridden per-login.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Canonical auth-flow choice awaiting user selection.
    */
@@ -781,6 +821,13 @@ export interface ManagedAuthCreateRequest {
   auto_reauth?: boolean;
 
   /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. Uses the exact create-browser configuration. Can be overridden
+   * per-login.
+   */
+  browser_telemetry?: ManagedAuthCreateRequest.BrowserTelemetry | null;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -833,6 +880,38 @@ export interface ManagedAuthCreateRequest {
 }
 
 export namespace ManagedAuthCreateRequest {
+  /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. Uses the exact create-browser configuration. Can be overridden
+   * per-login.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Reference to credentials for the auth connection. Use one of:
    *
@@ -982,6 +1061,13 @@ export interface ManagedAuthUpdateRequest {
   auto_reauth?: boolean;
 
   /**
+   * Browser telemetry configuration used by future browser sessions for this
+   * connection. Uses the exact create-browser configuration. Set enabled to false to
+   * disable telemetry.
+   */
+  browser_telemetry?: ManagedAuthUpdateRequest.BrowserTelemetry | null;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -1028,6 +1114,38 @@ export interface ManagedAuthUpdateRequest {
 }
 
 export namespace ManagedAuthUpdateRequest {
+  /**
+   * Browser telemetry configuration used by future browser sessions for this
+   * connection. Uses the exact create-browser configuration. Set enabled to false to
+   * disable telemetry.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Reference to credentials for the auth connection. Use one of:
    *
@@ -1481,6 +1599,13 @@ export interface ConnectionCreateParams {
   auto_reauth?: boolean;
 
   /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. Uses the exact create-browser configuration. Can be overridden
+   * per-login.
+   */
+  browser_telemetry?: ConnectionCreateParams.BrowserTelemetry | null;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -1533,6 +1658,38 @@ export interface ConnectionCreateParams {
 }
 
 export namespace ConnectionCreateParams {
+  /**
+   * Browser telemetry configuration used by this connection's browser sessions by
+   * default. Uses the exact create-browser configuration. Can be overridden
+   * per-login.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Reference to credentials for the auth connection. Use one of:
    *
@@ -1599,6 +1756,13 @@ export interface ConnectionUpdateParams {
   auto_reauth?: boolean;
 
   /**
+   * Browser telemetry configuration used by future browser sessions for this
+   * connection. Uses the exact create-browser configuration. Set enabled to false to
+   * disable telemetry.
+   */
+  browser_telemetry?: ConnectionUpdateParams.BrowserTelemetry | null;
+
+  /**
    * Reference to credentials for the auth connection. Use one of:
    *
    * - { name } for Kernel credentials
@@ -1645,6 +1809,38 @@ export interface ConnectionUpdateParams {
 }
 
 export namespace ConnectionUpdateParams {
+  /**
+   * Browser telemetry configuration used by future browser sessions for this
+   * connection. Uses the exact create-browser configuration. Set enabled to false to
+   * disable telemetry.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Reference to credentials for the auth connection. Use one of:
    *
@@ -1712,6 +1908,13 @@ export interface ConnectionListParams extends OffsetPaginationParams {
 
 export interface ConnectionLoginParams {
   /**
+   * Override the connection's default browser telemetry configuration for this
+   * login. When omitted, the connection's browser_telemetry default is used. Uses
+   * the exact create-browser configuration.
+   */
+  browser_telemetry?: ConnectionLoginParams.BrowserTelemetry | null;
+
+  /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
    * project as the resource referencing it. When selecting by name, the name must
    * match exactly one active proxy in the project. Ambiguous names return a 400; use
@@ -1727,6 +1930,38 @@ export interface ConnectionLoginParams {
 }
 
 export namespace ConnectionLoginParams {
+  /**
+   * Override the connection's default browser telemetry configuration for this
+   * login. When omitted, the connection's browser_telemetry default is used. Uses
+   * the exact create-browser configuration.
+   */
+  export interface BrowserTelemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+  }
+
   /**
    * Proxy selection. Provide either id or name. The proxy must be in the same
    * project as the resource referencing it. When selecting by name, the name must
