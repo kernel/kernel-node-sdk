@@ -1029,6 +1029,11 @@ export interface ManagedAuthTimelineEvent {
     | 'EXPIRED';
 
   /**
+   * Whether browser telemetry capture started for this event's browser session.
+   */
+  telemetry_captured?: boolean;
+
+  /**
    * When the event was last updated. Present for login/reauth events.
    */
   updated_at?: string;
