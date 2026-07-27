@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.84.0 (2026-07-27)
+
+Full Changelog: [v0.83.0...v0.84.0](https://github.com/kernel/kernel-node-sdk/compare/v0.83.0...v0.84.0)
+
+### Features
+
+* Expose telemetry state on managed auth timeline events ([ef529df](https://github.com/kernel/kernel-node-sdk/commit/ef529df7fe25b579bafda38107ee9008dc710e79))
+
 ## 0.83.0 (2026-07-24)
 
 Full Changelog: [v0.82.0...v0.83.0](https://github.com/kernel/kernel-node-sdk/compare/v0.82.0...v0.83.0)
