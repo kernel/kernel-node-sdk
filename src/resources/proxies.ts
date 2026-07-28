@@ -256,6 +256,11 @@ export namespace ProxyCreateResponse {
     port: number;
 
     /**
+     * Whether the proxy has a custom CA bundle configured.
+     */
+    has_ca_bundle?: boolean;
+
+    /**
      * Whether the proxy has a password.
      */
     has_password?: boolean;
@@ -410,6 +415,11 @@ export namespace ProxyRetrieveResponse {
      * Proxy port.
      */
     port: number;
+
+    /**
+     * Whether the proxy has a custom CA bundle configured.
+     */
+    has_ca_bundle?: boolean;
 
     /**
      * Whether the proxy has a password.
@@ -568,6 +578,11 @@ export namespace ProxyUpdateResponse {
     port: number;
 
     /**
+     * Whether the proxy has a custom CA bundle configured.
+     */
+    has_ca_bundle?: boolean;
+
+    /**
      * Whether the proxy has a password.
      */
     has_password?: boolean;
@@ -722,6 +737,11 @@ export namespace ProxyListResponse {
      * Proxy port.
      */
     port: number;
+
+    /**
+     * Whether the proxy has a custom CA bundle configured.
+     */
+    has_ca_bundle?: boolean;
 
     /**
      * Whether the proxy has a password.
@@ -880,6 +900,11 @@ export namespace ProxyCheckResponse {
     port: number;
 
     /**
+     * Whether the proxy has a custom CA bundle configured.
+     */
+    has_ca_bundle?: boolean;
+
+    /**
      * Whether the proxy has a password.
      */
     has_password?: boolean;
@@ -1014,6 +1039,13 @@ export namespace ProxyCreateParams {
      * Proxy port.
      */
     port: number;
+
+    /**
+     * PEM-encoded CA certificate bundle the proxy re-signs upstream TLS with. Provide
+     * when the proxy terminates TLS (MITM) so the browser trusts its certificates. May
+     * contain multiple concatenated certificates.
+     */
+    ca_bundle?: string;
 
     /**
      * Password for proxy authentication.
