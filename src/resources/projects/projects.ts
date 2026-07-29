@@ -11,6 +11,8 @@ import { path } from '../../internal/utils/path';
 
 /**
  * Create and manage projects for resource isolation within an organization.
+ * When projects are disabled for the organization, project operations return
+ * `404` with code `projects_disabled`.
  */
 export class Projects extends APIResource {
   limits: LimitsAPI.Limits = new LimitsAPI.Limits(this._client);
