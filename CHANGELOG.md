@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.85.0 (2026-07-29)
+
+Full Changelog: [v0.84.0...v0.85.0](https://github.com/kernel/kernel-node-sdk/compare/v0.84.0...v0.85.0)
+
+### Features
+
+* Add encrypted per-proxy CA bundle for BYO MITM proxies ([ea6d146](https://github.com/kernel/kernel-node-sdk/commit/ea6d146df79b2771a6ea633aff9c0ba7a249af55))
+* Stabilize project lifecycle error codes ([ffe3238](https://github.com/kernel/kernel-node-sdk/commit/ffe32383fc01a2e79280ea52cd315d7dc3610f6e))
+
 ## 0.84.0 (2026-07-27)
 
 Full Changelog: [v0.83.0...v0.84.0](https://github.com/kernel/kernel-node-sdk/compare/v0.83.0...v0.84.0)
