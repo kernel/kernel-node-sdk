@@ -1023,6 +1023,9 @@ export class Kernel {
   credentials: API.Credentials = new API.Credentials(this);
   /**
    * Create and manage projects for resource isolation within an organization.
+   * When projects are disabled for the organization, project operations return
+   * `404` with code `projects_disabled`.
+   *
    */
   projects: API.Projects = new API.Projects(this);
   organization: API.Organization = new API.Organization(this);
