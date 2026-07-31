@@ -59,8 +59,7 @@ export interface ProjectLimits {
 
   /**
    * @deprecated Deprecated: pooled browsers now count toward
-   * `max_concurrent_sessions`. Always null once the unified concurrency limit is
-   * enabled for your organization.
+   * `max_concurrent_sessions`. Always null.
    */
   max_pooled_sessions?: number | null;
 }
@@ -81,8 +80,7 @@ export interface UpdateProjectLimitsRequest {
 
   /**
    * @deprecated Deprecated: pooled browsers now count toward
-   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400
-   * once the unified concurrency limit is enabled for your organization.
+   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400.
    */
   max_pooled_sessions?: number | null;
 }
@@ -103,8 +101,7 @@ export interface LimitUpdateParams {
 
   /**
    * @deprecated Deprecated: pooled browsers now count toward
-   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400
-   * once the unified concurrency limit is enabled for your organization.
+   * `max_concurrent_sessions`. Requests that set this field are rejected with a 400.
    */
   max_pooled_sessions?: number | null;
 }
