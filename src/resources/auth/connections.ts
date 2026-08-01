@@ -698,6 +698,12 @@ export namespace ManagedAuth {
     observed_selector?: string | null;
 
     /**
+     * Whether the submitted value must replace an existing credential after explicit
+     * rejection.
+     */
+    replace_existing?: boolean;
+
+    /**
      * Whether this field is required.
      */
     required?: boolean;
@@ -1481,6 +1487,12 @@ export namespace ConnectionFollowResponse {
        * Selector for the visible field, when available.
        */
       observed_selector?: string | null;
+
+      /**
+       * Whether the submitted value must replace an existing credential after explicit
+       * rejection.
+       */
+      replace_existing?: boolean;
 
       /**
        * Whether this field is required.
