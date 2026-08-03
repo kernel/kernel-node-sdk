@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.86.0 (2026-08-03)
+
+Full Changelog: [v0.85.0...v0.86.0](https://github.com/kernel/kernel-node-sdk/compare/v0.85.0...v0.86.0)
+
+### Features
+
+* Harden managed auth verification and login recovery ([cc82869](https://github.com/kernel/kernel-node-sdk/commit/cc8286943eff0537e3875d7bcc9bf9cd017f2656))
+* Report the unified concurrency ceiling from the org limits endpoint ([791aaa8](https://github.com/kernel/kernel-node-sdk/commit/791aaa802ad4d2037daf575826111d2711465907))
+
+
+### Bug Fixes
+
+* **stlc:** stop hand-edited CI workflows from blocking seals and builds ([1662249](https://github.com/kernel/kernel-node-sdk/commit/1662249ac1348575783e02ece590c371a1085097))
+
 ## 0.85.0 (2026-07-29)
 
 Full Changelog: [v0.84.0...v0.85.0](https://github.com/kernel/kernel-node-sdk/compare/v0.84.0...v0.85.0)
