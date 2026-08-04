@@ -1152,7 +1152,7 @@ export interface BrowserListParams extends OffsetPaginationParams {
   include_deleted?: boolean;
 
   /**
-   * Search browsers by name, session ID, profile ID, proxy ID, or pool name.
+   * Search browsers by name, session ID, profile name or ID, proxy ID, or pool name.
    */
   query?: string;
 
