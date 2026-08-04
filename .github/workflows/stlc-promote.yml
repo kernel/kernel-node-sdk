@@ -1,8 +1,11 @@
 name: Promote SDKs
 
-# Manually fast-forwards production main to the reviewed staging main. The
-# ancestor check refuses divergent histories; this workflow never force-pushes.
+# Production requires pull requests, so staging is promoted through a merge-
+# commit PR. Never squash or rebase this cross-repo PR: preserving the incoming
+# commits keeps production and staging on one ancestry chain.
 on:
+  push:
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
@@ -12,7 +15,9 @@ jobs:
   promote:
     if: github.repository == 'kernel/kernel-node-sdk-staging'
     runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
-    environment: production
+    concurrency:
+      group: stlc-promote
+      cancel-in-progress: true
     steps:
       - name: Check out staging
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -30,6 +35,7 @@ jobs:
           repositories: kernel-node-sdk
           permission-contents: write
           permission-workflows: write
+          permission-pull-requests: write
 
       - name: Fetch production main
         env:
@@ -51,11 +57,21 @@ jobs:
             echo "synced=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Promote staging to production
+      - name: Push the production release branch
         if: steps.diff.outputs.synced == 'false'
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
+        run: git push production origin/main:refs/heads/stainless/release --force
+
+      - name: Open or update the promote PR
+        if: steps.diff.outputs.synced == 'false'
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
         run: |
-          if ! git merge-base --is-ancestor production/main origin/main; then
-            echo "::error title=Promote blocked::production/main is not an ancestor of staging main. Back-sync production first."
-            exit 1
+          existing=$(gh pr list --repo "$PRODUCTION_REPO" --head stainless/release             --state open --json number --jq '.[0].number')
+          if [ -z "$existing" ]; then
+            gh pr create --repo "$PRODUCTION_REPO" --base main               --head stainless/release --title "Release SDK updates"               --body "$(git log --oneline production/main..origin/main)"
           fi
-          git push production origin/main:refs/heads/main
+          gh pr merge stainless/release --repo "$PRODUCTION_REPO" --merge --auto             || echo "Auto-merge unavailable; merge the promote PR manually with a merge commit."
