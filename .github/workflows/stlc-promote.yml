@@ -1,0 +1,61 @@
+name: Promote SDKs
+
+# Manually fast-forwards production main to the reviewed staging main. The
+# ancestor check refuses divergent histories; this workflow never force-pushes.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    if: github.repository == 'kernel/kernel-node-sdk-staging'
+    runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
+    environment: production
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Mint production token
+        id: production-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: kernel-node-sdk
+          permission-contents: write
+          permission-workflows: write
+
+      - name: Fetch production main
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
+        run: |
+          git remote add production             "https://x-access-token:${GH_TOKEN}@github.com/${PRODUCTION_REPO}.git"
+          git fetch production main
+
+      - name: Check whether production already has staging's content
+        id: diff
+        run: |
+          MERGED=$(git merge-tree --write-tree production/main origin/main) || MERGED=conflict
+          PRODUCTION_TREE=$(git rev-parse 'production/main^{tree}')
+          if [ "$MERGED" = "$PRODUCTION_TREE" ]; then
+            echo "Production already contains staging's content. Nothing to promote."
+            echo "synced=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Promote staging to production
+        if: steps.diff.outputs.synced == 'false'
+        run: |
+          if ! git merge-base --is-ancestor production/main origin/main; then
+            echo "::error title=Promote blocked::production/main is not an ancestor of staging main. Back-sync production first."
+            exit 1
+          fi
+          git push production origin/main:refs/heads/main
