@@ -70,8 +70,14 @@ jobs:
           GH_TOKEN: ${{ steps.production-token.outputs.token }}
           PRODUCTION_REPO: kernel/kernel-node-sdk
         run: |
-          existing=$(gh pr list --repo "$PRODUCTION_REPO" --head stainless/release             --state open --json number --jq '.[0].number')
+          body=$(mktemp)
+          git log --oneline production/main..origin/main > "$body"
+          existing=$(gh pr list --repo "$PRODUCTION_REPO" --head stainless/release             --state open --json number --jq 'if length == 0 then "" else .[0].number end')
           if [ -z "$existing" ]; then
-            gh pr create --repo "$PRODUCTION_REPO" --base main               --head stainless/release --title "Release SDK updates"               --body "$(git log --oneline production/main..origin/main)"
+            gh pr create --repo "$PRODUCTION_REPO" --base main               --head stainless/release --title "Release SDK updates" --body-file "$body"
+          else
+            gh pr edit "$existing" --repo "$PRODUCTION_REPO"               --title "Release SDK updates" --body-file "$body"
           fi
-          gh pr merge stainless/release --repo "$PRODUCTION_REPO" --merge --auto             || echo "Auto-merge unavailable; merge the promote PR manually with a merge commit."
+          if ! gh pr merge stainless/release --repo "$PRODUCTION_REPO" --merge --auto; then
+            echo "::warning title=Manual promotion required::Merge the promote PR with a merge commit."
+          fi
