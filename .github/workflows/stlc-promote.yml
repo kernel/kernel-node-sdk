@@ -1,0 +1,83 @@
+name: Promote SDKs
+
+# Production requires pull requests, so staging is promoted through a merge-
+# commit PR. Never squash or rebase this cross-repo PR: preserving the incoming
+# commits keeps production and staging on one ancestry chain.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    if: github.repository == 'kernel/kernel-node-sdk-staging'
+    runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
+    concurrency:
+      group: stlc-promote
+      cancel-in-progress: true
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Mint production token
+        id: production-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: kernel-node-sdk
+          permission-contents: write
+          permission-workflows: write
+          permission-pull-requests: write
+
+      - name: Fetch production main
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
+        run: |
+          git remote add production             "https://x-access-token:${GH_TOKEN}@github.com/${PRODUCTION_REPO}.git"
+          git fetch production main
+
+      - name: Check whether production already has staging's content
+        id: diff
+        run: |
+          MERGED=$(git merge-tree --write-tree production/main origin/main) || MERGED=conflict
+          PRODUCTION_TREE=$(git rev-parse 'production/main^{tree}')
+          if [ "$MERGED" = "$PRODUCTION_TREE" ]; then
+            echo "Production already contains staging's content. Nothing to promote."
+            echo "synced=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push the production release branch
+        if: steps.diff.outputs.synced == 'false'
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
+        run: git push production origin/main:refs/heads/stainless/release --force
+
+      - name: Open or update the promote PR
+        if: steps.diff.outputs.synced == 'false'
+        env:
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
+        run: |
+          body=$(mktemp)
+          git log --oneline production/main..origin/main > "$body"
+          existing=$(gh pr list --repo "$PRODUCTION_REPO" --head stainless/release             --state open --json number --jq 'if length == 0 then "" else .[0].number end')
+          if [ -z "$existing" ]; then
+            gh pr create --repo "$PRODUCTION_REPO" --base main               --head stainless/release --title "Release SDK updates" --body-file "$body"
+          else
+            gh pr edit "$existing" --repo "$PRODUCTION_REPO"               --title "Release SDK updates" --body-file "$body"
+          fi
+          if ! gh pr merge stainless/release --repo "$PRODUCTION_REPO" --merge --auto; then
+            echo "::warning title=Manual promotion required::Merge the promote PR with a merge commit."
+          fi

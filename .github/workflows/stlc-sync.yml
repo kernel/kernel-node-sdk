@@ -1,0 +1,107 @@
+name: Sync SDK repos
+
+# Keeps production and staging on one fast-forward-only history. Optional
+# dispatch tokens make the polling loop eager; the scheduled back-sync is the
+# safety backstop when those secrets are absent.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch: {}
+  repository_dispatch:
+    types: [prod-released]
+  release:
+    types: [published]
+  push:
+    branches: [main]
+
+jobs:
+  back-sync:
+    if: >-
+      github.repository == 'kernel/kernel-node-sdk-staging' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch')
+    runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: write
+    concurrency:
+      group: stlc-back-sync
+      cancel-in-progress: true
+    steps:
+      - name: Check out staging
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Fetch production main
+        run: |
+          git remote add production "https://github.com/kernel/kernel-node-sdk.git"
+          git -c "http.https://github.com/.extraheader=" fetch production main
+
+      - name: Check whether production has content staging lacks
+        id: diff
+        run: |
+          MERGED=$(git merge-tree --write-tree origin/main production/main) || MERGED=conflict
+          STAGING_TREE=$(git rev-parse 'origin/main^{tree}')
+          if [ "$MERGED" = "$STAGING_TREE" ]; then
+            echo "Staging already has production's content. Nothing to pull back."
+            echo "behind=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "behind=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync production to staging
+        if: steps.diff.outputs.behind == 'true'
+        run: |
+          if ! git merge-base --is-ancestor origin/main production/main; then
+            echo "::error title=Back-sync blocked::staging main is not an ancestor of production/main."
+            exit 1
+          fi
+          git push origin production/main:refs/heads/main
+
+  notify-back-sync:
+    if: >-
+      github.repository == 'kernel/kernel-node-sdk' &&
+      (github.event_name == 'release' || github.event_name == 'workflow_dispatch')
+    runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Dispatch back-sync to staging
+        env:
+          DISPATCH_TOKEN: ${{ secrets.STAGING_DISPATCH_TOKEN }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DISPATCH_TOKEN:-}" ]; then
+            echo "::notice::STAGING_DISPATCH_TOKEN not configured; the scheduled back-sync remains active."
+            exit 0
+          fi
+          payload=$(jq -n --arg ref "$REF_NAME" '{event_type:"prod-released",client_payload:{ref:$ref}}')
+          curl --fail-with-body -sS -X POST             -H "Authorization: Bearer $DISPATCH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/kernel/kernel-node-sdk-staging/dispatches"             -d "$payload"
+
+  seal-dispatch:
+    if: github.repository == 'kernel/kernel-node-sdk-staging' && github.event_name == 'push'
+    runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    concurrency:
+      group: seal-dispatch-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Dispatch tracking sync
+        env:
+          DISPATCH_TOKEN: ${{ secrets.CONFIG_DISPATCH_TOKEN }}
+          HEAD_MSG: ${{ github.event.head_commit.message }}
+          HEAD_AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if printf '%s' "$HEAD_MSG" | grep -q 'Stainless-Generated-From' || [ "$HEAD_AUTHOR_NAME" = "stlc-bot" ]; then
+            echo "Generated commit; skipping tracking dispatch."
+            exit 0
+          fi
+          if [ -z "${DISPATCH_TOKEN:-}" ]; then
+            echo "::notice::CONFIG_DISPATCH_TOKEN not configured; the config repo's scheduled sync remains active."
+            exit 0
+          fi
+          payload=$(jq -n --arg sha "$SHA" --arg repo "${{ github.repository }}"             '{event_type:"seal-custom-code",client_payload:{target:"all",sha:$sha,repo:$repo}}')
+          curl --fail-with-body -sS -X POST             -H "Authorization: Bearer $DISPATCH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/kernel/kernel/dispatches"             -d "$payload"
