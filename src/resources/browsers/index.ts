@@ -120,6 +120,8 @@ export {
   type BrowserTelemetryCategoryConfig,
   type BrowserTelemetryConfig,
   type BrowserTelemetryEvent,
+  type BrowserTelemetryExportConfig,
+  type BrowserTelemetryOtlpExportConfig,
   type TelemetryEventsResponse,
   type TelemetryStreamResponse,
   type TelemetryEventsParams,

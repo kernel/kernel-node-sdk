@@ -648,6 +648,63 @@ export namespace BrowserPoolCreateParams {
      * create. enabled=false cannot be combined with browser category settings.
      */
     enabled?: boolean;
+
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export?: Telemetry.Export;
+  }
+
+  export namespace Telemetry {
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export interface Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      otlp?: Export.Otlp;
+    }
+
+    export namespace Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      export interface Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        destination?: Otlp.Destination;
+
+        /**
+         * Whether to export captured telemetry over OTLP. Setting destination implies
+         * enabled=true, so this only needs to be set explicitly to disable export
+         * (enabled=false with a destination is rejected).
+         */
+        enabled?: boolean;
+      }
+
+      export namespace Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        export interface Destination {
+          /**
+           * OTLP destination ID
+           */
+          id?: string;
+
+          /**
+           * OTLP destination name
+           */
+          name?: string;
+        }
+      }
+    }
   }
 }
 
@@ -833,6 +890,63 @@ export namespace BrowserPoolUpdateParams {
      * create. enabled=false cannot be combined with browser category settings.
      */
     enabled?: boolean;
+
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export?: Telemetry.Export;
+  }
+
+  export namespace Telemetry {
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export interface Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      otlp?: Export.Otlp;
+    }
+
+    export namespace Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      export interface Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        destination?: Otlp.Destination;
+
+        /**
+         * Whether to export captured telemetry over OTLP. Setting destination implies
+         * enabled=true, so this only needs to be set explicitly to disable export
+         * (enabled=false with a destination is rejected).
+         */
+        enabled?: boolean;
+      }
+
+      export namespace Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        export interface Destination {
+          /**
+           * OTLP destination ID
+           */
+          id?: string;
+
+          /**
+           * OTLP destination name
+           */
+          name?: string;
+        }
+      }
+    }
   }
 }
 
@@ -939,6 +1053,63 @@ export namespace BrowserPoolAcquireParams {
      * create. enabled=false cannot be combined with browser category settings.
      */
     enabled?: boolean;
+
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export?: Telemetry.Export;
+  }
+
+  export namespace Telemetry {
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export interface Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      otlp?: Export.Otlp;
+    }
+
+    export namespace Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      export interface Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        destination?: Otlp.Destination;
+
+        /**
+         * Whether to export captured telemetry over OTLP. Setting destination implies
+         * enabled=true, so this only needs to be set explicitly to disable export
+         * (enabled=false with a destination is rejected).
+         */
+        enabled?: boolean;
+      }
+
+      export namespace Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        export interface Destination {
+          /**
+           * OTLP destination ID
+           */
+          id?: string;
+
+          /**
+           * OTLP destination name
+           */
+          name?: string;
+        }
+      }
+    }
   }
 }
 
