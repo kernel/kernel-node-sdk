@@ -48,6 +48,12 @@ describe('resource browserPools', () => {
           system: { enabled: true },
         },
         enabled: true,
+        export: {
+          otlp: {
+            destination: { id: 'id', name: 'name' },
+            enabled: true,
+          },
+        },
       },
       timeout_seconds: 10,
       viewport: {

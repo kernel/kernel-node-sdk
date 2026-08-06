@@ -43,6 +43,12 @@ describe('resource connections', () => {
           system: { enabled: true },
         },
         enabled: true,
+        export: {
+          otlp: {
+            destination: { id: 'id', name: 'name' },
+            enabled: true,
+          },
+        },
       },
       credential: {
         auto: true,
@@ -168,6 +174,12 @@ describe('resource connections', () => {
               system: { enabled: true },
             },
             enabled: true,
+            export: {
+              otlp: {
+                destination: { id: 'id', name: 'name' },
+                enabled: true,
+              },
+            },
           },
           proxy: { id: 'id', name: 'name' },
           record_session: true,

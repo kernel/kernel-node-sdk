@@ -1965,6 +1965,12 @@ export interface BrowserTelemetryConfig {
    * Per-category enable/disable flags.
    */
   browser?: BrowserTelemetryCategoriesConfig;
+
+  /**
+   * Where the session's captured telemetry is being exported. Omitted when the
+   * export state is unknown.
+   */
+  export?: BrowserTelemetryExportConfig;
 }
 
 /**
@@ -2008,6 +2014,32 @@ export type BrowserTelemetryEvent =
   | BrowserCaptchaSolveResultEvent
   | BrowserSystemOomKillEvent
   | BrowserServiceCrashedEvent;
+
+/**
+ * Active export state for a session's captured telemetry, by protocol.
+ */
+export interface BrowserTelemetryExportConfig {
+  /**
+   * Active OTLP export state.
+   */
+  otlp?: BrowserTelemetryOtlpExportConfig;
+}
+
+/**
+ * Active OTLP export state for a browser session.
+ */
+export interface BrowserTelemetryOtlpExportConfig {
+  /**
+   * ID of the OTLP destination the session is bound to. Omitted when the session is
+   * not exporting.
+   */
+  destination?: string;
+
+  /**
+   * Whether the session is exporting captured telemetry over OTLP.
+   */
+  enabled?: boolean;
+}
 
 /**
  * Envelope wrapping a browser telemetry event with its monotonic sequence number.
@@ -2158,6 +2190,8 @@ export declare namespace Telemetry {
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
+    type BrowserTelemetryExportConfig as BrowserTelemetryExportConfig,
+    type BrowserTelemetryOtlpExportConfig as BrowserTelemetryOtlpExportConfig,
     type TelemetryEventsResponse as TelemetryEventsResponse,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,

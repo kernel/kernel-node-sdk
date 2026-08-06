@@ -128,6 +128,8 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoryConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryExportConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryOtlpExportConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">TelemetryEventsResponse</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">TelemetryStreamResponse</a></code>
 
