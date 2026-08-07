@@ -261,6 +261,16 @@ Methods:
 
 # Auth
 
+## Context
+
+Types:
+
+- <code><a href="./src/resources/auth/context.ts">AuthContext</a></code>
+
+Methods:
+
+- <code title="get /auth/context">client.auth.context.<a href="./src/resources/auth/context.ts">retrieve</a>() -> AuthContext</code>
+
 ## Connections
 
 Types:
