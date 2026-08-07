@@ -404,12 +404,30 @@ Methods:
 
 Types:
 
-- <code><a href="./src/resources/audit-logs.ts">AuditLogEntry</a></code>
+- <code><a href="./src/resources/audit-logs/audit-logs.ts">AuditLogEntry</a></code>
 
 Methods:
 
-- <code title="get /audit-logs">client.auditLogs.<a href="./src/resources/audit-logs.ts">list</a>({ ...params }) -> AuditLogEntriesPageTokenPagination</code>
-- <code title="get /audit-logs/export/chunk">client.auditLogs.<a href="./src/resources/audit-logs.ts">exportChunk</a>({ ...params }) -> Response</code>
+- <code title="get /audit-logs">client.auditLogs.<a href="./src/resources/audit-logs/audit-logs.ts">list</a>({ ...params }) -> AuditLogEntriesPageTokenPagination</code>
+- <code title="get /audit-logs/export/chunk">client.auditLogs.<a href="./src/resources/audit-logs/audit-logs.ts">exportChunk</a>({ ...params }) -> Response</code>
+
+## ExportDestinations
+
+Types:
+
+- <code><a href="./src/resources/audit-logs/export-destinations.ts">AuditLogExportDestination</a></code>
+- <code><a href="./src/resources/audit-logs/export-destinations.ts">AuditLogExportDestinationTestResult</a></code>
+- <code><a href="./src/resources/audit-logs/export-destinations.ts">CreateAuditLogExportDestinationRequest</a></code>
+- <code><a href="./src/resources/audit-logs/export-destinations.ts">UpdateAuditLogExportDestinationRequest</a></code>
+
+Methods:
+
+- <code title="post /audit-logs/export/destinations">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">create</a>({ ...params }) -> AuditLogExportDestination</code>
+- <code title="get /audit-logs/export/destinations/{id}">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">retrieve</a>(id) -> AuditLogExportDestination</code>
+- <code title="patch /audit-logs/export/destinations/{id}">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">update</a>(id, { ...params }) -> AuditLogExportDestination</code>
+- <code title="get /audit-logs/export/destinations">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">list</a>({ ...params }) -> AuditLogExportDestinationsOffsetPagination</code>
+- <code title="delete /audit-logs/export/destinations/{id}">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">delete</a>(id) -> void</code>
+- <code title="post /audit-logs/export/destinations/{id}/test">client.auditLogs.exportDestinations.<a href="./src/resources/audit-logs/export-destinations.ts">test</a>(id) -> AuditLogExportDestinationTestResult</code>
 
 # APIKeys
 
