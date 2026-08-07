@@ -43,13 +43,6 @@ import {
   createRoutingFetch,
 } from './lib/browser-routing';
 import {
-  AuditLogEntriesPageTokenPagination,
-  AuditLogEntry,
-  AuditLogExportChunkParams,
-  AuditLogListParams,
-  AuditLogs,
-} from './resources/audit-logs';
-import {
   BrowserPool,
   BrowserPoolAcquireParams,
   BrowserPoolAcquireResponse,
@@ -143,6 +136,13 @@ import {
   ProxyUpdateParams,
   ProxyUpdateResponse,
 } from './resources/proxies';
+import {
+  AuditLogEntriesPageTokenPagination,
+  AuditLogEntry,
+  AuditLogExportChunkParams,
+  AuditLogListParams,
+  AuditLogs,
+} from './resources/audit-logs/audit-logs';
 import { Auth } from './resources/auth/auth';
 import {
   BrowserCreateParams,
