@@ -427,6 +427,12 @@ export interface BrowserCreateResponse {
   profile?: Profile;
 
   /**
+   * Whether changes made during this browser session are saved back to its profile
+   * when the session ends. Omitted when no profile is attached.
+   */
+  profile_save_changes?: boolean;
+
+  /**
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
@@ -557,6 +563,12 @@ export interface BrowserRetrieveResponse {
    * Browser profile metadata.
    */
   profile?: Profile;
+
+  /**
+   * Whether changes made during this browser session are saved back to its profile
+   * when the session ends. Omitted when no profile is attached.
+   */
+  profile_save_changes?: boolean;
 
   /**
    * ID of the proxy associated with this browser session, if any.
@@ -691,6 +703,12 @@ export interface BrowserUpdateResponse {
   profile?: Profile;
 
   /**
+   * Whether changes made during this browser session are saved back to its profile
+   * when the session ends. Omitted when no profile is attached.
+   */
+  profile_save_changes?: boolean;
+
+  /**
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
@@ -821,6 +839,12 @@ export interface BrowserListResponse {
    * Browser profile metadata.
    */
   profile?: Profile;
+
+  /**
+   * Whether changes made during this browser session are saved back to its profile
+   * when the session ends. Omitted when no profile is attached.
+   */
+  profile_save_changes?: boolean;
 
   /**
    * ID of the proxy associated with this browser session, if any.
