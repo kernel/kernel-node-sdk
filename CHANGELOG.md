@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.87.0](https://github.com/kernel/kernel-node-sdk/compare/v0.86.1...v0.87.0) (2026-08-08)
+
+
+### Features
+
+* Add audit logs plan paywall to the dashboard ([b6b6518](https://github.com/kernel/kernel-node-sdk/commit/b6b6518d71b4a209d933d19fd5d612cd1e41427d))
+* Expose authenticated request context ([ccf8448](https://github.com/kernel/kernel-node-sdk/commit/ccf84484a26f12234ba4df34ded9e864fc3a848b))
+* Expose profile save behavior in browser responses ([bb67ffa](https://github.com/kernel/kernel-node-sdk/commit/bb67ffadedc5ba80f393a40588a94203c392ae7c))
+
 ## 0.86.1 (2026-08-06)
 
 Full Changelog: [v0.86.0...v0.86.1](https://github.com/kernel/kernel-node-sdk/compare/v0.86.0...v0.86.1)
