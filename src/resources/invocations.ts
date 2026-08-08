@@ -510,7 +510,13 @@ export namespace InvocationListBrowsersResponse {
     profile_save_changes?: boolean;
 
     /**
-     * ID of the proxy associated with this browser session, if any.
+     * Resolved proxy configuration for this browser session.
+     */
+    proxy?: BrowsersAPI.BrowserProxy;
+
+    /**
+     * @deprecated ID of the proxy associated with this browser session, if any.
+     * Deprecated in favor of proxy.
      */
     proxy_id?: string;
 

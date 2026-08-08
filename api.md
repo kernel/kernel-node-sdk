@@ -67,6 +67,9 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyConfig</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyMode</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
@@ -277,6 +280,7 @@ Types:
 
 - <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuthBrowserConfig</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthTimelineEvent</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthUpdateRequest</a></code>

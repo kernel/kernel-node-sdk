@@ -2,6 +2,7 @@
 
 import { APIResource } from '../../core/resource';
 import * as Shared from '../shared';
+import * as BrowsersAPI from '../browsers/browsers';
 import * as TelemetryAPI from '../browsers/telemetry';
 import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
@@ -292,6 +293,12 @@ export interface ManagedAuth {
   auto_reauth?: boolean;
 
   /**
+   * Default browser configuration for login, reauthentication, and health-check
+   * sessions.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
    * ID of the underlying browser session driving the current flow (present when flow
    * in progress). Use this to inspect or terminate the browser session via the
    * `/browsers` API.
@@ -299,9 +306,8 @@ export interface ManagedAuth {
   browser_session_id?: string | null;
 
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. The exact create-browser configuration is preserved and can be
-   * overridden per-login.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ManagedAuth.BrowserTelemetry | null;
 
@@ -499,7 +505,8 @@ export interface ManagedAuth {
   post_login_url?: string;
 
   /**
-   * ID of the proxy associated with this connection, if any.
+   * @deprecated Deprecated. Read browser.proxy instead. Retained during migration
+   * for existing clients.
    */
   proxy_id?: string;
 
@@ -524,9 +531,8 @@ export interface ManagedAuth {
 
 export namespace ManagedAuth {
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. The exact create-browser configuration is preserved and can be
-   * overridden per-login.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -836,6 +842,120 @@ export namespace ManagedAuth {
 }
 
 /**
+ * Browser configuration applied to browser sessions created for a managed auth
+ * connection. Managed auth controls the profile, headless mode, timeout, start
+ * URL, kiosk mode, and viewport.
+ */
+export interface ManagedAuthBrowserConfig {
+  /**
+   * Proxy configuration for managed auth browser sessions. Omit on create to derive
+   * the default from stealth, or on update and login to preserve or inherit the
+   * connection default.
+   */
+  proxy?: BrowsersAPI.BrowserProxyConfig;
+
+  /**
+   * Whether managed auth browser sessions use stealth mode. Defaults to true when
+   * omitted.
+   */
+  stealth?: boolean;
+
+  /**
+   * Browser telemetry configuration using the same semantics as browser create.
+   */
+  telemetry?: ManagedAuthBrowserConfig.Telemetry | null;
+}
+
+export namespace ManagedAuthBrowserConfig {
+  /**
+   * Browser telemetry configuration using the same semantics as browser create.
+   */
+  export interface Telemetry {
+    /**
+     * Per-category capture flags. The operational categories (control, connection,
+     * system, captcha) are captured whenever telemetry is enabled; set one to
+     * enabled=false to opt out. The CDP categories (console, network, page,
+     * interaction) and screenshot are off by default; set enabled=true to opt in. On
+     * create, provided categories layer onto the default set. On update, provided
+     * categories merge onto the session's current config; when no telemetry is active
+     * this falls back to the default set (matching create). If browser is omitted or
+     * empty, the default set is used. A browser config that disables every category
+     * stops capture on update and starts no capture on create.
+     */
+    browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+
+    /**
+     * Request shortcut for browser telemetry capture. True enables capture; with no
+     * browser category settings it captures the default set (control, connection,
+     * system, captcha), and any browser category settings are layered onto that
+     * default set. On update, enabled=true resolves the config fresh from the default
+     * set plus any provided categories, replacing the session's current selection
+     * rather than merging onto it; omit enabled to merge categories onto the current
+     * selection instead. False stops capture on update and starts no capture on
+     * create. enabled=false cannot be combined with browser category settings.
+     */
+    enabled?: boolean;
+
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export?: Telemetry.Export;
+  }
+
+  export namespace Telemetry {
+    /**
+     * Where to export this session's captured telemetry. Omit to capture without
+     * exporting.
+     */
+    export interface Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      otlp?: Export.Otlp;
+    }
+
+    export namespace Export {
+      /**
+       * Export captured telemetry over OTLP to one of the org's configured destinations.
+       */
+      export interface Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        destination?: Otlp.Destination;
+
+        /**
+         * Whether to export captured telemetry over OTLP. Setting destination implies
+         * enabled=true, so this only needs to be set explicitly to disable export
+         * (enabled=false with a destination is rejected).
+         */
+        enabled?: boolean;
+      }
+
+      export namespace Otlp {
+        /**
+         * OTLP destination to export this session's captured telemetry to. Provide either
+         * id or name. Requires telemetry capture to be enabled.
+         */
+        export interface Destination {
+          /**
+           * OTLP destination ID
+           */
+          id?: string;
+
+          /**
+           * OTLP destination name
+           */
+          name?: string;
+        }
+      }
+    }
+  }
+}
+
+/**
  * Request to create an auth connection for a profile and domain
  */
 export interface ManagedAuthCreateRequest {
@@ -884,9 +1004,14 @@ export interface ManagedAuthCreateRequest {
   auto_reauth?: boolean;
 
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. Uses the exact create-browser configuration. Can be overridden
-   * per-login.
+   * Default browser configuration for login, reauthentication, and health-check
+   * sessions.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ManagedAuthCreateRequest.BrowserTelemetry | null;
 
@@ -922,10 +1047,8 @@ export interface ManagedAuthCreateRequest {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   proxy?: ManagedAuthCreateRequest.Proxy;
 
@@ -944,9 +1067,8 @@ export interface ManagedAuthCreateRequest {
 
 export namespace ManagedAuthCreateRequest {
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. Uses the exact create-browser configuration. Can be overridden
-   * per-login.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -1062,10 +1184,8 @@ export namespace ManagedAuthCreateRequest {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   export interface Proxy {
     /**
@@ -1186,9 +1306,14 @@ export interface ManagedAuthUpdateRequest {
   auto_reauth?: boolean;
 
   /**
-   * Browser telemetry configuration used by future browser sessions for this
-   * connection. Uses the exact create-browser configuration. Set enabled to false to
-   * disable telemetry.
+   * Browser configuration updates for future login, reauthentication, and
+   * health-check sessions. Omitted properties remain unchanged.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ManagedAuthUpdateRequest.BrowserTelemetry | null;
 
@@ -1220,10 +1345,8 @@ export interface ManagedAuthUpdateRequest {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   proxy?: ManagedAuthUpdateRequest.Proxy;
 
@@ -1240,9 +1363,8 @@ export interface ManagedAuthUpdateRequest {
 
 export namespace ManagedAuthUpdateRequest {
   /**
-   * Browser telemetry configuration used by future browser sessions for this
-   * connection. Uses the exact create-browser configuration. Set enabled to false to
-   * disable telemetry.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -1358,10 +1480,8 @@ export namespace ManagedAuthUpdateRequest {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   export interface Proxy {
     /**
@@ -1787,9 +1907,14 @@ export interface ConnectionCreateParams {
   auto_reauth?: boolean;
 
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. Uses the exact create-browser configuration. Can be overridden
-   * per-login.
+   * Default browser configuration for login, reauthentication, and health-check
+   * sessions.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ConnectionCreateParams.BrowserTelemetry | null;
 
@@ -1825,10 +1950,8 @@ export interface ConnectionCreateParams {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   proxy?: ConnectionCreateParams.Proxy;
 
@@ -1847,9 +1970,8 @@ export interface ConnectionCreateParams {
 
 export namespace ConnectionCreateParams {
   /**
-   * Browser telemetry configuration used by this connection's browser sessions by
-   * default. Uses the exact create-browser configuration. Can be overridden
-   * per-login.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -1965,10 +2087,8 @@ export namespace ConnectionCreateParams {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   export interface Proxy {
     /**
@@ -2001,9 +2121,14 @@ export interface ConnectionUpdateParams {
   auto_reauth?: boolean;
 
   /**
-   * Browser telemetry configuration used by future browser sessions for this
-   * connection. Uses the exact create-browser configuration. Set enabled to false to
-   * disable telemetry.
+   * Browser configuration updates for future login, reauthentication, and
+   * health-check sessions. Omitted properties remain unchanged.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ConnectionUpdateParams.BrowserTelemetry | null;
 
@@ -2035,10 +2160,8 @@ export interface ConnectionUpdateParams {
   login_url?: string;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   proxy?: ConnectionUpdateParams.Proxy;
 
@@ -2055,9 +2178,8 @@ export interface ConnectionUpdateParams {
 
 export namespace ConnectionUpdateParams {
   /**
-   * Browser telemetry configuration used by future browser sessions for this
-   * connection. Uses the exact create-browser configuration. Set enabled to false to
-   * disable telemetry.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -2173,10 +2295,8 @@ export namespace ConnectionUpdateParams {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   export interface Proxy {
     /**
@@ -2210,17 +2330,20 @@ export interface ConnectionListParams extends OffsetPaginationParams {
 
 export interface ConnectionLoginParams {
   /**
-   * Override the connection's default browser telemetry configuration for this
-   * login. When omitted, the connection's browser_telemetry default is used. Uses
-   * the exact create-browser configuration.
+   * Browser configuration override for this login. Omitted properties inherit the
+   * connection defaults.
+   */
+  browser?: ManagedAuthBrowserConfig;
+
+  /**
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   browser_telemetry?: ConnectionLoginParams.BrowserTelemetry | null;
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   proxy?: ConnectionLoginParams.Proxy;
 
@@ -2233,9 +2356,8 @@ export interface ConnectionLoginParams {
 
 export namespace ConnectionLoginParams {
   /**
-   * Override the connection's default browser telemetry configuration for this
-   * login. When omitted, the connection's browser_telemetry default is used. Uses
-   * the exact create-browser configuration.
+   * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+   * existing clients.
    */
   export interface BrowserTelemetry {
     /**
@@ -2322,10 +2444,8 @@ export namespace ConnectionLoginParams {
   }
 
   /**
-   * Proxy selection. Provide either id or name. The proxy must be in the same
-   * project as the resource referencing it. When selecting by name, the name must
-   * match exactly one active proxy in the project. Ambiguous names return a 400; use
-   * id for stable references.
+   * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+   * existing clients.
    */
   export interface Proxy {
     /**
@@ -2390,6 +2510,7 @@ export declare namespace Connections {
   export {
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
+    type ManagedAuthBrowserConfig as ManagedAuthBrowserConfig,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,
     type ManagedAuthTimelineEvent as ManagedAuthTimelineEvent,
     type ManagedAuthUpdateRequest as ManagedAuthUpdateRequest,

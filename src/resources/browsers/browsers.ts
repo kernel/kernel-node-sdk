@@ -297,6 +297,72 @@ export interface BrowserPoolRef {
 }
 
 /**
+ * Resolved proxy configuration for a browser session. Selected proxies are
+ * returned by stable ID.
+ */
+export interface BrowserProxy {
+  /**
+   * Selected proxy ID.
+   */
+  id?: string;
+
+  /**
+   * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
+   * the browser's stealth-derived default: Kernel's default stealth proxy when
+   * stealth=true, or direct egress when stealth=false. default is primarily useful
+   * on browser update to restore the browser default after selected-proxy egress.
+   */
+  mode?: BrowserProxyMode;
+
+  /**
+   * Selected proxy name.
+   */
+  name?: string;
+}
+
+/**
+ * Browser proxy configuration. Provide exactly one of mode, id, or name; an empty
+ * object is invalid. Set mode to direct for no proxy regardless of stealth. Set
+ * mode to default to use the browser's stealth-derived default: Kernel's default
+ * stealth proxy when stealth=true, or direct egress when stealth=false. Select id
+ * or name to use that proxy regardless of stealth. The selected proxy must be in
+ * the same project as the browser. Names must match exactly one active proxy; use
+ * id for stable references. Proxy configuration changes only egress and does not
+ * change stealth or CAPTCHA solver behavior. A stealth browser using mode=direct
+ * still runs in stealth mode with the CAPTCHA solver enabled. When proxy is
+ * omitted on browser creation, stealth browsers use Kernel's default stealth proxy
+ * and non-stealth browsers use direct egress. When omitted on update, the current
+ * configuration is unchanged.
+ */
+export interface BrowserProxyConfig {
+  /**
+   * Proxy ID.
+   */
+  id?: string;
+
+  /**
+   * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
+   * the browser's stealth-derived default: Kernel's default stealth proxy when
+   * stealth=true, or direct egress when stealth=false. default is primarily useful
+   * on browser update to restore the browser default after selected-proxy egress.
+   */
+  mode?: BrowserProxyMode;
+
+  /**
+   * Proxy name. Must match exactly one active proxy in the project.
+   */
+  name?: string;
+}
+
+/**
+ * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
+ * the browser's stealth-derived default: Kernel's default stealth proxy when
+ * stealth=true, or direct egress when stealth=false. default is primarily useful
+ * on browser update to restore the browser default after selected-proxy egress.
+ */
+export type BrowserProxyMode = 'direct' | 'default';
+
+/**
  * Session usage metrics.
  */
 export interface BrowserUsage {
@@ -433,7 +499,13 @@ export interface BrowserCreateResponse {
   profile_save_changes?: boolean;
 
   /**
-   * ID of the proxy associated with this browser session, if any.
+   * Resolved proxy configuration for this browser session.
+   */
+  proxy?: BrowserProxy;
+
+  /**
+   * @deprecated ID of the proxy associated with this browser session, if any.
+   * Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -571,7 +643,13 @@ export interface BrowserRetrieveResponse {
   profile_save_changes?: boolean;
 
   /**
-   * ID of the proxy associated with this browser session, if any.
+   * Resolved proxy configuration for this browser session.
+   */
+  proxy?: BrowserProxy;
+
+  /**
+   * @deprecated ID of the proxy associated with this browser session, if any.
+   * Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -709,7 +787,13 @@ export interface BrowserUpdateResponse {
   profile_save_changes?: boolean;
 
   /**
-   * ID of the proxy associated with this browser session, if any.
+   * Resolved proxy configuration for this browser session.
+   */
+  proxy?: BrowserProxy;
+
+  /**
+   * @deprecated ID of the proxy associated with this browser session, if any.
+   * Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -847,7 +931,13 @@ export interface BrowserListResponse {
   profile_save_changes?: boolean;
 
   /**
-   * ID of the proxy associated with this browser session, if any.
+   * Resolved proxy configuration for this browser session.
+   */
+  proxy?: BrowserProxy;
+
+  /**
+   * @deprecated ID of the proxy associated with this browser session, if any.
+   * Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -970,8 +1060,19 @@ export interface BrowserCreateParams {
   profile?: Shared.BrowserProfile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy in
-   * the same project as the browser session.
+   * Proxy configuration for the browser session. Cannot be combined with proxy_id.
+   * Omit to use the browser default: stealth browsers use Kernel's default stealth
+   * proxy, while non-stealth browsers use direct egress. Set mode to direct to force
+   * direct egress regardless of stealth. Set mode to default to explicitly use the
+   * browser default: Kernel's default stealth proxy when stealth=true, or direct
+   * egress when stealth=false. Select id or name to use that proxy regardless of
+   * stealth. Proxy selection does not change stealth or CAPTCHA solver behavior.
+   */
+  proxy?: BrowserProxyConfig;
+
+  /**
+   * @deprecated Optional proxy to associate to the browser session. Must reference a
+   * proxy in the same project as the browser session. Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -983,8 +1084,11 @@ export interface BrowserCreateParams {
   start_url?: string;
 
   /**
-   * If true, launches the browser in stealth mode to reduce detection by anti-bot
-   * mechanisms.
+   * If true, launches the browser in stealth mode and enables the CAPTCHA solver.
+   * Defaults to false. When proxy is omitted, stealth browsers use Kernel's default
+   * stealth proxy and non-stealth browsers use direct egress. An explicit proxy
+   * configuration changes only egress; it does not enable or disable stealth or the
+   * CAPTCHA solver.
    */
   stealth?: boolean;
 
@@ -1132,8 +1236,8 @@ export interface BrowserRetrieveParams {
 
 export interface BrowserUpdateParams {
   /**
-   * If true, stealth browsers connect directly instead of using the default stealth
-   * proxy.
+   * @deprecated If true, stealth browsers connect directly instead of using the
+   * default stealth proxy. Deprecated in favor of proxy.mode.
    */
   disable_default_proxy?: boolean;
 
@@ -1151,8 +1255,18 @@ export interface BrowserUpdateParams {
   profile?: Shared.BrowserProfile;
 
   /**
-   * ID of the proxy to use. Omit to leave unchanged, set to empty string to remove
-   * proxy.
+   * Proxy configuration to apply. Omit to leave the current configuration unchanged.
+   * Cannot be combined with proxy_id or disable_default_proxy. Set mode to direct to
+   * switch to direct egress regardless of stealth. Set mode to default to restore
+   * the browser default after using a selected proxy: Kernel's default stealth proxy
+   * for a stealth browser, or direct egress for a non-stealth browser. Updating
+   * proxy does not change stealth or CAPTCHA solver behavior.
+   */
+  proxy?: BrowserProxyConfig;
+
+  /**
+   * @deprecated ID of the proxy to use. Omit to leave unchanged, set to empty string
+   * to remove proxy. Deprecated in favor of proxy.
    */
   proxy_id?: string | null;
 
@@ -1375,6 +1489,9 @@ Browsers.Playwright = Playwright;
 export declare namespace Browsers {
   export {
     type BrowserPoolRef as BrowserPoolRef,
+    type BrowserProxy as BrowserProxy,
+    type BrowserProxyConfig as BrowserProxyConfig,
+    type BrowserProxyMode as BrowserProxyMode,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type Tags as Tags,

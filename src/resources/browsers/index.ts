@@ -3,6 +3,9 @@
 export {
   Browsers,
   type BrowserPoolRef,
+  type BrowserProxy,
+  type BrowserProxyConfig,
+  type BrowserProxyMode,
   type BrowserUsage,
   type Profile,
   type Tags,
