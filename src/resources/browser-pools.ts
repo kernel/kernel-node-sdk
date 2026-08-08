@@ -433,6 +433,12 @@ export interface BrowserPoolAcquireResponse {
   profile?: BrowsersAPI.Profile;
 
   /**
+   * Whether changes made during this browser session are saved back to its profile
+   * when the session ends. Omitted when no profile is attached.
+   */
+  profile_save_changes?: boolean;
+
+  /**
    * ID of the proxy associated with this browser session, if any.
    */
   proxy_id?: string;
