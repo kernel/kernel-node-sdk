@@ -349,6 +349,8 @@ export interface ManagedAuth {
    *   automatically
    * - `requires_email_code` — flow needs an email code that cannot be received
    *   automatically
+   * - `requires_customer_input` — flow needs another field or choice that is
+   *   unavailable during unattended re-authentication
    */
   can_reauth_reason?:
     | 'external_credential'
@@ -364,7 +366,8 @@ export interface ManagedAuth {
     | 'requires_external_action'
     | 'requires_totp_without_secret'
     | 'requires_sms_code'
-    | 'requires_email_code';
+    | 'requires_email_code'
+    | 'requires_customer_input';
 
   /**
    * Canonical choices awaiting selection. Prefer this over pending_sso_buttons,
