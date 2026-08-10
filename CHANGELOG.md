@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.87.1](https://github.com/kernel/kernel-node-sdk/compare/v0.87.0...v0.87.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* preserve abort signals in browser routing ([c5ff0a5](https://github.com/kernel/kernel-node-sdk/commit/c5ff0a54b10adea3554333dc4ecc183f4bbbd798))
+
 ## 0.87.0 (2026-08-08)
 
 Full Changelog: [v0.86.1...v0.87.0](https://github.com/kernel/kernel-node-sdk/compare/v0.86.1...v0.87.0)
