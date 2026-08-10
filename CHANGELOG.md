@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.88.0 (2026-08-10)
+
+Full Changelog: [v0.87.1...v0.88.0](https://github.com/kernel/kernel-node-sdk/compare/v0.87.1...v0.88.0)
+
 ## 0.87.1 (2026-08-10)
 
 ### Bug Fixes
