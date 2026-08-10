@@ -188,7 +188,7 @@ describe('browser routing', () => {
     });
   });
 
-  test('preserves the caller abort signal for routed requests', async () => {
+  test('preserves signal identity from RequestInit and Request inputs', async () => {
     const controller = new AbortController();
     const cache = new BrowserRouteCache();
     cache.set({
@@ -222,6 +222,32 @@ describe('browser routing', () => {
     await wrappedFetch(request);
 
     expect(routedSignal === request.signal).toBe(true);
+  });
+
+  test('keeps stream.controller.abort connected to routed telemetry requests', async () => {
+    let routedSignal: AbortSignal | null | undefined;
+    const kernel = new Kernel({
+      apiKey: 'k',
+      baseURL: 'https://api.example/',
+      fetch: async (_input, init) => {
+        routedSignal = init?.signal;
+        return new Response('id: 1\ndata: {"seq":1}\n\n', {
+          status: 200,
+          headers: { 'content-type': 'text/event-stream' },
+        });
+      },
+    });
+    kernel.browserRouteCache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    const stream = await kernel.browsers.telemetry.stream('sess-1');
+
+    expect(routedSignal).toBe(stream.controller.signal);
+    stream.controller.abort();
+    expect(routedSignal?.aborted).toBe(true);
   });
 
   test('ignores browser responses that do not include a usable jwt', async () => {
