@@ -35,6 +35,7 @@ jobs:
           owner: kernel
           repositories: kernel-node-sdk
           permission-contents: write
+          permission-pull-requests: write
           permission-workflows: write
 
       - name: Fetch production branches
@@ -59,11 +60,48 @@ jobs:
           APP_SLUG: ${{ steps.production-token.outputs.app-slug }}
           GH_TOKEN: ${{ steps.production-token.outputs.token }}
           HAS_NEXT: ${{ steps.production.outputs.has_next }}
+          PRODUCTION_REPO: kernel/kernel-node-sdk
         run: |
           set -euo pipefail
           bot_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          open_conflict_pr() {
+            source_ref=$1
+            source_name=$2
+            advance_next=$3
+            conflict_branch=stlc/promotion-conflict
+
+            git merge --abort
+            existing=$(gh pr list --repo "$PRODUCTION_REPO" --base next \
+              --head "$conflict_branch" --state open --json url --jq '.[0].url // ""')
+            if [ -n "$existing" ]; then
+              echo "::error title=SDK promotion blocked::Resolve the existing recovery PR: $existing"
+              exit 1
+            fi
+
+            if [ "$advance_next" = "true" ]; then
+              git push production HEAD:refs/heads/next
+            fi
+            git push production "$source_ref:refs/heads/$conflict_branch" --force
+
+            body=$(mktemp)
+            printf '%s\n' \
+              '## SDK promotion conflict' \
+              '' \
+              "The automated promotion could not merge $source_name into the pending next release." \
+              '' \
+              'Resolve the conflicts on this branch, validate the SDK, mark this PR ready, and merge it with a merge commit.' \
+              '' \
+              'After merging, rerun the staging Promote SDK changes workflow to include any newer generated changes.' \
+              > "$body"
+            recovery_url=$(gh pr create --repo "$PRODUCTION_REPO" --draft \
+              --base next --head "$conflict_branch" \
+              --title 'chore: resolve SDK promotion conflict' --body-file "$body")
+            echo "::error title=SDK promotion conflict::Resolve the recovery PR: $recovery_url"
+            exit 1
+          }
 
           if [ "$HAS_NEXT" = "true" ]; then
             git checkout -B stlc/promote-next production/next
@@ -72,10 +110,12 @@ jobs:
           fi
 
           if ! git merge-base --is-ancestor production/main HEAD; then
-            git merge --no-edit production/main
+            git merge --no-edit production/main || \
+              open_conflict_pr production/main 'production main' false
           fi
           if ! git merge-base --is-ancestor origin/main HEAD; then
-            git merge --no-edit origin/main
+            git merge --no-edit origin/main || \
+              open_conflict_pr origin/main 'validated staging changes' true
           fi
 
           if [ "$HAS_NEXT" = "true" ]; then
