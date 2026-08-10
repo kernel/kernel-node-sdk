@@ -5,6 +5,7 @@ export {
   Connections,
   type LoginResponse,
   type ManagedAuth,
+  type ManagedAuthBrowserConfig,
   type ManagedAuthCreateRequest,
   type ManagedAuthTimelineEvent,
   type ManagedAuthUpdateRequest,

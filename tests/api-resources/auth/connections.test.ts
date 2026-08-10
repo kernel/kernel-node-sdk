@@ -30,6 +30,34 @@ describe('resource connections', () => {
       profile_name: 'user-123',
       allowed_domains: ['login.netflix.com', 'auth.netflix.com'],
       auto_reauth: true,
+      browser: {
+        proxy: {
+          id: 'x',
+          mode: 'direct',
+          name: 'x',
+        },
+        stealth: false,
+        telemetry: {
+          browser: {
+            captcha: { enabled: true },
+            connection: { enabled: true },
+            console: { enabled: true },
+            control: { enabled: true },
+            interaction: { enabled: true },
+            network: { enabled: true },
+            page: { enabled: true },
+            screenshot: { enabled: true },
+            system: { enabled: true },
+          },
+          enabled: true,
+          export: {
+            otlp: {
+              destination: { id: 'id', name: 'name' },
+              enabled: true,
+            },
+          },
+        },
+      },
       browser_telemetry: {
         browser: {
           captcha: { enabled: true },
@@ -161,6 +189,34 @@ describe('resource connections', () => {
       client.auth.connections.login(
         'id',
         {
+          browser: {
+            proxy: {
+              id: 'x',
+              mode: 'direct',
+              name: 'x',
+            },
+            stealth: false,
+            telemetry: {
+              browser: {
+                captcha: { enabled: true },
+                connection: { enabled: true },
+                console: { enabled: true },
+                control: { enabled: true },
+                interaction: { enabled: true },
+                network: { enabled: true },
+                page: { enabled: true },
+                screenshot: { enabled: true },
+                system: { enabled: true },
+              },
+              enabled: true,
+              export: {
+                otlp: {
+                  destination: { id: 'id', name: 'name' },
+                  enabled: true,
+                },
+              },
+            },
+          },
           browser_telemetry: {
             browser: {
               captcha: { enabled: true },

@@ -38,6 +38,11 @@ describe('resource browsers', () => {
             name: 'name',
             save_changes: true,
           },
+          proxy: {
+            id: 'x',
+            mode: 'direct',
+            name: 'x',
+          },
           proxy_id: 'proxy_id',
           start_url: 'https://example.com',
           stealth: true,
