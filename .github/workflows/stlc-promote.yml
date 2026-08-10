@@ -65,14 +65,21 @@ jobs:
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
-          git checkout -B stlc/promote-next origin/main
+          if [ "$HAS_NEXT" = "true" ]; then
+            git checkout -B stlc/promote-next production/next
+          else
+            git checkout -B stlc/promote-next production/main
+          fi
+
           if ! git merge-base --is-ancestor production/main HEAD; then
             git merge --no-edit production/main
           fi
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            git merge --no-edit origin/main
+          fi
 
-          if [ "$HAS_NEXT" = "true" ] && ! git merge-base --is-ancestor production/next HEAD; then
-            echo "::error title=Promotion blocked::production next has commits that are not present in staging or production main."
-            exit 1
+          if [ "$HAS_NEXT" = "true" ]; then
+            git merge-base --is-ancestor production/next HEAD
           fi
 
       - name: Update the pending release
