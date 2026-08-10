@@ -188,6 +188,42 @@ describe('browser routing', () => {
     });
   });
 
+  test('preserves the caller abort signal for routed requests', async () => {
+    const controller = new AbortController();
+    const cache = new BrowserRouteCache();
+    cache.set({
+      sessionId: 'sess-1',
+      baseURL: 'http://browser-session.test/browser/kernel',
+      jwt: 'token-abc',
+    });
+
+    let routedSignal: AbortSignal | null | undefined;
+    const wrappedFetch = createRoutingFetch(
+      async (_input, init) => {
+        routedSignal = init?.signal;
+        return new Response(null, { status: 204 });
+      },
+      {
+        apiBaseURL: 'https://api.example/',
+        subresources: ['telemetry/stream'],
+        cache,
+      },
+    );
+
+    await wrappedFetch('https://api.example/browsers/sess-1/telemetry/stream', {
+      signal: controller.signal,
+    });
+
+    expect(routedSignal === controller.signal).toBe(true);
+
+    const request = new Request('https://api.example/browsers/sess-1/telemetry/stream', {
+      signal: controller.signal,
+    });
+    await wrappedFetch(request);
+
+    expect(routedSignal === request.signal).toBe(true);
+  });
+
   test('ignores browser responses that do not include a usable jwt', async () => {
     await withBrowserRoutingEnv('process', async () => {
       const kernel = new Kernel({

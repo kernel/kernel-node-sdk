@@ -262,10 +262,11 @@ async function routeRequest(
 
   const headers = new Headers(request.headers);
   headers.delete('authorization');
-  return innerFetch(target.toString(), buildRoutedInit(request, init, headers));
+  return innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
 }
 
 function buildRoutedInit(
+  input: RequestInfo,
   request: Request,
   originalInit: RequestInit | undefined,
   headers: Headers,
@@ -276,7 +277,7 @@ function buildRoutedInit(
     method,
     headers,
     redirect: request.redirect,
-    signal: request.signal,
+    signal: originalInit?.signal ?? (input instanceof Request ? input.signal : undefined),
   } as RequestInit & Record<string, unknown>;
 
   delete routedInit['body'];
