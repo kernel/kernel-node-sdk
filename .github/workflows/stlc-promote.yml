@@ -110,12 +110,14 @@ jobs:
           fi
 
           if ! git merge-base --is-ancestor production/main HEAD; then
-            git merge --no-edit production/main || \
+            if ! git merge --no-edit production/main; then
               open_conflict_pr production/main 'production main' false
+            fi
           fi
           if ! git merge-base --is-ancestor origin/main HEAD; then
-            git merge --no-edit origin/main || \
+            if ! git merge --no-edit origin/main; then
               open_conflict_pr origin/main 'validated staging changes' true
+            fi
           fi
 
           if [ "$HAS_NEXT" = "true" ]; then
