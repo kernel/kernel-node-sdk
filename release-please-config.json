@@ -10,6 +10,7 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
   "pull-request-header": "Automated Release PR",
+  "pull-request-footer": "Merge this pull request with a merge commit. Merging creates the GitHub release and publishes the package.",
   "pull-request-title-pattern": "release: ${version}",
   "changelog-sections": [
     {

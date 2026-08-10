@@ -1,11 +1,20 @@
 name: Release Please
+
+# `next` accumulates validated SDK changes in one versioned PR to `main`.
+# Merging that PR creates the GitHub release; the package publishing workflow
+# runs from the release event.
 on:
   push:
     branches:
+      - next
       - main
 
 permissions:
   contents: read
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
 
 jobs:
   release-please:
@@ -26,7 +35,68 @@ jobs:
           permission-pull-requests: write
           permission-workflows: write
 
-      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
-        id: release
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          token: ${{ steps.release-token.outputs.token }}
+          node-version: '18.20.2'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: '9.11.0'
+          run_install: false
+
+      - name: Build pinned release tooling
+        id: tooling
+        env:
+          RELEASE_PLEASE_DIR: ${{ runner.temp }}/release-please
+          RELEASE_PLEASE_SHA: a116e1e520e0f87824acf46a2e79c91d41e819d7
+        run: |
+          set -euo pipefail
+          rm -rf "$RELEASE_PLEASE_DIR"
+          git init "$RELEASE_PLEASE_DIR"
+          git -C "$RELEASE_PLEASE_DIR" remote add origin https://github.com/stainless-api/release-please.git
+          git -C "$RELEASE_PLEASE_DIR" fetch --depth=1 origin "$RELEASE_PLEASE_SHA"
+          git -C "$RELEASE_PLEASE_DIR" checkout --detach FETCH_HEAD
+          pnpm --dir "$RELEASE_PLEASE_DIR" install --frozen-lockfile
+          pnpm --dir "$RELEASE_PLEASE_DIR" build
+          echo "cli=$RELEASE_PLEASE_DIR/build/src/bin/release-please.js" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the release PR
+        if: github.ref_name == 'next'
+        env:
+          GH_TOKEN: ${{ steps.release-token.outputs.token }}
+          RELEASE_PLEASE: ${{ steps.tooling.outputs.cli }}
+        run: |
+          set -euo pipefail
+          node "$RELEASE_PLEASE" release-pr \
+            --repo-url "$GITHUB_REPOSITORY" \
+            --token "$GH_TOKEN" \
+            --target-branch main \
+            --changes-branch next
+
+      - name: Remove the legacy promotion PR
+        if: github.ref_name == 'next'
+        env:
+          GH_TOKEN: ${{ steps.release-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          legacy=$(gh pr list --repo "$GITHUB_REPOSITORY" --head stainless/release \
+            --state open --json number --jq '.[].number')
+          for pr in $legacy; do
+            gh pr close "$pr" --repo "$GITHUB_REPOSITORY" \
+              --comment "Superseded by the versioned release PR from next to main."
+          done
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/stainless/release" >/dev/null 2>&1 || true
+
+      - name: Create the GitHub release
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ steps.release-token.outputs.token }}
+          RELEASE_PLEASE: ${{ steps.tooling.outputs.cli }}
+        run: |
+          set -euo pipefail
+          node "$RELEASE_PLEASE" github-release \
+            --repo-url "$GITHUB_REPOSITORY" \
+            --token "$GH_TOKEN" \
+            --target-branch main

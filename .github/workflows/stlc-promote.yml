@@ -1,8 +1,9 @@
-name: Promote SDKs
+name: Promote SDK changes
 
-# Production requires pull requests, so staging is promoted through a merge-
-# commit PR. Never squash or rebase this cross-repo PR: preserving the incoming
-# commits keeps production and staging on one ancestry chain.
+# Staging is the generator's integration history. Production `next` is the
+# developer-facing queue for the next release. This workflow combines the
+# latest released state with validated staging changes, then advances `next`.
+# Release automation maintains the single versioned PR from `next` to `main`.
 on:
   push:
     branches: [main]
@@ -35,49 +36,49 @@ jobs:
           repositories: kernel-node-sdk
           permission-contents: write
           permission-workflows: write
-          permission-pull-requests: write
 
-      - name: Fetch production main
+      - name: Fetch production branches
+        id: production
         env:
           GH_TOKEN: ${{ steps.production-token.outputs.token }}
           PRODUCTION_REPO: kernel/kernel-node-sdk
         run: |
-          git remote add production             "https://x-access-token:${GH_TOKEN}@github.com/${PRODUCTION_REPO}.git"
+          set -euo pipefail
+          git remote add production \
+            "https://x-access-token:${GH_TOKEN}@github.com/${PRODUCTION_REPO}.git"
           git fetch production main
-
-      - name: Check whether production already has staging's content
-        id: diff
-        run: |
-          MERGED=$(git merge-tree --write-tree production/main origin/main) || MERGED=conflict
-          PRODUCTION_TREE=$(git rev-parse 'production/main^{tree}')
-          if [ "$MERGED" = "$PRODUCTION_TREE" ]; then
-            echo "Production already contains staging's content. Nothing to promote."
-            echo "synced=true" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads production next >/dev/null 2>&1; then
+            git fetch production next
+            echo "has_next=true" >> "$GITHUB_OUTPUT"
           else
-            echo "synced=false" >> "$GITHUB_OUTPUT"
+            echo "has_next=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Push the production release branch
-        if: steps.diff.outputs.synced == 'false'
+      - name: Prepare the next release branch
+        env:
+          APP_SLUG: ${{ steps.production-token.outputs.app-slug }}
+          GH_TOKEN: ${{ steps.production-token.outputs.token }}
+          HAS_NEXT: ${{ steps.production.outputs.has_next }}
+        run: |
+          set -euo pipefail
+          bot_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          git checkout -B stlc/promote-next origin/main
+          if ! git merge-base --is-ancestor production/main HEAD; then
+            git merge --no-edit production/main
+          fi
+
+          if [ "$HAS_NEXT" = "true" ] && ! git merge-base --is-ancestor production/next HEAD; then
+            echo "::error title=Promotion blocked::production next has commits that are not present in staging or production main."
+            exit 1
+          fi
+
+      - name: Update the pending release
         env:
           GH_TOKEN: ${{ steps.production-token.outputs.token }}
-          PRODUCTION_REPO: kernel/kernel-node-sdk
-        run: git push production origin/main:refs/heads/stainless/release --force
-
-      - name: Open or update the promote PR
-        if: steps.diff.outputs.synced == 'false'
-        env:
-          GH_TOKEN: ${{ steps.production-token.outputs.token }}
-          PRODUCTION_REPO: kernel/kernel-node-sdk
         run: |
-          body=$(mktemp)
-          git log --oneline production/main..origin/main > "$body"
-          existing=$(gh pr list --repo "$PRODUCTION_REPO" --head stainless/release             --state open --json number --jq 'if length == 0 then "" else .[0].number end')
-          if [ -z "$existing" ]; then
-            gh pr create --repo "$PRODUCTION_REPO" --base main               --head stainless/release --title "Release SDK updates" --body-file "$body"
-          else
-            gh pr edit "$existing" --repo "$PRODUCTION_REPO"               --title "Release SDK updates" --body-file "$body"
-          fi
-          if ! gh pr merge stainless/release --repo "$PRODUCTION_REPO" --merge --auto; then
-            echo "::warning title=Manual promotion required::Merge the promote PR with a merge commit."
-          fi
+          set -euo pipefail
+          git push production HEAD:refs/heads/next
+          echo "Updated production next; the versioned release PR will be opened or refreshed."
