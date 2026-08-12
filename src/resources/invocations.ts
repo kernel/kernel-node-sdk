@@ -435,6 +435,11 @@ export namespace InvocationListBrowsersResponse {
     headless: boolean;
 
     /**
+     * Geographic region of the browser session. Fixed once the session is created.
+     */
+    region: 'us-east' | 'eu-west';
+
+    /**
      * Unique identifier for the browser session
      */
     session_id: string;

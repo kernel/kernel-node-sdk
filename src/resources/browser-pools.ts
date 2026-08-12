@@ -197,6 +197,11 @@ export interface BrowserPool {
   extension_ids: Array<string>;
 
   /**
+   * Geographic region of the browser pool. Fixed once the pool is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Browser pool name, if set
    */
   name?: string;
@@ -362,6 +367,11 @@ export interface BrowserPoolAcquireResponse {
    * Whether the browser session is running in headless mode.
    */
   headless: boolean;
+
+  /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
 
   /**
    * Unique identifier for the browser session
@@ -557,6 +567,13 @@ export interface BrowserPoolCreateParams {
    * creation, this defaults to true. Requires a profile to be set on the pool.
    */
   refresh_on_profile_update?: boolean;
+
+  /**
+   * Geographic region for the browser pool. It is fixed once the pool is created.
+   * Region selection requires a Start-Up or Enterprise plan, defaults to us-east
+   * when omitted on create.
+   */
+  region?: 'us-east' | 'eu-west';
 
   /**
    * Optional URL to navigate to when a new browser is warmed into the pool.
@@ -976,6 +993,11 @@ export interface BrowserPoolListParams extends OffsetPaginationParams {
    * value.
    */
   query?: string;
+
+  /**
+   * Filter pools by geographic region. Omit to list pools in all regions.
+   */
+  region?: 'us-east' | 'eu-west';
 }
 
 export interface BrowserPoolDeleteParams {

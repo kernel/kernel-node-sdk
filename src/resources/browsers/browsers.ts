@@ -424,6 +424,11 @@ export interface BrowserCreateResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -566,6 +571,11 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in headless mode.
    */
   headless: boolean;
+
+  /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
 
   /**
    * Unique identifier for the browser session
@@ -712,6 +722,11 @@ export interface BrowserUpdateResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -854,6 +869,11 @@ export interface BrowserListResponse {
    * Whether the browser session is running in headless mode.
    */
   headless: boolean;
+
+  /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
 
   /**
    * Unique identifier for the browser session
@@ -1075,6 +1095,13 @@ export interface BrowserCreateParams {
    * proxy in the same project as the browser session. Deprecated in favor of proxy.
    */
   proxy_id?: string;
+
+  /**
+   * Geographic region for the browser session. It is fixed once the session is
+   * created. Region selection requires a Start-Up or Enterprise plan, defaults to
+   * us-east when omitted on create.
+   */
+  region?: 'us-east' | 'eu-west';
 
   /**
    * Optional URL to open when the browser session is created. Navigation is
@@ -1409,6 +1436,11 @@ export interface BrowserListParams extends OffsetPaginationParams {
    * Search browsers by name, session ID, profile name or ID, proxy ID, or pool name.
    */
   query?: string;
+
+  /**
+   * Filter sessions by geographic region. Omit to list sessions in all regions.
+   */
+  region?: 'us-east' | 'eu-west';
 
   /**
    * Filter sessions by status. "active" returns only active sessions (default),

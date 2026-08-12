@@ -33,6 +33,7 @@ describe('resource browserPools', () => {
       profile: { id: 'id', name: 'name' },
       proxy_id: 'proxy_id',
       refresh_on_profile_update: true,
+      region: 'us-east',
       start_url: 'https://example.com',
       stealth: true,
       telemetry: {
@@ -110,6 +111,7 @@ describe('resource browserPools', () => {
           name: 'name',
           offset: 0,
           query: 'query',
+          region: 'us-east',
         },
         { path: '/_stainless_unknown_path' },
       ),
