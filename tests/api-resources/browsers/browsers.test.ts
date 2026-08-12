@@ -33,6 +33,7 @@ describe('resource browsers', () => {
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
           name: 'checkout-flow-1',
+          network: { private_hosts: ['*.example.ts.net', '100.64.0.0/10'] },
           profile: {
             id: 'id',
             name: 'name',

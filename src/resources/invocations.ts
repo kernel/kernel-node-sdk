@@ -499,6 +499,12 @@ export namespace InvocationListBrowsersResponse {
     name?: string;
 
     /**
+     * Network configuration the session was created with, if any. Omitted when the
+     * session has no network configuration.
+     */
+    network?: BrowsersAPI.BrowserNetworkConfig;
+
+    /**
      * Browser pool this session was acquired from, if any.
      */
     pool?: BrowsersAPI.BrowserPoolRef;

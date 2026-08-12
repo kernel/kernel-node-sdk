@@ -30,6 +30,7 @@ describe('resource browserPools', () => {
       headless: false,
       kiosk_mode: true,
       name: 'my-pool',
+      network: { private_hosts: ['*.example.ts.net', '100.64.0.0/10'] },
       profile: { id: 'id', name: 'name' },
       proxy_id: 'proxy_id',
       refresh_on_profile_update: true,

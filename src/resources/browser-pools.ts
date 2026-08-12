@@ -264,6 +264,12 @@ export namespace BrowserPool {
     name?: string;
 
     /**
+     * Network configuration applied to browsers in this pool, if any. Omitted when the
+     * pool has no network configuration.
+     */
+    network?: BrowsersAPI.BrowserNetworkConfig;
+
+    /**
      * Profile configuration for browsers in a pool. Provide either id or name.
      * Profiles must be created beforehand. Unlike single browser sessions, pools load
      * the profile read-only and never persist changes back to it, so save_changes is
@@ -433,6 +439,12 @@ export interface BrowserPoolAcquireResponse {
   name?: string;
 
   /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowsersAPI.BrowserPoolRef;
@@ -545,6 +557,11 @@ export interface BrowserPoolCreateParams {
    * Optional name for the browser pool. Must be unique within the project.
    */
   name?: string;
+
+  /**
+   * Network configuration applied to browsers in this pool.
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
 
   /**
    * Profile configuration for browsers in a pool. Provide either id or name.
@@ -786,6 +803,15 @@ export interface BrowserPoolUpdateParams {
    * cannot be cleared or reset to empty once assigned.
    */
   name?: string;
+
+  /**
+   * If provided, replaces the pool's network configuration. Omit to leave the
+   * existing configuration unchanged; an empty object ({}) removes it, while
+   * network: {private_hosts: []} sets an explicit empty list. Only applied to
+   * browsers created in the pool after the update; browsers already in the pool keep
+   * their configuration until discarded (see discard_all_idle).
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
 
   /**
    * Profile configuration for browsers in a pool. Provide either id or name.
