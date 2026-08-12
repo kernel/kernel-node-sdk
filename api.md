@@ -384,10 +384,10 @@ Types:
 Methods:
 
 - <code title="post /org/projects">client.projects.<a href="./src/resources/projects/projects.ts">create</a>({ ...params }) -> Project</code>
-- <code title="get /org/projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">retrieve</a>(id) -> Project</code>
-- <code title="patch /org/projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">update</a>(id, { ...params }) -> Project</code>
+- <code title="get /org/projects/{id_or_name}">client.projects.<a href="./src/resources/projects/projects.ts">retrieve</a>(idOrName) -> Project</code>
+- <code title="patch /org/projects/{id_or_name}">client.projects.<a href="./src/resources/projects/projects.ts">update</a>(idOrName, { ...params }) -> Project</code>
 - <code title="get /org/projects">client.projects.<a href="./src/resources/projects/projects.ts">list</a>({ ...params }) -> ProjectsOffsetPagination</code>
-- <code title="delete /org/projects/{id}">client.projects.<a href="./src/resources/projects/projects.ts">delete</a>(id) -> void</code>
+- <code title="delete /org/projects/{id_or_name}">client.projects.<a href="./src/resources/projects/projects.ts">delete</a>(idOrName) -> void</code>
 
 ## Limits
 
@@ -398,8 +398,8 @@ Types:
 
 Methods:
 
-- <code title="get /org/projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">retrieve</a>(id) -> ProjectLimits</code>
-- <code title="patch /org/projects/{id}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">update</a>(id, { ...params }) -> ProjectLimits</code>
+- <code title="get /org/projects/{id_or_name}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">retrieve</a>(idOrName) -> ProjectLimits</code>
+- <code title="patch /org/projects/{id_or_name}/limits">client.projects.limits.<a href="./src/resources/projects/limits.ts">update</a>(idOrName, { ...params }) -> ProjectLimits</code>
 
 # Organization
 
