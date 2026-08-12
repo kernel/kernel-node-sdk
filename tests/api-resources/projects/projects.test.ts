@@ -27,7 +27,7 @@ describe('resource projects', () => {
 
   // Mock server tests are disabled
   test.skip('retrieve', async () => {
-    const responsePromise = client.projects.retrieve('id');
+    const responsePromise = client.projects.retrieve('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -39,7 +39,7 @@ describe('resource projects', () => {
 
   // Mock server tests are disabled
   test.skip('update', async () => {
-    const responsePromise = client.projects.update('id', {});
+    const responsePromise = client.projects.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -79,7 +79,7 @@ describe('resource projects', () => {
 
   // Mock server tests are disabled
   test.skip('delete', async () => {
-    const responsePromise = client.projects.delete('id');
+    const responsePromise = client.projects.delete('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;

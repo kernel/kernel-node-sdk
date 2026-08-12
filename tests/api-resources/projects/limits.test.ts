@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource limits', () => {
   // Mock server tests are disabled
   test.skip('retrieve', async () => {
-    const responsePromise = client.projects.limits.retrieve('id');
+    const responsePromise = client.projects.limits.retrieve('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,7 +22,7 @@ describe('resource limits', () => {
 
   // Mock server tests are disabled
   test.skip('update', async () => {
-    const responsePromise = client.projects.limits.update('id', {});
+    const responsePromise = client.projects.limits.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;

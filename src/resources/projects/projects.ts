@@ -36,11 +36,13 @@ export class Projects extends APIResource {
    *
    * @example
    * ```ts
-   * const project = await client.projects.retrieve('id');
+   * const project = await client.projects.retrieve(
+   *   'id_or_name',
+   * );
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<Project> {
-    return this._client.get(path`/org/projects/${id}`, options);
+  retrieve(idOrName: string, options?: RequestOptions): APIPromise<Project> {
+    return this._client.get(path`/org/projects/${idOrName}`, options);
   }
 
   /**
@@ -48,11 +50,11 @@ export class Projects extends APIResource {
    *
    * @example
    * ```ts
-   * const project = await client.projects.update('id');
+   * const project = await client.projects.update('id_or_name');
    * ```
    */
-  update(id: string, body: ProjectUpdateParams, options?: RequestOptions): APIPromise<Project> {
-    return this._client.patch(path`/org/projects/${id}`, { body, ...options });
+  update(idOrName: string, body: ProjectUpdateParams, options?: RequestOptions): APIPromise<Project> {
+    return this._client.patch(path`/org/projects/${idOrName}`, { body, ...options });
   }
 
   /**
@@ -78,11 +80,11 @@ export class Projects extends APIResource {
    *
    * @example
    * ```ts
-   * await client.projects.delete('id');
+   * await client.projects.delete('id_or_name');
    * ```
    */
-  delete(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/org/projects/${id}`, {
+  delete(idOrName: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/org/projects/${idOrName}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
@@ -93,7 +95,7 @@ export type ProjectsOffsetPagination = OffsetPagination<Project>;
 
 export interface CreateProjectRequest {
   /**
-   * Project name (1-255 Unicode code points)
+   * Project name (1-255 Unicode code points; cannot contain `/` or `%`)
    */
   name: string;
 }
@@ -127,7 +129,7 @@ export interface Project {
 
 export interface UpdateProjectRequest {
   /**
-   * New project name (1-255 Unicode code points)
+   * New project name (1-255 Unicode code points; cannot contain `/` or `%`)
    */
   name?: string;
 
@@ -139,14 +141,14 @@ export interface UpdateProjectRequest {
 
 export interface ProjectCreateParams {
   /**
-   * Project name (1-255 Unicode code points)
+   * Project name (1-255 Unicode code points; cannot contain `/` or `%`)
    */
   name: string;
 }
 
 export interface ProjectUpdateParams {
   /**
-   * New project name (1-255 Unicode code points)
+   * New project name (1-255 Unicode code points; cannot contain `/` or `%`)
    */
   name?: string;
 
