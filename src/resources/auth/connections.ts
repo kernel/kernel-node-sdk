@@ -649,9 +649,40 @@ export namespace ManagedAuth {
       | 'other';
 
     /**
+     * Context captured for a choice.
+     */
+    context?: string | null;
+
+    /**
      * Additional context for the choice.
      */
     description?: string | null;
+
+    /**
+     * Display text captured for a choice.
+     */
+    display_text?: string | null;
+
+    /**
+     * Masked phone number or email address shown for an MFA choice.
+     */
+    masked_destination?: string | null;
+
+    /**
+     * Semantic MFA method. Choice id remains the stable identity of the exact option
+     * selected.
+     */
+    mfa_type?:
+      | 'sms'
+      | 'call'
+      | 'email'
+      | 'totp'
+      | 'push'
+      | 'password'
+      | 'passkey'
+      | 'switch'
+      | 'other'
+      | null;
 
     /**
      * Selector for the visible choice, when available.
@@ -753,6 +784,11 @@ export namespace ManagedAuth {
      * Managed-auth field type.
      */
     type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+
+    /**
+     * Context shown near the field, including a masked code destination.
+     */
+    hint?: string;
 
     /**
      * Human-readable label shown to the user.
@@ -1698,9 +1734,40 @@ export namespace ConnectionFollowResponse {
         | 'other';
 
       /**
+       * Context captured for a choice.
+       */
+      context?: string | null;
+
+      /**
        * Additional context for the choice.
        */
       description?: string | null;
+
+      /**
+       * Display text captured for a choice.
+       */
+      display_text?: string | null;
+
+      /**
+       * Masked phone number or email address shown for an MFA choice.
+       */
+      masked_destination?: string | null;
+
+      /**
+       * Semantic MFA method. Choice id remains the stable identity of the exact option
+       * selected.
+       */
+      mfa_type?:
+        | 'sms'
+        | 'call'
+        | 'email'
+        | 'totp'
+        | 'push'
+        | 'password'
+        | 'passkey'
+        | 'switch'
+        | 'other'
+        | null;
 
       /**
        * Selector for the visible choice, when available.
@@ -1773,6 +1840,11 @@ export namespace ConnectionFollowResponse {
        * Managed-auth field type.
        */
       type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+
+      /**
+       * Context shown near the field, including a masked code destination.
+       */
+      hint?: string;
 
       /**
        * Human-readable label shown to the user.
