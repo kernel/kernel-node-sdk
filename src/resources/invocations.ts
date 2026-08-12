@@ -435,6 +435,11 @@ export namespace InvocationListBrowsersResponse {
     headless: boolean;
 
     /**
+     * Geographic region of the browser session. Fixed once the session is created.
+     */
+    region: 'us-east' | 'eu-west';
+
+    /**
      * Unique identifier for the browser session
      */
     session_id: string;
@@ -492,6 +497,12 @@ export namespace InvocationListBrowsersResponse {
      * Human-readable name of the browser session, if one was set at creation.
      */
     name?: string;
+
+    /**
+     * Network configuration the session was created with, if any. Omitted when the
+     * session has no network configuration.
+     */
+    network?: BrowsersAPI.BrowserNetworkConfig;
 
     /**
      * Browser pool this session was acquired from, if any.

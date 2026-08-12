@@ -197,6 +197,11 @@ export interface BrowserPool {
   extension_ids: Array<string>;
 
   /**
+   * Geographic region of the browser pool. Fixed once the pool is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Browser pool name, if set
    */
   name?: string;
@@ -257,6 +262,12 @@ export namespace BrowserPool {
      * Optional name for the browser pool. Must be unique within the project.
      */
     name?: string;
+
+    /**
+     * Network configuration applied to browsers in this pool, if any. Omitted when the
+     * pool has no network configuration.
+     */
+    network?: BrowsersAPI.BrowserNetworkConfig;
 
     /**
      * Profile configuration for browsers in a pool. Provide either id or name.
@@ -364,6 +375,11 @@ export interface BrowserPoolAcquireResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -421,6 +437,12 @@ export interface BrowserPoolAcquireResponse {
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
+
+  /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -537,6 +559,11 @@ export interface BrowserPoolCreateParams {
   name?: string;
 
   /**
+   * Network configuration applied to browsers in this pool.
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
+
+  /**
    * Profile configuration for browsers in a pool. Provide either id or name.
    * Profiles must be created beforehand. Unlike single browser sessions, pools load
    * the profile read-only and never persist changes back to it, so save_changes is
@@ -557,6 +584,13 @@ export interface BrowserPoolCreateParams {
    * creation, this defaults to true. Requires a profile to be set on the pool.
    */
   refresh_on_profile_update?: boolean;
+
+  /**
+   * Geographic region for the browser pool. It is fixed once the pool is created.
+   * Region selection requires a Start-Up or Enterprise plan, defaults to us-east
+   * when omitted on create.
+   */
+  region?: 'us-east' | 'eu-west';
 
   /**
    * Optional URL to navigate to when a new browser is warmed into the pool.
@@ -771,6 +805,15 @@ export interface BrowserPoolUpdateParams {
   name?: string;
 
   /**
+   * If provided, replaces the pool's network configuration. Omit to leave the
+   * existing configuration unchanged; an empty object ({}) removes it, while
+   * network: {private_hosts: []} sets an explicit empty list. Only applied to
+   * browsers created in the pool after the update; browsers already in the pool keep
+   * their configuration until discarded (see discard_all_idle).
+   */
+  network?: BrowsersAPI.BrowserNetworkConfig;
+
+  /**
    * Profile configuration for browsers in a pool. Provide either id or name.
    * Profiles must be created beforehand. Unlike single browser sessions, pools load
    * the profile read-only and never persist changes back to it, so save_changes is
@@ -976,6 +1019,11 @@ export interface BrowserPoolListParams extends OffsetPaginationParams {
    * value.
    */
   query?: string;
+
+  /**
+   * Filter pools by geographic region. Omit to list pools in all regions.
+   */
+  region?: 'us-east' | 'eu-west';
 }
 
 export interface BrowserPoolDeleteParams {

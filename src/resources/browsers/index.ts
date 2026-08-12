@@ -2,6 +2,7 @@
 
 export {
   Browsers,
+  type BrowserNetworkConfig,
   type BrowserPoolRef,
   type BrowserProxy,
   type BrowserProxyConfig,

@@ -9,9 +9,7 @@ import { RequestOptions } from '../../internal/request-options';
  */
 export class Limits extends APIResource {
   /**
-   * Get the organization's concurrency limit — the maximum browsers running at once
-   * across on-demand sessions and browser pool reservations — and the default
-   * per-project concurrency cap applied to projects without an explicit override.
+   * Get the organization's effective limits and managed auth usage.
    */
   retrieve(options?: RequestOptions): APIPromise<OrgLimits> {
     return this._client.get('/org/limits', options);
@@ -28,6 +26,26 @@ export class Limits extends APIResource {
 }
 
 export interface OrgLimits {
+  /**
+   * The organization's current non-deleted managed auth connections, counted
+   * org-wide across every project. Compare against max_auth_connections to show
+   * remaining capacity before a create is rejected with 403 insufficient_plan.
+   */
+  auth_connections_used: number;
+
+  /**
+   * Maximum managed auth connections the organization's plan allows. Null means
+   * unlimited. Counted org-wide, so it cannot be multiplied across projects.
+   */
+  max_auth_connections: number | null;
+
+  /**
+   * Smallest health_check_interval the organization's plan accepts on a managed auth
+   * connection. Requests below this are rejected with 400. Existing connections
+   * stored below the floor are grandfathered until edited.
+   */
+  min_health_check_interval_seconds: number;
+
   /**
    * Default maximum concurrent browsers applied to every project that has no
    * explicit per-project override. Null means no org-level default, so such projects

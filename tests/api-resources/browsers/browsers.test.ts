@@ -33,6 +33,7 @@ describe('resource browsers', () => {
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
           name: 'checkout-flow-1',
+          network: { private_hosts: ['*.example.ts.net', '100.64.0.0/10'] },
           profile: {
             id: 'id',
             name: 'name',
@@ -44,6 +45,7 @@ describe('resource browsers', () => {
             name: 'x',
           },
           proxy_id: 'proxy_id',
+          region: 'us-east',
           start_url: 'https://example.com',
           stealth: true,
           tags: { team: 'backend', env: 'staging' },
@@ -137,6 +139,7 @@ describe('resource browsers', () => {
           limit: 1,
           offset: 0,
           query: 'query',
+          region: 'us-east',
           status: 'active',
           tags: { foo: 'string' },
         },

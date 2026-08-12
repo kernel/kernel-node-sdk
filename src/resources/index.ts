@@ -40,6 +40,7 @@ export {
 } from './browser-pools';
 export {
   Browsers,
+  type BrowserNetworkConfig,
   type BrowserPoolRef,
   type BrowserProxy,
   type BrowserProxyConfig,

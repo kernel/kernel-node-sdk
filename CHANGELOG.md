@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.89.0](https://github.com/kernel/kernel-node-sdk/compare/v0.88.0...v0.89.0) (2026-08-12)
+
+
+### Features
+
+* Add region as a first-class API field with plan and flag gating ([6067810](https://github.com/kernel/kernel-node-sdk/commit/6067810fa97164eec17d09c17ab7de45522ec712))
+* Add typed network config with private_hosts to browsers and pools ([bb0f6d9](https://github.com/kernel/kernel-node-sdk/commit/bb0f6d9adcc207b9b7778d9da9183f595f29c0c3))
+* Expose plan-derived auth limits on GET /org/limits ([3afd564](https://github.com/kernel/kernel-node-sdk/commit/3afd56426a2d91294345b7c42a7878f47e0630d5))
+
 ## [0.88.0](https://github.com/kernel/kernel-node-sdk/compare/v0.87.1...v0.88.0) (2026-08-10)
 
 ### Features

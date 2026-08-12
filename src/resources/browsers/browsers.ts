@@ -282,6 +282,37 @@ export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListR
 export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 
 /**
+ * Network configuration for a browser session or browser pool.
+ */
+export interface BrowserNetworkConfig {
+  /**
+   * Destinations the browser reaches directly through the session's own network
+   * instead of through Kernel-managed egress — for private hosts reachable over a
+   * VPN or tunnel the session has joined (e.g. a Tailscale tailnet). By default,
+   * private IP ranges already route directly: RFC1918 (10.0.0.0/8, 172.16.0.0/12,
+   * 192.168.0.0/16), CGNAT/Tailscale (100.64.0.0/10), and IPv6 ULA (fc00::/7). An
+   * explicitly supplied list replaces those defaults with exactly the entries given,
+   * and an empty list ([]) disables them so all traffic uses Kernel-managed egress;
+   * omit private_hosts to keep the defaults. Entries are hostname patterns
+   * ("_.example.ts.net", "preview.internal") or IP/CIDR literals ("100.64.0.0/10",
+   * "10.1.30.63"). IP and CIDR entries only match URLs written with a literal IP
+   * address; they never match hostnames that resolve into the range, so private DNS
+   * names need a hostname entry even when they resolve inside the default ranges.
+   * CIDRs must be in canonical masked form (host bits zero), and only the private
+   * ranges listed above are accepted; public, loopback, link-local, and unspecified
+   * ranges are rejected. Exact IPv6 addresses must be bracketed ("[fd00::1]"); IPv6
+   * CIDR ranges are unbracketed ("fd00::/8"). Wildcards are limited to one leading
+   * "_." over a suffix with at least two labels that is not a public suffix (so
+   * "_.co.uk" or "_.ts.net" are rejected, while "\*.example.ts.net" is accepted).
+   * Hostname and IP entries may carry a port; CIDR ranges may not. Hostname entries
+   * are not resolved during validation, so callers must ensure they identify private
+   * destinations. Not related to a proxy's bypass_hosts, which selects between
+   * upstream-proxy and Kernel-managed direct egress and cannot reach into a VPN.
+   */
+  private_hosts?: Array<string>;
+}
+
+/**
  * Browser pool this session was acquired from, if any.
  */
 export interface BrowserPoolRef {
@@ -424,6 +455,11 @@ export interface BrowserCreateResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -481,6 +517,12 @@ export interface BrowserCreateResponse {
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
+
+  /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowserNetworkConfig;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -568,6 +610,11 @@ export interface BrowserRetrieveResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -625,6 +672,12 @@ export interface BrowserRetrieveResponse {
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
+
+  /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowserNetworkConfig;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -712,6 +765,11 @@ export interface BrowserUpdateResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -769,6 +827,12 @@ export interface BrowserUpdateResponse {
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
+
+  /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowserNetworkConfig;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -856,6 +920,11 @@ export interface BrowserListResponse {
   headless: boolean;
 
   /**
+   * Geographic region of the browser session. Fixed once the session is created.
+   */
+  region: 'us-east' | 'eu-west';
+
+  /**
    * Unique identifier for the browser session
    */
   session_id: string;
@@ -913,6 +982,12 @@ export interface BrowserListResponse {
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
+
+  /**
+   * Network configuration the session was created with, if any. Omitted when the
+   * session has no network configuration.
+   */
+  network?: BrowserNetworkConfig;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -1053,6 +1128,11 @@ export interface BrowserCreateParams {
   name?: string;
 
   /**
+   * Network configuration for the browser session. Cannot be changed after creation.
+   */
+  network?: BrowserNetworkConfig;
+
+  /**
    * Profile selection for the browser session. Provide either id or name. If
    * specified, the matching profile will be loaded into the browser session.
    * Profiles must be created beforehand.
@@ -1075,6 +1155,13 @@ export interface BrowserCreateParams {
    * proxy in the same project as the browser session. Deprecated in favor of proxy.
    */
   proxy_id?: string;
+
+  /**
+   * Geographic region for the browser session. It is fixed once the session is
+   * created. Region selection requires a Start-Up or Enterprise plan, defaults to
+   * us-east when omitted on create.
+   */
+  region?: 'us-east' | 'eu-west';
 
   /**
    * Optional URL to open when the browser session is created. Navigation is
@@ -1411,6 +1498,11 @@ export interface BrowserListParams extends OffsetPaginationParams {
   query?: string;
 
   /**
+   * Filter sessions by geographic region. Omit to list sessions in all regions.
+   */
+  region?: 'us-east' | 'eu-west';
+
+  /**
    * Filter sessions by status. "active" returns only active sessions (default),
    * "deleted" returns only soft-deleted sessions, "all" returns both.
    */
@@ -1488,6 +1580,7 @@ Browsers.Playwright = Playwright;
 
 export declare namespace Browsers {
   export {
+    type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,
     type BrowserProxyConfig as BrowserProxyConfig,

@@ -66,6 +66,7 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserNetworkConfig</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyConfig</a></code>
