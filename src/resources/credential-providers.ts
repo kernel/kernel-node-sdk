@@ -136,7 +136,8 @@ export interface CreateCredentialProviderRequest {
   token: string;
 
   /**
-   * Human-readable name for this provider instance (unique per org)
+   * Human-readable name for this provider instance (unique per org). Surrounding
+   * whitespace is trimmed and the trimmed value must be non-empty.
    */
   name: string;
 
@@ -281,7 +282,8 @@ export interface UpdateCredentialProviderRequest {
   enabled?: boolean;
 
   /**
-   * Human-readable name for this provider instance
+   * Human-readable name for this provider instance. Surrounding whitespace is
+   * trimmed and the trimmed value must be non-empty.
    */
   name?: string;
 
@@ -302,7 +304,8 @@ export interface CredentialProviderCreateParams {
   token: string;
 
   /**
-   * Human-readable name for this provider instance (unique per org)
+   * Human-readable name for this provider instance (unique per org). Surrounding
+   * whitespace is trimmed and the trimmed value must be non-empty.
    */
   name: string;
 
@@ -334,7 +337,8 @@ export interface CredentialProviderUpdateParams {
   enabled?: boolean;
 
   /**
-   * Human-readable name for this provider instance
+   * Human-readable name for this provider instance. Surrounding whitespace is
+   * trimmed and the trimmed value must be non-empty.
    */
   name?: string;
 
