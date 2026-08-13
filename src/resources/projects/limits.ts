@@ -18,12 +18,12 @@ export class Limits extends APIResource {
    * @example
    * ```ts
    * const projectLimits = await client.projects.limits.retrieve(
-   *   'id',
+   *   'id_or_name',
    * );
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<ProjectLimits> {
-    return this._client.get(path`/org/projects/${id}/limits`, options);
+  retrieve(idOrName: string, options?: RequestOptions): APIPromise<ProjectLimits> {
+    return this._client.get(path`/org/projects/${idOrName}/limits`, options);
   }
 
   /**
@@ -34,12 +34,12 @@ export class Limits extends APIResource {
    * @example
    * ```ts
    * const projectLimits = await client.projects.limits.update(
-   *   'id',
+   *   'id_or_name',
    * );
    * ```
    */
-  update(id: string, body: LimitUpdateParams, options?: RequestOptions): APIPromise<ProjectLimits> {
-    return this._client.patch(path`/org/projects/${id}/limits`, { body, ...options });
+  update(idOrName: string, body: LimitUpdateParams, options?: RequestOptions): APIPromise<ProjectLimits> {
+    return this._client.patch(path`/org/projects/${idOrName}/limits`, { body, ...options });
   }
 }
 

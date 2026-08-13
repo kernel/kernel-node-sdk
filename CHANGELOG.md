@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.90.0](https://github.com/kernel/kernel-node-sdk/compare/v0.89.0...v0.90.0) (2026-08-12)
+
+
+### Features
+
+* Preserve canonical managed auth input metadata ([42d9a61](https://github.com/kernel/kernel-node-sdk/commit/42d9a61609bfee41832ed1f27ef107bb224ab797))
+* Support project selection by ID or name ([38f0fae](https://github.com/kernel/kernel-node-sdk/commit/38f0fae987b96d5d908b74d08ad71cea6ed67697))
+
 ## [0.89.0](https://github.com/kernel/kernel-node-sdk/compare/v0.88.0...v0.89.0) (2026-08-12)
 
 
