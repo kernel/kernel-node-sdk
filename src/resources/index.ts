@@ -156,3 +156,4 @@ export {
   type ProxyCheckParams,
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
+export { Telemetry } from './telemetry/telemetry';
