@@ -40,6 +40,8 @@ export {
 } from './browser-pools';
 export {
   Browsers,
+  type BrowserMemory,
+  type BrowserMemoryRequest,
   type BrowserNetworkConfig,
   type BrowserPoolRef,
   type BrowserProxy,
@@ -154,3 +156,4 @@ export {
   type ProxyCheckParams,
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
+export { Telemetry } from './telemetry/telemetry';

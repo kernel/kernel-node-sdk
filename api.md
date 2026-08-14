@@ -66,6 +66,8 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserMemory</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserMemoryRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserNetworkConfig</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>
@@ -300,6 +302,22 @@ Methods:
 - <code title="post /auth/connections/{id}/login">client.auth.connections.<a href="./src/resources/auth/connections.ts">login</a>(id, { ...params }) -> LoginResponse</code>
 - <code title="post /auth/connections/{id}/submit">client.auth.connections.<a href="./src/resources/auth/connections.ts">submit</a>(id, { ...params }) -> SubmitFieldsResponse</code>
 - <code title="get /auth/connections/{id}/timeline">client.auth.connections.<a href="./src/resources/auth/connections.ts">timeline</a>(id, { ...params }) -> ManagedAuthTimelineEventsOffsetPagination</code>
+
+# Telemetry
+
+## Destinations
+
+Types:
+
+- <code><a href="./src/resources/telemetry/destinations.ts">OtlpDestination</a></code>
+
+Methods:
+
+- <code title="post /telemetry/destinations">client.telemetry.destinations.<a href="./src/resources/telemetry/destinations.ts">create</a>({ ...params }) -> OtlpDestination</code>
+- <code title="get /telemetry/destinations/{id_or_name}">client.telemetry.destinations.<a href="./src/resources/telemetry/destinations.ts">retrieve</a>(idOrName) -> OtlpDestination</code>
+- <code title="patch /telemetry/destinations/{id_or_name}">client.telemetry.destinations.<a href="./src/resources/telemetry/destinations.ts">update</a>(idOrName, { ...params }) -> OtlpDestination</code>
+- <code title="get /telemetry/destinations">client.telemetry.destinations.<a href="./src/resources/telemetry/destinations.ts">list</a>({ ...params }) -> OtlpDestinationsOffsetPagination</code>
+- <code title="delete /telemetry/destinations/{id_or_name}">client.telemetry.destinations.<a href="./src/resources/telemetry/destinations.ts">delete</a>(idOrName) -> void</code>
 
 # Proxies
 

@@ -10,7 +10,7 @@ import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
 
 /**
- * Stream live telemetry events from a browser session.
+ * Stream live telemetry events from a browser session, and manage the destinations sessions export them to.
  */
 export class Telemetry extends APIResource {
   /**

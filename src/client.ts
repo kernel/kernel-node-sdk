@@ -153,6 +153,8 @@ import {
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
   BrowserLoadExtensionsParams,
+  BrowserMemory,
+  BrowserMemoryRequest,
   BrowserNetworkConfig,
   BrowserPoolRef,
   BrowserProxy,
@@ -178,6 +180,7 @@ import {
   ProjectsOffsetPagination,
   UpdateProjectRequest,
 } from './resources/projects/projects';
+import { Telemetry } from './resources/telemetry/telemetry';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -1018,6 +1021,7 @@ export class Kernel {
    */
   profiles: API.Profiles = new API.Profiles(this);
   auth: API.Auth = new API.Auth(this);
+  telemetry: API.Telemetry = new API.Telemetry(this);
   /**
    * Create and manage proxy configurations for routing browser traffic.
    */
@@ -1062,6 +1066,7 @@ Kernel.Invocations = Invocations;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
 Kernel.Auth = Auth;
+Kernel.Telemetry = Telemetry;
 Kernel.Proxies = Proxies;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
@@ -1125,6 +1130,8 @@ export declare namespace Kernel {
 
   export {
     Browsers as Browsers,
+    type BrowserMemory as BrowserMemory,
+    type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,
@@ -1156,6 +1163,8 @@ export declare namespace Kernel {
   };
 
   export { Auth as Auth };
+
+  export { Telemetry as Telemetry };
 
   export {
     Proxies as Proxies,

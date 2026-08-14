@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.91.0](https://github.com/kernel/kernel-node-sdk/compare/v0.90.0...v0.91.0) (2026-08-14)
+
+
+### Features
+
+* Add customer-facing OTLP destination CRUD API ([9c5a7b1](https://github.com/kernel/kernel-node-sdk/commit/9c5a7b1e52fc4d4c42627bb6fe8248aee8022704))
+* Expose configurable browser memory ([aee68a1](https://github.com/kernel/kernel-node-sdk/commit/aee68a1ddd6b270b55ee14fc05c6313752f44e60))
+* Require a name on credential providers and backfill unnamed rows ([3a6b96e](https://github.com/kernel/kernel-node-sdk/commit/3a6b96e70770ac373a5252acc4dd34beae5b4906))
+
 ## [0.90.0](https://github.com/kernel/kernel-node-sdk/compare/v0.89.0...v0.90.0) (2026-08-12)
 
 

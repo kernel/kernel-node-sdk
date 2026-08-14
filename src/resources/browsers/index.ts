@@ -2,6 +2,8 @@
 
 export {
   Browsers,
+  type BrowserMemory,
+  type BrowserMemoryRequest,
   type BrowserNetworkConfig,
   type BrowserPoolRef,
   type BrowserProxy,
