@@ -435,6 +435,11 @@ export namespace InvocationListBrowsersResponse {
     headless: boolean;
 
     /**
+     * Memory allocated to the browser session.
+     */
+    memory: BrowsersAPI.BrowserMemory;
+
+    /**
      * Geographic region of the browser session. Fixed once the session is created.
      */
     region: 'us-east' | 'eu-west';

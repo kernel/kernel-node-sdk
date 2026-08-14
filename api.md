@@ -66,6 +66,8 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserMemory</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserMemoryRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserNetworkConfig</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserPoolRef</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>

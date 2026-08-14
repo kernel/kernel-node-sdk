@@ -153,6 +153,8 @@ import {
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
   BrowserLoadExtensionsParams,
+  BrowserMemory,
+  BrowserMemoryRequest,
   BrowserNetworkConfig,
   BrowserPoolRef,
   BrowserProxy,
@@ -1125,6 +1127,8 @@ export declare namespace Kernel {
 
   export {
     Browsers as Browsers,
+    type BrowserMemory as BrowserMemory,
+    type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,

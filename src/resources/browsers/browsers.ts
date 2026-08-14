@@ -282,6 +282,16 @@ export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListR
 export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 
 /**
+ * Memory allocated to the browser session.
+ */
+export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '16GiB';
+
+/**
+ * Memory requested for a headful, non-GPU browser session.
+ */
+export type BrowserMemoryRequest = '8GiB' | '16GiB';
+
+/**
  * Network configuration for a browser session or browser pool.
  */
 export interface BrowserNetworkConfig {
@@ -455,6 +465,11 @@ export interface BrowserCreateResponse {
   headless: boolean;
 
   /**
+   * Memory allocated to the browser session.
+   */
+  memory: BrowserMemory;
+
+  /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
   region: 'us-east' | 'eu-west';
@@ -608,6 +623,11 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in headless mode.
    */
   headless: boolean;
+
+  /**
+   * Memory allocated to the browser session.
+   */
+  memory: BrowserMemory;
 
   /**
    * Geographic region of the browser session. Fixed once the session is created.
@@ -765,6 +785,11 @@ export interface BrowserUpdateResponse {
   headless: boolean;
 
   /**
+   * Memory allocated to the browser session.
+   */
+  memory: BrowserMemory;
+
+  /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
   region: 'us-east' | 'eu-west';
@@ -918,6 +943,11 @@ export interface BrowserListResponse {
    * Whether the browser session is running in headless mode.
    */
   headless: boolean;
+
+  /**
+   * Memory allocated to the browser session.
+   */
+  memory: BrowserMemory;
 
   /**
    * Geographic region of the browser session. Fixed once the session is created.
@@ -1119,6 +1149,11 @@ export interface BrowserCreateParams {
    * view.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Memory for a headful, non-GPU browser session. Defaults to 8GiB.
+   */
+  memory?: BrowserMemoryRequest;
 
   /**
    * Optional human-readable name for the browser session, used to find it later in
@@ -1580,6 +1615,8 @@ Browsers.Playwright = Playwright;
 
 export declare namespace Browsers {
   export {
+    type BrowserMemory as BrowserMemory,
+    type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,
