@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.92.0](https://github.com/kernel/kernel-node-sdk/compare/v0.91.0...v0.92.0) (2026-08-17)
+
+
+### Features
+
+* chore(stlc): seal custom-code tracking files ([dddaa2a](https://github.com/kernel/kernel-node-sdk/commit/dddaa2aaabe3e31c71ed960ab0b117c452b657a6))
+
 ## [0.91.0](https://github.com/kernel/kernel-node-sdk/compare/v0.90.0...v0.91.0) (2026-08-14)
 
 
