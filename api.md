@@ -421,6 +421,16 @@ Methods:
 
 # Organization
 
+## Entitlements
+
+Types:
+
+- <code><a href="./src/resources/organization/entitlements.ts">OrgEntitlements</a></code>
+
+Methods:
+
+- <code title="get /org/entitlements">client.organization.entitlements.<a href="./src/resources/organization/entitlements.ts">retrieve</a>() -> OrgEntitlements</code>
+
 ## Limits
 
 Types:
