@@ -776,6 +776,11 @@ export namespace ManagedAuth {
     id: string;
 
     /**
+     * Why the field requires user input.
+     */
+    reason: 'missing' | 'rejected';
+
+    /**
      * Credential reference name to store the submitted value under.
      */
     ref: string;
@@ -799,12 +804,6 @@ export namespace ManagedAuth {
      * Selector for the visible field, when available.
      */
     observed_selector?: string | null;
-
-    /**
-     * Whether the submitted value must replace an existing credential after explicit
-     * rejection.
-     */
-    replace_existing?: boolean;
 
     /**
      * Whether this field is required.
@@ -1832,6 +1831,11 @@ export namespace ConnectionFollowResponse {
       id: string;
 
       /**
+       * Why the field requires user input.
+       */
+      reason: 'missing' | 'rejected';
+
+      /**
        * Credential reference name to store the submitted value under.
        */
       ref: string;
@@ -1855,12 +1859,6 @@ export namespace ConnectionFollowResponse {
        * Selector for the visible field, when available.
        */
       observed_selector?: string | null;
-
-      /**
-       * Whether the submitted value must replace an existing credential after explicit
-       * rejection.
-       */
-      replace_existing?: boolean;
 
       /**
        * Whether this field is required.
