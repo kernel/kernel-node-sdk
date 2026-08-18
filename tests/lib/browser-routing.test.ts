@@ -444,7 +444,7 @@ describe('browser routing', () => {
     ).rejects.toThrow(/unsupported HTTP method/i);
   });
 
-  test('defaults browser routing subresources to curl, telemetry/stream, computer, and playwright when env is unset', async () => {
+  test('defaults browser routing subresources when env is unset', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
       expect(browserRoutingSubresourcesFromEnv()).toEqual([
         'curl',
