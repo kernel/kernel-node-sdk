@@ -31,7 +31,7 @@ const BROWSER_ROUTING_SUBRESOURCES_ENV = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
 // Path prefixes eligible for direct-to-VM routing. "telemetry/stream" is the live
 // SSE endpoint (served by the VM); "telemetry/events" is a historical read served
 // by the control plane (S2) and must NOT be here.
-const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl', 'telemetry/stream'];
+const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = ['curl', 'telemetry/stream', 'computer', 'playwright'];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
 const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/?$/;
 const BROWSER_DELETE_BY_ID_PATH = /^\/(?:v\d+\/)?browsers\/([^/]+)\/?$/;
