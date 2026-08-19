@@ -120,6 +120,7 @@ export {
   type BrowserPageNavigationEvent,
   type BrowserPageNavigationSettledEvent,
   type BrowserPageTabOpenedEvent,
+  type BrowserProxyErrorEvent,
   type BrowserServiceCrashedEvent,
   type BrowserSystemOomKillEvent,
   type BrowserTelemetryCategoriesConfig,
