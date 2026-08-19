@@ -466,6 +466,12 @@ export interface ManagedAuth {
   hosted_url?: string | null;
 
   /**
+   * Opaque identifier for the current canonical interaction. Required when
+   * submitting fields or choices and changes for each new actionable pause.
+   */
+  interaction_id?: string | null;
+
+  /**
    * @deprecated Deprecated alias for `last_auth_check_at`. Despite the name, this is
    * the last health-check timestamp, not the last successful authentication. Use
    * `last_auth_check_at` instead.
@@ -1555,6 +1561,12 @@ export interface SubmitFieldsRequest {
   fields?: { [key: string]: string };
 
   /**
+   * Opaque interaction ID returned with canonical fields and choices. Required for
+   * canonical submissions.
+   */
+  interaction_id?: string;
+
+  /**
    * The MFA method type to select (when mfa_options were returned)
    */
   mfa_option_id?: string;
@@ -1668,6 +1680,12 @@ export namespace ConnectionFollowResponse {
      * URL to redirect user to for hosted login.
      */
     hosted_url?: string;
+
+    /**
+     * Opaque identifier for the current canonical interaction. Required when
+     * submitting fields or choices and changes for each new actionable pause.
+     */
+    interaction_id?: string;
 
     /**
      * Browser live view URL for debugging.
@@ -2546,6 +2564,12 @@ export interface ConnectionSubmitParams {
    * Map of field name to value
    */
   fields?: { [key: string]: string };
+
+  /**
+   * Opaque interaction ID returned with canonical fields and choices. Required for
+   * canonical submissions.
+   */
+  interaction_id?: string;
 
   /**
    * The MFA method type to select (when mfa_options were returned)
