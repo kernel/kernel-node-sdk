@@ -128,6 +128,7 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationSettledEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageTabOpenedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserProxyErrorEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserServiceCrashedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserSystemOomKillEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoriesConfig</a></code>
