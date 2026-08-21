@@ -23,6 +23,15 @@ export class BrowserRouteCache {
     this.entries.delete(sessionId);
   }
 
+  deleteIfJwt(sessionId: string, jwt: string): boolean {
+    const route = this.entries.get(sessionId);
+    if (!route || route.jwt !== jwt) {
+      return false;
+    }
+    this.entries.delete(sessionId);
+    return true;
+  }
+
   clear(): void {
     this.entries.clear();
   }
@@ -265,7 +274,7 @@ async function routeRequest(
   headers.delete('authorization');
   const routed = await innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
   if ((routed.status === 401 || routed.status === 403) && target.searchParams.get('jwt')) {
-    cache.delete(sessionId);
+    cache.deleteIfJwt(sessionId, target.searchParams.get('jwt') ?? '');
     await CancelReadableStream(routed.body);
     return innerFetch(input, init);
   }

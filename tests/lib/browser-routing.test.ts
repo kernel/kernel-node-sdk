@@ -629,4 +629,39 @@ describe('browser routing', () => {
       expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
     });
   });
+
+  test('does not evict a refreshed route after a stale JWT 401', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input) => {
+          const url = normalizeURL(input);
+          if (url === 'https://api.example/browsers') {
+            return Response.json({
+              session_id: 'sess-1',
+              base_url: 'http://browser-session.test/browser/kernel',
+              cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
+            });
+          }
+          if (url.includes('browser-session.test')) {
+            kernel.browserRouteCache.set({
+              sessionId: 'sess-1',
+              baseURL: 'http://browser-session.test/browser/kernel',
+              jwt: 'jwt-FRESH',
+            });
+            return new Response('Invalid JWT', { status: 401, headers: { 'content-type': 'text/plain' } });
+          }
+          return new Response(new Uint8Array([1, 2, 3]), {
+            status: 200,
+            headers: { 'content-type': 'image/png' },
+          });
+        },
+      });
+
+      await kernel.browsers.create();
+      await kernel.browsers.computer.captureScreenshot('sess-1');
+      expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({ jwt: 'jwt-FRESH' });
+    });
+  });
 });
