@@ -73,7 +73,10 @@ export class Proxies extends APIResource {
   }
 
   /**
-   * Soft delete a proxy. Sessions referencing it are not modified.
+   * Soft delete a proxy. Session records referencing it are not modified. If egress
+   * binding polling is enabled, existing tunnels for active sessions using the proxy
+   * are terminated within one polling interval; subsequent connections through the
+   * deleted proxy are rejected.
    *
    * @example
    * ```ts

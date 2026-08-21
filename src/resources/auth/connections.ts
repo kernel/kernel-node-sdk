@@ -549,12 +549,12 @@ export namespace ManagedAuth {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -920,12 +920,12 @@ export namespace ManagedAuthBrowserConfig {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -1121,12 +1121,12 @@ export namespace ManagedAuthCreateRequest {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -1417,12 +1417,12 @@ export namespace ManagedAuthUpdateRequest {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -2072,12 +2072,12 @@ export namespace ConnectionCreateParams {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -2280,12 +2280,12 @@ export namespace ConnectionUpdateParams {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -2458,12 +2458,12 @@ export namespace ConnectionLoginParams {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
