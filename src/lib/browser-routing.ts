@@ -262,7 +262,12 @@ async function routeRequest(
 
   const headers = new Headers(request.headers);
   headers.delete('authorization');
-  return innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
+  const routed = await innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
+  if ((routed.status === 401 || routed.status === 403) && target.searchParams.get('jwt')) {
+    cache.delete(sessionId);
+    return innerFetch(input, init);
+  }
+  return routed;
 }
 
 function buildRoutedInit(
