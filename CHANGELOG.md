@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.93.0](https://github.com/kernel/kernel-node-sdk/compare/v0.92.0...v0.93.0) (2026-08-19)
+
+
+### Features
+
+* Add proxy_error to browser telemetry event schema ([4f0478b](https://github.com/kernel/kernel-node-sdk/commit/4f0478b0dcb922baa03d82cbb38bb8b295f700da))
+* Bind managed auth submissions to interactions ([c87e8f5](https://github.com/kernel/kernel-node-sdk/commit/c87e8f52b8e721f9f6c4eab892e5df1d4a06db67))
+* Harden canonical managed auth interactions ([7fff9fe](https://github.com/kernel/kernel-node-sdk/commit/7fff9fe4b39d467c0583b9f1c0e5b951e35a2bde))
+
 ## [0.92.0](https://github.com/kernel/kernel-node-sdk/compare/v0.91.0...v0.92.0) (2026-08-17)
 
 
