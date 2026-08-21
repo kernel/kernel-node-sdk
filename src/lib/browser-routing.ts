@@ -1,4 +1,5 @@
 import type { Fetch, RequestInfo, RequestInit } from '../internal/builtin-types';
+import { CancelReadableStream } from '../internal/shims';
 import { joinURL } from './join-url';
 
 export type BrowserRoute = {
@@ -265,6 +266,7 @@ async function routeRequest(
   const routed = await innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
   if ((routed.status === 401 || routed.status === 403) && target.searchParams.get('jwt')) {
     cache.delete(sessionId);
+    await CancelReadableStream(routed.body);
     return innerFetch(input, init);
   }
   return routed;
