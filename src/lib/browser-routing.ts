@@ -1,4 +1,5 @@
 import type { Fetch, RequestInfo, RequestInit } from '../internal/builtin-types';
+import { CancelReadableStream } from '../internal/shims';
 import { joinURL } from './join-url';
 
 export type BrowserRoute = {
@@ -20,6 +21,15 @@ export class BrowserRouteCache {
 
   delete(sessionId: string): void {
     this.entries.delete(sessionId);
+  }
+
+  deleteIfJwt(sessionId: string, jwt: string): boolean {
+    const route = this.entries.get(sessionId);
+    if (!route || route.jwt !== jwt) {
+      return false;
+    }
+    this.entries.delete(sessionId);
+    return true;
   }
 
   clear(): void {
@@ -262,7 +272,13 @@ async function routeRequest(
 
   const headers = new Headers(request.headers);
   headers.delete('authorization');
-  return innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
+  const routed = await innerFetch(target.toString(), buildRoutedInit(input, request, init, headers));
+  if ((routed.status === 401 || routed.status === 403) && target.searchParams.get('jwt')) {
+    cache.deleteIfJwt(sessionId, target.searchParams.get('jwt') ?? '');
+    await CancelReadableStream(routed.body);
+    return innerFetch(input, init);
+  }
+  return routed;
 }
 
 function buildRoutedInit(
