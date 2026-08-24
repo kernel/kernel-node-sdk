@@ -156,4 +156,27 @@ export {
   type ProxyCheckParams,
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
+export {
+  SiteConfigs,
+  type Analysis,
+  type AnalysisSummary,
+  type Browser,
+  type Evidence,
+  type LookupRequest,
+  type LookupResponse,
+  type NoRecommendation,
+  type Proxy,
+  type Recommendation,
+  type RecommendationResult,
+  type RecommendationSummary,
+  type ResolveRequest,
+  type SiteConfigResponse,
+  type Target,
+  type SiteConfigListParams,
+  type SiteConfigListRecommendationsParams,
+  type SiteConfigLookupParams,
+  type SiteConfigResolveParams,
+  type AnalysisSummariesOffsetPagination,
+  type RecommendationSummariesOffsetPagination,
+} from './site-configs';
 export { Telemetry } from './telemetry/telemetry';
