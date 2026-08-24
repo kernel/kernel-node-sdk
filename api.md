@@ -62,6 +62,33 @@ Methods:
 - <code title="get /invocations/{id}/events">client.invocations.<a href="./src/resources/invocations.ts">follow</a>(id, { ...params }) -> InvocationFollowResponse</code>
 - <code title="get /invocations/{id}/browsers">client.invocations.<a href="./src/resources/invocations.ts">listBrowsers</a>(id) -> InvocationListBrowsersResponse</code>
 
+# SiteConfigs
+
+Types:
+
+- <code><a href="./src/resources/site-configs.ts">Analysis</a></code>
+- <code><a href="./src/resources/site-configs.ts">AnalysisSummary</a></code>
+- <code><a href="./src/resources/site-configs.ts">Browser</a></code>
+- <code><a href="./src/resources/site-configs.ts">Evidence</a></code>
+- <code><a href="./src/resources/site-configs.ts">LookupRequest</a></code>
+- <code><a href="./src/resources/site-configs.ts">LookupResponse</a></code>
+- <code><a href="./src/resources/site-configs.ts">NoRecommendation</a></code>
+- <code><a href="./src/resources/site-configs.ts">Proxy</a></code>
+- <code><a href="./src/resources/site-configs.ts">Recommendation</a></code>
+- <code><a href="./src/resources/site-configs.ts">RecommendationResult</a></code>
+- <code><a href="./src/resources/site-configs.ts">RecommendationSummary</a></code>
+- <code><a href="./src/resources/site-configs.ts">ResolveRequest</a></code>
+- <code><a href="./src/resources/site-configs.ts">SiteConfigResponse</a></code>
+- <code><a href="./src/resources/site-configs.ts">Target</a></code>
+
+Methods:
+
+- <code title="get /site-configs/{id}">client.siteConfigs.<a href="./src/resources/site-configs.ts">retrieve</a>(id) -> SiteConfigResponse</code>
+- <code title="get /site-configs">client.siteConfigs.<a href="./src/resources/site-configs.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
+- <code title="get /site-configs/recommendations">client.siteConfigs.<a href="./src/resources/site-configs.ts">listRecommendations</a>({ ...params }) -> RecommendationSummariesOffsetPagination</code>
+- <code title="post /site-configs/lookup">client.siteConfigs.<a href="./src/resources/site-configs.ts">lookup</a>({ ...params }) -> LookupResponse</code>
+- <code title="post /site-configs/resolve">client.siteConfigs.<a href="./src/resources/site-configs.ts">resolve</a>({ ...params }) -> SiteConfigResponse</code>
+
 # Browsers
 
 Types:
@@ -99,6 +126,8 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserAPICallEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCallStack</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCaptchaSolveResultEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpCommandEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpCommandMethod</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpConnectEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpDisconnectEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserConsoleErrorEvent</a></code>
@@ -120,6 +149,7 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkLoadingFailedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkRequestEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserNetworkResponseEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageCrashedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageDomContentLoadedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLayoutSettledEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageLayoutShiftEvent</a></code>
@@ -128,12 +158,15 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageNavigationSettledEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserPageTabOpenedEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserPlatformAPICallEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserProxyErrorEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserServiceCrashedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserSystemOomKillEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoriesConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCategoryConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryCdpControlConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryControlConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryExportConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryOtlpExportConfig</a></code>

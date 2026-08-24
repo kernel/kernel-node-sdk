@@ -137,6 +137,29 @@ import {
   ProxyUpdateResponse,
 } from './resources/proxies';
 import {
+  Analysis,
+  AnalysisSummariesOffsetPagination,
+  AnalysisSummary,
+  Browser,
+  Evidence,
+  LookupRequest,
+  LookupResponse,
+  NoRecommendation,
+  Proxy,
+  Recommendation,
+  RecommendationResult,
+  RecommendationSummariesOffsetPagination,
+  RecommendationSummary,
+  ResolveRequest,
+  SiteConfigListParams,
+  SiteConfigListRecommendationsParams,
+  SiteConfigLookupParams,
+  SiteConfigResolveParams,
+  SiteConfigResponse,
+  SiteConfigs,
+  Target,
+} from './resources/site-configs';
+import {
   AuditLogEntriesPageTokenPagination,
   AuditLogEntry,
   AuditLogExportChunkParams,
@@ -1013,6 +1036,10 @@ export class Kernel {
    */
   invocations: API.Invocations = new API.Invocations(this);
   /**
+   * Resolve browser and proxy recommendations for bot-protected sites.
+   */
+  siteConfigs: API.SiteConfigs = new API.SiteConfigs(this);
+  /**
    * Create and manage browser sessions.
    */
   browsers: API.Browsers = new API.Browsers(this);
@@ -1063,6 +1090,7 @@ export class Kernel {
 Kernel.Deployments = Deployments;
 Kernel.Apps = Apps;
 Kernel.Invocations = Invocations;
+Kernel.SiteConfigs = SiteConfigs;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
 Kernel.Auth = Auth;
@@ -1126,6 +1154,30 @@ export declare namespace Kernel {
     type InvocationUpdateParams as InvocationUpdateParams,
     type InvocationListParams as InvocationListParams,
     type InvocationFollowParams as InvocationFollowParams,
+  };
+
+  export {
+    SiteConfigs as SiteConfigs,
+    type Analysis as Analysis,
+    type AnalysisSummary as AnalysisSummary,
+    type Browser as Browser,
+    type Evidence as Evidence,
+    type LookupRequest as LookupRequest,
+    type LookupResponse as LookupResponse,
+    type NoRecommendation as NoRecommendation,
+    type Proxy as Proxy,
+    type Recommendation as Recommendation,
+    type RecommendationResult as RecommendationResult,
+    type RecommendationSummary as RecommendationSummary,
+    type ResolveRequest as ResolveRequest,
+    type SiteConfigResponse as SiteConfigResponse,
+    type Target as Target,
+    type AnalysisSummariesOffsetPagination as AnalysisSummariesOffsetPagination,
+    type RecommendationSummariesOffsetPagination as RecommendationSummariesOffsetPagination,
+    type SiteConfigListParams as SiteConfigListParams,
+    type SiteConfigListRecommendationsParams as SiteConfigListRecommendationsParams,
+    type SiteConfigLookupParams as SiteConfigLookupParams,
+    type SiteConfigResolveParams as SiteConfigResolveParams,
   };
 
   export {

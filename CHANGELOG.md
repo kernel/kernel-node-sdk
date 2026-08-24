@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.94.0](https://github.com/kernel/kernel-node-sdk/compare/v0.93.0...v0.94.0) (2026-08-24)
+
+
+### Features
+
+* Mirror the control/platform telemetry split into the public API ([3e6a496](https://github.com/kernel/kernel-node-sdk/commit/3e6a49697a76085176a2cc3f9a4cd8967e577813))
+* site configs: report proxy-restricted analyses ([d6ad02a](https://github.com/kernel/kernel-node-sdk/commit/d6ad02ad064cda5296b9ef7bf7364be83c92adbc))
+
 ## [0.93.0](https://github.com/kernel/kernel-node-sdk/compare/v0.92.0...v0.93.0) (2026-08-19)
 
 

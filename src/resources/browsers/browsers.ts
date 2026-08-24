@@ -56,6 +56,8 @@ import {
   BrowserAPICallEvent,
   BrowserCallStack,
   BrowserCaptchaSolveResultEvent,
+  BrowserCdpCommandEvent,
+  BrowserCdpCommandMethod,
   BrowserCdpConnectEvent,
   BrowserCdpDisconnectEvent,
   BrowserConsoleErrorEvent,
@@ -77,6 +79,7 @@ import {
   BrowserNetworkLoadingFailedEvent,
   BrowserNetworkRequestEvent,
   BrowserNetworkResponseEvent,
+  BrowserPageCrashedEvent,
   BrowserPageDomContentLoadedEvent,
   BrowserPageLayoutSettledEvent,
   BrowserPageLayoutShiftEvent,
@@ -85,12 +88,15 @@ import {
   BrowserPageNavigationEvent,
   BrowserPageNavigationSettledEvent,
   BrowserPageTabOpenedEvent,
+  BrowserPlatformAPICallEvent,
   BrowserProxyErrorEvent,
   BrowserServiceCrashedEvent,
   BrowserSystemOomKillEvent,
   BrowserTelemetryCategoriesConfig,
   BrowserTelemetryCategoryConfig,
+  BrowserTelemetryCdpControlConfig,
   BrowserTelemetryConfig,
+  BrowserTelemetryControlConfig,
   BrowserTelemetryEvent,
   BrowserTelemetryExportConfig,
   BrowserTelemetryOtlpExportConfig,
@@ -1130,7 +1136,7 @@ export interface BrowserCreateParams {
 
   /**
    * If true, enables GPU acceleration for the browser session. Requires Start-Up or
-   * Enterprise plan and headless=false.
+   * Enterprise plan, headless=false, and region=us-east.
    */
   gpu?: boolean;
 
@@ -1270,12 +1276,12 @@ export namespace BrowserCreateParams {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -1428,12 +1434,12 @@ export namespace BrowserUpdateParams {
      * Per-category capture flags. The operational categories (control, connection,
      * system, captcha) are captured whenever telemetry is enabled; set one to
      * enabled=false to opt out. The CDP categories (console, network, page,
-     * interaction) and screenshot are off by default; set enabled=true to opt in. On
-     * create, provided categories layer onto the default set. On update, provided
-     * categories merge onto the session's current config; when no telemetry is active
-     * this falls back to the default set (matching create). If browser is omitted or
-     * empty, the default set is used. A browser config that disables every category
-     * stops capture on update and starts no capture on create.
+     * interaction), screenshot and platform are off by default; set enabled=true to
+     * opt in. On create, provided categories layer onto the default set. On update,
+     * provided categories merge onto the session's current config; when no telemetry
+     * is active this falls back to the default set (matching create). If browser is
+     * omitted or empty, the default set is used. A browser config that disables every
+     * category stops capture on update and starts no capture on create.
      */
     browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
 
@@ -1645,6 +1651,8 @@ export declare namespace Browsers {
     type BrowserAPICallEvent as BrowserAPICallEvent,
     type BrowserCallStack as BrowserCallStack,
     type BrowserCaptchaSolveResultEvent as BrowserCaptchaSolveResultEvent,
+    type BrowserCdpCommandEvent as BrowserCdpCommandEvent,
+    type BrowserCdpCommandMethod as BrowserCdpCommandMethod,
     type BrowserCdpConnectEvent as BrowserCdpConnectEvent,
     type BrowserCdpDisconnectEvent as BrowserCdpDisconnectEvent,
     type BrowserConsoleErrorEvent as BrowserConsoleErrorEvent,
@@ -1666,6 +1674,7 @@ export declare namespace Browsers {
     type BrowserNetworkLoadingFailedEvent as BrowserNetworkLoadingFailedEvent,
     type BrowserNetworkRequestEvent as BrowserNetworkRequestEvent,
     type BrowserNetworkResponseEvent as BrowserNetworkResponseEvent,
+    type BrowserPageCrashedEvent as BrowserPageCrashedEvent,
     type BrowserPageDomContentLoadedEvent as BrowserPageDomContentLoadedEvent,
     type BrowserPageLayoutSettledEvent as BrowserPageLayoutSettledEvent,
     type BrowserPageLayoutShiftEvent as BrowserPageLayoutShiftEvent,
@@ -1674,12 +1683,15 @@ export declare namespace Browsers {
     type BrowserPageNavigationEvent as BrowserPageNavigationEvent,
     type BrowserPageNavigationSettledEvent as BrowserPageNavigationSettledEvent,
     type BrowserPageTabOpenedEvent as BrowserPageTabOpenedEvent,
+    type BrowserPlatformAPICallEvent as BrowserPlatformAPICallEvent,
     type BrowserProxyErrorEvent as BrowserProxyErrorEvent,
     type BrowserServiceCrashedEvent as BrowserServiceCrashedEvent,
     type BrowserSystemOomKillEvent as BrowserSystemOomKillEvent,
     type BrowserTelemetryCategoriesConfig as BrowserTelemetryCategoriesConfig,
     type BrowserTelemetryCategoryConfig as BrowserTelemetryCategoryConfig,
+    type BrowserTelemetryCdpControlConfig as BrowserTelemetryCdpControlConfig,
     type BrowserTelemetryConfig as BrowserTelemetryConfig,
+    type BrowserTelemetryControlConfig as BrowserTelemetryControlConfig,
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
     type BrowserTelemetryExportConfig as BrowserTelemetryExportConfig,
     type BrowserTelemetryOtlpExportConfig as BrowserTelemetryOtlpExportConfig,
