@@ -451,12 +451,13 @@ describe('browser routing', () => {
         'telemetry/stream',
         'computer',
         'playwright',
+        'process',
       ]);
     });
   });
 
   test('allowlist matching is segment-boundary aware (telemetry/events stays on the control plane)', () => {
-    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright'];
+    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright', 'process'];
     expect(matchesDirectVMPrefix('telemetry/stream', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/stream/x', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/events', prefixes)).toBe(false);
@@ -465,7 +466,8 @@ describe('browser routing', () => {
     expect(matchesDirectVMPrefix('curl/raw', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('computer/screenshot', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('playwright/execute', prefixes)).toBe(true);
-    expect(matchesDirectVMPrefix('process/exec', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('process/exec', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('process/proc-1/stdout/stream', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('fs/read', prefixes)).toBe(false);
   });
 
@@ -507,7 +509,7 @@ describe('browser routing', () => {
     });
   });
 
-  test('routes computer screenshot and playwright execute to the VM by default', async () => {
+  test('routes default browser subresources to the VM', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
       const calls: Array<{ url: string; headers: Headers }> = [];
       const kernel = new Kernel({
@@ -530,6 +532,9 @@ describe('browser routing', () => {
               headers: { 'content-type': 'image/png' },
             });
           }
+          if (url.includes('/process/exec')) {
+            return Response.json({ exit_code: 0, stdout_b64: '', stderr_b64: '' });
+          }
           return Response.json({ success: true });
         },
       });
@@ -537,6 +542,7 @@ describe('browser routing', () => {
       await kernel.browsers.create();
       await kernel.browsers.computer.captureScreenshot('sess-1');
       await kernel.browsers.playwright.execute('sess-1', { code: 'return 1' });
+      await kernel.browsers.process.exec('sess-1', { command: 'echo' });
 
       expect(calls[1]?.url).toBe(
         'http://browser-session.test/browser/kernel/computer/screenshot?jwt=token-abc',
@@ -546,10 +552,12 @@ describe('browser routing', () => {
         'http://browser-session.test/browser/kernel/playwright/execute?jwt=token-abc',
       );
       expect(calls[2]?.headers.get('authorization')).toBeNull();
+      expect(calls[3]?.url).toBe('http://browser-session.test/browser/kernel/process/exec?jwt=token-abc');
+      expect(calls[3]?.headers.get('authorization')).toBeNull();
     });
   });
 
-  test('keeps process, fs, and telemetry/events on the API origin by default', async () => {
+  test('keeps fs and telemetry/events on the API origin by default', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
       const calls: string[] = [];
       const kernel = new Kernel({
@@ -579,12 +587,10 @@ describe('browser routing', () => {
       });
 
       await kernel.browsers.create();
-      await kernel.browsers.process.exec('sess-1', { command: 'echo' });
       await kernel.browsers.fs.readFile('sess-1', { path: '/tmp/x' });
       await kernel.browsers.telemetry.events('sess-1');
 
       expect(calls.slice(1)).toEqual([
-        'https://api.example/browsers/sess-1/process/exec',
         'https://api.example/browsers/sess-1/fs/read_file?path=%2Ftmp%2Fx',
         'https://api.example/browsers/sess-1/telemetry/events',
       ]);
