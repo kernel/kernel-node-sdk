@@ -442,7 +442,7 @@ export namespace InvocationListBrowsersResponse {
     /**
      * Geographic region of the browser session. Fixed once the session is created.
      */
-    region: 'us-east' | 'eu-west';
+    region: 'us-east' | 'eu-west' | 'ap-southeast';
 
     /**
      * Unique identifier for the browser session

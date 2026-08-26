@@ -258,8 +258,8 @@ export class Browsers extends APIResource {
   }
 
   /**
-   * Loads one or more unpacked extensions and restarts Chromium on the browser
-   * instance.
+   * Loads one or more unpacked extensions using live CDP activation when eligible.
+   * Chromium restarts when enterprise policy requires it or live activation fails.
    *
    * @example
    * ```ts
@@ -479,7 +479,7 @@ export interface BrowserCreateResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west';
+  region: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -639,7 +639,7 @@ export interface BrowserRetrieveResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west';
+  region: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -799,7 +799,7 @@ export interface BrowserUpdateResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west';
+  region: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -959,7 +959,7 @@ export interface BrowserListResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west';
+  region: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -1203,7 +1203,7 @@ export interface BrowserCreateParams {
    * created. Region selection requires a Start-Up or Enterprise plan, defaults to
    * us-east when omitted on create.
    */
-  region?: 'us-east' | 'eu-west';
+  region?: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Optional URL to open when the browser session is created. Navigation is
@@ -1542,7 +1542,7 @@ export interface BrowserListParams extends OffsetPaginationParams {
   /**
    * Filter sessions by geographic region. Omit to list sessions in all regions.
    */
-  region?: 'us-east' | 'eu-west';
+  region?: 'us-east' | 'eu-west' | 'ap-southeast';
 
   /**
    * Filter sessions by status. "active" returns only active sessions (default),
