@@ -1,47 +1,18 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import { APIResource } from '../core/resource';
-import * as Shared from './shared';
-import { APIPromise } from '../core/api-promise';
-import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
-import { RequestOptions } from '../internal/request-options';
-import { path } from '../internal/utils/path';
+import { APIResource } from '../../core/resource';
+import * as Shared from '../shared';
+import * as AnalysesAPI from './analyses';
+import { Analyses, AnalysisListParams } from './analyses';
+import { APIPromise } from '../../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
+import { RequestOptions } from '../../internal/request-options';
 
 /**
  * Resolve browser and proxy recommendations for bot-protected sites.
  */
-export class SiteConfigs extends APIResource {
-  /**
-   * Returns a project-scoped historical analysis and the recommendation outcome
-   * concluded by that run. Later knowledge does not change this response.
-   *
-   * @example
-   * ```ts
-   * const siteConfigResponse =
-   *   await client.siteConfigs.retrieve('id');
-   * ```
-   */
-  retrieve(id: string, options?: RequestOptions): APIPromise<SiteConfigResponse> {
-    return this._client.get(path`/site-configs/${id}`, options);
-  }
-
-  /**
-   * Lists analyses for the selected project, newest first.
-   *
-   * @example
-   * ```ts
-   * // Automatically fetches more pages as needed.
-   * for await (const analysisSummary of client.siteConfigs.list()) {
-   *   // ...
-   * }
-   * ```
-   */
-  list(
-    query: SiteConfigListParams | null | undefined = {},
-    options?: RequestOptions,
-  ): PagePromise<AnalysisSummariesOffsetPagination, AnalysisSummary> {
-    return this._client.getAPIList('/site-configs', OffsetPagination<AnalysisSummary>, { query, ...options });
-  }
+export class ConfigRegistry extends APIResource {
+  analyses: AnalysesAPI.Analyses = new AnalysesAPI.Analyses(this._client);
 
   /**
    * Lists unique domains previously analyzed by the selected project with their
@@ -50,16 +21,16 @@ export class SiteConfigs extends APIResource {
    * @example
    * ```ts
    * // Automatically fetches more pages as needed.
-   * for await (const recommendationSummary of client.siteConfigs.listRecommendations()) {
+   * for await (const recommendationSummary of client.configRegistry.list()) {
    *   // ...
    * }
    * ```
    */
-  listRecommendations(
-    query: SiteConfigListRecommendationsParams | null | undefined = {},
+  list(
+    query: ConfigRegistryListParams | null | undefined = {},
     options?: RequestOptions,
   ): PagePromise<RecommendationSummariesOffsetPagination, RecommendationSummary> {
-    return this._client.getAPIList('/site-configs/recommendations', OffsetPagination<RecommendationSummary>, {
+    return this._client.getAPIList('/config-registry', OffsetPagination<RecommendationSummary>, {
       query,
       ...options,
     });
@@ -67,39 +38,40 @@ export class SiteConfigs extends APIResource {
 
   /**
    * Returns current global knowledge without resolving DNS, creating an analysis, or
-   * updating Site Config data.
+   * updating config registry data.
    *
    * @example
    * ```ts
-   * const lookupResponse = await client.siteConfigs.lookup({
+   * const lookupResponse = await client.configRegistry.lookup({
    *   url: 'https://example.com',
    * });
    * ```
    */
-  lookup(body: SiteConfigLookupParams, options?: RequestOptions): APIPromise<LookupResponse> {
-    return this._client.post('/site-configs/lookup', { body, ...options });
+  lookup(body: ConfigRegistryLookupParams, options?: RequestOptions): APIPromise<LookupResponse> {
+    return this._client.post('/config-registry/lookup', { body, ...options });
   }
 
   /**
    * Explicitly starts or retries a project-scoped background analysis while
-   * preserving current global knowledge when available. Use `/site-configs/lookup`
-   * for side-effect-free reads.
+   * preserving current global knowledge when available. Use
+   * `/config-registry/lookup` for side-effect-free reads.
    *
    * @example
    * ```ts
-   * const siteConfigResponse = await client.siteConfigs.resolve(
-   *   { url: 'https://example.com' },
-   * );
+   * const configRegistryResponse =
+   *   await client.configRegistry.resolve({
+   *     url: 'https://example.com',
+   *   });
    * ```
    */
-  resolve(body: SiteConfigResolveParams, options?: RequestOptions): APIPromise<SiteConfigResponse> {
-    return this._client.post('/site-configs/resolve', { body, ...options });
+  resolve(body: ConfigRegistryResolveParams, options?: RequestOptions): APIPromise<ConfigRegistryResponse> {
+    return this._client.post('/config-registry/resolve', { body, ...options });
   }
 }
 
-export type AnalysisSummariesOffsetPagination = OffsetPagination<AnalysisSummary>;
-
 export type RecommendationSummariesOffsetPagination = OffsetPagination<RecommendationSummary>;
+
+export type AnalysisSummariesOffsetPagination = OffsetPagination<AnalysisSummary>;
 
 export interface Analysis {
   /**
@@ -124,7 +96,7 @@ export interface Analysis {
   finished_at: string | null;
 
   /**
-   * Lifecycle status of the background analysis.
+   * Lifecycle status of a background analysis.
    */
   status: 'running' | 'completed' | 'failed' | 'canceled';
 }
@@ -160,6 +132,21 @@ export interface Browser {
    * to keep bandwidth reasonable).
    */
   viewport: Shared.BrowserViewport;
+}
+
+export interface ConfigRegistryResponse {
+  /**
+   * Pollable analysis after workflow submission is acknowledged. Null when no
+   * refresh was submitted.
+   */
+  analysis: Analysis | null;
+
+  /**
+   * A recommendation or a structured no-recommendation result.
+   */
+  recommendation: RecommendationResult | null;
+
+  target: Target;
 }
 
 export interface Evidence {
@@ -216,8 +203,7 @@ export interface LookupResponse {
 
 export interface NoRecommendation {
   /**
-   * Machine-readable reason Kernel cannot currently provide a Site Config
-   * recommendation.
+   * Machine-readable reason Kernel cannot currently provide a config recommendation.
    */
   code: 'proxy_restricted' | 'no_working_configuration' | 'inconclusive';
 
@@ -232,13 +218,13 @@ export interface NoRecommendation {
 /**
  * Proxy recipe for the recommended browser.
  */
-export type Proxy = Proxy.SiteConfigDirectProxy | Proxy.SiteConfigManagedProxy;
+export type Proxy = Proxy.ConfigRegistryDirectProxy | Proxy.ConfigRegistryManagedProxy;
 
 export namespace Proxy {
   /**
    * Direct egress recipe. Pass `{ "mode": "direct" }` as the browser's `proxy`.
    */
-  export interface SiteConfigDirectProxy {
+  export interface ConfigRegistryDirectProxy {
     mode: 'direct';
   }
 
@@ -247,16 +233,16 @@ export namespace Proxy {
    * create the resource once, retain its ID, and reuse that ID as the browser's
    * `proxy.id`. Do not submit this recipe before every browser session.
    */
-  export interface SiteConfigManagedProxy {
+  export interface ConfigRegistryManagedProxy {
     /**
      * Configuration for routing traffic through a proxy.
      */
-    create: SiteConfigManagedProxy.Create;
+    create: ConfigRegistryManagedProxy.Create;
 
     mode: 'managed';
   }
 
-  export namespace SiteConfigManagedProxy {
+  export namespace ConfigRegistryManagedProxy {
     /**
      * Configuration for routing traffic through a proxy.
      */
@@ -445,6 +431,16 @@ export type RecommendationResult = Recommendation | NoRecommendation;
 
 export interface RecommendationSummary {
   /**
+   * ID of the most recently requested analysis for this domain.
+   */
+  analysis_id: string;
+
+  /**
+   * Lifecycle status of the most recently requested analysis for this domain.
+   */
+  analysis_status: 'running' | 'completed' | 'failed' | 'canceled';
+
+  /**
    * Most recent time the selected project requested an analysis for this domain.
    */
   last_requested_at: string;
@@ -485,21 +481,6 @@ export interface ResolveRequest {
   allowed_proxy_countries?: Array<string>;
 }
 
-export interface SiteConfigResponse {
-  /**
-   * Pollable analysis after workflow submission is acknowledged. Null when no
-   * refresh was submitted.
-   */
-  analysis: Analysis | null;
-
-  /**
-   * A recommendation or a structured no-recommendation result.
-   */
-  recommendation: RecommendationResult | null;
-
-  target: Target;
-}
-
 export interface Target {
   /**
    * Registrable domain.
@@ -517,15 +498,19 @@ export interface Target {
   normalized: string;
 }
 
-export interface SiteConfigListParams extends OffsetPaginationParams {}
+export interface ConfigRegistryListParams extends OffsetPaginationParams {
+  /**
+   * Case-insensitive domain search. Full URLs are reduced to their registrable
+   * domain.
+   */
+  search?: string;
 
-export interface SiteConfigListRecommendationsParams extends OffsetPaginationParams {
-  sort_by?: 'target' | 'recommended_config' | 'last_requested_at' | 'success_rate';
+  sort_by?: 'target' | 'analysis_status' | 'recommended_config' | 'last_requested_at' | 'success_rate';
 
   sort_order?: 'asc' | 'desc';
 }
 
-export interface SiteConfigLookupParams {
+export interface ConfigRegistryLookupParams {
   /**
    * Public HTTP(S) URL to look up.
    */
@@ -538,7 +523,7 @@ export interface SiteConfigLookupParams {
   allowed_proxy_countries?: Array<string>;
 }
 
-export interface SiteConfigResolveParams {
+export interface ConfigRegistryResolveParams {
   /**
    * Public HTTP(S) URL to refresh.
    */
@@ -552,11 +537,14 @@ export interface SiteConfigResolveParams {
   allowed_proxy_countries?: Array<string>;
 }
 
-export declare namespace SiteConfigs {
+ConfigRegistry.Analyses = Analyses;
+
+export declare namespace ConfigRegistry {
   export {
     type Analysis as Analysis,
     type AnalysisSummary as AnalysisSummary,
     type Browser as Browser,
+    type ConfigRegistryResponse as ConfigRegistryResponse,
     type Evidence as Evidence,
     type LookupRequest as LookupRequest,
     type LookupResponse as LookupResponse,
@@ -566,13 +554,12 @@ export declare namespace SiteConfigs {
     type RecommendationResult as RecommendationResult,
     type RecommendationSummary as RecommendationSummary,
     type ResolveRequest as ResolveRequest,
-    type SiteConfigResponse as SiteConfigResponse,
     type Target as Target,
-    type AnalysisSummariesOffsetPagination as AnalysisSummariesOffsetPagination,
     type RecommendationSummariesOffsetPagination as RecommendationSummariesOffsetPagination,
-    type SiteConfigListParams as SiteConfigListParams,
-    type SiteConfigListRecommendationsParams as SiteConfigListRecommendationsParams,
-    type SiteConfigLookupParams as SiteConfigLookupParams,
-    type SiteConfigResolveParams as SiteConfigResolveParams,
+    type ConfigRegistryListParams as ConfigRegistryListParams,
+    type ConfigRegistryLookupParams as ConfigRegistryLookupParams,
+    type ConfigRegistryResolveParams as ConfigRegistryResolveParams,
   };
+
+  export { Analyses as Analyses, type AnalysisListParams as AnalysisListParams };
 }
