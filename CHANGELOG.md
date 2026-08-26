@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.95.0](https://github.com/kernel/kernel-node-sdk/compare/v0.94.0...v0.95.0) (2026-08-26)
+
+
+### Features
+
+* Add OTLP destination delivery health storage ([29d5ec5](https://github.com/kernel/kernel-node-sdk/commit/29d5ec569698b091f5063f491bc09e52a814fa43))
+* route process calls directly to browser VMs ([9e1a053](https://github.com/kernel/kernel-node-sdk/commit/9e1a0535a4dde5ff635a7a6fc1f57c8119d410ff))
+
 ## [0.94.0](https://github.com/kernel/kernel-node-sdk/compare/v0.93.0...v0.94.0) (2026-08-24)
 
 
