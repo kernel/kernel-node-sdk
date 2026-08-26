@@ -261,8 +261,10 @@ export interface ManagedAuth {
   status: 'AUTHENTICATED' | 'NEEDS_AUTH';
 
   /**
-   * Additional domains that are valid for this auth flow (besides the primary
-   * domain). Useful when login pages redirect to different domains.
+   * Additional hostname roots valid for this auth flow, besides the primary domain.
+   * Each value allows credential entry on that exact hostname and its subdomains.
+   * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+   * credential entry is unrestricted.
    *
    * The following SSO/OAuth provider domains are automatically allowed by default
    * and do not need to be specified:
@@ -1016,8 +1018,10 @@ export interface ManagedAuthCreateRequest {
   profile_name: string;
 
   /**
-   * Additional domains valid for this auth flow (besides the primary domain). Useful
-   * when login pages redirect to different domains.
+   * Additional hostname roots valid for this auth flow, besides the primary domain.
+   * Each value allows credential entry on that exact hostname and its subdomains.
+   * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+   * credential entry is unrestricted.
    *
    * The following SSO/OAuth provider domains are automatically allowed by default
    * and do not need to be specified:
@@ -1336,7 +1340,10 @@ export interface ManagedAuthTimelineEvent {
  */
 export interface ManagedAuthUpdateRequest {
   /**
-   * Additional domains valid for this auth flow (replaces existing list)
+   * Additional hostname roots valid for this auth flow. Each value allows credential
+   * entry on that exact hostname and its subdomains; leading `www.` and `*.` labels
+   * are normalized away. An empty list leaves credential entry unrestricted.
+   * Replaces the existing list.
    */
   allowed_domains?: Array<string>;
 
@@ -1967,8 +1974,10 @@ export interface ConnectionCreateParams {
   profile_name: string;
 
   /**
-   * Additional domains valid for this auth flow (besides the primary domain). Useful
-   * when login pages redirect to different domains.
+   * Additional hostname roots valid for this auth flow, besides the primary domain.
+   * Each value allows credential entry on that exact hostname and its subdomains.
+   * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+   * credential entry is unrestricted.
    *
    * The following SSO/OAuth provider domains are automatically allowed by default
    * and do not need to be specified:
@@ -2199,7 +2208,10 @@ export namespace ConnectionCreateParams {
 
 export interface ConnectionUpdateParams {
   /**
-   * Additional domains valid for this auth flow (replaces existing list)
+   * Additional hostname roots valid for this auth flow. Each value allows credential
+   * entry on that exact hostname and its subdomains; leading `www.` and `*.` labels
+   * are normalized away. An empty list leaves credential entry unrestricted.
+   * Replaces the existing list.
    */
   allowed_domains?: Array<string>;
 
