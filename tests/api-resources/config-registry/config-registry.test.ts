@@ -7,22 +7,10 @@ const client = new Kernel({
   baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
 });
 
-describe('resource siteConfigs', () => {
-  // Mock server tests are disabled
-  test.skip('retrieve', async () => {
-    const responsePromise = client.siteConfigs.retrieve('id');
-    const rawResponse = await responsePromise.asResponse();
-    expect(rawResponse).toBeInstanceOf(Response);
-    const response = await responsePromise;
-    expect(response).not.toBeInstanceOf(Response);
-    const dataAndResponse = await responsePromise.withResponse();
-    expect(dataAndResponse.data).toBe(response);
-    expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
+describe('resource configRegistry', () => {
   // Mock server tests are disabled
   test.skip('list', async () => {
-    const responsePromise = client.siteConfigs.list();
+    const responsePromise = client.configRegistry.list();
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -36,30 +24,11 @@ describe('resource siteConfigs', () => {
   test.skip('list: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.siteConfigs.list({ limit: 1, offset: 0 }, { path: '/_stainless_unknown_path' }),
-    ).rejects.toThrow(Kernel.NotFoundError);
-  });
-
-  // Mock server tests are disabled
-  test.skip('listRecommendations', async () => {
-    const responsePromise = client.siteConfigs.listRecommendations();
-    const rawResponse = await responsePromise.asResponse();
-    expect(rawResponse).toBeInstanceOf(Response);
-    const response = await responsePromise;
-    expect(response).not.toBeInstanceOf(Response);
-    const dataAndResponse = await responsePromise.withResponse();
-    expect(dataAndResponse.data).toBe(response);
-    expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Mock server tests are disabled
-  test.skip('listRecommendations: request options and params are passed correctly', async () => {
-    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
-    await expect(
-      client.siteConfigs.listRecommendations(
+      client.configRegistry.list(
         {
           limit: 1,
           offset: 0,
+          search: 'search',
           sort_by: 'target',
           sort_order: 'asc',
         },
@@ -70,7 +39,7 @@ describe('resource siteConfigs', () => {
 
   // Mock server tests are disabled
   test.skip('lookup: only required params', async () => {
-    const responsePromise = client.siteConfigs.lookup({ url: 'https://example.com' });
+    const responsePromise = client.configRegistry.lookup({ url: 'https://example.com' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -82,7 +51,7 @@ describe('resource siteConfigs', () => {
 
   // Mock server tests are disabled
   test.skip('lookup: required and optional params', async () => {
-    const response = await client.siteConfigs.lookup({
+    const response = await client.configRegistry.lookup({
       url: 'https://example.com',
       allowed_proxy_countries: ['US'],
     });
@@ -90,7 +59,7 @@ describe('resource siteConfigs', () => {
 
   // Mock server tests are disabled
   test.skip('resolve: only required params', async () => {
-    const responsePromise = client.siteConfigs.resolve({ url: 'https://example.com' });
+    const responsePromise = client.configRegistry.resolve({ url: 'https://example.com' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -102,7 +71,7 @@ describe('resource siteConfigs', () => {
 
   // Mock server tests are disabled
   test.skip('resolve: required and optional params', async () => {
-    const response = await client.siteConfigs.resolve({
+    const response = await client.configRegistry.resolve({
       url: 'https://example.com',
       allowed_proxy_countries: ['US'],
     });

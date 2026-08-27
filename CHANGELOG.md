@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.96.0](https://github.com/kernel/kernel-node-sdk/compare/v0.95.0...v0.96.0) (2026-08-27)
+
+
+### Features
+
+* Rename the site configs API to config registry ([32f4b97](https://github.com/kernel/kernel-node-sdk/commit/32f4b9747b9ba317b41d1a89a5162b6e81d61835))
+
 ## [0.95.0](https://github.com/kernel/kernel-node-sdk/compare/v0.94.0...v0.95.0) (2026-08-26)
 
 

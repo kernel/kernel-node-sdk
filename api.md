@@ -62,32 +62,37 @@ Methods:
 - <code title="get /invocations/{id}/events">client.invocations.<a href="./src/resources/invocations.ts">follow</a>(id, { ...params }) -> InvocationFollowResponse</code>
 - <code title="get /invocations/{id}/browsers">client.invocations.<a href="./src/resources/invocations.ts">listBrowsers</a>(id) -> InvocationListBrowsersResponse</code>
 
-# SiteConfigs
+# ConfigRegistry
 
 Types:
 
-- <code><a href="./src/resources/site-configs.ts">Analysis</a></code>
-- <code><a href="./src/resources/site-configs.ts">AnalysisSummary</a></code>
-- <code><a href="./src/resources/site-configs.ts">Browser</a></code>
-- <code><a href="./src/resources/site-configs.ts">Evidence</a></code>
-- <code><a href="./src/resources/site-configs.ts">LookupRequest</a></code>
-- <code><a href="./src/resources/site-configs.ts">LookupResponse</a></code>
-- <code><a href="./src/resources/site-configs.ts">NoRecommendation</a></code>
-- <code><a href="./src/resources/site-configs.ts">Proxy</a></code>
-- <code><a href="./src/resources/site-configs.ts">Recommendation</a></code>
-- <code><a href="./src/resources/site-configs.ts">RecommendationResult</a></code>
-- <code><a href="./src/resources/site-configs.ts">RecommendationSummary</a></code>
-- <code><a href="./src/resources/site-configs.ts">ResolveRequest</a></code>
-- <code><a href="./src/resources/site-configs.ts">SiteConfigResponse</a></code>
-- <code><a href="./src/resources/site-configs.ts">Target</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Analysis</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">AnalysisSummary</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Browser</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">ConfigRegistryResponse</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Evidence</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">LookupRequest</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">LookupResponse</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">NoRecommendation</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Proxy</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Recommendation</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">RecommendationResult</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">RecommendationSummary</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">ResolveRequest</a></code>
+- <code><a href="./src/resources/config-registry/config-registry.ts">Target</a></code>
 
 Methods:
 
-- <code title="get /site-configs/{id}">client.siteConfigs.<a href="./src/resources/site-configs.ts">retrieve</a>(id) -> SiteConfigResponse</code>
-- <code title="get /site-configs">client.siteConfigs.<a href="./src/resources/site-configs.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
-- <code title="get /site-configs/recommendations">client.siteConfigs.<a href="./src/resources/site-configs.ts">listRecommendations</a>({ ...params }) -> RecommendationSummariesOffsetPagination</code>
-- <code title="post /site-configs/lookup">client.siteConfigs.<a href="./src/resources/site-configs.ts">lookup</a>({ ...params }) -> LookupResponse</code>
-- <code title="post /site-configs/resolve">client.siteConfigs.<a href="./src/resources/site-configs.ts">resolve</a>({ ...params }) -> SiteConfigResponse</code>
+- <code title="get /config-registry">client.configRegistry.<a href="./src/resources/config-registry/config-registry.ts">list</a>({ ...params }) -> RecommendationSummariesOffsetPagination</code>
+- <code title="post /config-registry/lookup">client.configRegistry.<a href="./src/resources/config-registry/config-registry.ts">lookup</a>({ ...params }) -> LookupResponse</code>
+- <code title="post /config-registry/resolve">client.configRegistry.<a href="./src/resources/config-registry/config-registry.ts">resolve</a>({ ...params }) -> ConfigRegistryResponse</code>
+
+## Analyses
+
+Methods:
+
+- <code title="get /config-registry/analyses/{id}">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">retrieve</a>(id) -> ConfigRegistryResponse</code>
+- <code title="get /config-registry/analyses">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
 
 # Browsers
 

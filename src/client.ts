@@ -137,29 +137,6 @@ import {
   ProxyUpdateResponse,
 } from './resources/proxies';
 import {
-  Analysis,
-  AnalysisSummariesOffsetPagination,
-  AnalysisSummary,
-  Browser,
-  Evidence,
-  LookupRequest,
-  LookupResponse,
-  NoRecommendation,
-  Proxy,
-  Recommendation,
-  RecommendationResult,
-  RecommendationSummariesOffsetPagination,
-  RecommendationSummary,
-  ResolveRequest,
-  SiteConfigListParams,
-  SiteConfigListRecommendationsParams,
-  SiteConfigLookupParams,
-  SiteConfigResolveParams,
-  SiteConfigResponse,
-  SiteConfigs,
-  Target,
-} from './resources/site-configs';
-import {
   AuditLogEntriesPageTokenPagination,
   AuditLogEntry,
   AuditLogExportChunkParams,
@@ -192,6 +169,27 @@ import {
   Profile,
   Tags,
 } from './resources/browsers/browsers';
+import {
+  Analysis,
+  AnalysisSummary,
+  Browser,
+  ConfigRegistry,
+  ConfigRegistryListParams,
+  ConfigRegistryLookupParams,
+  ConfigRegistryResolveParams,
+  ConfigRegistryResponse,
+  Evidence,
+  LookupRequest,
+  LookupResponse,
+  NoRecommendation,
+  Proxy,
+  Recommendation,
+  RecommendationResult,
+  RecommendationSummariesOffsetPagination,
+  RecommendationSummary,
+  ResolveRequest,
+  Target,
+} from './resources/config-registry/config-registry';
 import { Organization } from './resources/organization/organization';
 import {
   CreateProjectRequest,
@@ -1038,7 +1036,7 @@ export class Kernel {
   /**
    * Resolve browser and proxy recommendations for bot-protected sites.
    */
-  siteConfigs: API.SiteConfigs = new API.SiteConfigs(this);
+  configRegistry: API.ConfigRegistry = new API.ConfigRegistry(this);
   /**
    * Create and manage browser sessions.
    */
@@ -1090,7 +1088,7 @@ export class Kernel {
 Kernel.Deployments = Deployments;
 Kernel.Apps = Apps;
 Kernel.Invocations = Invocations;
-Kernel.SiteConfigs = SiteConfigs;
+Kernel.ConfigRegistry = ConfigRegistry;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
 Kernel.Auth = Auth;
@@ -1157,10 +1155,11 @@ export declare namespace Kernel {
   };
 
   export {
-    SiteConfigs as SiteConfigs,
+    ConfigRegistry as ConfigRegistry,
     type Analysis as Analysis,
     type AnalysisSummary as AnalysisSummary,
     type Browser as Browser,
+    type ConfigRegistryResponse as ConfigRegistryResponse,
     type Evidence as Evidence,
     type LookupRequest as LookupRequest,
     type LookupResponse as LookupResponse,
@@ -1170,14 +1169,11 @@ export declare namespace Kernel {
     type RecommendationResult as RecommendationResult,
     type RecommendationSummary as RecommendationSummary,
     type ResolveRequest as ResolveRequest,
-    type SiteConfigResponse as SiteConfigResponse,
     type Target as Target,
-    type AnalysisSummariesOffsetPagination as AnalysisSummariesOffsetPagination,
     type RecommendationSummariesOffsetPagination as RecommendationSummariesOffsetPagination,
-    type SiteConfigListParams as SiteConfigListParams,
-    type SiteConfigListRecommendationsParams as SiteConfigListRecommendationsParams,
-    type SiteConfigLookupParams as SiteConfigLookupParams,
-    type SiteConfigResolveParams as SiteConfigResolveParams,
+    type ConfigRegistryListParams as ConfigRegistryListParams,
+    type ConfigRegistryLookupParams as ConfigRegistryLookupParams,
+    type ConfigRegistryResolveParams as ConfigRegistryResolveParams,
   };
 
   export {
