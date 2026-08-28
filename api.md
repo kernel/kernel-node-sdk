@@ -130,7 +130,9 @@ Types:
 
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserAPICallEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCallStack</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCaptchaChallengeResultEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCaptchaSolveResultEvent</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserCaptchaSolveStartedEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpCommandEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpCommandMethod</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserCdpConnectEvent</a></code>
