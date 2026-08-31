@@ -332,8 +332,10 @@ export interface ManagedAuth {
    * - `viable_plans_found` — at least one stored login plan can be replayed
    * - `no_requirements_recorded` — no recorded credential requirements to fail
    *   against
-   * - `requirements_satisfiable` — recorded requirements can be met by the attached
-   *   credential
+   * - `totp_reauth_allowed` — TOTP is the only recorded requirement and is safe to
+   *   attempt automatically
+   * - `requirements_satisfiable` — recorded requirements contain no recognized
+   *   blocker
    *
    * Negative values (a human must complete the login flow):
    *
@@ -360,6 +362,7 @@ export interface ManagedAuth {
     | 'has_credential'
     | 'viable_plans_found'
     | 'no_requirements_recorded'
+    | 'totp_reauth_allowed'
     | 'requirements_satisfiable'
     | 'no_prior_successful_login'
     | 'no_credential'
