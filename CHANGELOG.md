@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.97.0](https://github.com/kernel/kernel-node-sdk/compare/v0.96.0...v0.97.0) (2026-08-31)
+
+
+### Features
+
+* Expose captcha task and challenge outcomes ([66f6eaf](https://github.com/kernel/kernel-node-sdk/commit/66f6eaf26d7bdee5311b0a2a66c4806e319872a8))
+* Unify managed auth reauth eligibility and blockers ([adf976e](https://github.com/kernel/kernel-node-sdk/commit/adf976e1e76d6f9ae6a043f91d1da671a944d8d6))
+
 ## [0.96.0](https://github.com/kernel/kernel-node-sdk/compare/v0.95.0...v0.96.0) (2026-08-27)
 
 
