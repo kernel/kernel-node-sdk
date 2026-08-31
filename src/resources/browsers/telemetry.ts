@@ -193,6 +193,99 @@ export namespace BrowserCallStack {
 }
 
 /**
+ * A visible captcha challenge reached a terminal outcome.
+ */
+export interface BrowserCaptchaChallengeResultEvent {
+  category: 'captcha';
+
+  /**
+   * Per-challenge payload. This event is emitted once per challenge and determines
+   * its overall outcome; captcha_solve_started and captcha_solve_result describe
+   * individual tasks and may occur multiple times within the challenge.
+   */
+  data: BrowserCaptchaChallengeResultEvent.Data;
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'captcha_challenge_result';
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserCaptchaChallengeResultEvent {
+  /**
+   * Per-challenge payload. This event is emitted once per challenge and determines
+   * its overall outcome; captcha_solve_started and captcha_solve_result describe
+   * individual tasks and may occur multiple times within the challenge.
+   */
+  export interface Data {
+    /**
+     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
+     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
+     * press_and_hold, and unlisted kinds use other.
+     */
+    captcha_type:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'press_and_hold'
+      | 'other';
+
+    /**
+     * Opaque identifier shared by events for one visible challenge. An image-grid
+     * captcha may create multiple task_id values for one challenge_id. The same value
+     * may continue across a page reload when the challenge episode continues. It does
+     * not indicate task ordering or challenge completion.
+     */
+    challenge_id: string;
+
+    /**
+     * Wall-clock duration from the challenge appearing to its terminal outcome,
+     * covering every solver attempt in between.
+     */
+    duration_ms: number;
+
+    /**
+     * Terminal outcome of the visible challenge. solved: the page observed the
+     * challenge clear after a solver attempt. failure: a terminal solver failure
+     * occurred, or all attempts ended while the challenge remained. timeout: the
+     * challenge-level wait budget expired while the challenge remained. abandoned:
+     * observation ended without an attributable terminal challenge outcome. This
+     * includes a dismissed widget or page unload without a solved signal or terminal
+     * solver outcome, and a token appearing while multiple same-provider challenges
+     * are open, because the producer cannot attribute that token to this visible
+     * challenge. A captcha_solve_result with the same challenge_id may therefore
+     * report success while the challenge result reports abandoned. A solved challenge
+     * does not prove the site accepted the token or that the guarded action succeeded.
+     */
+    status: 'solved' | 'failure' | 'timeout' | 'abandoned';
+
+    /**
+     * Host of the page where the challenge appeared.
+     */
+    website_host?: string;
+
+    /**
+     * Path of the page where the challenge appeared. Query string excluded.
+     */
+    website_path?: string;
+  }
+}
+
+/**
  * A captcha solve attempt reached a terminal outcome.
  */
 export interface BrowserCaptchaSolveResultEvent {
@@ -221,13 +314,23 @@ export interface BrowserCaptchaSolveResultEvent {
 export namespace BrowserCaptchaSolveResultEvent {
   export interface Data {
     /**
-     * Captcha vendor family. Provider-specific task names are normalized into this
-     * set; anything not covered is reported as other.
+     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
+     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
+     * press_and_hold, and unlisted kinds use other.
      */
-    captcha_type: 'hcaptcha' | 'recaptcha_v2' | 'recaptcha_v3' | 'turnstile' | 'geetest' | 'other';
+    captcha_type:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'press_and_hold'
+      | 'other';
 
     /**
-     * Wall-clock duration from solve start to terminal outcome.
+     * Wall-clock duration from solve start to terminal outcome. Authoritative solve
+     * timing; do not derive it from the gap to a captcha_solve_started event, whose
+     * delivery and ordering are not guaranteed.
      */
     duration_ms: number;
 
@@ -240,13 +343,21 @@ export namespace BrowserCaptchaSolveResultEvent {
     status: 'success' | 'failure' | 'timeout' | 'abandoned';
 
     /**
+     * Opaque identifier shared by events for one visible challenge. An image-grid
+     * captcha may create multiple task_id values for one challenge_id. The same value
+     * may continue across a page reload when the challenge episode continues. It does
+     * not indicate task ordering or challenge completion.
+     */
+    challenge_id?: string;
+
+    /**
      * Solver-specific error code on failure (e.g. ERROR_CAPTCHA_UNSOLVABLE). Absent on
      * success.
      */
     error_code?: string;
 
     /**
-     * Solver-assigned identifier. Opaque, useful for support cross-references.
+     * Opaque identifier shared with the matching captcha_solve_started.
      */
     task_id?: string;
 
@@ -257,6 +368,86 @@ export namespace BrowserCaptchaSolveResultEvent {
 
     /**
      * Path of the page where the captcha was solved. Query string excluded.
+     */
+    website_path?: string;
+  }
+}
+
+/**
+ * A captcha solver accepted a task.
+ */
+export interface BrowserCaptchaSolveStartedEvent {
+  category: 'captcha';
+
+  /**
+   * Per-task payload. A visible challenge may create multiple tasks. When present,
+   * task_id correlates this event with a captcha_solve_result, while challenge_id
+   * groups tasks from the same challenge. Events may arrive out of order or be
+   * absent, so their arrival does not indicate current solve state.
+   */
+  data: BrowserCaptchaSolveStartedEvent.Data;
+
+  /**
+   * Provenance metadata identifying which producer emitted the event.
+   */
+  source: BrowserEventSource;
+
+  /**
+   * Event timestamp in Unix microseconds.
+   */
+  ts: number;
+
+  type: 'captcha_solve_started';
+
+  /**
+   * True if the data field was truncated due to size limits.
+   */
+  truncated?: boolean;
+}
+
+export namespace BrowserCaptchaSolveStartedEvent {
+  /**
+   * Per-task payload. A visible challenge may create multiple tasks. When present,
+   * task_id correlates this event with a captcha_solve_result, while challenge_id
+   * groups tasks from the same challenge. Events may arrive out of order or be
+   * absent, so their arrival does not indicate current solve state.
+   */
+  export interface Data {
+    /**
+     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
+     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
+     * press_and_hold, and unlisted kinds use other.
+     */
+    captcha_type:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'press_and_hold'
+      | 'other';
+
+    /**
+     * Opaque identifier shared by events for one visible challenge. An image-grid
+     * captcha may create multiple task_id values for one challenge_id. The same value
+     * may continue across a page reload when the challenge episode continues. It does
+     * not indicate task ordering or challenge completion.
+     */
+    challenge_id?: string;
+
+    /**
+     * Opaque identifier shared with the matching captcha_solve_result.
+     */
+    task_id?: string;
+
+    /**
+     * Host of the page where the captcha is being solved. May be empty for solver
+     * tasks that carry no page URL.
+     */
+    website_host?: string;
+
+    /**
+     * Path of the page where the captcha is being solved. Query string excluded.
      */
     website_path?: string;
   }
@@ -4346,7 +4537,7 @@ export namespace BrowserSystemOomKillEvent {
  */
 export interface BrowserTelemetryCategoriesConfig {
   /**
-   * Captcha solve attempt outcomes. On by default.
+   * Captcha solver tasks and visible challenge outcomes. On by default.
    */
   captcha?: BrowserTelemetryCategoryConfig;
 
@@ -4516,7 +4707,9 @@ export type BrowserTelemetryEvent =
   | BrowserCdpDisconnectEvent
   | BrowserLiveViewConnectEvent
   | BrowserLiveViewDisconnectEvent
+  | BrowserCaptchaSolveStartedEvent
   | BrowserCaptchaSolveResultEvent
+  | BrowserCaptchaChallengeResultEvent
   | BrowserSystemOomKillEvent
   | BrowserServiceCrashedEvent;
 
@@ -4660,7 +4853,9 @@ export declare namespace Telemetry {
   export {
     type BrowserAPICallEvent as BrowserAPICallEvent,
     type BrowserCallStack as BrowserCallStack,
+    type BrowserCaptchaChallengeResultEvent as BrowserCaptchaChallengeResultEvent,
     type BrowserCaptchaSolveResultEvent as BrowserCaptchaSolveResultEvent,
+    type BrowserCaptchaSolveStartedEvent as BrowserCaptchaSolveStartedEvent,
     type BrowserCdpCommandEvent as BrowserCdpCommandEvent,
     type BrowserCdpCommandMethod as BrowserCdpCommandMethod,
     type BrowserCdpConnectEvent as BrowserCdpConnectEvent,
