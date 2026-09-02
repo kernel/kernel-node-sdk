@@ -28,13 +28,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.createDirectory('id', {
-   *   path: '/J!',
-   * });
+   * await client.browsers.fs.createDirectory(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    * ```
    */
-  createDirectory(id: string, body: FCreateDirectoryParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.put(path`/browsers/${id}/fs/create_directory`, {
+  createDirectory(
+    idOrName: string,
+    body: FCreateDirectoryParams,
+    options?: RequestOptions,
+  ): APIPromise<void> {
+    return this._client.put(path`/browsers/${idOrName}/fs/create_directory`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -46,13 +51,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.deleteDirectory('id', {
-   *   path: '/J!',
-   * });
+   * await client.browsers.fs.deleteDirectory(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    * ```
    */
-  deleteDirectory(id: string, body: FDeleteDirectoryParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.put(path`/browsers/${id}/fs/delete_directory`, {
+  deleteDirectory(
+    idOrName: string,
+    body: FDeleteDirectoryParams,
+    options?: RequestOptions,
+  ): APIPromise<void> {
+    return this._client.put(path`/browsers/${idOrName}/fs/delete_directory`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -64,11 +74,14 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.deleteFile('id', { path: '/J!' });
+   * await client.browsers.fs.deleteFile(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    * ```
    */
-  deleteFile(id: string, body: FDeleteFileParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.put(path`/browsers/${id}/fs/delete_file`, {
+  deleteFile(idOrName: string, body: FDeleteFileParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.put(path`/browsers/${idOrName}/fs/delete_file`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -81,7 +94,7 @@ export class Fs extends APIResource {
    * @example
    * ```ts
    * const response = await client.browsers.fs.downloadDirZip(
-   *   'id',
+   *   'htzv5orfit78e1m2biiifpbv',
    *   { path: '/J!' },
    * );
    *
@@ -89,8 +102,12 @@ export class Fs extends APIResource {
    * console.log(content);
    * ```
    */
-  downloadDirZip(id: string, query: FDownloadDirZipParams, options?: RequestOptions): APIPromise<Response> {
-    return this._client.get(path`/browsers/${id}/fs/download_dir_zip`, {
+  downloadDirZip(
+    idOrName: string,
+    query: FDownloadDirZipParams,
+    options?: RequestOptions,
+  ): APIPromise<Response> {
+    return this._client.get(path`/browsers/${idOrName}/fs/download_dir_zip`, {
       query,
       ...options,
       headers: buildHeaders([{ Accept: 'application/zip' }, options?.headers]),
@@ -103,13 +120,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.fs.fileInfo('id', {
-   *   path: '/J!',
-   * });
+   * const response = await client.browsers.fs.fileInfo(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    * ```
    */
-  fileInfo(id: string, query: FFileInfoParams, options?: RequestOptions): APIPromise<FFileInfoResponse> {
-    return this._client.get(path`/browsers/${id}/fs/file_info`, { query, ...options });
+  fileInfo(
+    idOrName: string,
+    query: FFileInfoParams,
+    options?: RequestOptions,
+  ): APIPromise<FFileInfoResponse> {
+    return this._client.get(path`/browsers/${idOrName}/fs/file_info`, { query, ...options });
   }
 
   /**
@@ -117,13 +139,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.fs.listFiles('id', {
-   *   path: '/J!',
-   * });
+   * const response = await client.browsers.fs.listFiles(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    * ```
    */
-  listFiles(id: string, query: FListFilesParams, options?: RequestOptions): APIPromise<FListFilesResponse> {
-    return this._client.get(path`/browsers/${id}/fs/list_files`, { query, ...options });
+  listFiles(
+    idOrName: string,
+    query: FListFilesParams,
+    options?: RequestOptions,
+  ): APIPromise<FListFilesResponse> {
+    return this._client.get(path`/browsers/${idOrName}/fs/list_files`, { query, ...options });
   }
 
   /**
@@ -131,14 +158,14 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.move('id', {
+   * await client.browsers.fs.move('htzv5orfit78e1m2biiifpbv', {
    *   dest_path: '/J!',
    *   src_path: '/J!',
    * });
    * ```
    */
-  move(id: string, body: FMoveParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.put(path`/browsers/${id}/fs/move`, {
+  move(idOrName: string, body: FMoveParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.put(path`/browsers/${idOrName}/fs/move`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -150,16 +177,17 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.fs.readFile('id', {
-   *   path: '/J!',
-   * });
+   * const response = await client.browsers.fs.readFile(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { path: '/J!' },
+   * );
    *
    * const content = await response.blob();
    * console.log(content);
    * ```
    */
-  readFile(id: string, query: FReadFileParams, options?: RequestOptions): APIPromise<Response> {
-    return this._client.get(path`/browsers/${id}/fs/read_file`, {
+  readFile(idOrName: string, query: FReadFileParams, options?: RequestOptions): APIPromise<Response> {
+    return this._client.get(path`/browsers/${idOrName}/fs/read_file`, {
       query,
       ...options,
       headers: buildHeaders([{ Accept: 'application/octet-stream' }, options?.headers]),
@@ -172,18 +200,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.setFilePermissions('id', {
-   *   mode: '0611',
-   *   path: '/J!',
-   * });
+   * await client.browsers.fs.setFilePermissions(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { mode: '0611', path: '/J!' },
+   * );
    * ```
    */
   setFilePermissions(
-    id: string,
+    idOrName: string,
     body: FSetFilePermissionsParams,
     options?: RequestOptions,
   ): APIPromise<void> {
-    return this._client.put(path`/browsers/${id}/fs/set_file_permissions`, {
+    return this._client.put(path`/browsers/${idOrName}/fs/set_file_permissions`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -195,19 +223,22 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.upload('id', {
-   *   files: [
-   *     {
-   *       dest_path: '/J!',
-   *       file: fs.createReadStream('path/to/file'),
-   *     },
-   *   ],
-   * });
+   * await client.browsers.fs.upload(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   {
+   *     files: [
+   *       {
+   *         dest_path: '/J!',
+   *         file: fs.createReadStream('path/to/file'),
+   *       },
+   *     ],
+   *   },
+   * );
    * ```
    */
-  upload(id: string, body: FUploadParams, options?: RequestOptions): APIPromise<void> {
+  upload(idOrName: string, body: FUploadParams, options?: RequestOptions): APIPromise<void> {
     return this._client.post(
-      path`/browsers/${id}/fs/upload`,
+      path`/browsers/${idOrName}/fs/upload`,
       multipartFormRequestOptions(
         { body, ...options, headers: buildHeaders([{ Accept: '*/*' }, options?.headers]) },
         this._client,
@@ -220,15 +251,18 @@ export class Fs extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.fs.uploadZip('id', {
-   *   dest_path: '/J!',
-   *   zip_file: fs.createReadStream('path/to/file'),
-   * });
+   * await client.browsers.fs.uploadZip(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   {
+   *     dest_path: '/J!',
+   *     zip_file: fs.createReadStream('path/to/file'),
+   *   },
+   * );
    * ```
    */
-  uploadZip(id: string, body: FUploadZipParams, options?: RequestOptions): APIPromise<void> {
+  uploadZip(idOrName: string, body: FUploadZipParams, options?: RequestOptions): APIPromise<void> {
     return this._client.post(
-      path`/browsers/${id}/fs/upload_zip`,
+      path`/browsers/${idOrName}/fs/upload_zip`,
       multipartFormRequestOptions(
         { body, ...options, headers: buildHeaders([{ Accept: '*/*' }, options?.headers]) },
         this._client,
@@ -242,20 +276,20 @@ export class Fs extends APIResource {
    * @example
    * ```ts
    * await client.browsers.fs.writeFile(
-   *   'id',
+   *   'htzv5orfit78e1m2biiifpbv',
    *   fs.createReadStream('path/to/file'),
    *   { path: '/J!' },
    * );
    * ```
    */
   writeFile(
-    id: string,
+    idOrName: string,
     contents: string | ArrayBuffer | ArrayBufferView | Blob | DataView,
     params: FWriteFileParams,
     options?: RequestOptions,
   ): APIPromise<void> {
     const { path: path_, mode } = params;
-    return this._client.put(path`/browsers/${id}/fs/write_file`, {
+    return this._client.put(path`/browsers/${idOrName}/fs/write_file`, {
       body: contents,
       query: { path: path_, mode },
       ...options,

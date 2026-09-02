@@ -155,7 +155,7 @@ describe('resource browsers', () => {
 
   // Mock server tests are disabled
   test.skip('curl: only required params', async () => {
-    const responsePromise = client.browsers.curl('id', { url: 'url' });
+    const responsePromise = client.browsers.curl('htzv5orfit78e1m2biiifpbv', { url: 'url' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -167,7 +167,7 @@ describe('resource browsers', () => {
 
   // Mock server tests are disabled
   test.skip('curl: required and optional params', async () => {
-    const response = await client.browsers.curl('id', {
+    const response = await client.browsers.curl('htzv5orfit78e1m2biiifpbv', {
       url: 'url',
       body: 'body',
       headers: { foo: 'string' },
@@ -191,7 +191,7 @@ describe('resource browsers', () => {
 
   // Mock server tests are disabled
   test.skip('loadExtensions: only required params', async () => {
-    const responsePromise = client.browsers.loadExtensions('id', {
+    const responsePromise = client.browsers.loadExtensions('htzv5orfit78e1m2biiifpbv', {
       extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
     const rawResponse = await responsePromise.asResponse();
@@ -205,7 +205,7 @@ describe('resource browsers', () => {
 
   // Mock server tests are disabled
   test.skip('loadExtensions: required and optional params', async () => {
-    const response = await client.browsers.loadExtensions('id', {
+    const response = await client.browsers.loadExtensions('htzv5orfit78e1m2biiifpbv', {
       extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
   });

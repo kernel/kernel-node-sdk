@@ -143,3 +143,15 @@ export {
   type TelemetryStreamParams,
   type TelemetryEventsResponsesOffsetPagination,
 } from './telemetry';
+export {
+  Webmcp,
+  type InvocationFailure,
+  type InvocationResult,
+  type InvokeRequest,
+  type Tool,
+  type ToolAnnotations,
+  type ToolFrame,
+  type ToolSource,
+  type ToolsResponse,
+  type WebmcpInvokeToolParams,
+} from './webmcp';

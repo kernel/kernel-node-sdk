@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.98.0](https://github.com/kernel/kernel-node-sdk/compare/v0.97.0...v0.98.0) (2026-09-02)
+
+
+### Features
+
+* Accept browser session name on all /browsers/{id_or_name} sub-resource routes ([d1006ba](https://github.com/kernel/kernel-node-sdk/commit/d1006ba6723ae641097635a8d803db04b8f4e5bd))
+
 ## [0.97.0](https://github.com/kernel/kernel-node-sdk/compare/v0.96.0...v0.97.0) (2026-08-31)
 
 

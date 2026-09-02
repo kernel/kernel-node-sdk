@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('exec: only required params', async () => {
-    const responsePromise = client.browsers.process.exec('id', { command: 'command' });
+    const responsePromise = client.browsers.process.exec('htzv5orfit78e1m2biiifpbv', { command: 'command' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,7 +22,7 @@ describe('resource process', () => {
 
   // Mock server tests are disabled
   test.skip('exec: required and optional params', async () => {
-    const response = await client.browsers.process.exec('id', {
+    const response = await client.browsers.process.exec('htzv5orfit78e1m2biiifpbv', {
       command: 'command',
       args: ['string'],
       as_root: true,
@@ -36,7 +36,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('kill: only required params', async () => {
     const responsePromise = client.browsers.process.kill('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       signal: 'TERM',
     });
     const rawResponse = await responsePromise.asResponse();
@@ -51,7 +51,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('kill: required and optional params', async () => {
     const response = await client.browsers.process.kill('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       signal: 'TERM',
     });
   });
@@ -59,7 +59,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('resize: only required params', async () => {
     const responsePromise = client.browsers.process.resize('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       cols: 1,
       rows: 1,
     });
@@ -75,7 +75,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('resize: required and optional params', async () => {
     const response = await client.browsers.process.resize('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       cols: 1,
       rows: 1,
     });
@@ -83,7 +83,7 @@ describe('resource process', () => {
 
   // Mock server tests are disabled
   test.skip('spawn: only required params', async () => {
-    const responsePromise = client.browsers.process.spawn('id', { command: 'command' });
+    const responsePromise = client.browsers.process.spawn('htzv5orfit78e1m2biiifpbv', { command: 'command' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -95,7 +95,7 @@ describe('resource process', () => {
 
   // Mock server tests are disabled
   test.skip('spawn: required and optional params', async () => {
-    const response = await client.browsers.process.spawn('id', {
+    const response = await client.browsers.process.spawn('htzv5orfit78e1m2biiifpbv', {
       command: 'command',
       allocate_tty: true,
       args: ['string'],
@@ -112,7 +112,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('status: only required params', async () => {
     const responsePromise = client.browsers.process.status('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -126,14 +126,14 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('status: required and optional params', async () => {
     const response = await client.browsers.process.status('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
     });
   });
 
   // Mock server tests are disabled
   test.skip('stdin: only required params', async () => {
     const responsePromise = client.browsers.process.stdin('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       data_b64: 'data_b64',
     });
     const rawResponse = await responsePromise.asResponse();
@@ -148,7 +148,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('stdin: required and optional params', async () => {
     const response = await client.browsers.process.stdin('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
       data_b64: 'data_b64',
     });
   });
@@ -156,7 +156,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('stdoutStream: only required params', async () => {
     const responsePromise = client.browsers.process.stdoutStream('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
     });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
@@ -170,7 +170,7 @@ describe('resource process', () => {
   // Mock server tests are disabled
   test.skip('stdoutStream: required and optional params', async () => {
     const response = await client.browsers.process.stdoutStream('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-      id: 'id',
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
     });
   });
 });

@@ -15,11 +15,13 @@ export class Replays extends APIResource {
    *
    * @example
    * ```ts
-   * const replays = await client.browsers.replays.list('id');
+   * const replays = await client.browsers.replays.list(
+   *   'htzv5orfit78e1m2biiifpbv',
+   * );
    * ```
    */
-  list(id: string, options?: RequestOptions): APIPromise<ReplayListResponse> {
-    return this._client.get(path`/browsers/${id}/replays`, options);
+  list(idOrName: string, options?: RequestOptions): APIPromise<ReplayListResponse> {
+    return this._client.get(path`/browsers/${idOrName}/replays`, options);
   }
 
   /**
@@ -29,7 +31,7 @@ export class Replays extends APIResource {
    * ```ts
    * const response = await client.browsers.replays.download(
    *   'replay_id',
-   *   { id: 'id' },
+   *   { id_or_name: 'htzv5orfit78e1m2biiifpbv' },
    * );
    *
    * const content = await response.blob();
@@ -37,8 +39,8 @@ export class Replays extends APIResource {
    * ```
    */
   download(replayID: string, params: ReplayDownloadParams, options?: RequestOptions): APIPromise<Response> {
-    const { id } = params;
-    return this._client.get(path`/browsers/${id}/replays/${replayID}`, {
+    const { id_or_name } = params;
+    return this._client.get(path`/browsers/${id_or_name}/replays/${replayID}`, {
       ...options,
       headers: buildHeaders([{ Accept: 'video/mp4' }, options?.headers]),
       __binaryResponse: true,
@@ -50,15 +52,17 @@ export class Replays extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.replays.start('id');
+   * const response = await client.browsers.replays.start(
+   *   'htzv5orfit78e1m2biiifpbv',
+   * );
    * ```
    */
   start(
-    id: string,
+    idOrName: string,
     body: ReplayStartParams | null | undefined = {},
     options?: RequestOptions,
   ): APIPromise<ReplayStartResponse> {
-    return this._client.post(path`/browsers/${id}/replays`, { body, ...options });
+    return this._client.post(path`/browsers/${idOrName}/replays`, { body, ...options });
   }
 
   /**
@@ -67,13 +71,13 @@ export class Replays extends APIResource {
    * @example
    * ```ts
    * await client.browsers.replays.stop('replay_id', {
-   *   id: 'id',
+   *   id_or_name: 'htzv5orfit78e1m2biiifpbv',
    * });
    * ```
    */
   stop(replayID: string, params: ReplayStopParams, options?: RequestOptions): APIPromise<void> {
-    const { id } = params;
-    return this._client.post(path`/browsers/${id}/replays/${replayID}/stop`, {
+    const { id_or_name } = params;
+    return this._client.post(path`/browsers/${id_or_name}/replays/${replayID}/stop`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
@@ -136,9 +140,9 @@ export interface ReplayStartResponse {
 
 export interface ReplayDownloadParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export interface ReplayStartParams {
@@ -162,9 +166,9 @@ export interface ReplayStartParams {
 
 export interface ReplayStopParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export declare namespace Replays {
