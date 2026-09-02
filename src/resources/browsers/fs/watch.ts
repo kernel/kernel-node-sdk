@@ -18,7 +18,7 @@ export class Watch extends APIResource {
    * ```ts
    * const response = await client.browsers.fs.watch.events(
    *   'watch_id',
-   *   { id: 'id' },
+   *   { id_or_name: 'htzv5orfit78e1m2biiifpbv' },
    * );
    * ```
    */
@@ -27,8 +27,8 @@ export class Watch extends APIResource {
     params: WatchEventsParams,
     options?: RequestOptions,
   ): APIPromise<Stream<WatchEventsResponse>> {
-    const { id } = params;
-    return this._client.get(path`/browsers/${id}/fs/watch/${watchID}/events`, {
+    const { id_or_name } = params;
+    return this._client.get(path`/browsers/${id_or_name}/fs/watch/${watchID}/events`, {
       ...options,
       headers: buildHeaders([{ Accept: 'text/event-stream' }, options?.headers]),
       stream: true,
@@ -41,13 +41,13 @@ export class Watch extends APIResource {
    * @example
    * ```ts
    * const response = await client.browsers.fs.watch.start(
-   *   'id',
+   *   'htzv5orfit78e1m2biiifpbv',
    *   { path: 'path' },
    * );
    * ```
    */
-  start(id: string, body: WatchStartParams, options?: RequestOptions): APIPromise<WatchStartResponse> {
-    return this._client.post(path`/browsers/${id}/fs/watch`, { body, ...options });
+  start(idOrName: string, body: WatchStartParams, options?: RequestOptions): APIPromise<WatchStartResponse> {
+    return this._client.post(path`/browsers/${idOrName}/fs/watch`, { body, ...options });
   }
 
   /**
@@ -56,13 +56,13 @@ export class Watch extends APIResource {
    * @example
    * ```ts
    * await client.browsers.fs.watch.stop('watch_id', {
-   *   id: 'id',
+   *   id_or_name: 'htzv5orfit78e1m2biiifpbv',
    * });
    * ```
    */
   stop(watchID: string, params: WatchStopParams, options?: RequestOptions): APIPromise<void> {
-    const { id } = params;
-    return this._client.delete(path`/browsers/${id}/fs/watch/${watchID}`, {
+    const { id_or_name } = params;
+    return this._client.delete(path`/browsers/${id_or_name}/fs/watch/${watchID}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
@@ -103,9 +103,9 @@ export interface WatchStartResponse {
 
 export interface WatchEventsParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export interface WatchStartParams {
@@ -122,9 +122,9 @@ export interface WatchStartParams {
 
 export interface WatchStopParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export declare namespace Watch {

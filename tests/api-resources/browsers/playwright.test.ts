@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource playwright', () => {
   // Mock server tests are disabled
   test.skip('execute: only required params', async () => {
-    const responsePromise = client.browsers.playwright.execute('id', { code: 'code' });
+    const responsePromise = client.browsers.playwright.execute('htzv5orfit78e1m2biiifpbv', { code: 'code' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,6 +22,9 @@ describe('resource playwright', () => {
 
   // Mock server tests are disabled
   test.skip('execute: required and optional params', async () => {
-    const response = await client.browsers.playwright.execute('id', { code: 'code', timeout_sec: 1 });
+    const response = await client.browsers.playwright.execute('htzv5orfit78e1m2biiifpbv', {
+      code: 'code',
+      timeout_sec: 1,
+    });
   });
 });

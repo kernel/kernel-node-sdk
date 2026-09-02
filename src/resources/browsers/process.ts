@@ -16,13 +16,14 @@ export class Process extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.process.exec('id', {
-   *   command: 'command',
-   * });
+   * const response = await client.browsers.process.exec(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { command: 'command' },
+   * );
    * ```
    */
-  exec(id: string, body: ProcessExecParams, options?: RequestOptions): APIPromise<ProcessExecResponse> {
-    return this._client.post(path`/browsers/${id}/process/exec`, { body, ...options });
+  exec(idOrName: string, body: ProcessExecParams, options?: RequestOptions): APIPromise<ProcessExecResponse> {
+    return this._client.post(path`/browsers/${idOrName}/process/exec`, { body, ...options });
   }
 
   /**
@@ -32,7 +33,10 @@ export class Process extends APIResource {
    * ```ts
    * const response = await client.browsers.process.kill(
    *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-   *   { id: 'id', signal: 'TERM' },
+   *   {
+   *     id_or_name: 'htzv5orfit78e1m2biiifpbv',
+   *     signal: 'TERM',
+   *   },
    * );
    * ```
    */
@@ -41,8 +45,8 @@ export class Process extends APIResource {
     params: ProcessKillParams,
     options?: RequestOptions,
   ): APIPromise<ProcessKillResponse> {
-    const { id, ...body } = params;
-    return this._client.post(path`/browsers/${id}/process/${processID}/kill`, { body, ...options });
+    const { id_or_name, ...body } = params;
+    return this._client.post(path`/browsers/${id_or_name}/process/${processID}/kill`, { body, ...options });
   }
 
   /**
@@ -53,7 +57,7 @@ export class Process extends APIResource {
    * const response = await client.browsers.process.resize(
    *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
    *   {
-   *     id: 'id',
+   *     id_or_name: 'htzv5orfit78e1m2biiifpbv',
    *     cols: 1,
    *     rows: 1,
    *   },
@@ -65,8 +69,8 @@ export class Process extends APIResource {
     params: ProcessResizeParams,
     options?: RequestOptions,
   ): APIPromise<ProcessResizeResponse> {
-    const { id, ...body } = params;
-    return this._client.post(path`/browsers/${id}/process/${processID}/resize`, { body, ...options });
+    const { id_or_name, ...body } = params;
+    return this._client.post(path`/browsers/${id_or_name}/process/${processID}/resize`, { body, ...options });
   }
 
   /**
@@ -74,13 +78,18 @@ export class Process extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.process.spawn('id', {
-   *   command: 'command',
-   * });
+   * const response = await client.browsers.process.spawn(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { command: 'command' },
+   * );
    * ```
    */
-  spawn(id: string, body: ProcessSpawnParams, options?: RequestOptions): APIPromise<ProcessSpawnResponse> {
-    return this._client.post(path`/browsers/${id}/process/spawn`, { body, ...options });
+  spawn(
+    idOrName: string,
+    body: ProcessSpawnParams,
+    options?: RequestOptions,
+  ): APIPromise<ProcessSpawnResponse> {
+    return this._client.post(path`/browsers/${idOrName}/process/spawn`, { body, ...options });
   }
 
   /**
@@ -90,7 +99,7 @@ export class Process extends APIResource {
    * ```ts
    * const response = await client.browsers.process.status(
    *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-   *   { id: 'id' },
+   *   { id_or_name: 'htzv5orfit78e1m2biiifpbv' },
    * );
    * ```
    */
@@ -99,8 +108,8 @@ export class Process extends APIResource {
     params: ProcessStatusParams,
     options?: RequestOptions,
   ): APIPromise<ProcessStatusResponse> {
-    const { id } = params;
-    return this._client.get(path`/browsers/${id}/process/${processID}/status`, options);
+    const { id_or_name } = params;
+    return this._client.get(path`/browsers/${id_or_name}/process/${processID}/status`, options);
   }
 
   /**
@@ -110,7 +119,10 @@ export class Process extends APIResource {
    * ```ts
    * const response = await client.browsers.process.stdin(
    *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-   *   { id: 'id', data_b64: 'data_b64' },
+   *   {
+   *     id_or_name: 'htzv5orfit78e1m2biiifpbv',
+   *     data_b64: 'data_b64',
+   *   },
    * );
    * ```
    */
@@ -119,8 +131,8 @@ export class Process extends APIResource {
     params: ProcessStdinParams,
     options?: RequestOptions,
   ): APIPromise<ProcessStdinResponse> {
-    const { id, ...body } = params;
-    return this._client.post(path`/browsers/${id}/process/${processID}/stdin`, { body, ...options });
+    const { id_or_name, ...body } = params;
+    return this._client.post(path`/browsers/${id_or_name}/process/${processID}/stdin`, { body, ...options });
   }
 
   /**
@@ -130,7 +142,7 @@ export class Process extends APIResource {
    * ```ts
    * const response = await client.browsers.process.stdoutStream(
    *   '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-   *   { id: 'id' },
+   *   { id_or_name: 'htzv5orfit78e1m2biiifpbv' },
    * );
    * ```
    */
@@ -139,8 +151,8 @@ export class Process extends APIResource {
     params: ProcessStdoutStreamParams,
     options?: RequestOptions,
   ): APIPromise<Stream<ProcessStdoutStreamResponse>> {
-    const { id } = params;
-    return this._client.get(path`/browsers/${id}/process/${processID}/stdout/stream`, {
+    const { id_or_name } = params;
+    return this._client.get(path`/browsers/${id_or_name}/process/${processID}/stdout/stream`, {
       ...options,
       headers: buildHeaders([{ Accept: 'text/event-stream' }, options?.headers]),
       stream: true,
@@ -312,9 +324,9 @@ export interface ProcessExecParams {
 
 export interface ProcessKillParams {
   /**
-   * Path param: Browser session ID
+   * Path param: Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 
   /**
    * Body param: Signal to send.
@@ -324,9 +336,9 @@ export interface ProcessKillParams {
 
 export interface ProcessResizeParams {
   /**
-   * Path param: Browser session ID
+   * Path param: Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 
   /**
    * Body param: New terminal columns.
@@ -393,16 +405,16 @@ export interface ProcessSpawnParams {
 
 export interface ProcessStatusParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export interface ProcessStdinParams {
   /**
-   * Path param: Browser session ID
+   * Path param: Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 
   /**
    * Body param: Base64-encoded data to write.
@@ -412,9 +424,9 @@ export interface ProcessStdinParams {
 
 export interface ProcessStdoutStreamParams {
   /**
-   * Browser session ID
+   * Browser session ID or name
    */
-  id: string;
+  id_or_name: string;
 }
 
 export declare namespace Process {

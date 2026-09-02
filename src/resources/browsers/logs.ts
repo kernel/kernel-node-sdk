@@ -17,13 +17,18 @@ export class Logs extends APIResource {
    *
    * @example
    * ```ts
-   * const logEvent = await client.browsers.logs.stream('id', {
-   *   source: 'path',
-   * });
+   * const logEvent = await client.browsers.logs.stream(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { source: 'path' },
+   * );
    * ```
    */
-  stream(id: string, query: LogStreamParams, options?: RequestOptions): APIPromise<Stream<Shared.LogEvent>> {
-    return this._client.get(path`/browsers/${id}/logs/stream`, {
+  stream(
+    idOrName: string,
+    query: LogStreamParams,
+    options?: RequestOptions,
+  ): APIPromise<Stream<Shared.LogEvent>> {
+    return this._client.get(path`/browsers/${idOrName}/logs/stream`, {
       query,
       ...options,
       headers: buildHeaders([{ Accept: 'text/event-stream' }, options?.headers]),

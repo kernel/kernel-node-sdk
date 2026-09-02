@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource telemetry', () => {
   // Mock server tests are disabled
   test.skip('events', async () => {
-    const responsePromise = client.browsers.telemetry.events('id');
+    const responsePromise = client.browsers.telemetry.events('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -25,7 +25,7 @@ describe('resource telemetry', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.telemetry.events(
-        'id',
+        'htzv5orfit78e1m2biiifpbv',
         {
           category: ['console'],
           limit: 1,
@@ -41,7 +41,7 @@ describe('resource telemetry', () => {
 
   // Mock server tests are disabled
   test.skip('stream', async () => {
-    const responsePromise = client.browsers.telemetry.stream('id');
+    const responsePromise = client.browsers.telemetry.stream('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -56,7 +56,7 @@ describe('resource telemetry', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.telemetry.stream(
-        'id',
+        'htzv5orfit78e1m2biiifpbv',
         { replay: 'replay', 'Last-Event-ID': 'Last-Event-ID' },
         { path: '/_stainless_unknown_path' },
       ),
