@@ -17,13 +17,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.batch('id', {
-   *   actions: [{ type: 'click_mouse' }],
-   * });
+   * await client.browsers.computer.batch(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { actions: [{ type: 'click_mouse' }] },
+   * );
    * ```
    */
-  batch(id: string, body: ComputerBatchParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/batch`, {
+  batch(idOrName: string, body: ComputerBatchParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/batch`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -36,18 +37,20 @@ export class Computer extends APIResource {
    * @example
    * ```ts
    * const response =
-   *   await client.browsers.computer.captureScreenshot('id');
+   *   await client.browsers.computer.captureScreenshot(
+   *     'htzv5orfit78e1m2biiifpbv',
+   *   );
    *
    * const content = await response.blob();
    * console.log(content);
    * ```
    */
   captureScreenshot(
-    id: string,
+    idOrName: string,
     body: ComputerCaptureScreenshotParams | null | undefined = {},
     options?: RequestOptions,
   ): APIPromise<Response> {
-    return this._client.post(path`/browsers/${id}/computer/screenshot`, {
+    return this._client.post(path`/browsers/${idOrName}/computer/screenshot`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: 'image/png' }, options?.headers]),
@@ -60,14 +63,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.clickMouse('id', {
-   *   x: 0,
-   *   y: 0,
-   * });
+   * await client.browsers.computer.clickMouse(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { x: 0, y: 0 },
+   * );
    * ```
    */
-  clickMouse(id: string, body: ComputerClickMouseParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/click_mouse`, {
+  clickMouse(idOrName: string, body: ComputerClickMouseParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/click_mouse`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -79,16 +82,19 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.dragMouse('id', {
-   *   path: [
-   *     [0, 0],
-   *     [0, 0],
-   *   ],
-   * });
+   * await client.browsers.computer.dragMouse(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   {
+   *     path: [
+   *       [0, 0],
+   *       [0, 0],
+   *     ],
+   *   },
+   * );
    * ```
    */
-  dragMouse(id: string, body: ComputerDragMouseParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/drag_mouse`, {
+  dragMouse(idOrName: string, body: ComputerDragMouseParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/drag_mouse`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -101,11 +107,13 @@ export class Computer extends APIResource {
    * @example
    * ```ts
    * const response =
-   *   await client.browsers.computer.getMousePosition('id');
+   *   await client.browsers.computer.getMousePosition(
+   *     'htzv5orfit78e1m2biiifpbv',
+   *   );
    * ```
    */
-  getMousePosition(id: string, options?: RequestOptions): APIPromise<ComputerGetMousePositionResponse> {
-    return this._client.post(path`/browsers/${id}/computer/get_mouse_position`, options);
+  getMousePosition(idOrName: string, options?: RequestOptions): APIPromise<ComputerGetMousePositionResponse> {
+    return this._client.post(path`/browsers/${idOrName}/computer/get_mouse_position`, options);
   }
 
   /**
@@ -113,14 +121,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.moveMouse('id', {
-   *   x: 0,
-   *   y: 0,
-   * });
+   * await client.browsers.computer.moveMouse(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { x: 0, y: 0 },
+   * );
    * ```
    */
-  moveMouse(id: string, body: ComputerMoveMouseParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/move_mouse`, {
+  moveMouse(idOrName: string, body: ComputerMoveMouseParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/move_mouse`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -132,13 +140,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.pressKey('id', {
-   *   keys: ['string'],
-   * });
+   * await client.browsers.computer.pressKey(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { keys: ['string'] },
+   * );
    * ```
    */
-  pressKey(id: string, body: ComputerPressKeyParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/press_key`, {
+  pressKey(idOrName: string, body: ComputerPressKeyParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/press_key`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -151,11 +160,13 @@ export class Computer extends APIResource {
    * @example
    * ```ts
    * const response =
-   *   await client.browsers.computer.readClipboard('id');
+   *   await client.browsers.computer.readClipboard(
+   *     'htzv5orfit78e1m2biiifpbv',
+   *   );
    * ```
    */
-  readClipboard(id: string, options?: RequestOptions): APIPromise<ComputerReadClipboardResponse> {
-    return this._client.post(path`/browsers/${id}/computer/clipboard/read`, options);
+  readClipboard(idOrName: string, options?: RequestOptions): APIPromise<ComputerReadClipboardResponse> {
+    return this._client.post(path`/browsers/${idOrName}/computer/clipboard/read`, options);
   }
 
   /**
@@ -163,11 +174,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.scroll('id', { x: 0, y: 0 });
+   * await client.browsers.computer.scroll(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { x: 0, y: 0 },
+   * );
    * ```
    */
-  scroll(id: string, body: ComputerScrollParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/scroll`, {
+  scroll(idOrName: string, body: ComputerScrollParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/scroll`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -180,17 +194,18 @@ export class Computer extends APIResource {
    * @example
    * ```ts
    * const response =
-   *   await client.browsers.computer.setCursorVisibility('id', {
-   *     hidden: true,
-   *   });
+   *   await client.browsers.computer.setCursorVisibility(
+   *     'htzv5orfit78e1m2biiifpbv',
+   *     { hidden: true },
+   *   );
    * ```
    */
   setCursorVisibility(
-    id: string,
+    idOrName: string,
     body: ComputerSetCursorVisibilityParams,
     options?: RequestOptions,
   ): APIPromise<ComputerSetCursorVisibilityResponse> {
-    return this._client.post(path`/browsers/${id}/computer/cursor`, { body, ...options });
+    return this._client.post(path`/browsers/${idOrName}/computer/cursor`, { body, ...options });
   }
 
   /**
@@ -198,13 +213,14 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.typeText('id', {
-   *   text: 'text',
-   * });
+   * await client.browsers.computer.typeText(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { text: 'text' },
+   * );
    * ```
    */
-  typeText(id: string, body: ComputerTypeTextParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/type`, {
+  typeText(idOrName: string, body: ComputerTypeTextParams, options?: RequestOptions): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/type`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
@@ -216,13 +232,18 @@ export class Computer extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.computer.writeClipboard('id', {
-   *   text: 'text',
-   * });
+   * await client.browsers.computer.writeClipboard(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { text: 'text' },
+   * );
    * ```
    */
-  writeClipboard(id: string, body: ComputerWriteClipboardParams, options?: RequestOptions): APIPromise<void> {
-    return this._client.post(path`/browsers/${id}/computer/clipboard/write`, {
+  writeClipboard(
+    idOrName: string,
+    body: ComputerWriteClipboardParams,
+    options?: RequestOptions,
+  ): APIPromise<void> {
+    return this._client.post(path`/browsers/${idOrName}/computer/clipboard/write`, {
       body,
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),

@@ -12,15 +12,19 @@ import { path } from '../../internal/utils/path';
  */
 export class Destinations extends APIResource {
   /**
-   * Create an OTLP export destination in the resolved project. Names must be unique
-   * within the project.
+   * Create an OTLP export destination in the authenticated organization. Names must
+   * be unique within the organization. Requires an organization-scoped credential or
+   * dashboard authentication; project-scoped credentials receive a 403.
    */
   create(body: DestinationCreateParams, options?: RequestOptions): APIPromise<OtlpDestination> {
     return this._client.post('/telemetry/destinations', { body, ...options });
   }
 
   /**
-   * Retrieve a single OTLP destination in the resolved project by its ID or name.
+   * Retrieve a customer-visible OTLP destination in the authenticated organization
+   * by its ID or name. Project-scoped credentials can retrieve these destinations
+   * for selection by workloads in their project. Non-dashboard reads return header
+   * values redacted.
    */
   retrieve(idOrName: string, options?: RequestOptions): APIPromise<OtlpDestination> {
     return this._client.get(path`/telemetry/destinations/${idOrName}`, options);
@@ -31,10 +35,11 @@ export class Destinations extends APIResource {
    * values without restarting, which makes this the way to rotate credentials
    * without interrupting export.
    *
-   * Names must be unique within the project. Renaming is refused with a 409 while a
-   * managed auth connection selects this destination by name, since that connection
-   * resolves the name on every login. Every other field, including `headers`, stays
-   * editable.
+   * Names must be unique within the organization. Renaming is refused with a 409
+   * while a managed auth connection selects this destination by name, since that
+   * connection resolves the name on every login. Every other field, including
+   * `headers`, stays editable. Requires an organization-scoped credential or
+   * dashboard authentication; project-scoped credentials receive a 403.
    */
   update(
     idOrName: string,
@@ -45,7 +50,10 @@ export class Destinations extends APIResource {
   }
 
   /**
-   * List OTLP export destinations in the resolved project.
+   * List customer-visible OTLP export destinations in the authenticated
+   * organization. Project-scoped credentials can list these destinations for
+   * selection by workloads in their project. Non-dashboard reads return header
+   * values redacted.
    */
   list(
     query: DestinationListParams | null | undefined = {},
@@ -63,6 +71,8 @@ export class Destinations extends APIResource {
    * end or delete them first. It is refused the same way while a managed auth
    * connection still selects it, because that connection re-resolves the destination
    * on every login, and while a managed auth login using it is still in progress.
+   * Requires an organization-scoped credential or dashboard authentication;
+   * project-scoped credentials receive a 403.
    */
   delete(idOrName: string, options?: RequestOptions): APIPromise<void> {
     return this._client.delete(path`/telemetry/destinations/${idOrName}`, {
@@ -91,13 +101,14 @@ export interface OtlpDestination {
 
   /**
    * Headers sent with each export request. Names are returned in canonical form
-   * (`Authorization`, not `authorization`). Values are returned redacted as empty
-   * strings, so the keys are visible but the credentials are not.
+   * (`Authorization`, not `authorization`). Non-dashboard reads return values
+   * redacted as empty strings, so the keys are visible but the credentials are not.
+   * Dashboard reads return the stored values.
    */
   headers: { [key: string]: string };
 
   /**
-   * Unique within the project. Usable in place of the ID when selecting a
+   * Unique within the organization. Usable in place of the ID when selecting a
    * destination, so it cannot be shaped like an ID.
    */
   name: string;
@@ -124,7 +135,7 @@ export interface DestinationCreateParams {
   endpoint: string;
 
   /**
-   * Unique within the project.
+   * Unique within the organization.
    */
   name: string;
 

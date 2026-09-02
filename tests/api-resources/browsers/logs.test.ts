@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource logs', () => {
   // Mock server tests are disabled
   test.skip('stream: only required params', async () => {
-    const responsePromise = client.browsers.logs.stream('id', { source: 'path' });
+    const responsePromise = client.browsers.logs.stream('htzv5orfit78e1m2biiifpbv', { source: 'path' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,7 +22,7 @@ describe('resource logs', () => {
 
   // Mock server tests are disabled
   test.skip('stream: required and optional params', async () => {
-    const response = await client.browsers.logs.stream('id', {
+    const response = await client.browsers.logs.stream('htzv5orfit78e1m2biiifpbv', {
       source: 'path',
       follow: true,
       path: 'path',

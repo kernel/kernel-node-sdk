@@ -23,19 +23,19 @@ export class Telemetry extends APIResource {
    * ```ts
    * // Automatically fetches more pages as needed.
    * for await (const telemetryEventsResponse of client.browsers.telemetry.events(
-   *   'id',
+   *   'htzv5orfit78e1m2biiifpbv',
    * )) {
    *   // ...
    * }
    * ```
    */
   events(
-    id: string,
+    idOrName: string,
     query: TelemetryEventsParams | null | undefined = {},
     options?: RequestOptions,
   ): PagePromise<TelemetryEventsResponsesOffsetPagination, TelemetryEventsResponse> {
     return this._client.getAPIList(
-      path`/browsers/${id}/telemetry/events`,
+      path`/browsers/${idOrName}/telemetry/events`,
       OffsetPagination<TelemetryEventsResponse>,
       { query, ...options },
     );
@@ -55,17 +55,17 @@ export class Telemetry extends APIResource {
    * @example
    * ```ts
    * const response = await client.browsers.telemetry.stream(
-   *   'id',
+   *   'htzv5orfit78e1m2biiifpbv',
    * );
    * ```
    */
   stream(
-    id: string,
+    idOrName: string,
     params: TelemetryStreamParams | undefined = {},
     options?: RequestOptions,
   ): APIPromise<Stream<TelemetryStreamResponse>> {
     const { 'Last-Event-ID': lastEventID, ...query } = params ?? {};
-    return this._client.get(path`/browsers/${id}/telemetry/stream`, {
+    return this._client.get(path`/browsers/${idOrName}/telemetry/stream`, {
       query,
       ...options,
       headers: buildHeaders([

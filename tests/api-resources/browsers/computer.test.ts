@@ -10,7 +10,9 @@ const client = new Kernel({
 describe('resource computer', () => {
   // Mock server tests are disabled
   test.skip('batch: only required params', async () => {
-    const responsePromise = client.browsers.computer.batch('id', { actions: [{ type: 'click_mouse' }] });
+    const responsePromise = client.browsers.computer.batch('htzv5orfit78e1m2biiifpbv', {
+      actions: [{ type: 'click_mouse' }],
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,7 +24,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('batch: required and optional params', async () => {
-    const response = await client.browsers.computer.batch('id', {
+    const response = await client.browsers.computer.batch('htzv5orfit78e1m2biiifpbv', {
       actions: [
         {
           type: 'click_mouse',
@@ -79,7 +81,7 @@ describe('resource computer', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.computer.captureScreenshot(
-        'id',
+        'htzv5orfit78e1m2biiifpbv',
         {
           region: {
             height: 0,
@@ -95,7 +97,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('clickMouse: only required params', async () => {
-    const responsePromise = client.browsers.computer.clickMouse('id', { x: 0, y: 0 });
+    const responsePromise = client.browsers.computer.clickMouse('htzv5orfit78e1m2biiifpbv', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -107,7 +109,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('clickMouse: required and optional params', async () => {
-    const response = await client.browsers.computer.clickMouse('id', {
+    const response = await client.browsers.computer.clickMouse('htzv5orfit78e1m2biiifpbv', {
       x: 0,
       y: 0,
       button: 'left',
@@ -119,7 +121,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('dragMouse: only required params', async () => {
-    const responsePromise = client.browsers.computer.dragMouse('id', {
+    const responsePromise = client.browsers.computer.dragMouse('htzv5orfit78e1m2biiifpbv', {
       path: [
         [0, 0],
         [0, 0],
@@ -136,7 +138,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('dragMouse: required and optional params', async () => {
-    const response = await client.browsers.computer.dragMouse('id', {
+    const response = await client.browsers.computer.dragMouse('htzv5orfit78e1m2biiifpbv', {
       path: [
         [0, 0],
         [0, 0],
@@ -153,7 +155,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('getMousePosition', async () => {
-    const responsePromise = client.browsers.computer.getMousePosition('id');
+    const responsePromise = client.browsers.computer.getMousePosition('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -165,7 +167,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('moveMouse: only required params', async () => {
-    const responsePromise = client.browsers.computer.moveMouse('id', { x: 0, y: 0 });
+    const responsePromise = client.browsers.computer.moveMouse('htzv5orfit78e1m2biiifpbv', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -177,7 +179,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('moveMouse: required and optional params', async () => {
-    const response = await client.browsers.computer.moveMouse('id', {
+    const response = await client.browsers.computer.moveMouse('htzv5orfit78e1m2biiifpbv', {
       x: 0,
       y: 0,
       duration_ms: 50,
@@ -188,7 +190,9 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('pressKey: only required params', async () => {
-    const responsePromise = client.browsers.computer.pressKey('id', { keys: ['string'] });
+    const responsePromise = client.browsers.computer.pressKey('htzv5orfit78e1m2biiifpbv', {
+      keys: ['string'],
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -200,7 +204,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('pressKey: required and optional params', async () => {
-    const response = await client.browsers.computer.pressKey('id', {
+    const response = await client.browsers.computer.pressKey('htzv5orfit78e1m2biiifpbv', {
       keys: ['string'],
       duration: 0,
       hold_keys: ['string'],
@@ -209,7 +213,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('readClipboard', async () => {
-    const responsePromise = client.browsers.computer.readClipboard('id');
+    const responsePromise = client.browsers.computer.readClipboard('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -221,7 +225,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('scroll: only required params', async () => {
-    const responsePromise = client.browsers.computer.scroll('id', { x: 0, y: 0 });
+    const responsePromise = client.browsers.computer.scroll('htzv5orfit78e1m2biiifpbv', { x: 0, y: 0 });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -233,7 +237,7 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('scroll: required and optional params', async () => {
-    const response = await client.browsers.computer.scroll('id', {
+    const response = await client.browsers.computer.scroll('htzv5orfit78e1m2biiifpbv', {
       x: 0,
       y: 0,
       delta_x: 0,
@@ -244,7 +248,9 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('setCursorVisibility: only required params', async () => {
-    const responsePromise = client.browsers.computer.setCursorVisibility('id', { hidden: true });
+    const responsePromise = client.browsers.computer.setCursorVisibility('htzv5orfit78e1m2biiifpbv', {
+      hidden: true,
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -256,12 +262,14 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('setCursorVisibility: required and optional params', async () => {
-    const response = await client.browsers.computer.setCursorVisibility('id', { hidden: true });
+    const response = await client.browsers.computer.setCursorVisibility('htzv5orfit78e1m2biiifpbv', {
+      hidden: true,
+    });
   });
 
   // Mock server tests are disabled
   test.skip('typeText: only required params', async () => {
-    const responsePromise = client.browsers.computer.typeText('id', { text: 'text' });
+    const responsePromise = client.browsers.computer.typeText('htzv5orfit78e1m2biiifpbv', { text: 'text' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -273,12 +281,17 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('typeText: required and optional params', async () => {
-    const response = await client.browsers.computer.typeText('id', { text: 'text', delay: 0 });
+    const response = await client.browsers.computer.typeText('htzv5orfit78e1m2biiifpbv', {
+      text: 'text',
+      delay: 0,
+    });
   });
 
   // Mock server tests are disabled
   test.skip('writeClipboard: only required params', async () => {
-    const responsePromise = client.browsers.computer.writeClipboard('id', { text: 'text' });
+    const responsePromise = client.browsers.computer.writeClipboard('htzv5orfit78e1m2biiifpbv', {
+      text: 'text',
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -290,6 +303,8 @@ describe('resource computer', () => {
 
   // Mock server tests are disabled
   test.skip('writeClipboard: required and optional params', async () => {
-    const response = await client.browsers.computer.writeClipboard('id', { text: 'text' });
+    const response = await client.browsers.computer.writeClipboard('htzv5orfit78e1m2biiifpbv', {
+      text: 'text',
+    });
   });
 });

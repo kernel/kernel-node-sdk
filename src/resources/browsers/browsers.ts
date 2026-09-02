@@ -109,6 +109,19 @@ import {
   TelemetryStreamParams,
   TelemetryStreamResponse,
 } from './telemetry';
+import * as WebmcpAPI from './webmcp';
+import {
+  InvocationFailure,
+  InvocationResult,
+  InvokeRequest,
+  Tool,
+  ToolAnnotations,
+  ToolFrame,
+  ToolSource,
+  ToolsResponse,
+  Webmcp,
+  WebmcpInvokeToolParams,
+} from './webmcp';
 import * as FsAPI from './fs/fs';
 import {
   FCreateDirectoryParams,
@@ -147,6 +160,7 @@ export class Browsers extends APIResource {
   logs: LogsAPI.Logs = new LogsAPI.Logs(this._client);
   computer: ComputerAPI.Computer = new ComputerAPI.Computer(this._client);
   playwright: PlaywrightAPI.Playwright = new PlaywrightAPI.Playwright(this._client);
+  webmcp: WebmcpAPI.Webmcp = new WebmcpAPI.Webmcp(this._client);
 
   /**
    * Create a new browser session from within an action.
@@ -225,13 +239,14 @@ export class Browsers extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.browsers.curl('id', {
-   *   url: 'url',
-   * });
+   * const response = await client.browsers.curl(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { url: 'url' },
+   * );
    * ```
    */
-  curl(id: string, body: BrowserCurlParams, options?: RequestOptions): APIPromise<BrowserCurlResponse> {
-    return this._client.post(path`/browsers/${id}/curl`, { body, ...options });
+  curl(idOrName: string, body: BrowserCurlParams, options?: RequestOptions): APIPromise<BrowserCurlResponse> {
+    return this._client.post(path`/browsers/${idOrName}/curl`, { body, ...options });
   }
 
   /**
@@ -265,19 +280,26 @@ export class Browsers extends APIResource {
    *
    * @example
    * ```ts
-   * await client.browsers.loadExtensions('id', {
-   *   extensions: [
-   *     {
-   *       name: 'name',
-   *       zip_file: fs.createReadStream('path/to/file'),
-   *     },
-   *   ],
-   * });
+   * await client.browsers.loadExtensions(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   {
+   *     extensions: [
+   *       {
+   *         name: 'name',
+   *         zip_file: fs.createReadStream('path/to/file'),
+   *       },
+   *     ],
+   *   },
+   * );
    * ```
    */
-  loadExtensions(id: string, body: BrowserLoadExtensionsParams, options?: RequestOptions): APIPromise<void> {
+  loadExtensions(
+    idOrName: string,
+    body: BrowserLoadExtensionsParams,
+    options?: RequestOptions,
+  ): APIPromise<void> {
     return this._client.post(
-      path`/browsers/${id}/extensions`,
+      path`/browsers/${idOrName}/extensions`,
       multipartFormRequestOptions(
         { body, ...options, headers: buildHeaders([{ Accept: '*/*' }, options?.headers]) },
         this._client,
@@ -1621,6 +1643,7 @@ Browsers.Process = Process;
 Browsers.Logs = Logs;
 Browsers.Computer = Computer;
 Browsers.Playwright = Playwright;
+Browsers.Webmcp = Webmcp;
 
 export declare namespace Browsers {
   export {
@@ -1774,5 +1797,18 @@ export declare namespace Browsers {
     Playwright as Playwright,
     type PlaywrightExecuteResponse as PlaywrightExecuteResponse,
     type PlaywrightExecuteParams as PlaywrightExecuteParams,
+  };
+
+  export {
+    Webmcp as Webmcp,
+    type InvocationFailure as InvocationFailure,
+    type InvocationResult as InvocationResult,
+    type InvokeRequest as InvokeRequest,
+    type Tool as Tool,
+    type ToolAnnotations as ToolAnnotations,
+    type ToolFrame as ToolFrame,
+    type ToolSource as ToolSource,
+    type ToolsResponse as ToolsResponse,
+    type WebmcpInvokeToolParams as WebmcpInvokeToolParams,
   };
 }

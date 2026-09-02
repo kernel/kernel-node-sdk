@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource replays', () => {
   // Mock server tests are disabled
   test.skip('list', async () => {
-    const responsePromise = client.browsers.replays.list('id');
+    const responsePromise = client.browsers.replays.list('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,12 +22,14 @@ describe('resource replays', () => {
 
   // Mock server tests are disabled
   test.skip('download: required and optional params', async () => {
-    const response = await client.browsers.replays.download('replay_id', { id: 'id' });
+    const response = await client.browsers.replays.download('replay_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
   });
 
   // Mock server tests are disabled
   test.skip('start', async () => {
-    const responsePromise = client.browsers.replays.start('id');
+    const responsePromise = client.browsers.replays.start('htzv5orfit78e1m2biiifpbv');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -42,7 +44,7 @@ describe('resource replays', () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
       client.browsers.replays.start(
-        'id',
+        'htzv5orfit78e1m2biiifpbv',
         {
           framerate: 1,
           max_duration_in_seconds: 1,
@@ -55,7 +57,9 @@ describe('resource replays', () => {
 
   // Mock server tests are disabled
   test.skip('stop: only required params', async () => {
-    const responsePromise = client.browsers.replays.stop('replay_id', { id: 'id' });
+    const responsePromise = client.browsers.replays.stop('replay_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -67,6 +71,8 @@ describe('resource replays', () => {
 
   // Mock server tests are disabled
   test.skip('stop: required and optional params', async () => {
-    const response = await client.browsers.replays.stop('replay_id', { id: 'id' });
+    const response = await client.browsers.replays.stop('replay_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
   });
 });

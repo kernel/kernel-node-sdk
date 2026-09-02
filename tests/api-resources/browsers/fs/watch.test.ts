@@ -10,7 +10,9 @@ const client = new Kernel({
 describe('resource watch', () => {
   // Mock server tests are disabled
   test.skip('events: only required params', async () => {
-    const responsePromise = client.browsers.fs.watch.events('watch_id', { id: 'id' });
+    const responsePromise = client.browsers.fs.watch.events('watch_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -22,12 +24,14 @@ describe('resource watch', () => {
 
   // Mock server tests are disabled
   test.skip('events: required and optional params', async () => {
-    const response = await client.browsers.fs.watch.events('watch_id', { id: 'id' });
+    const response = await client.browsers.fs.watch.events('watch_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
   });
 
   // Mock server tests are disabled
   test.skip('start: only required params', async () => {
-    const responsePromise = client.browsers.fs.watch.start('id', { path: 'path' });
+    const responsePromise = client.browsers.fs.watch.start('htzv5orfit78e1m2biiifpbv', { path: 'path' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -39,12 +43,17 @@ describe('resource watch', () => {
 
   // Mock server tests are disabled
   test.skip('start: required and optional params', async () => {
-    const response = await client.browsers.fs.watch.start('id', { path: 'path', recursive: true });
+    const response = await client.browsers.fs.watch.start('htzv5orfit78e1m2biiifpbv', {
+      path: 'path',
+      recursive: true,
+    });
   });
 
   // Mock server tests are disabled
   test.skip('stop: only required params', async () => {
-    const responsePromise = client.browsers.fs.watch.stop('watch_id', { id: 'id' });
+    const responsePromise = client.browsers.fs.watch.stop('watch_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -56,6 +65,8 @@ describe('resource watch', () => {
 
   // Mock server tests are disabled
   test.skip('stop: required and optional params', async () => {
-    const response = await client.browsers.fs.watch.stop('watch_id', { id: 'id' });
+    const response = await client.browsers.fs.watch.stop('watch_id', {
+      id_or_name: 'htzv5orfit78e1m2biiifpbv',
+    });
   });
 });
