@@ -455,13 +455,13 @@ describe('browser routing', () => {
         'playwright',
         'process',
         'fs',
-        'logs',
+        'logs/stream',
       ]);
     });
   });
 
   test('allowlist matching is segment-boundary aware (telemetry/events stays on the control plane)', () => {
-    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright', 'process', 'fs', 'logs'];
+    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright', 'process', 'fs', 'logs/stream'];
     expect(matchesDirectVMPrefix('telemetry/stream', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/stream/x', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/events', prefixes)).toBe(false);
@@ -476,6 +476,9 @@ describe('browser routing', () => {
     expect(matchesDirectVMPrefix('fs/watch/watch-1/events', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('fsx/read_file', prefixes)).toBe(false);
     expect(matchesDirectVMPrefix('logs/stream', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('logs/stream/x', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('logs', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('logs/history', prefixes)).toBe(false);
     expect(matchesDirectVMPrefix('logstream', prefixes)).toBe(false);
     expect(matchesDirectVMPrefix('extensions', prefixes)).toBe(false);
     expect(matchesDirectVMPrefix('replays/rec-1', prefixes)).toBe(false);
@@ -1055,6 +1058,41 @@ describe('browser routing', () => {
           dest: '/tmp/one',
           file: 'one',
         },
+      ]);
+    });
+  });
+
+  test('routes only logs/stream, not the logs subresource', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const cache = new BrowserRouteCache();
+      cache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      const routed: string[] = [];
+      const wrappedFetch = createRoutingFetch(
+        async (input) => {
+          routed.push(normalizeURL(input));
+          return new Response(null, { status: 204 });
+        },
+        {
+          apiBaseURL: 'https://api.example/',
+          subresources: browserRoutingSubresourcesFromEnv(),
+          cache,
+        },
+      );
+
+      for (const path of ['logs/stream', 'logs', 'logs/history', 'logstream']) {
+        await wrappedFetch(`https://api.example/browsers/sess-1/${path}`);
+      }
+
+      expect(routed).toEqual([
+        'http://browser-session.test/browser/kernel/logs/stream?jwt=token-abc',
+        'https://api.example/browsers/sess-1/logs',
+        'https://api.example/browsers/sess-1/logs/history',
+        'https://api.example/browsers/sess-1/logstream',
       ]);
     });
   });
