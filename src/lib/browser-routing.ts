@@ -47,6 +47,8 @@ const DEFAULT_BROWSER_ROUTING_SUBRESOURCES = [
   'computer',
   'playwright',
   'process',
+  'fs',
+  'logs',
 ];
 const BROWSER_ROUTE_CACHEABLE_PATH = /^\/(?:v\d+\/)?browsers(?:\/[^/]+)?\/?$/;
 const BROWSER_POOL_ACQUIRE_PATH = /^\/(?:v\d+\/)?browser_pools\/[^/]+\/acquire\/?$/;

@@ -1,4 +1,4 @@
-import Kernel from '@onkernel/sdk';
+import Kernel, { toFile } from '@onkernel/sdk';
 
 import {
   BrowserRouteCache,
@@ -9,6 +9,8 @@ import {
 
 describe('browser routing', () => {
   const browserRoutingEnv = 'KERNEL_BROWSER_ROUTING_SUBRESOURCES';
+  // The SDK probes FormData support with a `data:,` fetch before sending multipart bodies.
+  const formDataProbeURL = 'data:,';
 
   const withBrowserRoutingEnv = async (value: string | undefined, fn: () => Promise<void>) => {
     const previous = process.env[browserRoutingEnv];
@@ -452,12 +454,14 @@ describe('browser routing', () => {
         'computer',
         'playwright',
         'process',
+        'fs',
+        'logs',
       ]);
     });
   });
 
   test('allowlist matching is segment-boundary aware (telemetry/events stays on the control plane)', () => {
-    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright', 'process'];
+    const prefixes = ['curl', 'telemetry/stream', 'computer', 'playwright', 'process', 'fs', 'logs'];
     expect(matchesDirectVMPrefix('telemetry/stream', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/stream/x', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('telemetry/events', prefixes)).toBe(false);
@@ -468,7 +472,13 @@ describe('browser routing', () => {
     expect(matchesDirectVMPrefix('playwright/execute', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('process/exec', prefixes)).toBe(true);
     expect(matchesDirectVMPrefix('process/proc-1/stdout/stream', prefixes)).toBe(true);
-    expect(matchesDirectVMPrefix('fs/read', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('fs/read_file', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('fs/watch/watch-1/events', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('fsx/read_file', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('logs/stream', prefixes)).toBe(true);
+    expect(matchesDirectVMPrefix('logstream', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('extensions', prefixes)).toBe(false);
+    expect(matchesDirectVMPrefix('replays/rec-1', prefixes)).toBe(false);
   });
 
   test('routes telemetry stream calls to the VM /telemetry/stream path by default', async () => {
@@ -557,15 +567,19 @@ describe('browser routing', () => {
     });
   });
 
-  test('keeps fs and telemetry/events on the API origin by default', async () => {
+  test('keeps control-plane subresources on the API origin by default', async () => {
     await withBrowserRoutingEnv(undefined, async () => {
-      const calls: string[] = [];
+      const calls: Array<{ url: string; headers: Headers }> = [];
       const kernel = new Kernel({
         apiKey: 'k',
         baseURL: 'https://api.example/',
-        fetch: async (input) => {
+        fetch: async (input, init?: RequestInit) => {
           const url = normalizeURL(input);
-          calls.push(url);
+          if (url === formDataProbeURL) {
+            return new Response(null, { status: 204 });
+          }
+          const headers = input instanceof Request ? new Headers(input.headers) : new Headers(init?.headers);
+          calls.push({ url, headers });
           if (url === 'https://api.example/browsers') {
             return Response.json({
               session_id: 'sess-1',
@@ -573,27 +587,26 @@ describe('browser routing', () => {
               cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
             });
           }
-          if (url.includes('/telemetry/events')) {
-            return Response.json([]);
+          if (url.includes('/extensions')) {
+            return new Response(null, { status: 204 });
           }
-          if (url.includes('/fs/read_file')) {
-            return new Response(new Uint8Array([1]), {
-              status: 200,
-              headers: { 'content-type': 'application/octet-stream' },
-            });
-          }
-          return Response.json({ exit_code: 0, stdout_b64: '', stderr_b64: '' });
+          return Response.json([]);
         },
       });
 
       await kernel.browsers.create();
-      await kernel.browsers.fs.readFile('sess-1', { path: '/tmp/x' });
       await kernel.browsers.telemetry.events('sess-1');
+      await kernel.browsers.replays.list('sess-1');
+      await kernel.browsers.loadExtensions('sess-1', {
+        extensions: [{ name: 'ext', zip_file: await toFile(new Uint8Array([1]), 'ext.zip') }],
+      });
 
-      expect(calls.slice(1)).toEqual([
-        'https://api.example/browsers/sess-1/fs/read_file?path=%2Ftmp%2Fx',
+      expect(calls.slice(1).map((call) => call.url)).toEqual([
         'https://api.example/browsers/sess-1/telemetry/events',
+        'https://api.example/browsers/sess-1/replays',
+        'https://api.example/browsers/sess-1/extensions',
       ]);
+      expect(calls[3]?.headers.get('authorization')).toBe('Bearer k');
     });
   });
 
@@ -668,6 +681,339 @@ describe('browser routing', () => {
       await kernel.browsers.create();
       await kernel.browsers.computer.captureScreenshot('sess-1');
       expect(kernel.browserRouteCache.get('sess-1')).toMatchObject({ jwt: 'jwt-FRESH' });
+    });
+  });
+
+  test('routes fs endpoints to the VM by default and preserves the query', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const url = normalizeURL(input);
+          const headers = input instanceof Request ? new Headers(input.headers) : new Headers(init?.headers);
+          calls.push({ url, headers });
+          if (url === 'https://api.example/browsers') {
+            return Response.json({
+              session_id: 'sess-1',
+              base_url: 'http://browser-session.test/browser/kernel',
+              cdp_ws_url: 'wss://browser-session.test/browser/cdp?jwt=token-abc',
+            });
+          }
+          if (url.includes('/fs/read_file')) {
+            return new Response(new Uint8Array([0, 1, 2]), {
+              status: 200,
+              headers: { 'content-type': 'application/octet-stream' },
+            });
+          }
+          return Response.json([]);
+        },
+      });
+
+      await kernel.browsers.create();
+      const listed = await kernel.browsers.fs.listFiles('sess-1', { path: '/tmp' });
+      const read = await kernel.browsers.fs.readFile('sess-1', { path: '/tmp/x' });
+
+      expect(listed).toEqual([]);
+      expect(new Uint8Array(await read.arrayBuffer())).toEqual(new Uint8Array([0, 1, 2]));
+      expect(calls[1]?.url).toBe(
+        'http://browser-session.test/browser/kernel/fs/list_files?path=%2Ftmp&jwt=token-abc',
+      );
+      expect(calls[1]?.headers.get('authorization')).toBeNull();
+      expect(calls[2]?.url).toBe(
+        'http://browser-session.test/browser/kernel/fs/read_file?path=%2Ftmp%2Fx&jwt=token-abc',
+      );
+      expect(calls[2]?.headers.get('authorization')).toBeNull();
+    });
+  });
+
+  test('routes fs.writeFile binary bodies to the VM', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers; body: Uint8Array }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const request = new Request(input as any, init);
+          calls.push({
+            url: request.url,
+            headers: new Headers(request.headers),
+            body: new Uint8Array(await request.arrayBuffer()),
+          });
+          return new Response(null, { status: 204 });
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.writeFile('sess-1', new Uint8Array([7, 8, 9]), {
+        path: '/tmp/x',
+        mode: '600',
+      });
+
+      expect(calls[0]?.url).toBe(
+        'http://browser-session.test/browser/kernel/fs/write_file?path=%2Ftmp%2Fx&mode=600&jwt=token-abc',
+      );
+      expect(calls[0]?.headers.get('authorization')).toBeNull();
+      expect(calls[0]?.headers.get('content-type')).toBe('application/octet-stream');
+      expect(calls[0]?.body).toEqual(new Uint8Array([7, 8, 9]));
+    });
+  });
+
+  test('routes fs.upload multipart bodies to the VM with indexed field names', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers; body: string }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const request = new Request(input as any, init);
+          if (request.url === formDataProbeURL) {
+            return new Response(null, { status: 204 });
+          }
+          calls.push({
+            url: request.url,
+            headers: new Headers(request.headers),
+            body: await request.text(),
+          });
+          return new Response(null, { status: 204 });
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.upload('sess-1', {
+        files: [
+          { dest_path: '/tmp/one', file: await toFile(Buffer.from('one'), 'one.txt') },
+          { dest_path: '/tmp/two', file: await toFile(Buffer.from('two'), 'two.txt') },
+        ],
+      });
+
+      expect(calls[0]?.url).toBe('http://browser-session.test/browser/kernel/fs/upload?jwt=token-abc');
+      expect(calls[0]?.headers.get('authorization')).toBeNull();
+      expect(calls[0]?.body).toContain('name="files[0][dest_path]"');
+      expect(calls[0]?.body).toContain('name="files[0][file]"');
+      expect(calls[0]?.body).toContain('name="files[1][dest_path]"');
+      expect(calls[0]?.body).not.toContain('files[][');
+    });
+  });
+
+  test('routes fs watch events and logs streams to the VM', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const url = normalizeURL(input);
+          const headers = input instanceof Request ? new Headers(input.headers) : new Headers(init?.headers);
+          calls.push({ url, headers });
+          return new Response(
+            'data: {"event":"log","message":"hello","timestamp":"2020-01-01T00:00:00Z"}\n\n',
+            {
+              status: 200,
+              headers: { 'content-type': 'text/event-stream' },
+            },
+          );
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      const watchEvents = await kernel.browsers.fs.watch.events('watch-1', { id: 'sess-1' });
+      watchEvents.controller.abort();
+      const logs = await kernel.browsers.logs.stream('sess-1', {
+        source: 'path',
+        path: '/var/log/x',
+        follow: true,
+      });
+      logs.controller.abort();
+
+      expect(calls[0]?.url).toBe(
+        'http://browser-session.test/browser/kernel/fs/watch/watch-1/events?jwt=token-abc',
+      );
+      expect(calls[0]?.headers.get('authorization')).toBeNull();
+      expect(calls[1]?.url).toBe(
+        'http://browser-session.test/browser/kernel/logs/stream?source=path&path=%2Fvar%2Flog%2Fx&follow=true&jwt=token-abc',
+      );
+      expect(calls[1]?.headers.get('authorization')).toBeNull();
+    });
+  });
+
+  test('keeps logs stream aborts connected to the routed request', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      let routedSignal: AbortSignal | null | undefined;
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (_input, init) => {
+          routedSignal = init?.signal;
+          return new Response(
+            'data: {"event":"log","message":"hello","timestamp":"2020-01-01T00:00:00Z"}\n\n',
+            {
+              status: 200,
+              headers: { 'content-type': 'text/event-stream' },
+            },
+          );
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      const stream = await kernel.browsers.logs.stream('sess-1', { source: 'supervisor' });
+
+      expect(routedSignal).toBe(stream.controller.signal);
+      stream.controller.abort();
+      expect(routedSignal?.aborted).toBe(true);
+    });
+  });
+
+  test('replays the fs.writeFile body on the control plane after a stale JWT', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; headers: Headers; body: Uint8Array }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const request = new Request(input as any, init);
+          const body = new Uint8Array(await request.arrayBuffer());
+          calls.push({ url: request.url, headers: new Headers(request.headers), body });
+          if (request.url.includes('browser-session.test')) {
+            return new Response('Invalid JWT', { status: 401, headers: { 'content-type': 'text/plain' } });
+          }
+          return new Response(null, { status: 204 });
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.writeFile('sess-1', new Uint8Array([7, 8, 9]), { path: '/tmp/x' });
+
+      expect(calls).toHaveLength(2);
+      expect(calls[0]?.url).toBe(
+        'http://browser-session.test/browser/kernel/fs/write_file?path=%2Ftmp%2Fx&jwt=token-abc',
+      );
+      expect(calls[1]?.url).toBe('https://api.example/browsers/sess-1/fs/write_file?path=%2Ftmp%2Fx');
+      expect(calls[1]?.headers.get('authorization')).toBe('Bearer k');
+      expect(calls[1]?.body).toEqual(calls[0]?.body);
+      expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
+    });
+  });
+
+  test('replays the fs.upload multipart body on the control plane after a stale JWT', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const calls: Array<{ url: string; body: string }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const request = new Request(input as any, init);
+          if (request.url === formDataProbeURL) {
+            return new Response(null, { status: 204 });
+          }
+          const body = await request.text();
+          calls.push({ url: request.url, body });
+          if (request.url.includes('browser-session.test')) {
+            return new Response('Invalid JWT', { status: 403, headers: { 'content-type': 'text/plain' } });
+          }
+          return new Response(null, { status: 204 });
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.upload('sess-1', {
+        files: [{ dest_path: '/tmp/one', file: await toFile(Buffer.from('one'), 'one.txt') }],
+      });
+
+      expect(calls).toHaveLength(2);
+      expect(calls[1]?.url).toBe('https://api.example/browsers/sess-1/fs/upload');
+      expect(calls[1]?.body).toContain('name="files[0][dest_path]"');
+      expect(calls[1]?.body).toContain('one');
+      expect(kernel.browserRouteCache.get('sess-1')).toBeUndefined();
+    });
+  });
+
+  test('env override keeps fs and logs on the control plane', async () => {
+    await withBrowserRoutingEnv('computer', async () => {
+      const calls: string[] = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input) => {
+          const url = normalizeURL(input);
+          calls.push(url);
+          if (url.includes('/logs/stream')) {
+            return new Response(
+              'data: {"event":"log","message":"hi","timestamp":"2020-01-01T00:00:00Z"}\n\n',
+              {
+                status: 200,
+                headers: { 'content-type': 'text/event-stream' },
+              },
+            );
+          }
+          return Response.json([]);
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.listFiles('sess-1', { path: '/tmp' });
+      const logs = await kernel.browsers.logs.stream('sess-1', { source: 'path', path: '/var/log/x' });
+      logs.controller.abort();
+
+      expect(calls).toEqual([
+        'https://api.example/browsers/sess-1/fs/list_files?path=%2Ftmp',
+        'https://api.example/browsers/sess-1/logs/stream?source=path&path=%2Fvar%2Flog%2Fx',
+      ]);
+    });
+  });
+
+  test('empty env disables fs routing', async () => {
+    await withBrowserRoutingEnv('', async () => {
+      const calls: Array<{ url: string; headers: Headers }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const url = normalizeURL(input);
+          const headers = input instanceof Request ? new Headers(input.headers) : new Headers(init?.headers);
+          calls.push({ url, headers });
+          return Response.json([]);
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.listFiles('sess-1', { path: '/tmp' });
+
+      expect(calls[0]?.url).toBe('https://api.example/browsers/sess-1/fs/list_files?path=%2Ftmp');
+      expect(calls[0]?.headers.get('authorization')).toBe('Bearer k');
     });
   });
 });
