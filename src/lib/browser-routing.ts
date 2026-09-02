@@ -311,6 +311,12 @@ function buildRoutedInit(
     const body = requestBodyForFetch(request, originalInit);
     if (body !== undefined) {
       routedInit.body = body;
+      if (derivesOwnContentType(body) && !new Headers(originalInit?.headers).get('content-type')) {
+        // `request` was constructed from the same body, so its content-type carries
+        // that construction's multipart boundary. The routed fetch re-encodes the
+        // body with a new boundary, so let it derive the header again.
+        headers.delete('content-type');
+      }
     }
     if (originalInit?.duplex !== undefined) {
       routedInit.duplex = originalInit.duplex;
@@ -331,6 +337,14 @@ function requestBodyForFetch(
   }
 
   return request.body ?? undefined;
+}
+
+function derivesOwnContentType(body: RequestInit['body'] | undefined): boolean {
+  return (
+    ((globalThis as any).FormData && body instanceof (globalThis as any).FormData) ||
+    ((globalThis as any).URLSearchParams && body instanceof (globalThis as any).URLSearchParams) ||
+    ((globalThis as any).Blob && body instanceof (globalThis as any).Blob)
+  );
 }
 
 function requiresHalfDuplex(body: RequestInit['body'] | undefined): boolean {

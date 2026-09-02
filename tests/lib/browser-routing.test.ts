@@ -1016,4 +1016,46 @@ describe('browser routing', () => {
       expect(calls[0]?.headers.get('authorization')).toBe('Bearer k');
     });
   });
+
+  test('lets the routed fetch derive the multipart content-type so the boundary matches the body', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const parsed: Array<{ url: string; dest: unknown; file: string }> = [];
+      const kernel = new Kernel({
+        apiKey: 'k',
+        baseURL: 'https://api.example/',
+        fetch: async (input, init?: RequestInit) => {
+          const request = new Request(input as any, init);
+          if (request.url === formDataProbeURL) {
+            return new Response(null, { status: 204 });
+          }
+          // Throws or yields empty fields when the content-type boundary does not
+          // match the encoded body.
+          const form = await request.formData();
+          parsed.push({
+            url: request.url,
+            dest: form.get('files[0][dest_path]'),
+            file: await (form.get('files[0][file]') as File).text(),
+          });
+          return new Response(null, { status: 204 });
+        },
+      });
+      kernel.browserRouteCache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      await kernel.browsers.fs.upload('sess-1', {
+        files: [{ dest_path: '/tmp/one', file: await toFile(Buffer.from('one'), 'one.txt') }],
+      });
+
+      expect(parsed).toEqual([
+        {
+          url: 'http://browser-session.test/browser/kernel/fs/upload?jwt=token-abc',
+          dest: '/tmp/one',
+          file: 'one',
+        },
+      ]);
+    });
+  });
 });
