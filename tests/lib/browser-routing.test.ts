@@ -833,7 +833,7 @@ describe('browser routing', () => {
         jwt: 'token-abc',
       });
 
-      const watchEvents = await kernel.browsers.fs.watch.events('watch-1', { id: 'sess-1' });
+      const watchEvents = await kernel.browsers.fs.watch.events('watch-1', { id_or_name: 'sess-1' });
       watchEvents.controller.abort();
       const logs = await kernel.browsers.logs.stream('sess-1', {
         source: 'path',
