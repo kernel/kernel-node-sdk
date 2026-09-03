@@ -92,6 +92,13 @@ export type OtlpDestinationsOffsetPagination = OffsetPagination<OtlpDestination>
 export interface OtlpDestination {
   id: string;
 
+  /**
+   * Failed deliveries since the last success, as observed by the relay process that
+   * wrote the latest outcome. Zero means the most recently recorded outcome
+   * succeeded.
+   */
+  consecutive_failures: number;
+
   created_at: string;
 
   /**
@@ -116,6 +123,26 @@ export interface OtlpDestination {
   updated_at: string;
 
   description?: string;
+
+  /**
+   * Sanitized class of the delivery failure recorded at `last_error_at`. It is
+   * retained after a later success, so its presence does not mean the destination is
+   * currently failing. Response bodies, endpoint URLs, credentials, and raw
+   * transport errors are never returned.
+   */
+  last_error?: string;
+
+  /**
+   * Timestamp of the most recent failed delivery. It is retained after a later
+   * success, so it can predate `last_export_at`. Read `consecutive_failures` to tell
+   * whether the destination is currently failing.
+   */
+  last_error_at?: string;
+
+  /**
+   * Timestamp of the most recent successful delivery. Moves only on success.
+   */
+  last_export_at?: string;
 }
 
 export interface DestinationCreateParams {
