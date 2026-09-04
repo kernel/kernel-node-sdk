@@ -42,7 +42,6 @@ describe('resource items', () => {
         merchant_url: 'https://example.com',
         payment_method_id: 'x',
         provider: 'link',
-        test: true,
         wallet: 'wallet',
       },
     });
@@ -68,7 +67,6 @@ describe('resource items', () => {
         merchant_url: 'https://example.com',
         payment_method_id: 'x',
         provider: 'link',
-        test: true,
         wallet: 'wallet',
         expires_at: 0,
         line_items: [
