@@ -479,6 +479,15 @@ export interface Profile {
  */
 export type Tags = { [key: string]: string };
 
+/**
+ * Reference to a project-scoped vault. Provide exactly one of id or name.
+ */
+export interface VaultReference {
+  id?: string;
+
+  name?: string;
+}
+
 export interface BrowserCreateResponse {
   /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
@@ -621,6 +630,17 @@ export interface BrowserCreateResponse {
    * Session usage metrics.
    */
   usage?: BrowserUsage;
+
+  /**
+   * Whether final usage billing is still pending or complete. Only present for
+   * deleted sessions.
+   */
+  usage_status?: 'pending' | 'ready';
+
+  /**
+   * Vaults linked when the browser session was created.
+   */
+  vaults?: Array<VaultReference>;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -783,6 +803,17 @@ export interface BrowserRetrieveResponse {
   usage?: BrowserUsage;
 
   /**
+   * Whether final usage billing is still pending or complete. Only present for
+   * deleted sessions.
+   */
+  usage_status?: 'pending' | 'ready';
+
+  /**
+   * Vaults linked when the browser session was created.
+   */
+  vaults?: Array<VaultReference>;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -943,6 +974,17 @@ export interface BrowserUpdateResponse {
   usage?: BrowserUsage;
 
   /**
+   * Whether final usage billing is still pending or complete. Only present for
+   * deleted sessions.
+   */
+  usage_status?: 'pending' | 'ready';
+
+  /**
+   * Vaults linked when the browser session was created.
+   */
+  vaults?: Array<VaultReference>;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -1101,6 +1143,17 @@ export interface BrowserListResponse {
    * Session usage metrics.
    */
   usage?: BrowserUsage;
+
+  /**
+   * Whether final usage billing is still pending or complete. Only present for
+   * deleted sessions.
+   */
+  usage_status?: 'pending' | 'ready';
+
+  /**
+   * Vaults linked when the browser session was created.
+   */
+  vaults?: Array<VaultReference>;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1269,6 +1322,12 @@ export interface BrowserCreateParams {
    * see is +/- 5 seconds around the specified value.
    */
   timeout_seconds?: number;
+
+  /**
+   * Project-scoped vaults to link to the browser session. Links are immutable after
+   * creation.
+   */
+  vaults?: Array<VaultReference>;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1657,6 +1716,7 @@ export declare namespace Browsers {
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type Tags as Tags,
+    type VaultReference as VaultReference,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,

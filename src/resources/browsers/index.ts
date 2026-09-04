@@ -12,6 +12,7 @@ export {
   type BrowserUsage,
   type Profile,
   type Tags,
+  type VaultReference,
   type BrowserCreateResponse,
   type BrowserRetrieveResponse,
   type BrowserUpdateResponse,

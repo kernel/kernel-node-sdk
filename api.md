@@ -108,6 +108,7 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">VaultReference</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserCreateResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserRetrieveResponse</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUpdateResponse</a></code>
@@ -431,6 +432,46 @@ Methods:
 - <code title="post /browser_pools/{id_or_name}/acquire">client.browserPools.<a href="./src/resources/browser-pools.ts">acquire</a>(idOrName, { ...params }) -> BrowserPoolAcquireResponse</code>
 - <code title="post /browser_pools/{id_or_name}/flush">client.browserPools.<a href="./src/resources/browser-pools.ts">flush</a>(idOrName) -> void</code>
 - <code title="post /browser_pools/{id_or_name}/release">client.browserPools.<a href="./src/resources/browser-pools.ts">release</a>(idOrName, { ...params }) -> void</code>
+
+# Vaults
+
+Types:
+
+- <code><a href="./src/resources/vaults/vaults.ts">Vault</a></code>
+
+Methods:
+
+- <code title="get /vaults/{id_or_name}">client.vaults.<a href="./src/resources/vaults/vaults.ts">retrieve</a>(idOrName) -> Vault</code>
+- <code title="get /vaults">client.vaults.<a href="./src/resources/vaults/vaults.ts">list</a>({ ...params }) -> VaultsOffsetPagination</code>
+- <code title="delete /vaults/{id_or_name}">client.vaults.<a href="./src/resources/vaults/vaults.ts">delete</a>(idOrName) -> void</code>
+- <code title="post /vaults">client.vaults.<a href="./src/resources/vaults/vaults.ts">upsert</a>({ ...params }) -> Vault</code>
+
+## Items
+
+Types:
+
+- <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
+- <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultItem</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultItemAction</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultItemEvent</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethod</a></code>
+- <code><a href="./src/resources/vaults/items.ts">WalletVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">WalletVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ItemListResponse</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ItemEventsResponse</a></code>
+
+Methods:
+
+- <code title="get /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">retrieve</a>(key, { ...params }) -> VaultItem</code>
+- <code title="patch /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">update</a>(key, { ...params }) -> VaultItem</code>
+- <code title="get /vaults/{id_or_name}/items">client.vaults.items.<a href="./src/resources/vaults/items.ts">list</a>(idOrName) -> ItemListResponse</code>
+- <code title="delete /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">delete</a>(key, { ...params }) -> void</code>
+- <code title="get /vaults/{id_or_name}/items/{key}/events">client.vaults.items.<a href="./src/resources/vaults/items.ts">events</a>(key, { ...params }) -> ItemEventsResponse</code>
+- <code title="post /vaults/{id_or_name}/items/{key}/operations">client.vaults.items.<a href="./src/resources/vaults/items.ts">performOperation</a>(key, { ...params }) -> VaultItem</code>
+- <code title="put /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">upsert</a>(key, { ...params }) -> VaultItem</code>
 
 # Credentials
 

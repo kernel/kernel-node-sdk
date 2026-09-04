@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.99.0](https://github.com/kernel/kernel-node-sdk/compare/v0.98.0...v0.99.0) (2026-09-04)
+
+
+### Features
+
+* Expose OTLP destination delivery health ([c393d37](https://github.com/kernel/kernel-node-sdk/commit/c393d37d72171e841f1ebf8ce0a9720f5ae271d8))
+* Repair Vault SDK custom-code seals ([c6a1099](https://github.com/kernel/kernel-node-sdk/commit/c6a1099b453b25a67f54154fadec6f5b0586b472))
+
 ## [0.98.0](https://github.com/kernel/kernel-node-sdk/compare/v0.97.0...v0.98.0) (2026-09-02)
 
 

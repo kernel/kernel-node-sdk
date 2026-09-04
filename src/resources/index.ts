@@ -50,6 +50,7 @@ export {
   type BrowserUsage,
   type Profile,
   type Tags,
+  type VaultReference,
   type BrowserCreateResponse,
   type BrowserRetrieveResponse,
   type BrowserUpdateResponse,
@@ -179,3 +180,10 @@ export {
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
 export { Telemetry } from './telemetry/telemetry';
+export {
+  Vaults,
+  type Vault,
+  type VaultListParams,
+  type VaultUpsertParams,
+  type VaultsOffsetPagination,
+} from './vaults/vaults';
