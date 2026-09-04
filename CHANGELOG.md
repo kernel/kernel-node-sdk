@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.100.0](https://github.com/kernel/kernel-node-sdk/compare/v0.99.0...v0.100.0) (2026-09-04)
+
+
+### Features
+
+* Fix vault provider errors and remove test card mode ([5f74e21](https://github.com/kernel/kernel-node-sdk/commit/5f74e2163ca7f65f987eeb368ea4d915a71b7fd5))
+
 ## [0.99.0](https://github.com/kernel/kernel-node-sdk/compare/v0.98.0...v0.99.0) (2026-09-04)
 
 
