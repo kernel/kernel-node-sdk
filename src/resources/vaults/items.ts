@@ -57,7 +57,9 @@ export class Items extends APIResource {
   /**
    * Retrieve the item first and invoke only an operation listed in
    * `available_operations`, following its natural-language description. Operations
-   * may call an external provider and can return the item's updated state.
+   * may call an external provider and can return the item's updated state. If the
+   * provider rate limits spend-request creation, returns HTTP 429 with code
+   * `spend_request_rate_limited`; stop and back off before retrying.
    */
   performOperation(
     key: string,
@@ -142,14 +144,16 @@ export interface AgentcardCheckoutAuthorization {
 }
 
 /**
- * AgentCard reusable card. Each checkout creates an approval-gated authorization
- * for spec.merchant / spec.amount. The card stays ready after each authorization.
+ * Live payment card. Test-mode card creation is not supported.
  */
 export type CardVaultItemSpec =
   | CardVaultItemSpec.LinkCardVaultItemSpec
   | CardVaultItemSpec.AgentCardCardVaultItemSpec;
 
 export namespace CardVaultItemSpec {
+  /**
+   * Live payment card. Test-mode card creation is not supported.
+   */
   export interface LinkCardVaultItemSpec {
     /**
      * Integer amount in minor currency units.
@@ -172,12 +176,6 @@ export namespace CardVaultItemSpec {
     payment_method_id: string;
 
     provider: 'link';
-
-    /**
-     * Whether Link should return test credentials instead of a live payment
-     * credential.
-     */
-    test: boolean;
 
     /**
      * Wallet item key used to mint this card.
@@ -243,8 +241,9 @@ export namespace CardVaultItemSpec {
   }
 
   /**
-   * AgentCard reusable card. Each checkout creates an approval-gated authorization
-   * for spec.merchant / spec.amount. The card stays ready after each authorization.
+   * AgentCard reusable live payment card. Test-mode card creation is not supported.
+   * Each checkout creates an approval-gated authorization for spec.merchant /
+   * spec.amount. The card stays ready after each authorization.
    */
   export interface AgentCardCardVaultItemSpec {
     /**
@@ -424,8 +423,7 @@ export namespace VaultItem {
     key: string;
 
     /**
-     * AgentCard reusable card. Each checkout creates an approval-gated authorization
-     * for spec.merchant / spec.amount. The card stays ready after each authorization.
+     * Live payment card. Test-mode card creation is not supported.
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
@@ -672,9 +670,7 @@ export interface ItemUpdateParams {
   id_or_name: string;
 
   /**
-   * Body param: AgentCard reusable card. Each checkout creates an approval-gated
-   * authorization for spec.merchant / spec.amount. The card stays ready after each
-   * authorization.
+   * Body param: Live payment card. Test-mode card creation is not supported.
    */
   spec: CardVaultItemSpec;
 }
@@ -743,9 +739,7 @@ export declare namespace ItemUpsertParams {
     id_or_name: string;
 
     /**
-     * Body param: AgentCard reusable card. Each checkout creates an approval-gated
-     * authorization for spec.merchant / spec.amount. The card stays ready after each
-     * authorization.
+     * Body param: Live payment card. Test-mode card creation is not supported.
      */
     spec: CardVaultItemSpec;
 
