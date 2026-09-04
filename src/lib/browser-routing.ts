@@ -296,6 +296,14 @@ function buildRoutedInit(
   headers: Headers,
 ): RequestInit {
   const method = request.method.toUpperCase();
+  const body = method === 'GET' || method === 'HEAD' ? undefined : requestBodyForFetch(request, originalInit);
+  if (derivesOwnContentType(body) && !new Headers(originalInit?.headers).get('content-type')) {
+    // `request` was constructed from the same body, so its content-type carries
+    // that construction's multipart boundary. The routed fetch re-encodes the
+    // body with a new boundary, so let it derive the header again.
+    headers.delete('content-type');
+  }
+
   const routedInit = {
     ...((originalInit ?? {}) as Record<string, unknown>),
     method,
@@ -307,17 +315,10 @@ function buildRoutedInit(
   delete routedInit['body'];
   delete routedInit['duplex'];
 
+  if (body !== undefined) {
+    routedInit.body = body;
+  }
   if (method !== 'GET' && method !== 'HEAD') {
-    const body = requestBodyForFetch(request, originalInit);
-    if (body !== undefined) {
-      routedInit.body = body;
-      if (derivesOwnContentType(body) && !new Headers(originalInit?.headers).get('content-type')) {
-        // `request` was constructed from the same body, so its content-type carries
-        // that construction's multipart boundary. The routed fetch re-encodes the
-        // body with a new boundary, so let it derive the header again.
-        headers.delete('content-type');
-      }
-    }
     if (originalInit?.duplex !== undefined) {
       routedInit.duplex = originalInit.duplex;
     } else if (requiresHalfDuplex(body)) {
