@@ -502,6 +502,17 @@ export interface BrowserPoolAcquireResponse {
   usage?: BrowsersAPI.BrowserUsage;
 
   /**
+   * Whether final usage billing is still pending or complete. Only present for
+   * deleted sessions.
+   */
+  usage_status?: 'pending' | 'ready';
+
+  /**
+   * Vaults linked when the browser session was created.
+   */
+  vaults?: Array<BrowsersAPI.VaultReference>;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.

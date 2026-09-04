@@ -168,6 +168,7 @@ import {
   Browsers,
   Profile,
   Tags,
+  VaultReference,
 } from './resources/browsers/browsers';
 import {
   Analysis,
@@ -202,6 +203,13 @@ import {
   UpdateProjectRequest,
 } from './resources/projects/projects';
 import { Telemetry } from './resources/telemetry/telemetry';
+import {
+  Vault,
+  VaultListParams,
+  VaultUpsertParams,
+  Vaults,
+  VaultsOffsetPagination,
+} from './resources/vaults/vaults';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -1059,6 +1067,7 @@ export class Kernel {
    * Create and manage browser pools for acquiring and releasing browsers.
    */
   browserPools: API.BrowserPools = new API.BrowserPools(this);
+  vaults: API.Vaults = new API.Vaults(this);
   /**
    * Create and manage credentials for authentication.
    */
@@ -1096,6 +1105,7 @@ Kernel.Telemetry = Telemetry;
 Kernel.Proxies = Proxies;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
+Kernel.Vaults = Vaults;
 Kernel.Credentials = Credentials;
 Kernel.Projects = Projects;
 Kernel.Organization = Organization;
@@ -1188,6 +1198,7 @@ export declare namespace Kernel {
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type Tags as Tags,
+    type VaultReference as VaultReference,
     type BrowserCreateResponse as BrowserCreateResponse,
     type BrowserRetrieveResponse as BrowserRetrieveResponse,
     type BrowserUpdateResponse as BrowserUpdateResponse,
@@ -1250,6 +1261,14 @@ export declare namespace Kernel {
     type BrowserPoolDeleteParams as BrowserPoolDeleteParams,
     type BrowserPoolAcquireParams as BrowserPoolAcquireParams,
     type BrowserPoolReleaseParams as BrowserPoolReleaseParams,
+  };
+
+  export {
+    Vaults as Vaults,
+    type Vault as Vault,
+    type VaultsOffsetPagination as VaultsOffsetPagination,
+    type VaultListParams as VaultListParams,
+    type VaultUpsertParams as VaultUpsertParams,
   };
 
   export {

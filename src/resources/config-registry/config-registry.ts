@@ -15,8 +15,8 @@ export class ConfigRegistry extends APIResource {
   analyses: AnalysesAPI.Analyses = new AnalysesAPI.Analyses(this._client);
 
   /**
-   * Lists unique domains previously analyzed by the selected project with their
-   * current domain-level recommendations.
+   * Lists unique exact targets previously analyzed by the selected project with the
+   * recommendation produced by each target's latest analysis.
    *
    * @example
    * ```ts
@@ -431,22 +431,24 @@ export type RecommendationResult = Recommendation | NoRecommendation;
 
 export interface RecommendationSummary {
   /**
-   * ID of the most recently requested analysis for this domain.
+   * ID of the most recently requested analysis for this exact target.
    */
   analysis_id: string;
 
   /**
-   * Lifecycle status of the most recently requested analysis for this domain.
+   * Lifecycle status of the most recently requested analysis for this exact target.
    */
   analysis_status: 'running' | 'completed' | 'failed' | 'canceled';
 
   /**
-   * Most recent time the selected project requested an analysis for this domain.
+   * Most recent time the selected project requested an analysis for this exact
+   * target.
    */
   last_requested_at: string;
 
   /**
-   * Current domain-level recommendation. Null when no eligible knowledge exists.
+   * Recommendation produced by the latest analysis. Null when that analysis did not
+   * produce one.
    */
   recommendation: Recommendation | null;
 
@@ -456,13 +458,14 @@ export interface RecommendationSummary {
   recommended_config_label: string | null;
 
   /**
-   * Success rate for the recommended configuration. Null when no eligible knowledge
-   * exists.
+   * Success rate for the recommended configuration. Null when the latest analysis
+   * did not produce one.
    */
   success_rate: number | null;
 
   /**
-   * Registrable domain previously analyzed by the selected project.
+   * Normalized exact target previously analyzed by the selected project, including
+   * scheme, host, port, and path.
    */
   target: string;
 }
@@ -500,8 +503,8 @@ export interface Target {
 
 export interface ConfigRegistryListParams extends OffsetPaginationParams {
   /**
-   * Case-insensitive domain search. Full URLs are reduced to their registrable
-   * domain.
+   * Case-insensitive substring search over normalized targets, including domain,
+   * subdomain, and path.
    */
   search?: string;
 
