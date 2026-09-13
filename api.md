@@ -467,10 +467,15 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultFillFieldResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItem</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItemAction</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItemEvent</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultItemOperationResponse</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethod</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemState</a></code>
@@ -484,7 +489,7 @@ Methods:
 - <code title="get /vaults/{id_or_name}/items">client.vaults.items.<a href="./src/resources/vaults/items.ts">list</a>(idOrName) -> ItemListResponse</code>
 - <code title="delete /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">delete</a>(key, { ...params }) -> void</code>
 - <code title="get /vaults/{id_or_name}/items/{key}/events">client.vaults.items.<a href="./src/resources/vaults/items.ts">events</a>(key, { ...params }) -> ItemEventsResponse</code>
-- <code title="post /vaults/{id_or_name}/items/{key}/operations">client.vaults.items.<a href="./src/resources/vaults/items.ts">performOperation</a>(key, { ...params }) -> VaultItem</code>
+- <code title="post /vaults/{id_or_name}/items/{key}/operations">client.vaults.items.<a href="./src/resources/vaults/items.ts">performOperation</a>(key, { ...params }) -> VaultItemOperationResponse</code>
 - <code title="put /vaults/{id_or_name}/items/{key}">client.vaults.items.<a href="./src/resources/vaults/items.ts">upsert</a>(key, { ...params }) -> VaultItem</code>
 
 # Credentials

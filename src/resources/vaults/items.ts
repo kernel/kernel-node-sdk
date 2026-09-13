@@ -113,16 +113,24 @@ export class Items extends APIResource {
 
   /**
    * Retrieve the item first and invoke only an operation listed in
-   * `available_operations`, following its natural-language description. Operations
-   * may call an external provider and return updated state. Link cards advertise
-   * authorize. AgentCard cards are created with PUT and request approval when their
-   * aliases are used at checkout; they do not expose this operation. If
-   * spend-request creation is rate limited, returns HTTP 429 with code
+   * `available_operations`, following its natural-language description. Availability
+   * is rechecked at execution time; unavailable operations return 409. Authorization
+   * may call an external provider and returns the updated item. Link cards advertise
+   * authorize when eligible. AgentCard cards are created with PUT and request
+   * approval when their aliases are used at checkout; they do not expose authorize.
+   * If spend-request creation is rate limited, returns HTTP 429 with code
    * `spend_request_rate_limited`; stop and back off before retrying.
+   *
+   * Fill returns a value-free execution result. Validation failures before writing
+   * return 400 (invalid request or targets), 403 (access or destination denied), 404
+   * (resource not found), or 409 (item or browser not ready). Once writing starts,
+   * known partial failures and indeterminate field outcomes return 200 with status
+   * `failed` or `unknown`, not an automatic-retry signal. A transport error may
+   * leave the outcome unknown; do not automatically retry.
    *
    * @example
    * ```ts
-   * const vaultItem =
+   * const vaultItemOperationResponse =
    *   await client.vaults.items.performOperation('key', {
    *     id_or_name: 'id_or_name',
    *     type: 'authorize',
@@ -133,7 +141,7 @@ export class Items extends APIResource {
     key: string,
     params: ItemPerformOperationParams,
     options?: RequestOptions,
-  ): APIPromise<VaultItem> {
+  ): APIPromise<VaultItemOperationResponse> {
     const { id_or_name, ...body } = params;
     return this._client.post(path`/vaults/${id_or_name}/items/${key}/operations`, { body, ...options });
   }
@@ -433,6 +441,77 @@ export namespace CardVaultItemState {
   }
 }
 
+/**
+ * Fill selected fields from one ready, unexpired card into a browser linked to its
+ * vault. Only supported for card items created from Link wallets. Only invoke when
+ * the item advertises `fill`. Browser and vault must belong to the same project.
+ * Kernel checks access and allowed destinations before filling; providing a page
+ * URL does not authorize a destination.
+ *
+ * Find exactly one open page matching `page_url`. For each selector, search the
+ * main frame and all descendant frames for editable inputs or selects matched
+ * directly or contained within matching elements. Each selector must resolve to
+ * one unique editable element across all frames; zero or multiple candidates fail.
+ * Count each element once, even if multiple matching containers contain it.
+ * Validate all bindings before filling. Select elements match an option by its
+ * value, not its label. If the page navigates or a target disappears during
+ * filling, stop rather than selecting a different page or element.
+ *
+ * Fill in request order and stop on the first failure. This operation is not
+ * atomic: previously filled fields are not rolled back. Never submit the form or
+ * click buttons, though input/change events may trigger site behavior. Fill is the
+ * preferred browser-checkout path. Aliases remain an alternative for explicitly
+ * chosen egress-substitution integrations. Do not automatically retry or fall back
+ * to aliases after a failed or indeterminate operation.
+ *
+ * Secret values are never returned or included in operation logs, traces, audit
+ * events, or error details. This does not prevent an agent with unrestricted
+ * browser access from reading values from the page or other browser observation
+ * surfaces.
+ */
+export interface FillVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  /**
+   * Field bindings for this step. No two bindings may resolve to the same element.
+   */
+  fields: Array<VaultCardFillField>;
+
+  /**
+   * Exact current top-level page URL, including path, query, and fragment. Must
+   * match exactly one open page in the browser; zero or multiple matches fail. No
+   * prefix or glob matching. Must use HTTPS without embedded credentials.
+   */
+  page_url: string;
+
+  type: 'fill';
+
+  /**
+   * Total operation deadline in milliseconds, not a per-field timeout.
+   */
+  timeout_ms?: number;
+}
+
+export interface FillVaultItemOperationResult {
+  /**
+   * Exactly one result per request binding, in request order. After the first failed
+   * or unknown field, all remaining fields are not_attempted.
+   */
+  fields: Array<VaultFillFieldResult>;
+
+  /**
+   * Completed only when all fields were filled. Failed when execution stopped with
+   * known outcomes. Unknown when any field's outcome cannot be determined. None of
+   * these statuses confirms payment or merchant acceptance.
+   */
+  status: 'completed' | 'failed' | 'unknown';
+
+  type: 'fill';
+}
+
 export interface VaultCardAliases {
   cvc: string;
 
@@ -441,6 +520,87 @@ export interface VaultCardAliases {
   exp_year: string;
 
   number: string;
+}
+
+/**
+ * Combined expiration derived from the stored month and year; not a separate
+ * stored secret.
+ */
+export type VaultCardFillField =
+  | VaultCardFillField.VaultCardStoredFillField
+  | VaultCardFillField.VaultCardExpirationFillField;
+
+export namespace VaultCardFillField {
+  export interface VaultCardStoredFillField {
+    /**
+     * Field in the decrypted card, not an alias. Number and CVC preserve leading
+     * zeros; month uses two digits and year uses four digits. Billing fields use the
+     * provider's stored billing address (name, line1, line2, city, state, postal_code,
+     * country) without reformatting. Request only needed billing fields. An absent or
+     * empty requested billing field returns 400 field_unavailable before any browser
+     * writes; it does not make other card fields unavailable.
+     */
+    field:
+      | 'number'
+      | 'exp_month'
+      | 'exp_year'
+      | 'cvc'
+      | 'billing_name'
+      | 'billing_line1'
+      | 'billing_line2'
+      | 'billing_city'
+      | 'billing_state'
+      | 'billing_postal_code'
+      | 'billing_country';
+
+    /**
+     * CSS selector for an editable input or select, or a containing element. Must
+     * resolve to one unique editable element across all page frames.
+     */
+    selector: string;
+  }
+
+  /**
+   * Combined expiration derived from the stored month and year; not a separate
+   * stored secret.
+   */
+  export interface VaultCardExpirationFillField {
+    field: 'expiration';
+
+    format: 'MM/YY' | 'MM/YYYY';
+
+    /**
+     * CSS selector for an editable input or select, or a containing element. Must
+     * resolve to one unique editable element across all page frames.
+     */
+    selector: string;
+  }
+}
+
+export interface VaultFillFieldResult {
+  /**
+   * Zero-based index into the request fields array.
+   */
+  index: number;
+
+  /**
+   * Filled means the fill action completed, not that the website retained or
+   * accepted the value.
+   */
+  status: 'filled' | 'failed' | 'not_attempted' | 'unknown';
+
+  /**
+   * Present only for failed or unknown fields. Never includes secret values, DOM
+   * content, or raw browser errors.
+   */
+  error_code?:
+    | 'target_changed'
+    | 'element_not_found'
+    | 'ambiguous_selector'
+    | 'element_not_editable'
+    | 'option_not_found'
+    | 'timeout'
+    | 'execution_failed';
 }
 
 export type VaultItem = VaultItem.WalletVaultItem | VaultItem.CardVaultItem;
@@ -504,7 +664,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize';
+      type: 'authorize' | 'fill';
     }
 
     /**
@@ -563,7 +723,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize';
+      type: 'authorize' | 'fill';
     }
   }
 }
@@ -626,6 +786,138 @@ export interface VaultItemEvent {
   browser_id?: string;
 
   data?: { [key: string]: unknown };
+}
+
+/**
+ * Authorization returns the existing item shape. Fill returns a value-free
+ * execution result; it does not persist transient field outcomes on the item.
+ */
+export type VaultItemOperationResponse =
+  | VaultItemOperationResponse.WalletVaultItem
+  | VaultItemOperationResponse.CardVaultItem
+  | FillVaultItemOperationResult;
+
+export namespace VaultItemOperationResponse {
+  export interface WalletVaultItem {
+    id: string;
+
+    available_expansions: Array<WalletVaultItem.AvailableExpansion>;
+
+    available_operations: Array<WalletVaultItem.AvailableOperation>;
+
+    created_at: string;
+
+    /**
+     * Immutable item key assigned when the item is created.
+     */
+    key: string;
+
+    /**
+     * AgentCard wallet. Omit provider_config to use Kernel-managed credentials, or
+     * select a customer-owned configuration. Mode (sandbox vs live) is determined by
+     * the selected credential; there is no per-item test flag. Without user_id,
+     * creation returns a hosted enrollment action and Kernel polls until the user
+     * connects. user_id may only reference a user already enrolled by a wallet in this
+     * organization under the same configuration.
+     */
+    spec: ItemsAPI.WalletVaultItemSpec;
+
+    state: ItemsAPI.WalletVaultItemState;
+
+    type: 'wallet';
+
+    updated_at: string;
+
+    action?: ItemsAPI.VaultItemAction;
+
+    /**
+     * Live, non-persisted data requested through the item GET expand parameter.
+     */
+    expanded?: WalletVaultItem.Expanded;
+
+    expires_at?: string;
+  }
+
+  export namespace WalletVaultItem {
+    /**
+     * Live data that can currently be requested by passing its type to the item GET
+     * expand parameter.
+     */
+    export interface AvailableExpansion {
+      description: string;
+
+      type: 'payment_methods';
+    }
+
+    /**
+     * An operation that is currently valid for this item. Read the description before
+     * invoking it through the item operations endpoint.
+     */
+    export interface AvailableOperation {
+      description: string;
+
+      type: 'authorize' | 'fill';
+    }
+
+    /**
+     * Live, non-persisted data requested through the item GET expand parameter.
+     */
+    export interface Expanded {
+      payment_methods?: Array<ItemsAPI.VaultPaymentMethod>;
+    }
+  }
+
+  export interface CardVaultItem {
+    id: string;
+
+    available_expansions: Array<CardVaultItem.AvailableExpansion>;
+
+    available_operations: Array<CardVaultItem.AvailableOperation>;
+
+    created_at: string;
+
+    /**
+     * Immutable item key assigned when the item is created.
+     */
+    key: string;
+
+    /**
+     * Live payment card. Test-mode card creation is not supported.
+     */
+    spec: ItemsAPI.CardVaultItemSpec;
+
+    state: ItemsAPI.CardVaultItemState;
+
+    type: 'card';
+
+    updated_at: string;
+
+    action?: ItemsAPI.VaultItemAction;
+
+    expires_at?: string;
+  }
+
+  export namespace CardVaultItem {
+    /**
+     * Live data that can currently be requested by passing its type to the item GET
+     * expand parameter.
+     */
+    export interface AvailableExpansion {
+      description: string;
+
+      type: 'payment_methods';
+    }
+
+    /**
+     * An operation that is currently valid for this item. Read the description before
+     * invoking it through the item operations endpoint.
+     */
+    export interface AvailableOperation {
+      description: string;
+
+      type: 'authorize' | 'fill';
+    }
+  }
 }
 
 export interface VaultPaymentMethod {
@@ -851,16 +1143,58 @@ export interface ItemEventsParams {
   wait?: number;
 }
 
-export interface ItemPerformOperationParams {
-  /**
-   * Path param
-   */
-  id_or_name: string;
+export type ItemPerformOperationParams =
+  | ItemPerformOperationParams.AuthorizeVaultItemOperationRequest
+  | ItemPerformOperationParams.FillVaultItemOperationRequest;
 
-  /**
-   * Body param
-   */
-  type: 'authorize';
+export declare namespace ItemPerformOperationParams {
+  export interface AuthorizeVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'authorize';
+  }
+
+  export interface FillVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param: Field bindings for this step. No two bindings may resolve to the
+     * same element.
+     */
+    fields: Array<VaultCardFillField>;
+
+    /**
+     * Body param: Exact current top-level page URL, including path, query, and
+     * fragment. Must match exactly one open page in the browser; zero or multiple
+     * matches fail. No prefix or glob matching. Must use HTTPS without embedded
+     * credentials.
+     */
+    page_url: string;
+
+    /**
+     * Body param
+     */
+    type: 'fill';
+
+    /**
+     * Body param: Total operation deadline in milliseconds, not a per-field timeout.
+     */
+    timeout_ms?: number;
+  }
 }
 
 export type ItemUpsertParams =
@@ -1059,10 +1393,15 @@ export declare namespace Items {
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
+    type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
+    type FillVaultItemOperationResult as FillVaultItemOperationResult,
     type VaultCardAliases as VaultCardAliases,
+    type VaultCardFillField as VaultCardFillField,
+    type VaultFillFieldResult as VaultFillFieldResult,
     type VaultItem as VaultItem,
     type VaultItemAction as VaultItemAction,
     type VaultItemEvent as VaultItemEvent,
+    type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
     type WalletVaultItemSpec as WalletVaultItemSpec,
     type WalletVaultItemState as WalletVaultItemState,
