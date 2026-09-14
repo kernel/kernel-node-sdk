@@ -807,6 +807,11 @@ export namespace ManagedAuth {
     hint?: string;
 
     /**
+     * Virtual keyboard hint, independent of field type and browser validation.
+     */
+    input_mode?: 'text' | 'email' | 'tel' | 'numeric';
+
+    /**
      * Human-readable label shown to the user.
      */
     label?: string;
@@ -1884,6 +1889,11 @@ export namespace ConnectionFollowResponse {
        * Context shown near the field, including a masked code destination.
        */
       hint?: string;
+
+      /**
+       * Virtual keyboard hint, independent of field type and browser validation.
+       */
+      input_mode?: 'text' | 'email' | 'tel' | 'numeric';
 
       /**
        * Human-readable label shown to the user.
