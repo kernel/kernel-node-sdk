@@ -160,6 +160,20 @@ export interface ConfigRegistryResponse {
    * nothing applicable was observed or no notes exist.
    */
   guidance?: string | null;
+
+  /**
+   * How far the workload pass got, when an intent was supplied and a pass ran. A run
+   * outcome rather than advice, so it is reported whether or not any guidance could
+   * be assembled. Null when no intent was supplied or no pass ran.
+   */
+  workload_outcome?:
+    | 'completed'
+    | 'turn_limit'
+    | 'auth_required'
+    | 'payment_required'
+    | 'blocked'
+    | 'error'
+    | null;
 }
 
 export interface Evidence {
@@ -509,6 +523,17 @@ export interface ResolveRequest {
    * Kernel uses its default country selection.
    */
   allowed_proxy_countries?: Array<string>;
+
+  /**
+   * Plain-language description of the workload you intend to run against this
+   * target, in a sentence or two. Requires an https target, because the pass treats
+   * any non-HTTPS destination as off-site and will not drive an http one. Kernel
+   * uses it to drive the browser further into the site, where it can observe
+   * protections that only appear once a session interacts. When this target already
+   * has a verified configuration, the run confirms that one instead of re-deriving
+   * the whole matrix, so supplying an intent narrows what can be recommended.
+   */
+  intent?: string;
 }
 
 export interface Target {
@@ -565,6 +590,17 @@ export interface ConfigRegistryResolveParams {
    * Kernel uses its default country selection.
    */
   allowed_proxy_countries?: Array<string>;
+
+  /**
+   * Plain-language description of the workload you intend to run against this
+   * target, in a sentence or two. Requires an https target, because the pass treats
+   * any non-HTTPS destination as off-site and will not drive an http one. Kernel
+   * uses it to drive the browser further into the site, where it can observe
+   * protections that only appear once a session interacts. When this target already
+   * has a verified configuration, the run confirms that one instead of re-deriving
+   * the whole matrix, so supplying an intent narrows what can be recommended.
+   */
+  intent?: string;
 }
 
 ConfigRegistry.Analyses = Analyses;

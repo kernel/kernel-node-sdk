@@ -74,6 +74,7 @@ describe('resource configRegistry', () => {
     const response = await client.configRegistry.resolve({
       url: 'https://example.com',
       allowed_proxy_countries: ['US'],
+      intent: 'search for a black hoodie and add it to the cart',
     });
   });
 });
