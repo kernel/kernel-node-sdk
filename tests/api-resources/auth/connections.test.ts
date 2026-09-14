@@ -36,6 +36,7 @@ describe('resource connections', () => {
           mode: 'direct',
           name: 'x',
         },
+        region: 'us-east',
         stealth: false,
         telemetry: {
           browser: {
@@ -203,6 +204,7 @@ describe('resource connections', () => {
               mode: 'direct',
               name: 'x',
             },
+            region: 'us-east',
             stealth: false,
             telemetry: {
               browser: {

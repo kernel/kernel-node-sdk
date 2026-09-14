@@ -74,9 +74,11 @@ export class Items extends APIResource {
   }
 
   /**
-   * Unresolved payment operations block deletion, including operations on child
-   * cards of a wallet. Reconcile the original attempt with the provider or support
-   * first; deleting or recreating an item is not proof that a payment did not occur.
+   * Unresolved payment operations normally block deletion, including operations on
+   * child cards of a wallet. An AgentCard card in recovery_required whose checkout
+   * create response returned no authorization ID may be explicitly abandoned by
+   * deleting that card directly; deleting its wallet or vault remains blocked.
+   * Deleting or recreating an item is not proof that a payment did not occur.
    *
    * @example
    * ```ts
@@ -111,16 +113,27 @@ export class Items extends APIResource {
 
   /**
    * Retrieve the item first and invoke only an operation listed in
-   * `available_operations`, following its natural-language description. Operations
-   * may call an external provider and return updated state. Link cards advertise
-   * authorize. AgentCard cards are created with PUT and request approval when their
-   * aliases are used at checkout; they do not expose this operation. If
-   * spend-request creation is rate limited, returns HTTP 429 with code
+   * `available_operations`, following its natural-language description. Availability
+   * is rechecked at execution time; unavailable operations return 409. Authorization
+   * and preparation may call an external provider and return updated state. Link
+   * cards advertise authorize without checkout context. Eligible unused AgentCard
+   * cards advertise prepare_checkout, which requires checkout context and obtains
+   * device approval before native Square Pay. Keep the returned approval page open,
+   * poll until ready_to_submit, then submit before preparation.expires_at. Unused
+   * preparations expire automatically and cannot be reused. If spend-request
+   * creation is rate limited, returns HTTP 429 with code
    * `spend_request_rate_limited`; stop and back off before retrying.
+   *
+   * Fill returns a value-free execution result. Validation failures before writing
+   * return 400 (invalid request or targets), 403 (access or destination denied), 404
+   * (resource not found), or 409 (item or browser not ready). Once writing starts,
+   * known partial failures and indeterminate field outcomes return 200 with status
+   * `failed` or `unknown`, not an automatic-retry signal. A transport error may
+   * leave the outcome unknown; do not automatically retry.
    *
    * @example
    * ```ts
-   * const vaultItem =
+   * const vaultItemOperationResponse =
    *   await client.vaults.items.performOperation('key', {
    *     id_or_name: 'id_or_name',
    *     type: 'authorize',
@@ -131,7 +144,7 @@ export class Items extends APIResource {
     key: string,
     params: ItemPerformOperationParams,
     options?: RequestOptions,
-  ): APIPromise<VaultItem> {
+  ): APIPromise<VaultItemOperationResponse> {
     const { id_or_name, ...body } = params;
     return this._client.post(path`/vaults/${id_or_name}/items/${key}/operations`, { body, ...options });
   }
@@ -221,6 +234,50 @@ export interface AgentcardCheckoutAuthorization {
    * HTTP status of the replayed processor response.
    */
   replay_status?: number;
+}
+
+/**
+ * One-use Square checkout preparation. Keep the approval page open through token
+ * handoff. The amount is display-only and does not constrain the merchant's
+ * eventual charge.
+ */
+export interface AgentcardCheckoutPreparation {
+  browser_id: string;
+
+  created_at: string;
+
+  environment: 'production' | 'sandbox';
+
+  merchant_origin: string;
+
+  /**
+   * Preparation consumed means egress claimed the preparation and it cannot be
+   * reused. It does not mean the attempt settled. Use the enclosing item's status as
+   * the lifecycle indicator; item consumed means the attempt settled, not that an
+   * order or charge succeeded.
+   */
+  status: 'creating' | 'awaiting_approval' | 'ready' | 'consumed' | 'cancelled' | 'expired' | 'unknown';
+
+  id?: string;
+
+  approval_url?: string;
+
+  /**
+   * When ready, the absolute deadline to submit the first native request; no later
+   * than provider readiness expiry or 30 seconds after Kernel first observes
+   * readiness. Polling never extends this deadline.
+   */
+  expires_at?: string;
+}
+
+/**
+ * Authorize a Link card using its existing purchase specification. Use only after
+ * explicit user approval and when the item advertises authorize. Do not
+ * automatically retry provider failures or indeterminate outcomes. Checkout
+ * context is not accepted.
+ */
+export interface AuthorizeVaultItemOperationRequest {
+  type: 'authorize';
 }
 
 /**
@@ -398,12 +455,27 @@ export namespace CardVaultItemState {
     provider: 'agentcard';
 
     /**
-     * recovery_required means the original checkout outcome is unresolved. Do not
-     * retry, delete, or replace it. Known authorization IDs may be reconciled through
-     * provider observations; otherwise contact the provider or support for manual
-     * reconciliation. It does not mean declined or expired.
+     * ready_to_submit is device readiness for at most 30 seconds. consumed means the
+     * prepared attempt has settled, not that an order succeeded. stopped cannot be
+     * reused. outcome_unknown requires merchant reconciliation and blocks new
+     * requests. recovery_required means the original checkout outcome is unresolved.
+     * Automatic reuse is blocked. Known authorization IDs must be reconciled through
+     * provider observations or support. When no authorization ID was returned, an
+     * explicitly confirmed item deletion may abandon the unresolved attempt so the
+     * caller can create a replacement; deletion does not prove that the original
+     * attempt failed. It does not mean declined or expired.
      */
-    status: 'requested' | 'ready' | 'pending_approval' | 'degraded' | 'recovery_required';
+    status:
+      | 'requested'
+      | 'ready'
+      | 'preparing'
+      | 'ready_to_submit'
+      | 'pending_approval'
+      | 'consumed'
+      | 'stopped'
+      | 'outcome_unknown'
+      | 'degraded'
+      | 'recovery_required';
 
     aliases?: ItemsAPI.VaultCardAliases;
 
@@ -414,6 +486,13 @@ export namespace CardVaultItemState {
     authorization?: ItemsAPI.AgentcardCheckoutAuthorization;
 
     masks?: AgentCardCardState.Masks;
+
+    /**
+     * One-use Square checkout preparation. Keep the approval page open through token
+     * handoff. The amount is display-only and does not constrain the merchant's
+     * eventual charge.
+     */
+    preparation?: ItemsAPI.AgentcardCheckoutPreparation;
 
     status_reason?: string;
   }
@@ -429,6 +508,98 @@ export namespace CardVaultItemState {
   }
 }
 
+/**
+ * Fill selected fields from one ready, unexpired card into a browser linked to its
+ * vault. Only supported for card items created from Link wallets. Only invoke when
+ * the item advertises `fill`. Browser and vault must belong to the same project.
+ * Kernel checks access and allowed destinations before filling; providing a page
+ * URL does not authorize a destination.
+ *
+ * Find exactly one open page matching `page_url`. For each selector, search the
+ * main frame and all descendant frames for editable inputs or selects matched
+ * directly or contained within matching elements. Each selector must resolve to
+ * one unique editable element across all frames; zero or multiple candidates fail.
+ * Count each element once, even if multiple matching containers contain it.
+ * Validate all bindings before filling. Select elements match an option by its
+ * value, not its label. If the page navigates or a target disappears during
+ * filling, stop rather than selecting a different page or element.
+ *
+ * Fill in request order and stop on the first failure. This operation is not
+ * atomic: previously filled fields are not rolled back. Never submit the form or
+ * click buttons, though input/change events may trigger site behavior. Fill is the
+ * preferred browser-checkout path. Aliases remain an alternative for explicitly
+ * chosen egress-substitution integrations. Do not automatically retry or fall back
+ * to aliases after a failed or indeterminate operation.
+ *
+ * Secret values are never returned or included in operation logs, traces, audit
+ * events, or error details. This does not prevent an agent with unrestricted
+ * browser access from reading values from the page or other browser observation
+ * surfaces.
+ */
+export interface FillVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  /**
+   * Field bindings for this step. No two bindings may resolve to the same element.
+   */
+  fields: Array<VaultCardFillField>;
+
+  /**
+   * Exact current top-level page URL, including path, query, and fragment. Must
+   * match exactly one open page in the browser; zero or multiple matches fail. No
+   * prefix or glob matching. Must use HTTPS without embedded credentials.
+   */
+  page_url: string;
+
+  type: 'fill';
+
+  /**
+   * Total operation deadline in milliseconds, not a per-field timeout.
+   */
+  timeout_ms?: number;
+}
+
+export interface FillVaultItemOperationResult {
+  /**
+   * Exactly one result per request binding, in request order. After the first failed
+   * or unknown field, all remaining fields are not_attempted.
+   */
+  fields: Array<VaultFillFieldResult>;
+
+  /**
+   * Completed only when all fields were filled. Failed when execution stopped with
+   * known outcomes. Unknown when any field's outcome cannot be determined. None of
+   * these statuses confirms payment or merchant acceptance.
+   */
+  status: 'completed' | 'failed' | 'unknown';
+
+  type: 'fill';
+}
+
+/**
+ * Prepare an unused AgentCard card for Square checkout. Deliver the returned
+ * approval URL and keep the approval page open. Poll the item until
+ * ready_to_submit, then submit native Pay before preparation.expires_at. Readiness
+ * lasts at most 30 seconds. Unused preparations expire automatically. Preparations
+ * are single-use even after failure or expiry; do not automatically retry and
+ * reconcile uncertain outcomes with the merchant.
+ */
+export interface PrepareCheckoutVaultItemOperationRequest {
+  /**
+   * Required when preparing an unused AgentCard card for Square. Consent is bound to
+   * this browser and declared merchant origin, not a tab. Wait for the item's
+   * ready_to_submit status before native Pay and submit within its readiness
+   * deadline. Unused preparations expire automatically; every preparation is
+   * single-use, including after failure or expiry.
+   */
+  checkout: VaultCheckoutContext;
+
+  type: 'prepare_checkout';
+}
+
 export interface VaultCardAliases {
   cvc: string;
 
@@ -437,6 +608,112 @@ export interface VaultCardAliases {
   exp_year: string;
 
   number: string;
+}
+
+/**
+ * Combined expiration derived from the stored month and year; not a separate
+ * stored secret.
+ */
+export type VaultCardFillField =
+  | VaultCardFillField.VaultCardStoredFillField
+  | VaultCardFillField.VaultCardExpirationFillField;
+
+export namespace VaultCardFillField {
+  export interface VaultCardStoredFillField {
+    /**
+     * Field in the decrypted card, not an alias. Number and CVC preserve leading
+     * zeros; month uses two digits and year uses four digits. Billing fields use the
+     * provider's stored billing address (name, line1, line2, city, state, postal_code,
+     * country) without reformatting. Request only needed billing fields. An absent or
+     * empty requested billing field returns 400 field_unavailable before any browser
+     * writes; it does not make other card fields unavailable.
+     */
+    field:
+      | 'number'
+      | 'exp_month'
+      | 'exp_year'
+      | 'cvc'
+      | 'billing_name'
+      | 'billing_line1'
+      | 'billing_line2'
+      | 'billing_city'
+      | 'billing_state'
+      | 'billing_postal_code'
+      | 'billing_country';
+
+    /**
+     * CSS selector for an editable input or select, or a containing element. Must
+     * resolve to one unique editable element across all page frames.
+     */
+    selector: string;
+  }
+
+  /**
+   * Combined expiration derived from the stored month and year; not a separate
+   * stored secret.
+   */
+  export interface VaultCardExpirationFillField {
+    field: 'expiration';
+
+    format: 'MM/YY' | 'MM/YYYY';
+
+    /**
+     * CSS selector for an editable input or select, or a containing element. Must
+     * resolve to one unique editable element across all page frames.
+     */
+    selector: string;
+  }
+}
+
+/**
+ * Required when preparing an unused AgentCard card for Square. Consent is bound to
+ * this browser and declared merchant origin, not a tab. Wait for the item's
+ * ready_to_submit status before native Pay and submit within its readiness
+ * deadline. Unused preparations expire automatically; every preparation is
+ * single-use, including after failure or expiry.
+ */
+export interface VaultCheckoutContext {
+  /**
+   * Active browser session with this vault bound to it.
+   */
+  browser_id: string;
+
+  /**
+   * Square environment, independent of the AgentCard credential mode.
+   */
+  environment: 'production' | 'sandbox';
+
+  /**
+   * Canonical HTTPS origin of the top-level merchant document, not the Square
+   * iframe. HTTP localhost is accepted for tests.
+   */
+  merchant_origin: string;
+}
+
+export interface VaultFillFieldResult {
+  /**
+   * Zero-based index into the request fields array.
+   */
+  index: number;
+
+  /**
+   * Filled means the fill action completed, not that the website retained or
+   * accepted the value.
+   */
+  status: 'filled' | 'failed' | 'not_attempted' | 'unknown';
+
+  /**
+   * Present only for failed or unknown fields. Never includes secret values, DOM
+   * content, or raw browser errors.
+   */
+  error_code?:
+    | 'target_changed'
+    | 'element_not_found'
+    | 'ambiguous_selector'
+    | 'element_not_editable'
+    | 'option_not_found'
+    | 'timeout'
+    | 'execution_failed';
 }
 
 export type VaultItem = VaultItem.WalletVaultItem | VaultItem.CardVaultItem;
@@ -500,7 +777,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize';
+      type: 'authorize' | 'prepare_checkout' | 'fill';
     }
 
     /**
@@ -559,7 +836,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize';
+      type: 'authorize' | 'prepare_checkout' | 'fill';
     }
   }
 }
@@ -622,6 +899,139 @@ export interface VaultItemEvent {
   browser_id?: string;
 
   data?: { [key: string]: unknown };
+}
+
+/**
+ * Authorization and preparation return the existing item shape. Fill returns a
+ * value-free execution result; it does not persist transient field outcomes on the
+ * item.
+ */
+export type VaultItemOperationResponse =
+  | VaultItemOperationResponse.WalletVaultItem
+  | VaultItemOperationResponse.CardVaultItem
+  | FillVaultItemOperationResult;
+
+export namespace VaultItemOperationResponse {
+  export interface WalletVaultItem {
+    id: string;
+
+    available_expansions: Array<WalletVaultItem.AvailableExpansion>;
+
+    available_operations: Array<WalletVaultItem.AvailableOperation>;
+
+    created_at: string;
+
+    /**
+     * Immutable item key assigned when the item is created.
+     */
+    key: string;
+
+    /**
+     * AgentCard wallet. Omit provider_config to use Kernel-managed credentials, or
+     * select a customer-owned configuration. Mode (sandbox vs live) is determined by
+     * the selected credential; there is no per-item test flag. Without user_id,
+     * creation returns a hosted enrollment action and Kernel polls until the user
+     * connects. user_id may only reference a user already enrolled by a wallet in this
+     * organization under the same configuration.
+     */
+    spec: ItemsAPI.WalletVaultItemSpec;
+
+    state: ItemsAPI.WalletVaultItemState;
+
+    type: 'wallet';
+
+    updated_at: string;
+
+    action?: ItemsAPI.VaultItemAction;
+
+    /**
+     * Live, non-persisted data requested through the item GET expand parameter.
+     */
+    expanded?: WalletVaultItem.Expanded;
+
+    expires_at?: string;
+  }
+
+  export namespace WalletVaultItem {
+    /**
+     * Live data that can currently be requested by passing its type to the item GET
+     * expand parameter.
+     */
+    export interface AvailableExpansion {
+      description: string;
+
+      type: 'payment_methods';
+    }
+
+    /**
+     * An operation that is currently valid for this item. Read the description before
+     * invoking it through the item operations endpoint.
+     */
+    export interface AvailableOperation {
+      description: string;
+
+      type: 'authorize' | 'prepare_checkout' | 'fill';
+    }
+
+    /**
+     * Live, non-persisted data requested through the item GET expand parameter.
+     */
+    export interface Expanded {
+      payment_methods?: Array<ItemsAPI.VaultPaymentMethod>;
+    }
+  }
+
+  export interface CardVaultItem {
+    id: string;
+
+    available_expansions: Array<CardVaultItem.AvailableExpansion>;
+
+    available_operations: Array<CardVaultItem.AvailableOperation>;
+
+    created_at: string;
+
+    /**
+     * Immutable item key assigned when the item is created.
+     */
+    key: string;
+
+    /**
+     * Live payment card. Test-mode card creation is not supported.
+     */
+    spec: ItemsAPI.CardVaultItemSpec;
+
+    state: ItemsAPI.CardVaultItemState;
+
+    type: 'card';
+
+    updated_at: string;
+
+    action?: ItemsAPI.VaultItemAction;
+
+    expires_at?: string;
+  }
+
+  export namespace CardVaultItem {
+    /**
+     * Live data that can currently be requested by passing its type to the item GET
+     * expand parameter.
+     */
+    export interface AvailableExpansion {
+      description: string;
+
+      type: 'payment_methods';
+    }
+
+    /**
+     * An operation that is currently valid for this item. Read the description before
+     * invoking it through the item operations endpoint.
+     */
+    export interface AvailableOperation {
+      description: string;
+
+      type: 'authorize' | 'prepare_checkout' | 'fill';
+    }
+  }
 }
 
 export interface VaultPaymentMethod {
@@ -847,16 +1257,80 @@ export interface ItemEventsParams {
   wait?: number;
 }
 
-export interface ItemPerformOperationParams {
-  /**
-   * Path param
-   */
-  id_or_name: string;
+export type ItemPerformOperationParams =
+  | ItemPerformOperationParams.AuthorizeVaultItemOperationRequest
+  | ItemPerformOperationParams.PrepareCheckoutVaultItemOperationRequest
+  | ItemPerformOperationParams.FillVaultItemOperationRequest;
 
-  /**
-   * Body param
-   */
-  type: 'authorize';
+export declare namespace ItemPerformOperationParams {
+  export interface AuthorizeVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'authorize';
+  }
+
+  export interface PrepareCheckoutVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Required when preparing an unused AgentCard card for Square. Consent
+     * is bound to this browser and declared merchant origin, not a tab. Wait for the
+     * item's ready_to_submit status before native Pay and submit within its readiness
+     * deadline. Unused preparations expire automatically; every preparation is
+     * single-use, including after failure or expiry.
+     */
+    checkout: VaultCheckoutContext;
+
+    /**
+     * Body param
+     */
+    type: 'prepare_checkout';
+  }
+
+  export interface FillVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param: Field bindings for this step. No two bindings may resolve to the
+     * same element.
+     */
+    fields: Array<VaultCardFillField>;
+
+    /**
+     * Body param: Exact current top-level page URL, including path, query, and
+     * fragment. Must match exactly one open page in the browser; zero or multiple
+     * matches fail. No prefix or glob matching. Must use HTTPS without embedded
+     * credentials.
+     */
+    page_url: string;
+
+    /**
+     * Body param
+     */
+    type: 'fill';
+
+    /**
+     * Body param: Total operation deadline in milliseconds, not a per-field timeout.
+     */
+    timeout_ms?: number;
+  }
 }
 
 export type ItemUpsertParams =
@@ -1053,12 +1527,21 @@ export declare namespace ItemUpsertParams {
 export declare namespace Items {
   export {
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
+    type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
+    type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
+    type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
+    type FillVaultItemOperationResult as FillVaultItemOperationResult,
+    type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
+    type VaultCardFillField as VaultCardFillField,
+    type VaultCheckoutContext as VaultCheckoutContext,
+    type VaultFillFieldResult as VaultFillFieldResult,
     type VaultItem as VaultItem,
     type VaultItemAction as VaultItemAction,
     type VaultItemEvent as VaultItemEvent,
+    type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
     type WalletVaultItemSpec as WalletVaultItemSpec,
     type WalletVaultItemState as WalletVaultItemState,

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.102.0](https://github.com/kernel/kernel-node-sdk/compare/v0.101.0...v0.102.0) (2026-09-14)
+
+
+### Features
+
+* Accept a workload intent and use it to widen vendor coverage ([3c6a789](https://github.com/kernel/kernel-node-sdk/commit/3c6a789765fef9a92606e261273b4ae58c96e314))
+* Add guarded vault card fill operations ([d77b170](https://github.com/kernel/kernel-node-sdk/commit/d77b170936a96eb79327b189d05f2c8f1f0737c3))
+* Add single-use AgentCard prepare_checkout for Square ([f6718d4](https://github.com/kernel/kernel-node-sdk/commit/f6718d4fb93818147fb51b53545fc1327294d5d2))
+* Allow replacing AgentCard cards after unknown creates ([848944b](https://github.com/kernel/kernel-node-sdk/commit/848944b1ce0eb21f58700d41ed82b5121201a3ee))
+* Document punctuation key sequences ([a008dfb](https://github.com/kernel/kernel-node-sdk/commit/a008dfbe12ab150df7154f28127175e4ceee3816))
+* Honor managed auth browser regions ([d2cf7ff](https://github.com/kernel/kernel-node-sdk/commit/d2cf7fff8e38b84fee64733442cf8287c3ae9693))
+* Reapply vendor guidance recommendations ([0fdcce8](https://github.com/kernel/kernel-node-sdk/commit/0fdcce80cec36d682f295d278ae88b5e4877560b))
+* Report proxy-restricted targets from config registry lookup ([a57d992](https://github.com/kernel/kernel-node-sdk/commit/a57d992925092ebce6ba6e18fbb86844edfb67f5))
+
 ## [0.101.0](https://github.com/kernel/kernel-node-sdk/compare/v0.100.0...v0.101.0) (2026-09-11)
 
 
