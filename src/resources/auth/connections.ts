@@ -905,6 +905,13 @@ export interface ManagedAuthBrowserConfig {
   proxy?: BrowsersAPI.BrowserProxyConfig;
 
   /**
+   * Browser region. Omit on create to use us-east, on update to keep the current
+   * region, or on login to inherit it. Login overrides apply only to that login.
+   * Non-default regions require an eligible plan and organization access.
+   */
+  region?: 'us-east' | 'eu-west' | 'ap-southeast';
+
+  /**
    * Whether managed auth browser sessions use stealth mode. Defaults to true when
    * omitted.
    */
