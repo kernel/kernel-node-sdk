@@ -465,12 +465,16 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AuthorizeVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationResult</a></code>
+- <code><a href="./src/resources/vaults/items.ts">PrepareCheckoutVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultCheckoutContext</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultFillFieldResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItem</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItemAction</a></code>
