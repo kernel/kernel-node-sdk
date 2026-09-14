@@ -13,7 +13,11 @@ export class Items extends APIResource {
    * and live data that can be requested through `expand`. Read each operation's
    * description before using it. Expanded data is fetched from the provider and is
    * not persisted in the vault item. Requesting an unavailable expansion returns 409
-   * instead of a partial item.
+   * instead of a partial item. Pending credential items return a collection action.
+   * Kernel-hosted active collection links are renewed atomically on expiry for ready
+   * or pending items without changing the item version. Invoke collect to open a
+   * form for a ready item without clearing values. Sensitive credential values are
+   * never returned.
    *
    * @example
    * ```ts
@@ -28,13 +32,18 @@ export class Items extends APIResource {
   }
 
   /**
-   * Requested cards accept a replacement specification. Pending issuance requests
-   * may update provider-supported fields on their existing request, subject to
-   * atomic provider approval checks; omitted optional fields remain unchanged and
-   * explicit empty lists clear them. Wallet/provider binding and unsupported fields
-   * cannot change after authorization starts. An uncertain update enters
-   * recovery_required and must not be retried. Checkout cards may be edited between
-   * authorizations.
+   * Credential updates require type credential and the current version, and change
+   * only values or description; omitted values are preserved, nonempty strings
+   * replace, and null or empty strings clear supported fields. Clearing required
+   * text/email/password values returns pending_collection; browser forms still
+   * require nonempty required inputs. Card updates may omit type for compatibility
+   * with legacy requests. Requested cards accept a replacement specification.
+   * Pending issuance requests may update provider-supported fields on their existing
+   * request, subject to atomic provider approval checks; omitted optional fields
+   * remain unchanged and explicit empty lists clear them. Wallet/provider binding
+   * and unsupported fields cannot change after authorization starts. An uncertain
+   * update enters recovery_required and must not be retried. Checkout cards may be
+   * edited between authorizations.
    *
    * @example
    * ```ts
@@ -51,6 +60,7 @@ export class Items extends APIResource {
    *     context:
    *       'The order total changed to USD 30.00 including shipping and taxes for one notebook. Update this unapproved request rather than creating a second payment.',
    *   },
+   *   type: 'card',
    * });
    * ```
    */
@@ -60,7 +70,9 @@ export class Items extends APIResource {
   }
 
   /**
-   * List vault items without secret values
+   * Credential entries include safe field metadata and non-sensitive values. Listing
+   * never creates or renews collection sessions; only an existing unexpired active
+   * session is included. Use single-item GET or collect to obtain a fresh link.
    *
    * @example
    * ```ts
@@ -155,7 +167,10 @@ export class Items extends APIResource {
    * card in any lifecycle state without polling the provider, reauthorizing,
    * replacing aliases, or resetting recovery. Conflicting specifications return 409.
    * Provider-specific authorization requirements and retry behavior are described in
-   * the item's request schema.
+   * the item's request schema. Do not use credential items to store, collect, or
+   * fill credit card data, including card numbers (PANs), security codes (CVV/CVC),
+   * or expiration dates. Use wallet and card item types for credit cards and payment
+   * checkout instead.
    *
    * @example
    * ```ts
@@ -509,20 +524,359 @@ export namespace CardVaultItemState {
 }
 
 /**
- * Fill selected fields from one ready, unexpired card into a browser linked to its
- * vault. Only supported for card items created from Link wallets. Only invoke when
- * the item advertises `fill`. Browser and vault must belong to the same project.
- * Kernel checks access and allowed destinations before filling; providing a page
- * URL does not authorize a destination.
+ * Return the credential item with its collection action. Supported for ready and
+ * pending_collection credential items. Always render the same form from every
+ * form-supported field; totp fields have no form input and are omitted. No
+ * caller-selected field subsets or form overrides are accepted. Reuse an active
+ * Kernel-hosted session or renew an expired session atomically. Customer-hosted
+ * forms use their own backend and ordinary item GET/PATCH. Opening the form does
+ * not clear values or change readiness or item version. To observe edits on a
+ * ready item, record its version and poll GET without wait until the version
+ * changes, then reconcile the returned state. Version changes may also come from
+ * PATCH; they do not identify a particular form submission. Customer-hosted apps
+ * use their own submission callback, including for unchanged forms. The wait
+ * parameter waits for readiness, not edits.
+ */
+export interface CollectVaultItemOperationRequest {
+  type: 'collect';
+}
+
+/**
+ * One schema-derived form for the item, available in ready or pending_collection
+ * state. Render every form-supported field as editable; omit totp fields and
+ * preserve their stored seeds. Prefill non-sensitive values, and allow existing
+ * sensitive values to be preserved or replaced without ever revealing them. No
+ * field subsets or per-request form configuration exist. Validate required fields
+ * against the resulting values, including preserved secrets. Submit changed values
+ * only, using the version used to render the form. Scoped hosted submission
+ * rejects totp edits; seed writes require the ordinary authenticated item API.
+ * Customer forms likewise omit totp from their payloads. Save edits atomically. A
+ * successful hosted submission increments the version, marks ready, and consumes
+ * the session; an empty edit may complete collection while preserving values. A
+ * customer form uses PATCH for changed values and does not send an empty PATCH
+ * when nothing changed. Kernel-hosted bearer sessions require no Kernel account
+ * and are bound to the item version. Expired, superseded, consumed, or
+ * deleted-item sessions cannot submit. Authenticated item GET renews expired
+ * active sessions for ready or pending items; pending items always receive an
+ * action. A ready item with no active session omits the action until collect is
+ * invoked. Concurrent renewals return the same link. Renewal changes neither
+ * values nor item version. An expired link cannot renew itself. The hosted form
+ * handles its collection protocol; callers only open the returned URL and do not
+ * extract or submit its token through the public API. For customer-hosted forms,
+ * use @onkernel/vault-react and an authenticated customer backend calling the
+ * ordinary item GET/PATCH API. Kernel does not store customer collection URLs or
+ * authenticate the customer's end users. Treat URLs and submitted values as
+ * secrets and exclude them from logs, traces, and errors.
+ */
+export interface CredentialCollectionAction {
+  /**
+   * Expiry of the Kernel-hosted collection link (30 minutes after issuance).
+   */
+  expires_at: string;
+
+  name: 'collect';
+
+  /**
+   * Time-scoped hosted form URL (vault.kernel.sh in production). Open this URL as
+   * returned; treat it as a secret.
+   */
+  url: string;
+}
+
+export interface CredentialVaultFieldDefinition {
+  /**
+   * Whether a nonempty value is required for readiness and form submission.
+   */
+  required: boolean;
+
+  /**
+   * Whether the value is omitted from every item response. Reserve true for secrets
+   * such as passwords, API tokens, and TOTP seeds. Ordinary usernames and email
+   * addresses should be false so the form can display and prefill them.
+   */
+  sensitive: boolean;
+
+  /**
+   * Text, email, and password have form inputs; totp does not and is omitted from
+   * both Kernel-hosted and customer React forms. Password and totp must be
+   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
+   * optional trailing padding), not an otpauth URI or current code. Reject invalid
+   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
+   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
+   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
+   * unsupported.
+   */
+  type: CredentialVaultFieldType;
+}
+
+export interface CredentialVaultFieldInput {
+  /**
+   * Text, email, and password have form inputs; totp does not and is omitted from
+   * both Kernel-hosted and customer React forms. Password and totp must be
+   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
+   * optional trailing padding), not an otpauth URI or current code. Reject invalid
+   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
+   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
+   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
+   * unsupported.
+   */
+  type: CredentialVaultFieldType;
+
+  required?: boolean;
+
+  /**
+   * Set false explicitly for ordinary usernames, email addresses, and other
+   * non-secret identifiers. Reserve true for secrets such as passwords, API tokens,
+   * and TOTP seeds. Password and totp fields must be true. Omission defaults to true
+   * for safety; do not rely on that default for every field. False permits API reads
+   * and form prefilling.
+   */
+  sensitive?: boolean;
+}
+
+export interface CredentialVaultFieldState {
+  has_value: boolean;
+
+  /**
+   * Present exactly when has_value is true and the field is not sensitive. Reflects
+   * the latest developer or human edit. For totp, has_value indicates a stored seed;
+   * neither the seed nor a generated code is returned.
+   */
+  value?: string;
+}
+
+/**
+ * Text, email, and password have form inputs; totp does not and is omitted from
+ * both Kernel-hosted and customer React forms. Password and totp must be
+ * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
+ * optional trailing padding), not an otpauth URI or current code. Reject invalid
+ * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
+ * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
+ * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
+ * unsupported.
+ */
+export type CredentialVaultFieldType = 'text' | 'email' | 'password' | 'totp';
+
+export interface CredentialVaultFieldUpdate {
+  /**
+   * Replacement value (at most 16 KiB in UTF-8 bytes), or null or an empty string to
+   * immediately clear the stored value. Clearing a required form-supported field
+   * reopens collection; clearing an optional field does not prevent readiness.
+   * Values must satisfy the declared field type. For totp, value is the generator
+   * seed, never a current code. Clearing a required totp field returns 400 because
+   * it cannot be collected in a form.
+   */
+  value: string | null;
+}
+
+export interface CredentialVaultItem {
+  id: string;
+
+  available_expansions: Array<CredentialVaultItem.AvailableExpansion>;
+
+  /**
+   * Advertises collect for ready and pending_collection items. Browser fill is
+   * advertised only when separately implemented and eligible.
+   */
+  available_operations: Array<CredentialVaultItem.AvailableOperation>;
+
+  created_at: string;
+
+  /**
+   * Immutable item key assigned when the item is created.
+   */
+  key: string;
+
+  spec: CredentialVaultItemSpec;
+
+  state: CredentialVaultItemState;
+
+  type: 'credential';
+
+  updated_at: string;
+
+  /**
+   * Starts at 1 and increments on PATCH and successful hosted submission, but not
+   * collection-link renewal.
+   */
+  version: number;
+
+  /**
+   * One schema-derived form for the item, available in ready or pending_collection
+   * state. Render every form-supported field as editable; omit totp fields and
+   * preserve their stored seeds. Prefill non-sensitive values, and allow existing
+   * sensitive values to be preserved or replaced without ever revealing them. No
+   * field subsets or per-request form configuration exist. Validate required fields
+   * against the resulting values, including preserved secrets. Submit changed values
+   * only, using the version used to render the form. Scoped hosted submission
+   * rejects totp edits; seed writes require the ordinary authenticated item API.
+   * Customer forms likewise omit totp from their payloads. Save edits atomically. A
+   * successful hosted submission increments the version, marks ready, and consumes
+   * the session; an empty edit may complete collection while preserving values. A
+   * customer form uses PATCH for changed values and does not send an empty PATCH
+   * when nothing changed. Kernel-hosted bearer sessions require no Kernel account
+   * and are bound to the item version. Expired, superseded, consumed, or
+   * deleted-item sessions cannot submit. Authenticated item GET renews expired
+   * active sessions for ready or pending items; pending items always receive an
+   * action. A ready item with no active session omits the action until collect is
+   * invoked. Concurrent renewals return the same link. Renewal changes neither
+   * values nor item version. An expired link cannot renew itself. The hosted form
+   * handles its collection protocol; callers only open the returned URL and do not
+   * extract or submit its token through the public API. For customer-hosted forms,
+   * use @onkernel/vault-react and an authenticated customer backend calling the
+   * ordinary item GET/PATCH API. Kernel does not store customer collection URLs or
+   * authenticate the customer's end users. Treat URLs and submitted values as
+   * secrets and exclude them from logs, traces, and errors.
+   */
+  action?: CredentialCollectionAction;
+}
+
+export namespace CredentialVaultItem {
+  /**
+   * Live data that can currently be requested by passing its type to the item GET
+   * expand parameter.
+   */
+  export interface AvailableExpansion {
+    description: string;
+
+    type: 'payment_methods';
+  }
+
+  /**
+   * An operation that is currently valid for this item. Read the description before
+   * invoking it through the item operations endpoint.
+   */
+  export interface AvailableOperation {
+    description: string;
+
+    type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+  }
+}
+
+/**
+ * Create a credential item without a wallet or external provider. Do not use
+ * credential items to store, collect, or fill credit card data, including card
+ * numbers (PANs), security codes (CVV/CVC), or expiration dates. Use wallet and
+ * card item types for credit cards and payment checkout instead. If all required
+ * fields have values, return ready without a collection action; collect can still
+ * open its form. Otherwise return pending_collection with a time-scoped
+ * Kernel-hosted collection action. Missing optional fields alone do not trigger
+ * collection. Repeating the original creation request returns the current item
+ * without overwriting later edits; a different request at the same key
+ * returns 409. Use PATCH for updates. Required totp fields must include a valid
+ * seed on creation; otherwise return 400 rather than opening a form that cannot
+ * collect it. Optional totp fields may be unset and populated later through PATCH.
+ */
+export interface CredentialVaultItemRequest {
+  /**
+   * Credential fields are for login and other non-payment credentials. Do not store,
+   * collect, or fill credit card data in credential items. Use wallet and card item
+   * types for credit cards and payment checkout instead.
+   */
+  spec: CredentialVaultItemSpecInput;
+
+  type: 'credential';
+}
+
+export interface CredentialVaultItemSpec {
+  fields: { [key: string]: CredentialVaultFieldDefinition };
+
+  /**
+   * Recognizable site or service name displayed verbatim as the form title, without
+   * suffixes such as sign-in credentials. Display text only, not an enforced
+   * destination policy.
+   */
+  description?: string;
+}
+
+/**
+ * Credential fields are for login and other non-payment credentials. Do not store,
+ * collect, or fill credit card data in credential items. Use wallet and card item
+ * types for credit cards and payment checkout instead.
+ */
+export interface CredentialVaultItemSpecInput {
+  fields: { [key: string]: CredentialVaultFieldInput };
+
+  /**
+   * The site's recognizable display name, used verbatim as the user-facing form
+   * title (for example, Hacker News). Use only the site or service name; do not
+   * append sign-in, login, credentials, or task instructions. This is display text,
+   * not an enforced destination policy. At most 16 KiB in UTF-8 bytes.
+   */
+  description?: string;
+}
+
+export interface CredentialVaultItemSpecUpdate {
+  /**
+   * Recognizable site or service name used as the form title, without suffixes such
+   * as sign-in credentials. An empty string clears it. Display text only, not an
+   * enforced destination policy. The server also enforces a 16 KiB UTF-8 byte limit.
+   */
+  description?: string;
+
+  fields?: { [key: string]: CredentialVaultFieldUpdate };
+}
+
+export interface CredentialVaultItemState {
+  /**
+   * Exactly one entry for each declared field.
+   */
+  fields: { [key: string]: CredentialVaultFieldState };
+
+  /**
+   * Ready means all required fields have values, not that a login succeeded.
+   * Optional fields may remain unset.
+   */
+  status: 'pending_collection' | 'ready';
+}
+
+/**
+ * Atomically update description and selected values. Omitted properties are
+ * preserved. Field names, types, required flags, and sensitivity cannot change.
+ * Unknown field names return 400; stale versions or mismatched item types return
+ * 409 without changing the item. A successful update increments version and
+ * invalidates outstanding Kernel-hosted collection sessions. If required values
+ * remain missing, return pending_collection and a fresh collection action.
+ * Otherwise return ready without an action; collect can open the form again
+ * without clearing values. Customer URLs have no Kernel-managed expiry.
+ */
+export interface CredentialVaultItemUpdateRequest {
+  spec: CredentialVaultItemSpecUpdate;
+
+  type: 'credential';
+
+  /**
+   * Expected current item version from the latest read.
+   */
+  version: number;
+
+  /**
+   * Optional immutable item ID precondition. Returns 409 if the key now identifies a
+   * different item. Accepted writes target this immutable ID, preventing
+   * replacement-key races. Supply this when submitting a form bound to a previously
+   * read item.
+   */
+  expected_item_id?: string;
+}
+
+/**
+ * Fill selected fields from one ready credential or ready, unexpired Link card
+ * into a browser linked to its vault. Only invoke when the item advertises `fill`.
+ * Browser and vault must belong to the same project. Kernel checks access and
+ * allowed destinations before filling; providing a page URL does not authorize a
+ * destination.
  *
- * Find exactly one open page matching `page_url`. For each selector, search the
- * main frame and all descendant frames for editable inputs or selects matched
- * directly or contained within matching elements. Each selector must resolve to
- * one unique editable element across all frames; zero or multiple candidates fail.
- * Count each element once, even if multiple matching containers contain it.
- * Validate all bindings before filling. Select elements match an option by its
- * value, not its label. If the page navigates or a target disappears during
- * filling, stop rather than selecting a different page or element.
+ * Find exactly one open page matching `page_url`. Credential items may omit
+ * `page_url` to require exactly one open page; cards require an HTTPS page URL.
+ * Credentials have no destination allowlist. TOTP fields generate a current code
+ * immediately before writing; their seeds never enter the browser. For each
+ * selector, search the main frame and all descendant frames for editable inputs or
+ * selects matched directly or contained within matching elements. Each selector
+ * must resolve to one unique editable element across all frames; zero or multiple
+ * candidates fail. Count each element once, even if multiple matching containers
+ * contain it. Validate all bindings before filling. Select elements match an
+ * option by its value, not its label. If the page navigates or a target disappears
+ * during filling, stop rather than selecting a different page or element.
  *
  * Fill in request order and stop on the first failure. This operation is not
  * atomic: previously filled fields are not rolled back. Never submit the form or
@@ -545,16 +899,18 @@ export interface FillVaultItemOperationRequest {
   /**
    * Field bindings for this step. No two bindings may resolve to the same element.
    */
-  fields: Array<VaultCardFillField>;
+  fields: Array<VaultFillField>;
+
+  type: 'fill';
 
   /**
    * Exact current top-level page URL, including path, query, and fragment. Must
    * match exactly one open page in the browser; zero or multiple matches fail. No
-   * prefix or glob matching. Must use HTTPS without embedded credentials.
+   * prefix or glob matching. Required for cards, which must use HTTPS without
+   * embedded credentials. Optional for credentials, where omission requires exactly
+   * one open page.
    */
-  page_url: string;
-
-  type: 'fill';
+  page_url?: string;
 
   /**
    * Total operation deadline in milliseconds, not a per-field timeout.
@@ -690,6 +1046,22 @@ export interface VaultCheckoutContext {
   merchant_origin: string;
 }
 
+export interface VaultFillField {
+  /**
+   * A declared credential field name or a supported card field. Unset credential
+   * fields cannot be filled.
+   */
+  field: string;
+
+  selector: string;
+
+  /**
+   * Required only for a card's combined expiration field. Forbidden for other card
+   * fields and all credential fields.
+   */
+  format?: 'MM/YY' | 'MM/YYYY';
+}
+
 export interface VaultFillFieldResult {
   /**
    * Zero-based index into the request fields array.
@@ -716,7 +1088,7 @@ export interface VaultFillFieldResult {
     | 'execution_failed';
 }
 
-export type VaultItem = VaultItem.WalletVaultItem | VaultItem.CardVaultItem;
+export type VaultItem = VaultItem.WalletVaultItem | VaultItem.CardVaultItem | CredentialVaultItem;
 
 export namespace VaultItem {
   export interface WalletVaultItem {
@@ -777,7 +1149,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'prepare_checkout' | 'fill';
+      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
     }
 
     /**
@@ -836,7 +1208,7 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'prepare_checkout' | 'fill';
+      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
     }
   }
 }
@@ -909,6 +1281,7 @@ export interface VaultItemEvent {
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
   | VaultItemOperationResponse.CardVaultItem
+  | CredentialVaultItem
   | FillVaultItemOperationResult;
 
 export namespace VaultItemOperationResponse {
@@ -970,7 +1343,7 @@ export namespace VaultItemOperationResponse {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'prepare_checkout' | 'fill';
+      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
     }
 
     /**
@@ -1029,7 +1402,7 @@ export namespace VaultItemOperationResponse {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'prepare_checkout' | 'fill';
+      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
     }
   }
 }
@@ -1219,21 +1592,65 @@ export interface ItemRetrieveParams {
 
   /**
    * Query param: Hold for up to this many seconds while the item is pending
-   * authorization or approval.
+   * authorization, approval, or credential collection. Return the current item when
+   * ready or when the wait elapses. This does not wait for edits to an already-ready
+   * credential; poll GET without wait and compare version to observe changes after
+   * collect.
    */
   wait?: number;
 }
 
-export interface ItemUpdateParams {
-  /**
-   * Path param
-   */
-  id_or_name: string;
+export type ItemUpdateParams =
+  | ItemUpdateParams.CardVaultItemUpdateRequest
+  | ItemUpdateParams.CredentialVaultItemUpdateRequest;
 
-  /**
-   * Body param: Live payment card. Test-mode card creation is not supported.
-   */
-  spec: CardVaultItemSpec;
+export declare namespace ItemUpdateParams {
+  export interface CardVaultItemUpdateRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Live payment card. Test-mode card creation is not supported.
+     */
+    spec: CardVaultItemSpec;
+
+    /**
+     * Body param
+     */
+    type?: 'card';
+  }
+
+  export interface CredentialVaultItemUpdateRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    spec: CredentialVaultItemSpecUpdate;
+
+    /**
+     * Body param
+     */
+    type: 'credential';
+
+    /**
+     * Body param: Expected current item version from the latest read.
+     */
+    version: number;
+
+    /**
+     * Body param: Optional immutable item ID precondition. Returns 409 if the key now
+     * identifies a different item. Accepted writes target this immutable ID,
+     * preventing replacement-key races. Supply this when submitting a form bound to a
+     * previously read item.
+     */
+    expected_item_id?: string;
+  }
 }
 
 export interface ItemDeleteParams {
@@ -1259,6 +1676,7 @@ export interface ItemEventsParams {
 
 export type ItemPerformOperationParams =
   | ItemPerformOperationParams.AuthorizeVaultItemOperationRequest
+  | ItemPerformOperationParams.CollectVaultItemOperationRequest
   | ItemPerformOperationParams.PrepareCheckoutVaultItemOperationRequest
   | ItemPerformOperationParams.FillVaultItemOperationRequest;
 
@@ -1273,6 +1691,18 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: 'authorize';
+  }
+
+  export interface CollectVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'collect';
   }
 
   export interface PrepareCheckoutVaultItemOperationRequest {
@@ -1311,20 +1741,21 @@ export declare namespace ItemPerformOperationParams {
      * Body param: Field bindings for this step. No two bindings may resolve to the
      * same element.
      */
-    fields: Array<VaultCardFillField>;
-
-    /**
-     * Body param: Exact current top-level page URL, including path, query, and
-     * fragment. Must match exactly one open page in the browser; zero or multiple
-     * matches fail. No prefix or glob matching. Must use HTTPS without embedded
-     * credentials.
-     */
-    page_url: string;
+    fields: Array<VaultFillField>;
 
     /**
      * Body param
      */
     type: 'fill';
+
+    /**
+     * Body param: Exact current top-level page URL, including path, query, and
+     * fragment. Must match exactly one open page in the browser; zero or multiple
+     * matches fail. No prefix or glob matching. Required for cards, which must use
+     * HTTPS without embedded credentials. Optional for credentials, where omission
+     * requires exactly one open page.
+     */
+    page_url?: string;
 
     /**
      * Body param: Total operation deadline in milliseconds, not a per-field timeout.
@@ -1335,7 +1766,8 @@ export declare namespace ItemPerformOperationParams {
 
 export type ItemUpsertParams =
   | ItemUpsertParams.WalletVaultItemRequest
-  | ItemUpsertParams.CardVaultItemRequest;
+  | ItemUpsertParams.CardVaultItemRequest
+  | ItemUpsertParams.CredentialVaultItemRequest;
 
 export declare namespace ItemUpsertParams {
   export interface WalletVaultItemRequest {
@@ -1522,6 +1954,25 @@ export declare namespace ItemUpsertParams {
      */
     type: 'card';
   }
+
+  export interface CredentialVaultItemRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Credential fields are for login and other non-payment credentials.
+     * Do not store, collect, or fill credit card data in credential items. Use wallet
+     * and card item types for credit cards and payment checkout instead.
+     */
+    spec: CredentialVaultItemSpecInput;
+
+    /**
+     * Body param
+     */
+    type: 'credential';
+  }
 }
 
 export declare namespace Items {
@@ -1531,12 +1982,27 @@ export declare namespace Items {
     type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
+    type CollectVaultItemOperationRequest as CollectVaultItemOperationRequest,
+    type CredentialCollectionAction as CredentialCollectionAction,
+    type CredentialVaultFieldDefinition as CredentialVaultFieldDefinition,
+    type CredentialVaultFieldInput as CredentialVaultFieldInput,
+    type CredentialVaultFieldState as CredentialVaultFieldState,
+    type CredentialVaultFieldType as CredentialVaultFieldType,
+    type CredentialVaultFieldUpdate as CredentialVaultFieldUpdate,
+    type CredentialVaultItem as CredentialVaultItem,
+    type CredentialVaultItemRequest as CredentialVaultItemRequest,
+    type CredentialVaultItemSpec as CredentialVaultItemSpec,
+    type CredentialVaultItemSpecInput as CredentialVaultItemSpecInput,
+    type CredentialVaultItemSpecUpdate as CredentialVaultItemSpecUpdate,
+    type CredentialVaultItemState as CredentialVaultItemState,
+    type CredentialVaultItemUpdateRequest as CredentialVaultItemUpdateRequest,
     type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
     type FillVaultItemOperationResult as FillVaultItemOperationResult,
     type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
     type VaultCheckoutContext as VaultCheckoutContext,
+    type VaultFillField as VaultFillField,
     type VaultFillFieldResult as VaultFillFieldResult,
     type VaultItem as VaultItem,
     type VaultItemAction as VaultItemAction,
