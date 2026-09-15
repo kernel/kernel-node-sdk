@@ -632,6 +632,13 @@ export interface CredentialVaultFieldInput {
    * and form prefilling.
    */
   sensitive?: boolean;
+
+  /**
+   * Optional initial value satisfying the declared type, at most 16 KiB in UTF-8
+   * bytes. Omit to leave unset; null and empty strings are rejected on creation.
+   * Sensitive values are encrypted and never copied into the returned spec.
+   */
+  value?: string;
 }
 
 export interface CredentialVaultFieldState {
