@@ -10,10 +10,14 @@ import { path } from '../../internal/utils/path';
  */
 export class Webmcp extends APIResource {
   /**
-   * Invokes the exact live registration identified by tool_ref and waits
-   * synchronously for its result. Navigation during execution is allowed. If the tab
-   * or embedded frame disappears, or the request times out after invocation begins,
-   * the response reports outcome_unknown and the tool is not retried.
+   * Invokes the exact live registration identified by tool_ref. Non-autosubmit
+   * declarative form tools return after their fields are populated with an
+   * awaiting_submission status. Other tools wait for a terminal result, including
+   * across navigation. Inspect a populated form, obtain any required confirmation,
+   * then submit through Playwright or computer interaction without invoking the tool
+   * again. If the tab or embedded frame disappears, or the request times out after
+   * invocation begins, the response reports outcome_unknown and the tool is not
+   * retried.
    *
    * @example
    * ```ts
@@ -65,7 +69,13 @@ export interface InvocationFailure {
 export interface InvocationResult {
   invocation_id: string;
 
-  status: 'completed' | 'canceled' | 'error';
+  /**
+   * awaiting_submission means a non-autosubmit declarative form was populated but
+   * not submitted. Inspect the form, obtain any required confirmation, then submit
+   * through Playwright or computer interaction without invoking the tool again. The
+   * other statuses are terminal results.
+   */
+  status: 'completed' | 'canceled' | 'error' | 'awaiting_submission';
 
   error_text?: string;
 
