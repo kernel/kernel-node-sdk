@@ -4,6 +4,7 @@ export {
   Items,
   type AgentcardCheckoutAuthorization,
   type AgentcardCheckoutPreparation,
+  type AgentcardPreparedProcessor,
   type AuthorizeVaultItemOperationRequest,
   type CardVaultItemSpec,
   type CardVaultItemState,

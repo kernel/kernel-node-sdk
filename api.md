@@ -466,6 +466,7 @@ Types:
 
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AgentcardPreparedProcessor</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AuthorizeVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>

@@ -256,18 +256,20 @@ export interface AgentcardCheckoutAuthorization {
 }
 
 /**
- * One-use Square checkout preparation. Keep the approval page open through token
- * handoff. The amount is display-only and does not constrain the merchant's
- * eventual charge.
+ * One-use processor-bound checkout preparation. Keep the approval page open
+ * through token handoff. The amount is display-only and does not constrain the
+ * merchant's eventual charge.
  */
 export interface AgentcardCheckoutPreparation {
   browser_id: string;
 
   created_at: string;
 
-  environment: 'production' | 'sandbox';
+  environment: 'production' | 'sandbox' | 'shared';
 
   merchant_origin: string;
+
+  psp: AgentcardPreparedProcessor;
 
   /**
    * Preparation consumed means egress claimed the preparation and it cannot be
@@ -288,6 +290,8 @@ export interface AgentcardCheckoutPreparation {
    */
   expires_at?: string;
 }
+
+export type AgentcardPreparedProcessor = 'square' | 'braintree' | 'worldpay' | 'bambora' | 'mercado_pago';
 
 /**
  * Authorize a Link card using its existing purchase specification. Use only after
@@ -507,9 +511,9 @@ export namespace CardVaultItemState {
     masks?: AgentCardCardState.Masks;
 
     /**
-     * One-use Square checkout preparation. Keep the approval page open through token
-     * handoff. The amount is display-only and does not constrain the merchant's
-     * eventual charge.
+     * One-use processor-bound checkout preparation. Keep the approval page open
+     * through token handoff. The amount is display-only and does not constrain the
+     * merchant's eventual charge.
      */
     preparation?: ItemsAPI.AgentcardCheckoutPreparation;
 
@@ -947,8 +951,8 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * Prepare an unused AgentCard card for Square checkout. Deliver the returned
- * approval URL and keep the approval page open. Poll the item until
+ * Prepare an unused AgentCard card for a supported tokenization checkout. Deliver
+ * the returned approval URL and keep the approval page open. Poll the item until
  * ready_to_submit, then submit native Pay before preparation.expires_at. Readiness
  * lasts at most 30 seconds. Unused preparations expire automatically. Preparations
  * are single-use even after failure or expiry; do not automatically retry and
@@ -956,11 +960,11 @@ export interface FillVaultItemOperationResult {
  */
 export interface PrepareCheckoutVaultItemOperationRequest {
   /**
-   * Required when preparing an unused AgentCard card for Square. Consent is bound to
-   * this browser and declared merchant origin, not a tab. Wait for the item's
-   * ready_to_submit status before native Pay and submit within its readiness
-   * deadline. Unused preparations expire automatically; every preparation is
-   * single-use, including after failure or expiry.
+   * Required when preparing an unused AgentCard card for a supported tokenization
+   * processor. Consent is bound to this browser and declared merchant origin, not a
+   * tab. Wait for the item's ready_to_submit status before native Pay and submit
+   * within its readiness deadline. Unused preparations expire automatically; every
+   * preparation is single-use, including after failure or expiry.
    */
   checkout: VaultCheckoutContext;
 
@@ -1033,11 +1037,11 @@ export namespace VaultCardFillField {
 }
 
 /**
- * Required when preparing an unused AgentCard card for Square. Consent is bound to
- * this browser and declared merchant origin, not a tab. Wait for the item's
- * ready_to_submit status before native Pay and submit within its readiness
- * deadline. Unused preparations expire automatically; every preparation is
- * single-use, including after failure or expiry.
+ * Required when preparing an unused AgentCard card for a supported tokenization
+ * processor. Consent is bound to this browser and declared merchant origin, not a
+ * tab. Wait for the item's ready_to_submit status before native Pay and submit
+ * within its readiness deadline. Unused preparations expire automatically; every
+ * preparation is single-use, including after failure or expiry.
  */
 export interface VaultCheckoutContext {
   /**
@@ -1046,15 +1050,24 @@ export interface VaultCheckoutContext {
   browser_id: string;
 
   /**
-   * Square environment, independent of the AgentCard credential mode.
+   * Use production or sandbox for Square, Braintree and Worldpay; shared for Bambora
+   * and Mercado Pago. Shared endpoints do not establish test mode. Merchant
+   * credentials/configuration determine processor test mode, independently of the
+   * AgentCard credential mode.
    */
-  environment: 'production' | 'sandbox';
+  environment: 'production' | 'sandbox' | 'shared';
 
   /**
-   * Canonical HTTPS origin of the top-level merchant document, not the Square
+   * Canonical HTTPS origin of the top-level merchant document, not a processor
    * iframe. HTTP localhost is accepted for tests.
    */
   merchant_origin: string;
+
+  /**
+   * Tokenization processor. Omit for Square compatibility. Non-Square processors
+   * require multi-processor preparation enablement.
+   */
+  psp?: AgentcardPreparedProcessor;
 }
 
 export interface VaultFillField {
@@ -1723,11 +1736,12 @@ export declare namespace ItemPerformOperationParams {
     id_or_name: string;
 
     /**
-     * Body param: Required when preparing an unused AgentCard card for Square. Consent
-     * is bound to this browser and declared merchant origin, not a tab. Wait for the
-     * item's ready_to_submit status before native Pay and submit within its readiness
-     * deadline. Unused preparations expire automatically; every preparation is
-     * single-use, including after failure or expiry.
+     * Body param: Required when preparing an unused AgentCard card for a supported
+     * tokenization processor. Consent is bound to this browser and declared merchant
+     * origin, not a tab. Wait for the item's ready_to_submit status before native Pay
+     * and submit within its readiness deadline. Unused preparations expire
+     * automatically; every preparation is single-use, including after failure or
+     * expiry.
      */
     checkout: VaultCheckoutContext;
 
@@ -1990,6 +2004,7 @@ export declare namespace Items {
   export {
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
+    type AgentcardPreparedProcessor as AgentcardPreparedProcessor,
     type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
