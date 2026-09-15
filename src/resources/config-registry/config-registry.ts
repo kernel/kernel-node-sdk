@@ -104,6 +104,12 @@ export interface Analysis {
    * Lifecycle status of a background analysis.
    */
   status: 'running' | 'completed' | 'failed' | 'canceled' | 'expired';
+
+  /**
+   * The workload description supplied for this analysis. Null when the analysis only
+   * tested connectivity.
+   */
+  intent?: string | null;
 }
 
 export interface AnalysisSummary {
