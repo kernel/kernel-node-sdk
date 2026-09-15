@@ -154,6 +154,12 @@ export interface ConfigRegistryResponse {
   target: Target;
 
   /**
+   * Working configurations for the target, ordered with the recommended
+   * configuration first.
+   */
+  working_configurations: Array<Recommendation>;
+
+  /**
    * Short advisory markdown to facilitate navigating this target. Returned even when
    * no configuration reached the target, since knowing what prevented success is
    * useful without a configuration. Not verified against this target. Null when
@@ -229,6 +235,12 @@ export interface LookupResponse {
   recommendation: RecommendationResult | null;
 
   target: Target;
+
+  /**
+   * Working configurations for the target, ordered with the recommended
+   * configuration first.
+   */
+  working_configurations: Array<Recommendation>;
 
   /**
    * Short advisory markdown to facilitate navigating this target. Returned even when
