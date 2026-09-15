@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.103.0](https://github.com/kernel/kernel-node-sdk/compare/v0.102.0...v0.103.0) (2026-09-15)
+
+
+### Features
+
+* chore(stlc): seal custom-code tracking files ([90b03c0](https://github.com/kernel/kernel-node-sdk/commit/90b03c0dbce1bed5317ddff679cf3a5dec54c241))
+* Expose managed auth field input modes ([6254d10](https://github.com/kernel/kernel-node-sdk/commit/6254d105b06c7b02aefeba97ff628675007751f9))
+* Return working config registry configurations ([652e272](https://github.com/kernel/kernel-node-sdk/commit/652e272a070db532cc5a30707578cfcce74b0056))
+
+
+### Bug Fixes
+
+* disable automatic vault operation retries in SDKs ([efd27b5](https://github.com/kernel/kernel-node-sdk/commit/efd27b5b678fcb6931e512e5811720f8fe7c0954))
+* preserve credential initial values in generated SDK inputs ([99cb849](https://github.com/kernel/kernel-node-sdk/commit/99cb84918ab20fcb99e015989187f565fecde330))
+
 ## [0.102.0](https://github.com/kernel/kernel-node-sdk/compare/v0.101.0...v0.102.0) (2026-09-14)
 
 
