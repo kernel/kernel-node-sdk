@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.104.0](https://github.com/kernel/kernel-node-sdk/compare/v0.103.0...v0.104.0) (2026-09-15)
+
+
+### Features
+
+* Rename workers bot profiler dependency ([0265b8b](https://github.com/kernel/kernel-node-sdk/commit/0265b8be8ce22eb397d1d572c564ea973fa6a402))
+
 ## [0.103.0](https://github.com/kernel/kernel-node-sdk/compare/v0.102.0...v0.103.0) (2026-09-15)
 
 
