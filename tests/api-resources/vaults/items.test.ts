@@ -34,15 +34,15 @@ describe('resource items', () => {
     const responsePromise = client.vaults.items.update('x', {
       id_or_name: 'id_or_name',
       spec: {
-        amount: 3000,
+        amount: 1,
         context:
-          'The order total changed to USD 30.00 including shipping and taxes for one notebook. Update this unapproved request rather than creating a second payment.',
-        currency: 'usd',
-        merchant_name: 'Example Store',
-        merchant_url: 'https://store.example.com',
-        payment_method_id: 'pm_example',
+          'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        currency: 'bFx',
+        merchant_name: 'x',
+        merchant_url: 'https://example.com',
+        payment_method_id: 'x',
         provider: 'link',
-        wallet: 'link-wallet',
+        wallet: 'wallet',
       },
     });
     const rawResponse = await responsePromise.asResponse();
@@ -59,15 +59,15 @@ describe('resource items', () => {
     const response = await client.vaults.items.update('x', {
       id_or_name: 'id_or_name',
       spec: {
-        amount: 3000,
+        amount: 1,
         context:
-          'The order total changed to USD 30.00 including shipping and taxes for one notebook. Update this unapproved request rather than creating a second payment.',
-        currency: 'usd',
-        merchant_name: 'Example Store',
-        merchant_url: 'https://store.example.com',
-        payment_method_id: 'pm_example',
+          'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        currency: 'bFx',
+        merchant_name: 'x',
+        merchant_url: 'https://example.com',
+        payment_method_id: 'x',
         provider: 'link',
-        wallet: 'link-wallet',
+        wallet: 'wallet',
         expires_at: 0,
         line_items: [
           {
@@ -97,6 +97,7 @@ describe('resource items', () => {
           },
         ],
       },
+      type: 'card',
     });
   });
 
