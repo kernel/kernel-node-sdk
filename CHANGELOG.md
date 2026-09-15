@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.105.0](https://github.com/kernel/kernel-node-sdk/compare/v0.104.0...v0.105.0) (2026-09-15)
+
+
+### Features
+
+* Add processor-bound AgentCard preparation contracts ([725bcc8](https://github.com/kernel/kernel-node-sdk/commit/725bcc8dafab5fb2a7c348d4057990a58f476fbd))
+* Square UKP and Hypeman placement load factors ([ed270d2](https://github.com/kernel/kernel-node-sdk/commit/ed270d2c34763157eecd9c9f2177198071c0c810))
+
 ## [0.104.0](https://github.com/kernel/kernel-node-sdk/compare/v0.103.0...v0.104.0) (2026-09-15)
 
 

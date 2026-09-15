@@ -5,6 +5,7 @@ import * as ItemsAPI from './items';
 import {
   AgentcardCheckoutAuthorization,
   AgentcardCheckoutPreparation,
+  AgentcardPreparedProcessor,
   AuthorizeVaultItemOperationRequest,
   CardVaultItemSpec,
   CardVaultItemState,
@@ -158,6 +159,7 @@ export declare namespace Vaults {
     Items as Items,
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
+    type AgentcardPreparedProcessor as AgentcardPreparedProcessor,
     type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
