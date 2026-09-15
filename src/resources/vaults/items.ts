@@ -158,7 +158,11 @@ export class Items extends APIResource {
     options?: RequestOptions,
   ): APIPromise<VaultItemOperationResponse> {
     const { id_or_name, ...body } = params;
-    return this._client.post(path`/vaults/${id_or_name}/items/${key}/operations`, { body, ...options });
+    return this._client.post(path`/vaults/${id_or_name}/items/${key}/operations`, {
+      body,
+      maxRetries: 0,
+      ...options,
+    });
   }
 
   /**
