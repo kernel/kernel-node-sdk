@@ -433,9 +433,17 @@ export namespace CardVaultItemSpec {
   }
 }
 
+/**
+ * Issued Link cards retain encrypted card material for the fill operation. Link
+ * cards do not expose aliases or support egress substitution.
+ */
 export type CardVaultItemState = CardVaultItemState.LinkCardState | CardVaultItemState.AgentCardCardState;
 
 export namespace CardVaultItemState {
+  /**
+   * Issued Link cards retain encrypted card material for the fill operation. Link
+   * cards do not expose aliases or support egress substitution.
+   */
   export interface LinkCardState {
     provider: 'link';
 
@@ -454,8 +462,6 @@ export namespace CardVaultItemState {
       | 'expired'
       | 'declined'
       | 'recovery_required';
-
-    aliases?: ItemsAPI.VaultCardAliases;
 
     domains?: Array<string>;
 
@@ -895,10 +901,9 @@ export interface CredentialVaultItemUpdateRequest {
  *
  * Fill in request order and stop on the first failure. This operation is not
  * atomic: previously filled fields are not rolled back. Never submit the form or
- * click buttons, though input/change events may trigger site behavior. Fill is the
- * preferred browser-checkout path. Aliases remain an alternative for explicitly
- * chosen egress-substitution integrations. Do not automatically retry or fall back
- * to aliases after a failed or indeterminate operation.
+ * click buttons, though input/change events may trigger site behavior. Link cards
+ * use fill for browser checkout and do not expose aliases or support egress
+ * substitution. Do not automatically retry a failed or indeterminate operation.
  *
  * Secret values are never returned or included in operation logs, traces, audit
  * events, or error details. This does not prevent an agent with unrestricted
@@ -1203,6 +1208,10 @@ export namespace VaultItem {
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
+    /**
+     * Issued Link cards retain encrypted card material for the fill operation. Link
+     * cards do not expose aliases or support egress substitution.
+     */
     state: ItemsAPI.CardVaultItemState;
 
     type: 'card';
@@ -1397,6 +1406,10 @@ export namespace VaultItemOperationResponse {
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
+    /**
+     * Issued Link cards retain encrypted card material for the fill operation. Link
+     * cards do not expose aliases or support egress substitution.
+     */
     state: ItemsAPI.CardVaultItemState;
 
     type: 'card';
