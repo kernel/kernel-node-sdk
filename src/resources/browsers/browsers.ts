@@ -607,7 +607,7 @@ export interface BrowserCreateResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * URL the session was most recently asked to navigate to, if any. Recorded for
    * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
    * without waiting for it to load, and any errors (DNS failure, bad status,
    * timeout) are silently dropped. Captures what was requested, not what the browser
@@ -778,7 +778,7 @@ export interface BrowserRetrieveResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * URL the session was most recently asked to navigate to, if any. Recorded for
    * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
    * without waiting for it to load, and any errors (DNS failure, bad status,
    * timeout) are silently dropped. Captures what was requested, not what the browser
@@ -949,7 +949,7 @@ export interface BrowserUpdateResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * URL the session was most recently asked to navigate to, if any. Recorded for
    * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
    * without waiting for it to load, and any errors (DNS failure, bad status,
    * timeout) are silently dropped. Captures what was requested, not what the browser
@@ -1120,7 +1120,7 @@ export interface BrowserListResponse {
   proxy_id?: string;
 
   /**
-   * URL the session was asked to navigate to on creation, if any. Recorded for
+   * URL the session was most recently asked to navigate to, if any. Recorded for
    * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
    * without waiting for it to load, and any errors (DNS failure, bad status,
    * timeout) are silently dropped. Captures what was requested, not what the browser
@@ -1481,6 +1481,14 @@ export interface BrowserUpdateParams {
    * to remove proxy. Deprecated in favor of proxy.
    */
   proxy_id?: string | null;
+
+  /**
+   * Optional URL to navigate the browser to after applying this update. When a
+   * profile is loaded in the same update, this overrides the profile's restored
+   * tabs. Navigation is best-effort, so failures do not fail the update. Omit or set
+   * to an empty string to leave the current page unchanged.
+   */
+  start_url?: string;
 
   /**
    * User-defined key-value tags for the browser session. Omit to leave unchanged.

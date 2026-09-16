@@ -104,6 +104,12 @@ export interface Analysis {
    * Lifecycle status of a background analysis.
    */
   status: 'running' | 'completed' | 'failed' | 'canceled' | 'expired';
+
+  /**
+   * The workload description supplied for this analysis. Null when the analysis only
+   * tested connectivity.
+   */
+  intent?: string | null;
 }
 
 export interface AnalysisSummary {
@@ -208,11 +214,11 @@ export interface Evidence {
   success_rate: number;
 
   /**
-   * Most recent contributing run where this config met the success threshold.
-   * Omitted for knowledge assembled from runs that did not independently meet the
-   * threshold.
+   * Most recent contributing run whose evidence supported recommending this
+   * configuration. Omitted when no individual run independently met the
+   * recommendation threshold.
    */
-  last_verified_at?: string | null;
+  last_supported_at?: string | null;
 }
 
 export interface LookupRequest {
@@ -453,7 +459,9 @@ export interface Recommendation {
   evidence: Evidence;
 
   /**
-   * Specificity of knowledge matched for this recommendation.
+   * Specificity of knowledge matched for this recommendation. Exact matches use
+   * knowledge for the requested target; host and domain matches use broader fallback
+   * knowledge.
    */
   match_scope: 'exact' | 'host' | 'domain';
 
@@ -468,13 +476,6 @@ export interface Recommendation {
   proxy: Proxy;
 
   type: 'recommendation';
-
-  /**
-   * Exact matches meet the evidence threshold; host and domain fallbacks are
-   * inferred. Check evidence.last_verified_at for successful verification age and
-   * last_observed_at for the latest evidence.
-   */
-  verification: 'verified' | 'inferred';
 }
 
 /**
@@ -542,8 +543,9 @@ export interface ResolveRequest {
    * any non-HTTPS destination as off-site and will not drive an http one. Kernel
    * uses it to drive the browser further into the site, where it can observe
    * protections that only appear once a session interacts. When this target already
-   * has a verified configuration, the run confirms that one instead of re-deriving
-   * the whole matrix, so supplying an intent narrows what can be recommended.
+   * has a recommended configuration, the run confirms that one instead of
+   * re-deriving the whole matrix, so supplying an intent narrows what can be
+   * recommended.
    */
   intent?: string;
 }
@@ -609,8 +611,9 @@ export interface ConfigRegistryResolveParams {
    * any non-HTTPS destination as off-site and will not drive an http one. Kernel
    * uses it to drive the browser further into the site, where it can observe
    * protections that only appear once a session interacts. When this target already
-   * has a verified configuration, the run confirms that one instead of re-deriving
-   * the whole matrix, so supplying an intent narrows what can be recommended.
+   * has a recommended configuration, the run confirms that one instead of
+   * re-deriving the whole matrix, so supplying an intent narrows what can be
+   * recommended.
    */
   intent?: string;
 }

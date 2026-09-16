@@ -93,6 +93,7 @@ Methods:
 
 - <code title="get /config-registry/analyses/{id}">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">retrieve</a>(id) -> ConfigRegistryResponse</code>
 - <code title="get /config-registry/analyses">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
+- <code title="post /config-registry/analyses/{id}/cancel">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">cancel</a>(id) -> ConfigRegistryResponse</code>
 
 # Browsers
 
@@ -466,6 +467,7 @@ Types:
 
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AgentcardPreparedProcessor</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AuthorizeVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
