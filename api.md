@@ -106,6 +106,11 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyConfig</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyMode</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplContent</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplImageContent</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplRequest</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplResult</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplTextContent</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
@@ -125,6 +130,7 @@ Methods:
 - <code title="post /browsers/{id_or_name}/curl">client.browsers.<a href="./src/resources/browsers/browsers.ts">curl</a>(idOrName, { ...params }) -> BrowserCurlResponse</code>
 - <code title="delete /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(idOrName) -> void</code>
 - <code title="post /browsers/{id_or_name}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(idOrName, { ...params }) -> void</code>
+- <code title="post /browsers/{id_or_name}/repl">client.browsers.<a href="./src/resources/browsers/browsers.ts">repl</a>(idOrName, { ...params }) -> BrowserReplResult</code>
 
 ## Telemetry
 

@@ -149,9 +149,6 @@ import { multipartFormRequestOptions } from '../../internal/uploads';
 import { path } from '../../internal/utils/path';
 import { browserFetch, type BrowserFetchInit } from '../../lib/browser-fetch';
 
-/**
- * Create and manage browser sessions.
- */
 export class Browsers extends APIResource {
   telemetry: TelemetryAPI.Telemetry = new TelemetryAPI.Telemetry(this._client);
   replays: ReplaysAPI.Replays = new ReplaysAPI.Replays(this._client);
@@ -306,6 +303,33 @@ export class Browsers extends APIResource {
       ),
     );
   }
+
+  /**
+   * Execute JavaScript in a persistent Node.js runtime inside the browser VM.
+   * Top-level bindings, closures, mutations, and dynamically imported modules
+   * persist across calls until the REPL is reset or replaced. Start with
+   * `repl.help()` to list available methods, or call `repl.help("click")` for
+   * detailed help.
+   *
+   * Expression values are ignored. Emit ordered text or image output with
+   * `repl.write(...)`, console methods, or `repl.emitImage(...)`. The runtime also
+   * exposes browser-control helpers, WebMCP, Patchright, Playwright, and raw CDP.
+   *
+   * Executions are serialized. A timeout, crash, OOM, or protocol failure terminates
+   * the REPL and changes its `repl_id`. This is unrestricted code execution inside
+   * the browser VM and is not sandboxed.
+   *
+   * @example
+   * ```ts
+   * const browserReplResult = await client.browsers.repl(
+   *   'htzv5orfit78e1m2biiifpbv',
+   *   { code: 'code' },
+   * );
+   * ```
+   */
+  repl(idOrName: string, body: BrowserReplParams, options?: RequestOptions): APIPromise<BrowserReplResult> {
+    return this._client.post(path`/browsers/${idOrName}/repl`, { body, ...options });
+  }
 }
 
 export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListResponse>;
@@ -433,6 +457,104 @@ export interface BrowserProxyConfig {
  * on browser update to restore the browser default after selected-proxy egress.
  */
 export type BrowserProxyMode = 'direct' | 'default';
+
+/**
+ * Ordered discriminated union of Browser REPL output items.
+ */
+export type BrowserReplContent = BrowserReplTextContent | BrowserReplImageContent;
+
+export interface BrowserReplImageContent {
+  data_b64: string;
+
+  mime_type: string;
+
+  type: 'image';
+}
+
+/**
+ * Request to execute code in the persistent Browser REPL.
+ */
+export interface BrowserReplRequest {
+  /**
+   * JavaScript evaluated in a persistent Node.js runtime. Top-level bindings persist
+   * until the browser VM's API process exits, the REPL is reset, or the REPL is
+   * terminated after a crash or timeout. Static top-level imports are unsupported;
+   * use dynamic `import()`. Expression values are ignored; emit output with
+   * `repl.write(...)`, console methods, or `repl.emitImage(...)`. May be empty only
+   * when `reset` is true.
+   */
+  code: string;
+
+  /**
+   * Terminate the current REPL, start a fresh one, and then evaluate code.
+   */
+  reset?: boolean;
+
+  /**
+   * Maximum execution time in seconds. Default is 60.
+   */
+  timeout_sec?: number;
+}
+
+/**
+ * Result of Browser REPL code execution.
+ */
+export interface BrowserReplResult {
+  /**
+   * CUID2 identifying the exact state-holding REPL process used for this execution.
+   * Stable across calls and Chromium reconnects; changes after an API restart,
+   * explicit reset, execution timeout, or REPL crash.
+   */
+  repl_id: string;
+
+  /**
+   * Whether the code executed successfully.
+   */
+  success: boolean;
+
+  /**
+   * Optional ordered text/image output produced by the execution.
+   */
+  content?: Array<BrowserReplContent>;
+
+  /**
+   * True if text or image output was dropped or truncated due to response limits.
+   */
+  content_truncated?: boolean;
+
+  /**
+   * Wall-clock execution time in milliseconds.
+   */
+  duration_ms?: number;
+
+  /**
+   * Error message if execution failed.
+   */
+  error?: string;
+
+  /**
+   * True if the REPL identified by `repl_id` was terminated by this request. The
+   * next request lazily starts a fresh REPL with a new `repl_id`.
+   */
+  repl_terminated?: boolean;
+
+  /**
+   * Stack trace if execution failed.
+   */
+  stack?: string;
+}
+
+export interface BrowserReplTextContent {
+  /**
+   * `write` is emitted by `repl.write`; `stdout` and `stderr` are emitted by console
+   * methods.
+   */
+  channel: 'write' | 'stdout' | 'stderr';
+
+  text: string;
+
+  type: 'text';
+}
 
 /**
  * Session usage metrics.
@@ -1703,6 +1825,28 @@ export namespace BrowserLoadExtensionsParams {
   }
 }
 
+export interface BrowserReplParams {
+  /**
+   * JavaScript evaluated in a persistent Node.js runtime. Top-level bindings persist
+   * until the browser VM's API process exits, the REPL is reset, or the REPL is
+   * terminated after a crash or timeout. Static top-level imports are unsupported;
+   * use dynamic `import()`. Expression values are ignored; emit output with
+   * `repl.write(...)`, console methods, or `repl.emitImage(...)`. May be empty only
+   * when `reset` is true.
+   */
+  code: string;
+
+  /**
+   * Terminate the current REPL, start a fresh one, and then evaluate code.
+   */
+  reset?: boolean;
+
+  /**
+   * Maximum execution time in seconds. Default is 60.
+   */
+  timeout_sec?: number;
+}
+
 Browsers.Telemetry = TelemetryAPITelemetry;
 Browsers.Replays = Replays;
 Browsers.Fs = Fs;
@@ -1721,6 +1865,11 @@ export declare namespace Browsers {
     type BrowserProxy as BrowserProxy,
     type BrowserProxyConfig as BrowserProxyConfig,
     type BrowserProxyMode as BrowserProxyMode,
+    type BrowserReplContent as BrowserReplContent,
+    type BrowserReplImageContent as BrowserReplImageContent,
+    type BrowserReplRequest as BrowserReplRequest,
+    type BrowserReplResult as BrowserReplResult,
+    type BrowserReplTextContent as BrowserReplTextContent,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type Tags as Tags,
@@ -1737,6 +1886,7 @@ export declare namespace Browsers {
     type BrowserListParams as BrowserListParams,
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
+    type BrowserReplParams as BrowserReplParams,
   };
 
   export {
