@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.106.0 (2026-09-16)
+
+Full Changelog: [v0.104.0...v0.106.0](https://github.com/kernel/kernel-node-sdk/compare/v0.104.0...v0.106.0)
+
+### Features
+
+* Add processor-bound AgentCard preparation contracts ([725bcc8](https://github.com/kernel/kernel-node-sdk/commit/725bcc8dafab5fb2a7c348d4057990a58f476fbd))
+* Add start_url to browser session updates ([10ab182](https://github.com/kernel/kernel-node-sdk/commit/10ab18213ba857f37aaa113c1f802f009db8ceab))
+* Polish and publish the Config Registry API ([92a7d13](https://github.com/kernel/kernel-node-sdk/commit/92a7d131a4e1af661b4b05ab6be95ac27df166eb))
+* Square UKP and Hypeman placement load factors ([ed270d2](https://github.com/kernel/kernel-node-sdk/commit/ed270d2c34763157eecd9c9f2177198071c0c810))
+
 ## [0.104.0](https://github.com/kernel/kernel-node-sdk/compare/v0.103.0...v0.104.0) (2026-09-15)
 
 
