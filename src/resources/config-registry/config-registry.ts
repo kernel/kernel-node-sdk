@@ -261,7 +261,7 @@ export interface NoRecommendation {
   /**
    * Machine-readable reason Kernel cannot currently provide a config recommendation.
    */
-  code: 'proxy_restricted' | 'no_working_configuration' | 'inconclusive';
+  code: 'proxy_restricted' | 'target_not_evaluable' | 'no_working_configuration' | 'inconclusive';
 
   /**
    * Human-readable explanation suitable for display.

@@ -210,4 +210,25 @@ describe('resource browsers', () => {
       extensions: [{ name: 'name', zip_file: await toFile(Buffer.from('Example data'), 'README.md') }],
     });
   });
+
+  // Mock server tests are disabled
+  test.skip('repl: only required params', async () => {
+    const responsePromise = client.browsers.repl('htzv5orfit78e1m2biiifpbv', { code: 'code' });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
+  test.skip('repl: required and optional params', async () => {
+    const response = await client.browsers.repl('htzv5orfit78e1m2biiifpbv', {
+      code: 'code',
+      reset: true,
+      timeout_sec: 1,
+    });
+  });
 });

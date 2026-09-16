@@ -168,6 +168,12 @@ import {
   BrowserProxy,
   BrowserProxyConfig,
   BrowserProxyMode,
+  BrowserReplContent,
+  BrowserReplImageContent,
+  BrowserReplParams,
+  BrowserReplRequest,
+  BrowserReplResult,
+  BrowserReplTextContent,
   BrowserRetrieveParams,
   BrowserRetrieveResponse,
   BrowserUpdateParams,
@@ -1053,9 +1059,6 @@ export class Kernel {
    * Resolve browser and proxy recommendations for bot-protected sites.
    */
   configRegistry: API.ConfigRegistry = new API.ConfigRegistry(this);
-  /**
-   * Create and manage browser sessions.
-   */
   browsers: API.Browsers = new API.Browsers(this);
   /**
    * Create, list, retrieve, and delete browser profiles.
@@ -1205,6 +1208,11 @@ export declare namespace Kernel {
     type BrowserProxy as BrowserProxy,
     type BrowserProxyConfig as BrowserProxyConfig,
     type BrowserProxyMode as BrowserProxyMode,
+    type BrowserReplContent as BrowserReplContent,
+    type BrowserReplImageContent as BrowserReplImageContent,
+    type BrowserReplRequest as BrowserReplRequest,
+    type BrowserReplResult as BrowserReplResult,
+    type BrowserReplTextContent as BrowserReplTextContent,
     type BrowserUsage as BrowserUsage,
     type Profile as Profile,
     type Tags as Tags,
@@ -1221,6 +1229,7 @@ export declare namespace Kernel {
     type BrowserListParams as BrowserListParams,
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
+    type BrowserReplParams as BrowserReplParams,
   };
 
   export {
