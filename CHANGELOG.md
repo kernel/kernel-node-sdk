@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.107.0](https://github.com/kernel/kernel-node-sdk/compare/v0.106.0...v0.107.0) (2026-09-16)
+
+
+### Features
+
+* Classify unevaluable config registry targets ([e6d16a7](https://github.com/kernel/kernel-node-sdk/commit/e6d16a732f8581b7c46bc2b47ffd4f77a7bb6ed5))
+* Expose persistent Browser REPL through the API ([f7b2e99](https://github.com/kernel/kernel-node-sdk/commit/f7b2e99d2b632ad36ef2f831afa53bc8175a1ae8))
+* Return Link spend request errors directly ([25d898f](https://github.com/kernel/kernel-node-sdk/commit/25d898f383e7c712478df9ed62d2d7f460ee68f8))
+
 ## 0.106.0 (2026-09-16)
 
 Full Changelog: [v0.104.0...v0.106.0](https://github.com/kernel/kernel-node-sdk/compare/v0.104.0...v0.106.0)
