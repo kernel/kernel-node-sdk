@@ -93,6 +93,7 @@ Methods:
 
 - <code title="get /config-registry/analyses/{id}">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">retrieve</a>(id) -> ConfigRegistryResponse</code>
 - <code title="get /config-registry/analyses">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
+- <code title="post /config-registry/analyses/{id}/cancel">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">cancel</a>(id) -> ConfigRegistryResponse</code>
 
 # Browsers
 

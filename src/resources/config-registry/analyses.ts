@@ -47,6 +47,22 @@ export class Analyses extends APIResource {
       { query, ...options },
     );
   }
+
+  /**
+   * Requests cancellation of a running project-scoped analysis. Cancellation is
+   * asynchronous; poll the analysis until its status becomes canceled. Repeating the
+   * request after the analysis reaches a terminal state returns the existing
+   * outcome.
+   *
+   * @example
+   * ```ts
+   * const configRegistryResponse =
+   *   await client.configRegistry.analyses.cancel('id');
+   * ```
+   */
+  cancel(id: string, options?: RequestOptions): APIPromise<ConfigRegistryAPI.ConfigRegistryResponse> {
+    return this._client.post(path`/config-registry/analyses/${id}/cancel`, options);
+  }
 }
 
 export interface AnalysisListParams extends OffsetPaginationParams {
