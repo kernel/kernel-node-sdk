@@ -133,8 +133,10 @@ export class Items extends APIResource {
    * device approval before native Square Pay. Keep the returned approval page open,
    * poll until ready_to_submit, then submit before preparation.expires_at. Unused
    * preparations expire automatically and cannot be reused. If spend-request
-   * creation is rate limited, returns HTTP 429 with code
-   * `spend_request_rate_limited`; stop and back off before retrying.
+   * creation is rejected with a non-retryable provider error, the card item is
+   * deleted and the provider's error code and message are returned. Rate limits
+   * return HTTP 429 and retain the card item; stop, back off, and retry the same
+   * authorize operation.
    *
    * Fill returns a value-free execution result. Validation failures before writing
    * return 400 (invalid request or targets), 403 (access or destination denied), 404
@@ -256,18 +258,20 @@ export interface AgentcardCheckoutAuthorization {
 }
 
 /**
- * One-use Square checkout preparation. Keep the approval page open through token
- * handoff. The amount is display-only and does not constrain the merchant's
- * eventual charge.
+ * One-use processor-bound checkout preparation. Keep the approval page open
+ * through token handoff. The amount is display-only and does not constrain the
+ * merchant's eventual charge.
  */
 export interface AgentcardCheckoutPreparation {
   browser_id: string;
 
   created_at: string;
 
-  environment: 'production' | 'sandbox';
+  environment: 'production' | 'sandbox' | 'shared';
 
   merchant_origin: string;
+
+  psp: AgentcardPreparedProcessor;
 
   /**
    * Preparation consumed means egress claimed the preparation and it cannot be
@@ -288,6 +292,8 @@ export interface AgentcardCheckoutPreparation {
    */
   expires_at?: string;
 }
+
+export type AgentcardPreparedProcessor = 'square' | 'braintree' | 'worldpay' | 'bambora' | 'mercado_pago';
 
 /**
  * Authorize a Link card using its existing purchase specification. Use only after
@@ -312,7 +318,8 @@ export namespace CardVaultItemSpec {
    */
   export interface LinkCardVaultItemSpec {
     /**
-     * Integer amount in minor currency units.
+     * Integer amount in minor currency units. Link permits at most 50000 per spend
+     * request.
      */
     amount: number;
 
@@ -429,9 +436,17 @@ export namespace CardVaultItemSpec {
   }
 }
 
+/**
+ * Issued Link cards retain encrypted card material for the fill operation. Link
+ * cards do not expose aliases or support egress substitution.
+ */
 export type CardVaultItemState = CardVaultItemState.LinkCardState | CardVaultItemState.AgentCardCardState;
 
 export namespace CardVaultItemState {
+  /**
+   * Issued Link cards retain encrypted card material for the fill operation. Link
+   * cards do not expose aliases or support egress substitution.
+   */
   export interface LinkCardState {
     provider: 'link';
 
@@ -450,8 +465,6 @@ export namespace CardVaultItemState {
       | 'expired'
       | 'declined'
       | 'recovery_required';
-
-    aliases?: ItemsAPI.VaultCardAliases;
 
     domains?: Array<string>;
 
@@ -507,9 +520,9 @@ export namespace CardVaultItemState {
     masks?: AgentCardCardState.Masks;
 
     /**
-     * One-use Square checkout preparation. Keep the approval page open through token
-     * handoff. The amount is display-only and does not constrain the merchant's
-     * eventual charge.
+     * One-use processor-bound checkout preparation. Keep the approval page open
+     * through token handoff. The amount is display-only and does not constrain the
+     * merchant's eventual charge.
      */
     preparation?: ItemsAPI.AgentcardCheckoutPreparation;
 
@@ -891,10 +904,9 @@ export interface CredentialVaultItemUpdateRequest {
  *
  * Fill in request order and stop on the first failure. This operation is not
  * atomic: previously filled fields are not rolled back. Never submit the form or
- * click buttons, though input/change events may trigger site behavior. Fill is the
- * preferred browser-checkout path. Aliases remain an alternative for explicitly
- * chosen egress-substitution integrations. Do not automatically retry or fall back
- * to aliases after a failed or indeterminate operation.
+ * click buttons, though input/change events may trigger site behavior. Link cards
+ * use fill for browser checkout and do not expose aliases or support egress
+ * substitution. Do not automatically retry a failed or indeterminate operation.
  *
  * Secret values are never returned or included in operation logs, traces, audit
  * events, or error details. This does not prevent an agent with unrestricted
@@ -947,8 +959,8 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * Prepare an unused AgentCard card for Square checkout. Deliver the returned
- * approval URL and keep the approval page open. Poll the item until
+ * Prepare an unused AgentCard card for a supported tokenization checkout. Deliver
+ * the returned approval URL and keep the approval page open. Poll the item until
  * ready_to_submit, then submit native Pay before preparation.expires_at. Readiness
  * lasts at most 30 seconds. Unused preparations expire automatically. Preparations
  * are single-use even after failure or expiry; do not automatically retry and
@@ -956,11 +968,11 @@ export interface FillVaultItemOperationResult {
  */
 export interface PrepareCheckoutVaultItemOperationRequest {
   /**
-   * Required when preparing an unused AgentCard card for Square. Consent is bound to
-   * this browser and declared merchant origin, not a tab. Wait for the item's
-   * ready_to_submit status before native Pay and submit within its readiness
-   * deadline. Unused preparations expire automatically; every preparation is
-   * single-use, including after failure or expiry.
+   * Required when preparing an unused AgentCard card for a supported tokenization
+   * processor. Consent is bound to this browser and declared merchant origin, not a
+   * tab. Wait for the item's ready_to_submit status before native Pay and submit
+   * within its readiness deadline. Unused preparations expire automatically; every
+   * preparation is single-use, including after failure or expiry.
    */
   checkout: VaultCheckoutContext;
 
@@ -1033,11 +1045,11 @@ export namespace VaultCardFillField {
 }
 
 /**
- * Required when preparing an unused AgentCard card for Square. Consent is bound to
- * this browser and declared merchant origin, not a tab. Wait for the item's
- * ready_to_submit status before native Pay and submit within its readiness
- * deadline. Unused preparations expire automatically; every preparation is
- * single-use, including after failure or expiry.
+ * Required when preparing an unused AgentCard card for a supported tokenization
+ * processor. Consent is bound to this browser and declared merchant origin, not a
+ * tab. Wait for the item's ready_to_submit status before native Pay and submit
+ * within its readiness deadline. Unused preparations expire automatically; every
+ * preparation is single-use, including after failure or expiry.
  */
 export interface VaultCheckoutContext {
   /**
@@ -1046,15 +1058,24 @@ export interface VaultCheckoutContext {
   browser_id: string;
 
   /**
-   * Square environment, independent of the AgentCard credential mode.
+   * Use production or sandbox for Square, Braintree and Worldpay; shared for Bambora
+   * and Mercado Pago. Shared endpoints do not establish test mode. Merchant
+   * credentials/configuration determine processor test mode, independently of the
+   * AgentCard credential mode.
    */
-  environment: 'production' | 'sandbox';
+  environment: 'production' | 'sandbox' | 'shared';
 
   /**
-   * Canonical HTTPS origin of the top-level merchant document, not the Square
+   * Canonical HTTPS origin of the top-level merchant document, not a processor
    * iframe. HTTP localhost is accepted for tests.
    */
   merchant_origin: string;
+
+  /**
+   * Tokenization processor. Omit for Square compatibility. Non-Square processors
+   * require multi-processor preparation enablement.
+   */
+  psp?: AgentcardPreparedProcessor;
 }
 
 export interface VaultFillField {
@@ -1190,6 +1211,10 @@ export namespace VaultItem {
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
+    /**
+     * Issued Link cards retain encrypted card material for the fill operation. Link
+     * cards do not expose aliases or support egress substitution.
+     */
     state: ItemsAPI.CardVaultItemState;
 
     type: 'card';
@@ -1384,6 +1409,10 @@ export namespace VaultItemOperationResponse {
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
+    /**
+     * Issued Link cards retain encrypted card material for the fill operation. Link
+     * cards do not expose aliases or support egress substitution.
+     */
     state: ItemsAPI.CardVaultItemState;
 
     type: 'card';
@@ -1723,11 +1752,12 @@ export declare namespace ItemPerformOperationParams {
     id_or_name: string;
 
     /**
-     * Body param: Required when preparing an unused AgentCard card for Square. Consent
-     * is bound to this browser and declared merchant origin, not a tab. Wait for the
-     * item's ready_to_submit status before native Pay and submit within its readiness
-     * deadline. Unused preparations expire automatically; every preparation is
-     * single-use, including after failure or expiry.
+     * Body param: Required when preparing an unused AgentCard card for a supported
+     * tokenization processor. Consent is bound to this browser and declared merchant
+     * origin, not a tab. Wait for the item's ready_to_submit status before native Pay
+     * and submit within its readiness deadline. Unused preparations expire
+     * automatically; every preparation is single-use, including after failure or
+     * expiry.
      */
     checkout: VaultCheckoutContext;
 
@@ -1990,6 +2020,7 @@ export declare namespace Items {
   export {
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
+    type AgentcardPreparedProcessor as AgentcardPreparedProcessor,
     type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.107.0](https://github.com/kernel/kernel-node-sdk/compare/v0.106.0...v0.107.0) (2026-09-16)
+
+
+### Features
+
+* Classify unevaluable config registry targets ([e6d16a7](https://github.com/kernel/kernel-node-sdk/commit/e6d16a732f8581b7c46bc2b47ffd4f77a7bb6ed5))
+* Expose persistent Browser REPL through the API ([f7b2e99](https://github.com/kernel/kernel-node-sdk/commit/f7b2e99d2b632ad36ef2f831afa53bc8175a1ae8))
+* Return Link spend request errors directly ([25d898f](https://github.com/kernel/kernel-node-sdk/commit/25d898f383e7c712478df9ed62d2d7f460ee68f8))
+
+## 0.106.0 (2026-09-16)
+
+Full Changelog: [v0.104.0...v0.106.0](https://github.com/kernel/kernel-node-sdk/compare/v0.104.0...v0.106.0)
+
+### Features
+
+* Add processor-bound AgentCard preparation contracts ([725bcc8](https://github.com/kernel/kernel-node-sdk/commit/725bcc8dafab5fb2a7c348d4057990a58f476fbd))
+* Add start_url to browser session updates ([10ab182](https://github.com/kernel/kernel-node-sdk/commit/10ab18213ba857f37aaa113c1f802f009db8ceab))
+* Polish and publish the Config Registry API ([92a7d13](https://github.com/kernel/kernel-node-sdk/commit/92a7d131a4e1af661b4b05ab6be95ac27df166eb))
+* Square UKP and Hypeman placement load factors ([ed270d2](https://github.com/kernel/kernel-node-sdk/commit/ed270d2c34763157eecd9c9f2177198071c0c810))
+
 ## [0.104.0](https://github.com/kernel/kernel-node-sdk/compare/v0.103.0...v0.104.0) (2026-09-15)
 
 

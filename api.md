@@ -93,6 +93,7 @@ Methods:
 
 - <code title="get /config-registry/analyses/{id}">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">retrieve</a>(id) -> ConfigRegistryResponse</code>
 - <code title="get /config-registry/analyses">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">list</a>({ ...params }) -> AnalysisSummariesOffsetPagination</code>
+- <code title="post /config-registry/analyses/{id}/cancel">client.configRegistry.analyses.<a href="./src/resources/config-registry/analyses.ts">cancel</a>(id) -> ConfigRegistryResponse</code>
 
 # Browsers
 
@@ -105,6 +106,11 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxy</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyConfig</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserProxyMode</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplContent</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplImageContent</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplRequest</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplResult</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserReplTextContent</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
@@ -124,6 +130,7 @@ Methods:
 - <code title="post /browsers/{id_or_name}/curl">client.browsers.<a href="./src/resources/browsers/browsers.ts">curl</a>(idOrName, { ...params }) -> BrowserCurlResponse</code>
 - <code title="delete /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(idOrName) -> void</code>
 - <code title="post /browsers/{id_or_name}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(idOrName, { ...params }) -> void</code>
+- <code title="post /browsers/{id_or_name}/repl">client.browsers.<a href="./src/resources/browsers/browsers.ts">repl</a>(idOrName, { ...params }) -> BrowserReplResult</code>
 
 ## Telemetry
 
@@ -466,6 +473,7 @@ Types:
 
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AgentcardPreparedProcessor</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AuthorizeVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
