@@ -1,0 +1,133 @@
+import { APIConnectionTimeoutError, APIUserAbortError, KernelError } from '../core/error';
+import { buildHeaders } from '../internal/headers';
+import type { RequestOptions } from '../internal/request-options';
+import type { ConfigRegistryResponse } from '../resources/config-registry/config-registry';
+
+const defaultPollIntervalMs = 5_000;
+const terminalStatuses = new Set(['completed', 'failed', 'canceled', 'expired']);
+
+export type ConfigRegistryAnalysisWaitOptions = Pick<
+  RequestOptions,
+  'headers' | 'maxRetries' | 'timeout' | 'fetchOptions' | 'signal' | 'defaultBaseURL'
+> & {
+  pollIntervalMs?: number;
+  maxWaitMs?: number | null;
+};
+
+type AnalysisRetriever = {
+  retrieve(id: string, options?: RequestOptions): Promise<ConfigRegistryResponse>;
+};
+
+const timeoutError = (id: string, polls: number, lastStatus: string | undefined, startedAt: number) =>
+  new APIConnectionTimeoutError({
+    message: `Timed out waiting for config registry analysis ${JSON.stringify(id)} after ${(
+      performance.now() - startedAt
+    ).toFixed(0)}ms and ${polls} polls; last status was ${JSON.stringify(lastStatus)}`,
+  });
+
+const wait = (ms: number, signal?: AbortSignal | null): Promise<void> => {
+  if (signal?.aborted) {
+    return Promise.reject(new APIUserAbortError());
+  }
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+      if (error) reject(error);
+      else resolve();
+    };
+    const onAbort = () => finish(new APIUserAbortError());
+    const timer = setTimeout(() => finish(), ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
+    if (signal?.aborted) onAbort();
+  });
+};
+
+const analysisFinished = (response: ConfigRegistryResponse, requestedID: string): [boolean, string] => {
+  const analysis = response.analysis;
+  if (!analysis || typeof analysis !== 'object') {
+    throw new KernelError(
+      `Config registry response for ${JSON.stringify(requestedID)} is missing an analysis`,
+    );
+  }
+  if (typeof analysis.id !== 'string' || !analysis.id) {
+    throw new KernelError(
+      `Config registry response for ${JSON.stringify(requestedID)} has no valid analysis ID`,
+    );
+  }
+  if (analysis.id !== requestedID) {
+    throw new KernelError(
+      `Config registry response for ${JSON.stringify(requestedID)} returned analysis ${JSON.stringify(
+        analysis.id,
+      )}`,
+    );
+  }
+  if (typeof analysis.status !== 'string' || !analysis.status) {
+    throw new KernelError(`Config registry analysis ${JSON.stringify(requestedID)} has no valid status`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(analysis, 'finished_at')) {
+    throw new KernelError(`Config registry analysis ${JSON.stringify(requestedID)} is missing finished_at`);
+  }
+  if (
+    analysis.finished_at !== null &&
+    (typeof analysis.finished_at !== 'string' || Number.isNaN(Date.parse(analysis.finished_at)))
+  ) {
+    throw new KernelError(
+      `Config registry analysis ${JSON.stringify(requestedID)} has an invalid finished_at`,
+    );
+  }
+
+  return [analysis.finished_at !== null || terminalStatuses.has(analysis.status), analysis.status];
+};
+
+export async function waitForConfigRegistryAnalysis(
+  resource: AnalysisRetriever,
+  id: string,
+  options: ConfigRegistryAnalysisWaitOptions = {},
+): Promise<ConfigRegistryResponse> {
+  if (!id) {
+    throw new TypeError('id must be non-empty');
+  }
+  const { pollIntervalMs = defaultPollIntervalMs, maxWaitMs, ...requestOptions } = options;
+  if (!Number.isFinite(pollIntervalMs) || pollIntervalMs <= 0) {
+    throw new RangeError('pollIntervalMs must be finite and positive');
+  }
+  if (maxWaitMs != null && (!Number.isFinite(maxWaitMs) || maxWaitMs < 0)) {
+    throw new RangeError('maxWaitMs must be finite and non-negative');
+  }
+
+  const startedAt = performance.now();
+  const deadline = maxWaitMs == null ? undefined : startedAt + maxWaitMs;
+  const retrieveOptions: RequestOptions = {
+    ...requestOptions,
+    headers: buildHeaders([requestOptions.headers, { 'X-Stainless-Poll-Helper': 'true' }]),
+  };
+  let polls = 0;
+  let lastStatus: string | undefined;
+
+  while (true) {
+    if (polls > 0 && deadline !== undefined && performance.now() >= deadline) {
+      throw timeoutError(id, polls, lastStatus, startedAt);
+    }
+
+    // oxlint-disable-next-line no-await-in-loop -- each retrieval determines whether another poll is needed.
+    const response = await resource.retrieve(id, retrieveOptions);
+    polls += 1;
+    const [finished, status] = analysisFinished(response, id);
+    lastStatus = status;
+    if (finished) return response;
+
+    let delay = pollIntervalMs * (0.9 + Math.random() * 0.2);
+    if (deadline !== undefined) {
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) throw timeoutError(id, polls, lastStatus, startedAt);
+      delay = Math.min(delay, remaining);
+    }
+    // oxlint-disable-next-line no-await-in-loop -- cancellation and the polling deadline must cover the delay.
+    await wait(delay, requestOptions.signal);
+  }
+}

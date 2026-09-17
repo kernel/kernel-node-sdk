@@ -7,6 +7,10 @@ import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
 import { RequestOptions } from '../../internal/request-options';
 import { path } from '../../internal/utils/path';
+import {
+  waitForConfigRegistryAnalysis,
+  type ConfigRegistryAnalysisWaitOptions,
+} from '../../lib/config-registry-wait';
 
 /**
  * Resolve browser and proxy recommendations for bot-protected sites.
@@ -24,6 +28,20 @@ export class Analyses extends APIResource {
    */
   retrieve(id: string, options?: RequestOptions): APIPromise<ConfigRegistryAPI.ConfigRegistryResponse> {
     return this._client.get(path`/config-registry/analyses/${id}`, options);
+  }
+
+  /**
+   * Wait for an analysis to finish and return its complete result.
+   *
+   * The first retrieval happens immediately. `maxWaitMs` is a soft polling
+   * deadline: an in-flight request and its normal retries may finish after it.
+   * Timing out or aborting does not cancel the remote analysis.
+   */
+  async waitForResult(
+    id: string,
+    options?: ConfigRegistryAnalysisWaitOptions,
+  ): Promise<ConfigRegistryAPI.ConfigRegistryResponse> {
+    return await waitForConfigRegistryAnalysis(this, id, options);
   }
 
   /**
@@ -73,7 +91,10 @@ export interface AnalysisListParams extends OffsetPaginationParams {
 }
 
 export declare namespace Analyses {
-  export { type AnalysisListParams as AnalysisListParams };
+  export {
+    type AnalysisListParams as AnalysisListParams,
+    type ConfigRegistryAnalysisWaitOptions as ConfigRegistryAnalysisWaitOptions,
+  };
 }
 
-export { type AnalysisSummariesOffsetPagination };
+export { type AnalysisSummariesOffsetPagination, type ConfigRegistryAnalysisWaitOptions };
