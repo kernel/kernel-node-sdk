@@ -429,8 +429,9 @@ export namespace CardVaultItemSpec {
     wallet: string;
 
     /**
-     * AgentCard vaulted card to pay with. Omitted, the cardholder picks on the
-     * approval screen.
+     * Opaque card ID returned by AgentCard for a card in the connected wallet. Pass it
+     * through unchanged without assuming a prefix or format. Omitted, the cardholder
+     * picks on the approval screen.
      */
     card_id?: string;
   }
