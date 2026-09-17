@@ -1,0 +1,158 @@
+/**
+ * An action available on the app
+ */
+export interface AppAction {
+    /**
+     * Name of the action
+     */
+    name: string;
+    /**
+     * JSON Schema (draft-07) describing the expected input payload. Null if schema
+     * could not be automatically generated.
+     */
+    input_schema?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * JSON Schema (draft-07) describing the expected output payload. Null if schema
+     * could not be automatically generated.
+     */
+    output_schema?: {
+        [key: string]: unknown;
+    } | null;
+}
+/**
+ * Extension selection for the browser session. Provide either id or name of an
+ * extension uploaded to Kernel.
+ */
+export interface BrowserExtension {
+    /**
+     * Extension ID to load for this browser session
+     */
+    id?: string;
+    /**
+     * Extension name to load for this browser session (instead of id). Must be 1-255
+     * characters, using letters, numbers, dots, underscores, or hyphens.
+     */
+    name?: string;
+}
+/**
+ * Profile selection for the browser session. Provide either id or name. If
+ * specified, the matching profile will be loaded into the browser session.
+ * Profiles must be created beforehand.
+ */
+export interface BrowserProfile {
+    /**
+     * Profile ID to load for this browser session
+     */
+    id?: string;
+    /**
+     * Profile name to load for this browser session (instead of id). Must be 1-255
+     * characters, using letters, numbers, dots, underscores, or hyphens.
+     */
+    name?: string;
+    /**
+     * If true, save changes made during the session back to the profile when the
+     * session ends.
+     */
+    save_changes?: boolean;
+}
+/**
+ * Initial browser window size in pixels with optional refresh rate. If omitted,
+ * image defaults apply (1920x1080@25). For GPU images, the default is
+ * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+ * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+ * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60, 768x1024@60, 390x844@60. For
+ * GPU images, recommended presets use one of these resolutions with refresh rates
+ * 60, 30, 25, or 10: 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800,
+ * 1280x720, 1368x768, 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250,
+ * 768x1024, 800x1600. Viewports outside this list may exhibit unstable live view
+ * or recording behavior. If refresh_rate is not provided, it will be automatically
+ * determined based on the resolution (higher resolutions use lower refresh rates
+ * to keep bandwidth reasonable).
+ */
+export interface BrowserViewport {
+    /**
+     * Browser window height in pixels. Any positive integer is accepted.
+     */
+    height: number;
+    /**
+     * Browser window width in pixels. Any positive integer is accepted.
+     */
+    width: number;
+    /**
+     * Display refresh rate in Hz. Any positive integer is accepted; if omitted,
+     * automatically determined from width and height.
+     */
+    refresh_rate?: number;
+}
+export interface ErrorDetail {
+    /**
+     * Lower-level error code providing more specific detail
+     */
+    code?: string;
+    /**
+     * Further detail about the error
+     */
+    message?: string;
+}
+/**
+ * An error event from the application.
+ */
+export interface ErrorEvent {
+    error: ErrorModel;
+    /**
+     * Event type identifier (always "error").
+     */
+    event: 'error';
+    /**
+     * Time the error occurred.
+     */
+    timestamp: string;
+}
+export interface ErrorModel {
+    /**
+     * Application-specific error code (machine-readable)
+     */
+    code: string;
+    /**
+     * Human-readable error description for debugging
+     */
+    message: string;
+    /**
+     * Additional error details (for multiple errors)
+     */
+    details?: Array<ErrorDetail>;
+    inner_error?: ErrorDetail;
+}
+/**
+ * Heartbeat event sent periodically to keep SSE connection alive.
+ */
+export interface HeartbeatEvent {
+    /**
+     * Event type identifier (always "sse_heartbeat").
+     */
+    event: 'sse_heartbeat';
+    /**
+     * Time the heartbeat was sent.
+     */
+    timestamp: string;
+}
+/**
+ * A log entry from the application.
+ */
+export interface LogEvent {
+    /**
+     * Event type identifier (always "log").
+     */
+    event: 'log';
+    /**
+     * Log message text.
+     */
+    message: string;
+    /**
+     * Time the log entry was produced.
+     */
+    timestamp: string;
+}
+//# sourceMappingURL=shared.d.mts.map

@@ -1,0 +1,728 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../core/resource';
+import * as Shared from './shared';
+import * as BrowsersAPI from './browsers/browsers';
+import * as TelemetryAPI from './browsers/telemetry';
+import { APIPromise } from '../core/api-promise';
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../core/pagination';
+import { Stream } from '../core/streaming';
+import { buildHeaders } from '../internal/headers';
+import { RequestOptions } from '../internal/request-options';
+import { path } from '../internal/utils/path';
+
+/**
+ * Invoke actions and stream or query invocation status and events.
+ */
+export class Invocations extends APIResource {
+  /**
+   * Invoke an action.
+   *
+   * @example
+   * ```ts
+   * const invocation = await client.invocations.create({
+   *   action_name: 'analyze',
+   *   app_name: 'my-app',
+   *   version: '1.0.0',
+   * });
+   * ```
+   */
+  create(body: InvocationCreateParams, options?: RequestOptions): APIPromise<InvocationCreateResponse> {
+    return this._client.post('/invocations', { body, ...options });
+  }
+
+  /**
+   * Get details about an invocation's status and output.
+   *
+   * @example
+   * ```ts
+   * const invocation = await client.invocations.retrieve(
+   *   'rr33xuugxj9h0bkf1rdt2bet',
+   * );
+   * ```
+   */
+  retrieve(id: string, options?: RequestOptions): APIPromise<InvocationRetrieveResponse> {
+    return this._client.get(path`/invocations/${id}`, options);
+  }
+
+  /**
+   * Update an invocation's status or output. This can be used to cancel an
+   * invocation by setting the status to "failed".
+   *
+   * @example
+   * ```ts
+   * const invocation = await client.invocations.update('id', {
+   *   status: 'succeeded',
+   * });
+   * ```
+   */
+  update(
+    id: string,
+    body: InvocationUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<InvocationUpdateResponse> {
+    return this._client.patch(path`/invocations/${id}`, { body, ...options });
+  }
+
+  /**
+   * List invocations. Optionally filter by application name, action name, status,
+   * deployment ID, or start time.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const invocationListResponse of client.invocations.list()) {
+   *   // ...
+   * }
+   * ```
+   */
+  list(
+    query: InvocationListParams | null | undefined = {},
+    options?: RequestOptions,
+  ): PagePromise<InvocationListResponsesOffsetPagination, InvocationListResponse> {
+    return this._client.getAPIList('/invocations', OffsetPagination<InvocationListResponse>, {
+      query,
+      ...options,
+    });
+  }
+
+  /**
+   * Delete all browser sessions created within the specified invocation.
+   *
+   * @example
+   * ```ts
+   * await client.invocations.deleteBrowsers('id');
+   * ```
+   */
+  deleteBrowsers(id: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/invocations/${id}/browsers`, {
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
+   * Establishes a Server-Sent Events (SSE) stream that delivers real-time logs and
+   * status updates for an invocation. The stream terminates automatically once the
+   * invocation reaches a terminal state.
+   *
+   * @example
+   * ```ts
+   * const response = await client.invocations.follow('id');
+   * ```
+   */
+  follow(
+    id: string,
+    query: InvocationFollowParams | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<Stream<InvocationFollowResponse>> {
+    return this._client.get(path`/invocations/${id}/events`, {
+      query,
+      ...options,
+      headers: buildHeaders([{ Accept: 'text/event-stream' }, options?.headers]),
+      stream: true,
+    }) as APIPromise<Stream<InvocationFollowResponse>>;
+  }
+
+  /**
+   * Returns all active browser sessions created within the specified invocation.
+   *
+   * @example
+   * ```ts
+   * const response = await client.invocations.listBrowsers(
+   *   'id',
+   * );
+   * ```
+   */
+  listBrowsers(id: string, options?: RequestOptions): APIPromise<InvocationListBrowsersResponse> {
+    return this._client.get(path`/invocations/${id}/browsers`, options);
+  }
+}
+
+export type InvocationListResponsesOffsetPagination = OffsetPagination<InvocationListResponse>;
+
+/**
+ * An event representing the current state of an invocation.
+ */
+export interface InvocationStateEvent {
+  /**
+   * Event type identifier (always "invocation_state").
+   */
+  event: 'invocation_state';
+
+  invocation: InvocationStateEvent.Invocation;
+
+  /**
+   * Time the state was reported.
+   */
+  timestamp: string;
+}
+
+export namespace InvocationStateEvent {
+  export interface Invocation {
+    /**
+     * ID of the invocation
+     */
+    id: string;
+
+    /**
+     * Name of the action invoked
+     */
+    action_name: string;
+
+    /**
+     * Name of the application
+     */
+    app_name: string;
+
+    /**
+     * RFC 3339 Nanoseconds timestamp when the invocation started
+     */
+    started_at: string;
+
+    /**
+     * Status of the invocation
+     */
+    status: 'queued' | 'running' | 'succeeded' | 'failed';
+
+    /**
+     * Version label for the application
+     */
+    version: string;
+
+    /**
+     * RFC 3339 Nanoseconds timestamp when the invocation finished (null if still
+     * running)
+     */
+    finished_at?: string | null;
+
+    /**
+     * The action result or detailed failure output. Often a JSON-encoded value, but
+     * failures may contain plain text. May contain sensitive application data.
+     */
+    output?: string;
+
+    /**
+     * Payload provided to the invocation. This is a string that can be parsed as JSON.
+     */
+    payload?: string;
+
+    /**
+     * A nonempty, customer-safe summary of the recorded failure output, always present
+     * when status is failed and omitted otherwise, including in the first failed
+     * invocation_state event. Recognized messages receive a specific summary; other
+     * failures receive a generic summary. Message matching does not establish whether
+     * the failure originated in the platform or action code. Does not include raw
+     * action output or internal error details. Available for historical invocations as
+     * well. Human-readable text, not a stable identifier for retry logic.
+     */
+    status_reason?: string;
+  }
+}
+
+export interface InvocationCreateResponse {
+  /**
+   * ID of the invocation
+   */
+  id: string;
+
+  /**
+   * Name of the action invoked
+   */
+  action_name: string;
+
+  /**
+   * Status of the invocation
+   */
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+
+  /**
+   * The action result or detailed failure output. Often a JSON-encoded value, but
+   * failures may contain plain text. May contain sensitive application data.
+   */
+  output?: string;
+
+  /**
+   * A nonempty, customer-safe summary of the recorded failure output, always present
+   * when status is failed and omitted otherwise. Recognized messages receive a
+   * specific summary; other failures receive a generic summary. Message matching
+   * does not establish whether the failure originated in the platform or action
+   * code. Does not include raw action output or internal error details.
+   * Human-readable text, not a stable identifier for retry logic.
+   */
+  status_reason?: string;
+}
+
+export interface InvocationRetrieveResponse {
+  /**
+   * ID of the invocation
+   */
+  id: string;
+
+  /**
+   * Name of the action invoked
+   */
+  action_name: string;
+
+  /**
+   * Name of the application
+   */
+  app_name: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation started
+   */
+  started_at: string;
+
+  /**
+   * Status of the invocation
+   */
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+
+  /**
+   * Version label for the application
+   */
+  version: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation finished (null if still
+   * running)
+   */
+  finished_at?: string | null;
+
+  /**
+   * The action result or detailed failure output. Often a JSON-encoded value, but
+   * failures may contain plain text. May contain sensitive application data.
+   */
+  output?: string;
+
+  /**
+   * Payload provided to the invocation. This is a string that can be parsed as JSON.
+   */
+  payload?: string;
+
+  /**
+   * A nonempty, customer-safe summary of the recorded failure output, always present
+   * when status is failed and omitted otherwise, including in the first failed
+   * invocation_state event. Recognized messages receive a specific summary; other
+   * failures receive a generic summary. Message matching does not establish whether
+   * the failure originated in the platform or action code. Does not include raw
+   * action output or internal error details. Available for historical invocations as
+   * well. Human-readable text, not a stable identifier for retry logic.
+   */
+  status_reason?: string;
+}
+
+export interface InvocationUpdateResponse {
+  /**
+   * ID of the invocation
+   */
+  id: string;
+
+  /**
+   * Name of the action invoked
+   */
+  action_name: string;
+
+  /**
+   * Name of the application
+   */
+  app_name: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation started
+   */
+  started_at: string;
+
+  /**
+   * Status of the invocation
+   */
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+
+  /**
+   * Version label for the application
+   */
+  version: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation finished (null if still
+   * running)
+   */
+  finished_at?: string | null;
+
+  /**
+   * The action result or detailed failure output. Often a JSON-encoded value, but
+   * failures may contain plain text. May contain sensitive application data.
+   */
+  output?: string;
+
+  /**
+   * Payload provided to the invocation. This is a string that can be parsed as JSON.
+   */
+  payload?: string;
+
+  /**
+   * A nonempty, customer-safe summary of the recorded failure output, always present
+   * when status is failed and omitted otherwise, including in the first failed
+   * invocation_state event. Recognized messages receive a specific summary; other
+   * failures receive a generic summary. Message matching does not establish whether
+   * the failure originated in the platform or action code. Does not include raw
+   * action output or internal error details. Available for historical invocations as
+   * well. Human-readable text, not a stable identifier for retry logic.
+   */
+  status_reason?: string;
+}
+
+export interface InvocationListResponse {
+  /**
+   * ID of the invocation
+   */
+  id: string;
+
+  /**
+   * Name of the action invoked
+   */
+  action_name: string;
+
+  /**
+   * Name of the application
+   */
+  app_name: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation started
+   */
+  started_at: string;
+
+  /**
+   * Status of the invocation
+   */
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+
+  /**
+   * Version label for the application
+   */
+  version: string;
+
+  /**
+   * RFC 3339 Nanoseconds timestamp when the invocation finished (null if still
+   * running)
+   */
+  finished_at?: string | null;
+
+  /**
+   * The action result or detailed failure output. Often a JSON-encoded value, but
+   * failures may contain plain text. May contain sensitive application data.
+   */
+  output?: string;
+
+  /**
+   * Payload provided to the invocation. This is a string that can be parsed as JSON.
+   */
+  payload?: string;
+
+  /**
+   * A nonempty, customer-safe summary of the recorded failure output, always present
+   * when status is failed and omitted otherwise, including in the first failed
+   * invocation_state event. Recognized messages receive a specific summary; other
+   * failures receive a generic summary. Message matching does not establish whether
+   * the failure originated in the platform or action code. Does not include raw
+   * action output or internal error details. Available for historical invocations as
+   * well. Human-readable text, not a stable identifier for retry logic.
+   */
+  status_reason?: string;
+}
+
+/**
+ * Union type representing any invocation event.
+ */
+export type InvocationFollowResponse =
+  | Shared.LogEvent
+  | InvocationStateEvent
+  | Shared.ErrorEvent
+  | Shared.HeartbeatEvent;
+
+export interface InvocationListBrowsersResponse {
+  browsers: Array<InvocationListBrowsersResponse.Browser>;
+}
+
+export namespace InvocationListBrowsersResponse {
+  export interface Browser {
+    /**
+     * Websocket URL for Chrome DevTools Protocol connections to the browser session
+     */
+    cdp_ws_url: string;
+
+    /**
+     * When the browser session was created.
+     */
+    created_at: string;
+
+    /**
+     * Whether the browser session is running in headless mode.
+     */
+    headless: boolean;
+
+    /**
+     * Memory allocated to the browser session.
+     */
+    memory: BrowsersAPI.BrowserMemory;
+
+    /**
+     * Geographic region of the browser session. Fixed once the session is created.
+     */
+    region: 'us-east' | 'eu-west' | 'ap-southeast';
+
+    /**
+     * Unique identifier for the browser session
+     */
+    session_id: string;
+
+    /**
+     * Whether the browser session is running in stealth mode.
+     */
+    stealth: boolean;
+
+    /**
+     * The number of seconds of inactivity before the browser session is terminated.
+     */
+    timeout_seconds: number;
+
+    /**
+     * Websocket URL for WebDriver BiDi connections to the browser session
+     */
+    webdriver_ws_url: string;
+
+    /**
+     * Metro-API HTTP base URL for this browser session.
+     */
+    base_url?: string;
+
+    /**
+     * Remote URL for live viewing the browser session. Only available for non-headless
+     * browsers.
+     */
+    browser_live_view_url?: string;
+
+    /**
+     * Custom Chrome enterprise policy overrides that were applied to this browser
+     * session, if any. Echoed back for verification. Keys are Chrome enterprise policy
+     * names.
+     */
+    chrome_policy?: { [key: string]: unknown };
+
+    /**
+     * When the browser session was soft-deleted. Only present for deleted sessions.
+     */
+    deleted_at?: string;
+
+    /**
+     * Whether GPU acceleration is enabled for the browser session (only supported for
+     * headful sessions).
+     */
+    gpu?: boolean;
+
+    /**
+     * Whether the browser session is running in kiosk mode.
+     */
+    kiosk_mode?: boolean;
+
+    /**
+     * Human-readable name of the browser session, if one was set at creation.
+     */
+    name?: string;
+
+    /**
+     * Network configuration the session was created with, if any. Omitted when the
+     * session has no network configuration.
+     */
+    network?: BrowsersAPI.BrowserNetworkConfig;
+
+    /**
+     * Browser pool this session was acquired from, if any.
+     */
+    pool?: BrowsersAPI.BrowserPoolRef;
+
+    /**
+     * Browser profile metadata.
+     */
+    profile?: BrowsersAPI.Profile;
+
+    /**
+     * Whether changes made during this browser session are saved back to its profile
+     * when the session ends. Omitted when no profile is attached.
+     */
+    profile_save_changes?: boolean;
+
+    /**
+     * Resolved proxy configuration for this browser session.
+     */
+    proxy?: BrowsersAPI.BrowserProxy;
+
+    /**
+     * @deprecated ID of the proxy associated with this browser session, if any.
+     * Deprecated in favor of proxy.
+     */
+    proxy_id?: string;
+
+    /**
+     * URL the session was most recently asked to navigate to, if any. Recorded for
+     * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
+     * without waiting for it to load, and any errors (DNS failure, bad status,
+     * timeout) are silently dropped. Captures what was requested, not what the browser
+     * actually loaded.
+     */
+    start_url?: string;
+
+    /**
+     * User-defined key-value tags that were set on this browser session, if any.
+     * Echoed back when present.
+     */
+    tags?: BrowsersAPI.Tags;
+
+    /**
+     * Active telemetry configuration for the session, if any.
+     */
+    telemetry?: TelemetryAPI.BrowserTelemetryConfig | null;
+
+    /**
+     * Session usage metrics.
+     */
+    usage?: BrowsersAPI.BrowserUsage;
+
+    /**
+     * Whether final usage billing is still pending or complete. Only present for
+     * deleted sessions.
+     */
+    usage_status?: 'pending' | 'ready';
+
+    /**
+     * Vaults linked when the browser session was created.
+     */
+    vaults?: Array<BrowsersAPI.VaultReference>;
+
+    /**
+     * Initial browser window size in pixels with optional refresh rate. If omitted,
+     * image defaults apply (1920x1080@25). For GPU images, the default is
+     * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
+     * Known-good presets include: 2560x1440@10, 1920x1080@25, 1920x1200@25,
+     * 1440x900@25, 1280x800@60, 1024x768@60, 1200x800@60, 768x1024@60, 390x844@60. For
+     * GPU images, recommended presets use one of these resolutions with refresh rates
+     * 60, 30, 25, or 10: 800x600, 960x720, 1024x576, 1024x768, 1152x648, 1200x800,
+     * 1280x720, 1368x768, 1440x900, 1600x900, 1920x1080, 1920x1200, 390x844, 360x250,
+     * 768x1024, 800x1600. Viewports outside this list may exhibit unstable live view
+     * or recording behavior. If refresh_rate is not provided, it will be automatically
+     * determined based on the resolution (higher resolutions use lower refresh rates
+     * to keep bandwidth reasonable).
+     */
+    viewport?: Shared.BrowserViewport;
+  }
+}
+
+export interface InvocationCreateParams {
+  /**
+   * Name of the action to invoke
+   */
+  action_name: string;
+
+  /**
+   * Name of the application
+   */
+  app_name: string;
+
+  /**
+   * Version of the application
+   */
+  version: string;
+
+  /**
+   * If true, invoke asynchronously. When set, the API responds 202 Accepted with
+   * status "queued".
+   */
+  async?: boolean;
+
+  /**
+   * Timeout in seconds for async invocations (min 10, max 3600). Only applies when
+   * async is true.
+   */
+  async_timeout_seconds?: number;
+
+  /**
+   * Input data for the action, sent as a JSON string.
+   */
+  payload?: string;
+}
+
+export interface InvocationUpdateParams {
+  /**
+   * New status for the invocation.
+   */
+  status: 'succeeded' | 'failed';
+
+  /**
+   * Updated output of the invocation rendered as JSON string.
+   */
+  output?: string;
+}
+
+export interface InvocationListParams extends OffsetPaginationParams {
+  /**
+   * Filter results by action name.
+   */
+  action_name?: string;
+
+  /**
+   * Filter results by application name.
+   */
+  app_name?: string;
+
+  /**
+   * Filter results by deployment ID.
+   */
+  deployment_id?: string;
+
+  /**
+   * Search invocations by ID, app name, or action name.
+   */
+  query?: string;
+
+  /**
+   * Show invocations that have started since the given time (RFC timestamps or
+   * durations like 5m).
+   */
+  since?: string;
+
+  /**
+   * Filter results by invocation status.
+   */
+  status?: 'queued' | 'running' | 'succeeded' | 'failed';
+
+  /**
+   * Filter results by application version.
+   */
+  version?: string;
+}
+
+export interface InvocationFollowParams {
+  /**
+   * Show logs since the given time (RFC timestamps or durations like 5m).
+   */
+  since?: string;
+}
+
+export declare namespace Invocations {
+  export {
+    type InvocationStateEvent as InvocationStateEvent,
+    type InvocationCreateResponse as InvocationCreateResponse,
+    type InvocationRetrieveResponse as InvocationRetrieveResponse,
+    type InvocationUpdateResponse as InvocationUpdateResponse,
+    type InvocationListResponse as InvocationListResponse,
+    type InvocationFollowResponse as InvocationFollowResponse,
+    type InvocationListBrowsersResponse as InvocationListBrowsersResponse,
+    type InvocationListResponsesOffsetPagination as InvocationListResponsesOffsetPagination,
+    type InvocationCreateParams as InvocationCreateParams,
+    type InvocationUpdateParams as InvocationUpdateParams,
+    type InvocationListParams as InvocationListParams,
+    type InvocationFollowParams as InvocationFollowParams,
+  };
+}
