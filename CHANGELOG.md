@@ -5,7 +5,7 @@
 
 ### Features
 
-* chore(stlc): seal custom-code tracking files ([0c8d02a](https://github.com/kernel/kernel-node-sdk/commit/0c8d02a9f4baf1da7bb14cef4969d31e12ce804a))
+* feat: add config registry analysis waiter ([0c8d02a](https://github.com/kernel/kernel-node-sdk/commit/0c8d02a9f4baf1da7bb14cef4969d31e12ce804a))
 
 ## [0.107.0](https://github.com/kernel/kernel-node-sdk/compare/v0.106.0...v0.107.0) (2026-09-16)
 
