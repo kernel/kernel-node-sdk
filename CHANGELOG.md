@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.109.0](https://github.com/kernel/kernel-node-sdk/compare/v0.108.0...v0.109.0) (2026-09-17)
+
+
+### Features
+
+* Accept opaque AgentCard vaulted card IDs ([a843408](https://github.com/kernel/kernel-node-sdk/commit/a843408e9d90e180a92a7bf86c5110784e419852))
+* Expose organization-wide concurrent browser capacity ([ec6d02f](https://github.com/kernel/kernel-node-sdk/commit/ec6d02f56d09920f0ec0b135fd82480f3ab65be1))
+* Preserve credential field order ([319cd7e](https://github.com/kernel/kernel-node-sdk/commit/319cd7ebfd55902a67cb621c0e80bbe695412d42))
+
 ## [0.108.0](https://github.com/kernel/kernel-node-sdk/compare/v0.107.0...v0.108.0) (2026-09-17)
 
 

@@ -429,8 +429,9 @@ export namespace CardVaultItemSpec {
     wallet: string;
 
     /**
-     * AgentCard vaulted card to pay with. Omitted, the cardholder picks on the
-     * approval screen.
+     * Opaque card ID returned by AgentCard for a card in the connected wallet. Pass it
+     * through unchanged without assuming a prefix or format. Omitted, the cardholder
+     * picks on the approval screen.
      */
     card_id?: string;
   }
@@ -602,6 +603,11 @@ export interface CredentialCollectionAction {
 
 export interface CredentialVaultFieldDefinition {
   /**
+   * Stable field name used to key values, updates, and browser fills.
+   */
+  name: string;
+
+  /**
    * Whether a nonempty value is required for readiness and form submission.
    */
   required: boolean;
@@ -627,6 +633,11 @@ export interface CredentialVaultFieldDefinition {
 }
 
 export interface CredentialVaultFieldInput {
+  /**
+   * Unique stable field name used to key values, updates, and browser fills.
+   */
+  name: string;
+
   /**
    * Text, email, and password have form inputs; totp does not and is omitted from
    * both Kernel-hosted and customer React forms. Password and totp must be
@@ -795,7 +806,9 @@ export interface CredentialVaultItemRequest {
   /**
    * Credential fields are for login and other non-payment credentials. Do not store,
    * collect, or fill credit card data in credential items. Use wallet and card item
-   * types for credit cards and payment checkout instead.
+   * types for credit cards and payment checkout instead. Field order is preserved in
+   * the user-facing collection form, so list fields in the same top-to-bottom order
+   * as the website.
    */
   spec: CredentialVaultItemSpecInput;
 
@@ -803,7 +816,10 @@ export interface CredentialVaultItemRequest {
 }
 
 export interface CredentialVaultItemSpec {
-  fields: { [key: string]: CredentialVaultFieldDefinition };
+  /**
+   * Ordered field definitions rendered in this order by credential collection forms.
+   */
+  fields: Array<CredentialVaultFieldDefinition>;
 
   /**
    * Recognizable site or service name displayed verbatim as the form title, without
@@ -816,10 +832,16 @@ export interface CredentialVaultItemSpec {
 /**
  * Credential fields are for login and other non-payment credentials. Do not store,
  * collect, or fill credit card data in credential items. Use wallet and card item
- * types for credit cards and payment checkout instead.
+ * types for credit cards and payment checkout instead. Field order is preserved in
+ * the user-facing collection form, so list fields in the same top-to-bottom order
+ * as the website.
  */
 export interface CredentialVaultItemSpecInput {
-  fields: { [key: string]: CredentialVaultFieldInput };
+  /**
+   * Ordered field definitions. Use the website's top-to-bottom field order; the
+   * collection form renders this order unchanged.
+   */
+  fields: Array<CredentialVaultFieldInput>;
 
   /**
    * The site's recognizable display name, used verbatim as the user-facing form
@@ -2005,7 +2027,9 @@ export declare namespace ItemUpsertParams {
     /**
      * Body param: Credential fields are for login and other non-payment credentials.
      * Do not store, collect, or fill credit card data in credential items. Use wallet
-     * and card item types for credit cards and payment checkout instead.
+     * and card item types for credit cards and payment checkout instead. Field order
+     * is preserved in the user-facing collection form, so list fields in the same
+     * top-to-bottom order as the website.
      */
     spec: CredentialVaultItemSpecInput;
 
