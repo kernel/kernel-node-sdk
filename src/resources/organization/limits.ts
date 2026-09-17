@@ -9,7 +9,8 @@ import { RequestOptions } from '../../internal/request-options';
  */
 export class Limits extends APIResource {
   /**
-   * Get the organization's effective limits and managed auth and vault usage.
+   * Get the organization's effective limits and current concurrency, managed auth,
+   * and vault usage.
    */
   retrieve(options?: RequestOptions): APIPromise<OrgLimits> {
     return this._client.get('/org/limits', options);
@@ -32,6 +33,19 @@ export interface OrgLimits {
    * remaining capacity before a create is rejected with 403 insufficient_plan.
    */
   auth_connections_used: number;
+
+  /**
+   * Number of concurrent browser slots currently available to the organization. This
+   * is the effective concurrency limit minus active on-demand sessions and browser
+   * pool reservations, floored at zero. Null when usage cannot be read.
+   */
+  concurrent_sessions_available: number | null;
+
+  /**
+   * Current organization-wide concurrent browser usage, including active on-demand
+   * sessions and browser pool reservations. Null when usage cannot be read.
+   */
+  concurrent_sessions_used: number | null;
 
   /**
    * Maximum managed auth connections the organization's plan allows. Null means
