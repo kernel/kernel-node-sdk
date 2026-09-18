@@ -4338,9 +4338,11 @@ export namespace BrowserProxyErrorEvent {
      * Proxy-layer error code: the X-Kernel-Proxy-Error response header value from a
      * branded 5xx error page served by the metro egress host-proxy. Values mirror what
      * the proxy emits: destination_blocked, provider_blacklisted,
-     * provider_unreachable, provider_rejected, origin_tls_timeout, proxy_unavailable,
-     * upstream_timeout, upstream_dns_failure, upstream_connect_failed. Unknown header
-     * values are dropped.
+     * provider_unreachable, provider_rejected, origin_tls_timeout,
+     * origin_response_incomplete, proxy_unavailable, restricted_route_unavailable,
+     * upstream_timeout, upstream_dns_failure, upstream_connect_failed. A header value
+     * the browser image does not recognize is reported as unknown, with the header
+     * value in raw_code.
      */
     code:
       | 'destination_blocked'
@@ -4348,10 +4350,13 @@ export namespace BrowserProxyErrorEvent {
       | 'provider_unreachable'
       | 'provider_rejected'
       | 'origin_tls_timeout'
+      | 'origin_response_incomplete'
       | 'proxy_unavailable'
+      | 'restricted_route_unavailable'
       | 'upstream_timeout'
       | 'upstream_dns_failure'
-      | 'upstream_connect_failed';
+      | 'upstream_connect_failed'
+      | 'unknown';
 
     /**
      * CDP request identifier matching the originating request.
@@ -4367,6 +4372,14 @@ export namespace BrowserProxyErrorEvent {
      * HTTP method of the failed request, when known.
      */
     method?: string;
+
+    /**
+     * Sanitized X-Kernel-Proxy-Error header value, present only when code is unknown.
+     * Surrounding whitespace is removed, the value is lowercased, characters outside
+     * [a-z0-9_] are replaced with \_, and the result is truncated to at most 64
+     * characters.
+     */
+    raw_code?: string;
 
     /**
      * CDP Network.ResourceType for the request, when known.
