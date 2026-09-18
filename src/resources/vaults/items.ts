@@ -630,6 +630,14 @@ export interface CredentialVaultFieldDefinition {
    * unsupported.
    */
   type: CredentialVaultFieldType;
+
+  /**
+   * Optional human-readable display label. It is returned as non-secret metadata and
+   * never affects value keys, updates, or browser fills. Use single-line, trimmed
+   * display text without control or formatting characters. The server enforces a
+   * 128-byte UTF-8 limit.
+   */
+  label?: string;
 }
 
 export interface CredentialVaultFieldInput {
@@ -649,6 +657,14 @@ export interface CredentialVaultFieldInput {
    * unsupported.
    */
   type: CredentialVaultFieldType;
+
+  /**
+   * Optional human-readable display label. It is returned as non-secret metadata and
+   * never affects value keys, updates, or browser fills. Use single-line, trimmed
+   * display text without control or formatting characters. The server enforces a
+   * 128-byte UTF-8 limit.
+   */
+  label?: string;
 
   required?: boolean;
 
