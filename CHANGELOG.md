@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.110.0](https://github.com/kernel/kernel-node-sdk/compare/v0.109.0...v0.110.0) (2026-09-18)
+
+
+### Features
+
+* Add credential field labels to the API ([0eb7822](https://github.com/kernel/kernel-node-sdk/commit/0eb782261faa49f87f562986fe0c60f897826428))
+
 ## [0.109.0](https://github.com/kernel/kernel-node-sdk/compare/v0.108.0...v0.109.0) (2026-09-17)
 
 
