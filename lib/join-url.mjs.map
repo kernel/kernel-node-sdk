@@ -1,0 +1,1 @@
+{"version":3,"file":"join-url.mjs","sourceRoot":"","sources":["../src/lib/join-url.ts"],"names":[],"mappings":"AAAA,MAAM,UAAU,OAAO,CAAC,OAAe,EAAE,IAAY;IACnD,OAAO,GAAG,OAAO,CAAC,OAAO,CAAC,MAAM,EAAE,EAAE,CAAC,GAAG,IAAI,CAAC,UAAU,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,CAAC,IAAI,IAAI,EAAE,EAAE,CAAC;AACrF,CAAC"}

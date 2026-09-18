@@ -1,0 +1,2212 @@
+import { APIResource } from "../../core/resource.js";
+import * as Shared from "../shared.js";
+import * as BrowsersAPI from "../browsers/browsers.js";
+import * as TelemetryAPI from "../browsers/telemetry.js";
+import { APIPromise } from "../../core/api-promise.js";
+import { OffsetPagination, type OffsetPaginationParams, PagePromise } from "../../core/pagination.js";
+import { Stream } from "../../core/streaming.js";
+import { RequestOptions } from "../../internal/request-options.js";
+/**
+ * Create and manage auth connections for automated credential capture and login.
+ */
+export declare class Connections extends APIResource {
+    /**
+     * Creates an auth connection for a profile and domain combination. If the provided
+     * profile_name does not exist, it is created automatically. Returns 409 Conflict
+     * if an auth connection already exists for the given profile and domain.
+     *
+     * @example
+     * ```ts
+     * const managedAuth = await client.auth.connections.create({
+     *   domain: 'netflix.com',
+     *   profile_name: 'user-123',
+     * });
+     * ```
+     */
+    create(body: ConnectionCreateParams, options?: RequestOptions): APIPromise<ManagedAuth>;
+    /**
+     * Retrieve an auth connection by its ID. Includes current flow state if a login is
+     * in progress.
+     *
+     * @example
+     * ```ts
+     * const managedAuth = await client.auth.connections.retrieve(
+     *   'id',
+     * );
+     * ```
+     */
+    retrieve(id: string, options?: RequestOptions): APIPromise<ManagedAuth>;
+    /**
+     * Update an auth connection's configuration. Only the fields provided will be
+     * updated.
+     *
+     * @example
+     * ```ts
+     * const managedAuth = await client.auth.connections.update(
+     *   'id',
+     * );
+     * ```
+     */
+    update(id: string, body: ConnectionUpdateParams, options?: RequestOptions): APIPromise<ManagedAuth>;
+    /**
+     * List auth connections with optional filters for profile_name and domain.
+     *
+     * @example
+     * ```ts
+     * // Automatically fetches more pages as needed.
+     * for await (const managedAuth of client.auth.connections.list()) {
+     *   // ...
+     * }
+     * ```
+     */
+    list(query?: ConnectionListParams | null | undefined, options?: RequestOptions): PagePromise<ManagedAuthsOffsetPagination, ManagedAuth>;
+    /**
+     * Deletes an auth connection and terminates its workflow. This will:
+     *
+     * - Delete the auth connection record
+     * - Terminate the Temporal workflow
+     * - Cancel any in-progress login flows
+     *
+     * @example
+     * ```ts
+     * await client.auth.connections.delete('id');
+     * ```
+     */
+    delete(id: string, options?: RequestOptions): APIPromise<void>;
+    /**
+     * Establishes a Server-Sent Events (SSE) stream that delivers real-time login flow
+     * state updates. The stream terminates automatically once the flow reaches a
+     * terminal state (SUCCESS, FAILED, EXPIRED, CANCELED).
+     *
+     * @example
+     * ```ts
+     * const response = await client.auth.connections.follow('id');
+     * ```
+     */
+    follow(id: string, options?: RequestOptions): APIPromise<Stream<ConnectionFollowResponse>>;
+    /**
+     * Starts a login flow for the auth connection. Returns immediately with a hosted
+     * URL for the user to complete authentication, or triggers automatic re-auth if
+     * credentials are stored.
+     *
+     * @example
+     * ```ts
+     * const loginResponse = await client.auth.connections.login(
+     *   'id',
+     * );
+     * ```
+     */
+    login(id: string, body?: ConnectionLoginParams | null | undefined, options?: RequestOptions): APIPromise<LoginResponse>;
+    /**
+     * Submits field values for the login form. Poll the auth connection to track
+     * progress and get results.
+     *
+     * @example
+     * ```ts
+     * const submitFieldsResponse =
+     *   await client.auth.connections.submit('id');
+     * ```
+     */
+    submit(id: string, body: ConnectionSubmitParams, options?: RequestOptions): APIPromise<SubmitFieldsResponse>;
+    /**
+     * Returns a chronological timeline of events for an auth connection — login
+     * attempts, automatic re-auth attempts, and health checks. Events are returned
+     * newest-first.
+     *
+     * @example
+     * ```ts
+     * // Automatically fetches more pages as needed.
+     * for await (const managedAuthTimelineEvent of client.auth.connections.timeline(
+     *   'id',
+     * )) {
+     *   // ...
+     * }
+     * ```
+     */
+    timeline(id: string, query?: ConnectionTimelineParams | null | undefined, options?: RequestOptions): PagePromise<ManagedAuthTimelineEventsOffsetPagination, ManagedAuthTimelineEvent>;
+}
+export type ManagedAuthsOffsetPagination = OffsetPagination<ManagedAuth>;
+export type ManagedAuthTimelineEventsOffsetPagination = OffsetPagination<ManagedAuthTimelineEvent>;
+/**
+ * Response from starting a login flow
+ */
+export interface LoginResponse {
+    /**
+     * Auth connection ID
+     */
+    id: string;
+    /**
+     * When the login flow expires
+     */
+    flow_expires_at: string;
+    /**
+     * Type of login flow started
+     */
+    flow_type: 'LOGIN' | 'REAUTH';
+    /**
+     * URL to redirect user to for login
+     */
+    hosted_url: string;
+    /**
+     * One-time code for handoff (internal use)
+     */
+    handoff_code?: string;
+    /**
+     * Browser live view URL for watching the login flow
+     */
+    live_view_url?: string;
+}
+/**
+ * Managed authentication that keeps a profile logged into a specific domain. Flow
+ * fields (flow_status, flow_step, discovered_fields, mfa_options) reflect the most
+ * recent login flow and are null when no flow has been initiated.
+ */
+export interface ManagedAuth {
+    /**
+     * Unique identifier for the auth connection
+     */
+    id: string;
+    /**
+     * Target domain for authentication
+     */
+    domain: string;
+    /**
+     * Name of the profile associated with this auth connection
+     */
+    profile_name: string;
+    /**
+     * Whether to record browser session replays for this connection by default. Useful
+     * for debugging login flows. Can be overridden per-login.
+     */
+    record_session: boolean;
+    /**
+     * Whether credentials are saved after every successful login. One-time codes
+     * (TOTP, SMS, etc.) are not saved.
+     */
+    save_credentials: boolean;
+    /**
+     * Current authentication status of the managed profile
+     */
+    status: 'AUTHENTICATED' | 'NEEDS_AUTH';
+    /**
+     * Additional hostname roots valid for this auth flow, besides the primary domain.
+     * Each value allows credential entry on that exact hostname and its subdomains.
+     * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+     * credential entry is unrestricted.
+     *
+     * The following SSO/OAuth provider domains are automatically allowed by default
+     * and do not need to be specified:
+     *
+     * - Google: accounts.google.com
+     * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+     * - Okta: _.okta.com, _.oktapreview.com
+     * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+     * - Apple: appleid.apple.com
+     * - GitHub: github.com
+     * - Facebook/Meta: www.facebook.com
+     * - LinkedIn: www.linkedin.com
+     * - Amazon Cognito: \*.amazoncognito.com
+     * - OneLogin: \*.onelogin.com
+     * - Ping Identity: _.pingone.com, _.pingidentity.com
+     */
+    allowed_domains?: Array<string>;
+    /**
+     * Whether automatic re-authentication is permitted for this connection. This is an
+     * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+     * when true, re-auth only runs when the system has what it needs to perform it
+     * (for example, saved credentials for the required login fields), and only after a
+     * scheduled health check detects an expired session — so this flag has no effect
+     * when `health_checks` is false. When false, expired sessions detected by a health
+     * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+     */
+    auto_reauth?: boolean;
+    /**
+     * Default browser configuration for login, reauthentication, and health-check
+     * sessions.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * ID of the underlying browser session driving the current flow (present when flow
+     * in progress). Use this to inspect or terminate the browser session via the
+     * `/browsers` API.
+     */
+    browser_session_id?: string | null;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ManagedAuth.BrowserTelemetry | null;
+    /**
+     * Whether Kernel can automatically re-authenticate this connection when the
+     * session expires. Requires a prior successful login plus either a Kernel
+     * credential or an external credential reference. See `can_reauth_reason` for the
+     * specific outcome.
+     */
+    can_reauth?: boolean;
+    /**
+     * Machine-readable reason for the current value of `can_reauth`. Affirmative
+     * values (re-auth is possible):
+     *
+     * - `external_credential` — an external credential provider is attached
+     * - `cua_has_credential` — CUA flow with a stored credential
+     * - `has_credential` — Kernel credential is attached (optimistic; plan viability
+     *   not checked)
+     * - `viable_plans_found` — at least one stored login plan can be replayed
+     * - `no_requirements_recorded` — no recorded credential requirements to fail
+     *   against
+     * - `totp_reauth_allowed` — TOTP is the only recorded requirement and is safe to
+     *   attempt automatically
+     * - `requirements_satisfiable` — recorded requirements contain no recognized
+     *   blocker
+     *
+     * Negative values (a human must complete the login flow):
+     *
+     * - `no_prior_successful_login` — connection has never completed a successful
+     *   login
+     * - `no_credential` — no Kernel or external credential attached
+     * - `no_viable_plans` — credential attached but no replayable login plan exists
+     *   yet
+     * - `viable_plans_require_external_action` — stored plans need an external step
+     *   (email link, push, etc.)
+     * - `requires_external_action` — recorded requirements include an external step
+     * - `requires_totp_without_secret` — flow needs a TOTP code but no TOTP secret is
+     *   stored
+     * - `requires_sms_code` — flow needs an SMS code that cannot be received
+     *   automatically
+     * - `requires_email_code` — flow needs an email code that cannot be received
+     *   automatically
+     * - `requires_customer_input` — flow needs another field or choice that is
+     *   unavailable during unattended re-authentication
+     */
+    can_reauth_reason?: 'external_credential' | 'cua_has_credential' | 'has_credential' | 'viable_plans_found' | 'no_requirements_recorded' | 'totp_reauth_allowed' | 'requirements_satisfiable' | 'no_prior_successful_login' | 'no_credential' | 'no_viable_plans' | 'viable_plans_require_external_action' | 'requires_external_action' | 'requires_totp_without_secret' | 'requires_sms_code' | 'requires_email_code' | 'requires_customer_input';
+    /**
+     * Canonical choices awaiting selection. Prefer this over pending_sso_buttons,
+     * mfa_options, and sign_in_options when present.
+     */
+    choices?: Array<ManagedAuth.Choice> | null;
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    credential?: ManagedAuth.Credential;
+    /**
+     * Fields awaiting input (present when flow_step=awaiting_input; may also be
+     * present with awaiting_external_action as fallback actions)
+     */
+    discovered_fields?: Array<ManagedAuth.DiscoveredField> | null;
+    /**
+     * Machine-readable error code (present when flow_status=failed)
+     */
+    error_code?: string | null;
+    /**
+     * Error message (present when flow_status=failed)
+     */
+    error_message?: string | null;
+    /**
+     * Instructions for external action (present when
+     * flow_step=awaiting_external_action)
+     */
+    external_action_message?: string | null;
+    /**
+     * Canonical fields awaiting input. Prefer this over discovered_fields when
+     * present.
+     */
+    fields?: Array<ManagedAuth.Field> | null;
+    /**
+     * When the current flow expires (null when no flow in progress). A flow past this
+     * timestamp is no longer valid and its `flow_status` will be `EXPIRED`. Clients
+     * may start a new login to supersede a stale `IN_PROGRESS` flow past this
+     * timestamp.
+     */
+    flow_expires_at?: string | null;
+    /**
+     * Current flow status (null when no flow in progress)
+     */
+    flow_status?: 'IN_PROGRESS' | 'SUCCESS' | 'FAILED' | 'EXPIRED' | 'CANCELED' | null;
+    /**
+     * Current step in the flow (null when no flow in progress)
+     */
+    flow_step?: 'DISCOVERING' | 'AWAITING_INPUT' | 'AWAITING_EXTERNAL_ACTION' | 'SUBMITTING' | 'COMPLETED' | null;
+    /**
+     * Type of the current flow (null when no flow in progress)
+     */
+    flow_type?: 'LOGIN' | 'REAUTH' | null;
+    /**
+     * Interval in seconds between automatic health checks. When set, the system
+     * periodically verifies the authentication status and triggers re-authentication
+     * if needed. Maximum is 86400 (24 hours). Default is 3600 (1 hour) or your plan
+     * minimum, whichever is larger. The minimum depends on your plan: Enterprise: 300
+     * (5 minutes), Startup: 1200 (20 minutes), Hobbyist: 3600 (1 hour), Free: 21600 (6
+     * hours).
+     */
+    health_check_interval?: number | null;
+    /**
+     * Whether periodic health checks are enabled for this connection. When false, the
+     * system will not automatically verify authentication status, and `auto_reauth`
+     * has no effect on the automatic flow (since re-auth is only triggered by a failed
+     * scheduled health check). Manually triggering a health check via the API still
+     * works regardless of this setting.
+     */
+    health_checks?: boolean;
+    /**
+     * URL to redirect user to for hosted login (present when flow in progress)
+     */
+    hosted_url?: string | null;
+    /**
+     * Opaque identifier for the current canonical interaction. Required when
+     * submitting fields or choices and changes for each new actionable pause.
+     */
+    interaction_id?: string | null;
+    /**
+     * @deprecated Deprecated alias for `last_auth_check_at`. Despite the name, this is
+     * the last health-check timestamp, not the last successful authentication. Use
+     * `last_auth_check_at` instead.
+     */
+    last_auth_at?: string;
+    /**
+     * When the most recent auth health check ran for this connection, regardless of
+     * outcome. Updated on every health check and does not by itself indicate that the
+     * profile is currently authenticated - use `status` for that. May be newer than
+     * `flow_expires_at` when a flow is still in progress because health checks
+     * continue to run in parallel.
+     */
+    last_auth_check_at?: string;
+    /**
+     * Browser live view URL for debugging (present when flow in progress)
+     */
+    live_view_url?: string | null;
+    /**
+     * Optional login page URL to skip discovery
+     */
+    login_url?: string;
+    /**
+     * MFA method options (present when flow_step=awaiting_input; may also be present
+     * with awaiting_external_action as fallback actions)
+     */
+    mfa_options?: Array<ManagedAuth.MfaOption> | null;
+    /**
+     * SSO buttons available (present when flow_step=awaiting_input; may also be
+     * present with awaiting_external_action as fallback actions)
+     */
+    pending_sso_buttons?: Array<ManagedAuth.PendingSSOButton> | null;
+    /**
+     * URL where the browser landed after successful login
+     */
+    post_login_url?: string;
+    /**
+     * @deprecated Deprecated. Read browser.proxy instead. Retained during migration
+     * for existing clients.
+     */
+    proxy_id?: string;
+    /**
+     * Non-MFA choices presented during the auth flow, such as account selection or org
+     * pickers (present when flow_step=awaiting_input; may also be present with
+     * awaiting_external_action as fallback actions).
+     */
+    sign_in_options?: Array<ManagedAuth.SignInOption> | null;
+    /**
+     * SSO provider being used (e.g., google, github, microsoft)
+     */
+    sso_provider?: string | null;
+    /**
+     * Visible error message from the website (e.g., 'Incorrect password'). Present
+     * when the website displays an error during login.
+     */
+    website_error?: string | null;
+}
+export declare namespace ManagedAuth {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * Canonical auth-flow choice awaiting user selection.
+     */
+    interface Choice {
+        /**
+         * Stable choice identifier for canonical submit.
+         */
+        id: string;
+        /**
+         * Human-readable choice label.
+         */
+        label: string;
+        /**
+         * Choice type.
+         */
+        type: 'mfa_method' | 'sso_provider' | 'sign_in_method' | 'auth_method' | 'identifier_method' | 'account' | 'other';
+        /**
+         * Context captured for a choice.
+         */
+        context?: string | null;
+        /**
+         * Additional context for the choice.
+         */
+        description?: string | null;
+        /**
+         * Display text captured for a choice.
+         */
+        display_text?: string | null;
+        /**
+         * Masked phone number or email address shown for an MFA choice.
+         */
+        masked_destination?: string | null;
+        /**
+         * Semantic MFA method. Choice id remains the stable identity of the exact option
+         * selected.
+         */
+        mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'passkey' | 'switch' | 'other' | null;
+        /**
+         * Selector for the visible choice, when available.
+         */
+        observed_selector?: string | null;
+    }
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    interface Credential {
+        /**
+         * If true, lookup by domain from the specified provider
+         */
+        auto?: boolean;
+        /**
+         * Kernel credential name
+         */
+        name?: string;
+        /**
+         * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+         */
+        path?: string;
+        /**
+         * External provider name (e.g., "my-1p")
+         */
+        provider?: string;
+    }
+    /**
+     * A discovered form field
+     */
+    interface DiscoveredField {
+        /**
+         * Field label
+         */
+        label: string;
+        /**
+         * Field name
+         */
+        name: string;
+        /**
+         * CSS selector for the field
+         */
+        selector: string;
+        /**
+         * Field type
+         */
+        type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
+        /**
+         * Contextual help text near the field that tells the user what to enter (e.g.,
+         * "Enter the phone ending in (**_) _**-\*\*92")
+         */
+        hint?: string;
+        /**
+         * If this field is associated with an MFA option, the type of that option (e.g.,
+         * password field linked to "Enter password" option)
+         */
+        linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch' | null;
+        /**
+         * Field placeholder
+         */
+        placeholder?: string;
+        /**
+         * Whether field is required
+         */
+        required?: boolean;
+    }
+    /**
+     * Canonical field awaiting user input.
+     */
+    interface Field {
+        /**
+         * Stable field identifier for canonical submit.
+         */
+        id: string;
+        /**
+         * Why the field requires user input.
+         */
+        reason: 'missing' | 'rejected';
+        /**
+         * Credential reference name to store the submitted value under.
+         */
+        ref: string;
+        /**
+         * Managed-auth field type.
+         */
+        type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+        /**
+         * Context shown near the field, including a masked code destination.
+         */
+        hint?: string;
+        /**
+         * Virtual keyboard hint, independent of field type and browser validation.
+         */
+        input_mode?: 'text' | 'email' | 'tel' | 'numeric';
+        /**
+         * Human-readable label shown to the user.
+         */
+        label?: string;
+        /**
+         * Selector for the visible field, when available.
+         */
+        observed_selector?: string | null;
+        /**
+         * Whether this field is required.
+         */
+        required?: boolean;
+    }
+    /**
+     * An MFA method option for verification
+     */
+    interface MfaOption {
+        /**
+         * The visible option text
+         */
+        label: string;
+        /**
+         * The MFA delivery method type. Includes 'password' for auth method selection
+         * pages and 'switch' for generic method-switcher links like "Use another method"
+         * that do not name a specific method.
+         */
+        type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch';
+        /**
+         * Additional instructions from the site
+         */
+        description?: string | null;
+        /**
+         * The masked destination (phone/email) if shown
+         */
+        target?: string | null;
+    }
+    /**
+     * An SSO button for signing in with an external identity provider
+     */
+    interface PendingSSOButton {
+        /**
+         * Visible button text
+         */
+        label: string;
+        /**
+         * Identity provider name
+         */
+        provider: string;
+        /**
+         * XPath selector for the button
+         */
+        selector: string;
+    }
+    /**
+     * A non-MFA choice presented during the auth flow (e.g. account selection, org
+     * picker)
+     */
+    interface SignInOption {
+        /**
+         * Unique identifier for this option (used to submit selection back)
+         */
+        id: string;
+        /**
+         * Display text for the option
+         */
+        label: string;
+        /**
+         * Additional context such as email address or org name
+         */
+        description?: string | null;
+    }
+}
+/**
+ * Browser configuration applied to browser sessions created for a managed auth
+ * connection. Managed auth controls the profile, headless mode, timeout, start
+ * URL, kiosk mode, and viewport.
+ */
+export interface ManagedAuthBrowserConfig {
+    /**
+     * Proxy configuration for managed auth browser sessions. Omit on create to derive
+     * the default from stealth, or on update and login to preserve or inherit the
+     * connection default.
+     */
+    proxy?: BrowsersAPI.BrowserProxyConfig;
+    /**
+     * Browser region. Omit on create to use us-east, on update to keep the current
+     * region, or on login to inherit it. Login overrides apply only to that login.
+     * Non-default regions require an eligible plan and organization access.
+     */
+    region?: 'us-east' | 'eu-west' | 'ap-southeast';
+    /**
+     * Whether managed auth browser sessions use stealth mode. Defaults to true when
+     * omitted.
+     */
+    stealth?: boolean;
+    /**
+     * Browser telemetry configuration using the same semantics as browser create.
+     */
+    telemetry?: ManagedAuthBrowserConfig.Telemetry | null;
+}
+export declare namespace ManagedAuthBrowserConfig {
+    /**
+     * Browser telemetry configuration using the same semantics as browser create.
+     */
+    interface Telemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: Telemetry.Export;
+    }
+    namespace Telemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+}
+/**
+ * Request to create an auth connection for a profile and domain
+ */
+export interface ManagedAuthCreateRequest {
+    /**
+     * Domain for authentication
+     */
+    domain: string;
+    /**
+     * Name of the profile to manage authentication for. If the profile does not exist,
+     * it is created automatically.
+     */
+    profile_name: string;
+    /**
+     * Additional hostname roots valid for this auth flow, besides the primary domain.
+     * Each value allows credential entry on that exact hostname and its subdomains.
+     * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+     * credential entry is unrestricted.
+     *
+     * The following SSO/OAuth provider domains are automatically allowed by default
+     * and do not need to be specified:
+     *
+     * - Google: accounts.google.com
+     * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+     * - Okta: _.okta.com, _.oktapreview.com
+     * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+     * - Apple: appleid.apple.com
+     * - GitHub: github.com
+     * - Facebook/Meta: www.facebook.com
+     * - LinkedIn: www.linkedin.com
+     * - Amazon Cognito: \*.amazoncognito.com
+     * - OneLogin: \*.onelogin.com
+     * - Ping Identity: _.pingone.com, _.pingidentity.com
+     */
+    allowed_domains?: Array<string>;
+    /**
+     * Whether to permit automatic re-authentication when a scheduled health check
+     * detects an expired session. This is an opt-in flag only — it does not check
+     * whether re-auth is actually feasible. Even when true, re-auth only runs when the
+     * system has what it needs to perform it (for example, saved credentials for the
+     * required login fields), and only after a scheduled health check detects an
+     * expired session — so this flag has no effect when `health_checks` is false. When
+     * false, expired sessions are marked as `NEEDS_AUTH` instead of attempting
+     * re-auth. Defaults to true.
+     */
+    auto_reauth?: boolean;
+    /**
+     * Default browser configuration for login, reauthentication, and health-check
+     * sessions.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ManagedAuthCreateRequest.BrowserTelemetry | null;
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    credential?: ManagedAuthCreateRequest.Credential;
+    /**
+     * Interval in seconds between automatic health checks. When set, the system
+     * periodically verifies the authentication status and triggers re-authentication
+     * if needed. Maximum is 86400 (24 hours). Default is 3600 (1 hour) or your plan
+     * minimum, whichever is larger. The minimum depends on your plan: Enterprise: 300
+     * (5 minutes), Startup: 1200 (20 minutes), Hobbyist: 3600 (1 hour), Free: 21600 (6
+     * hours).
+     */
+    health_check_interval?: number;
+    /**
+     * Whether to enable periodic health checks. When false, the system will not
+     * automatically verify authentication status, and `auto_reauth` has no effect on
+     * the automatic flow (since re-auth is only triggered by a failed scheduled health
+     * check). Defaults to true.
+     */
+    health_checks?: boolean;
+    /**
+     * Optional login page URL to skip discovery
+     */
+    login_url?: string;
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    proxy?: ManagedAuthCreateRequest.Proxy;
+    /**
+     * Whether to record browser sessions for this connection by default. Useful for
+     * debugging. Can be overridden per-login. Defaults to false.
+     */
+    record_session?: boolean;
+    /**
+     * Whether to save credentials after every successful login. Defaults to true.
+     * One-time codes (TOTP, SMS, etc.) are not saved.
+     */
+    save_credentials?: boolean;
+}
+export declare namespace ManagedAuthCreateRequest {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    interface Credential {
+        /**
+         * If true, lookup by domain from the specified provider
+         */
+        auto?: boolean;
+        /**
+         * Kernel credential name
+         */
+        name?: string;
+        /**
+         * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+         */
+        path?: string;
+        /**
+         * External provider name (e.g., "my-1p")
+         */
+        provider?: string;
+    }
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    interface Proxy {
+        /**
+         * Proxy ID
+         */
+        id?: string;
+        /**
+         * Proxy name
+         */
+        name?: string;
+    }
+}
+/**
+ * A single event in an auth connection's history — a login attempt, an automatic
+ * re-auth attempt, or a health check.
+ */
+export interface ManagedAuthTimelineEvent {
+    /**
+     * Identifier of the underlying login/reauth session or health check.
+     */
+    id: string;
+    /**
+     * Outcome of the event. For login/reauth events this is the flow status
+     * (IN_PROGRESS, SUCCESS, EXPIRED, CANCELED, FAILED). For health_check events it is
+     * the observed session state (AUTHENTICATED, NEEDS_AUTH).
+     */
+    status: 'IN_PROGRESS' | 'SUCCESS' | 'EXPIRED' | 'CANCELED' | 'FAILED' | 'AUTHENTICATED' | 'NEEDS_AUTH';
+    /**
+     * When the event occurred.
+     */
+    timestamp: string;
+    /**
+     * The kind of event. "login" and "reauth" are authentication attempts;
+     * "health_check" is a periodic session-validity check.
+     */
+    type: 'login' | 'reauth' | 'health_check';
+    /**
+     * Browser session that produced the event, if one was created.
+     */
+    browser_session_id?: string;
+    /**
+     * Machine-readable error code. Present when a login/reauth event failed.
+     */
+    error_code?: string;
+    /**
+     * Human-readable error message. Present when a login/reauth event failed.
+     */
+    error_message?: string;
+    /**
+     * The session state observed before this event. Present for health_check events
+     * that recorded a prior state.
+     */
+    previous_status?: 'AUTHENTICATED' | 'NEEDS_AUTH';
+    /**
+     * Replay recording ID for the event's browser session, if session recording was
+     * enabled.
+     */
+    replay_id?: string;
+    /**
+     * The step the flow reached. Present for login/reauth events.
+     */
+    step?: 'INITIALIZED' | 'DISCOVERING' | 'AWAITING_INPUT' | 'AWAITING_EXTERNAL_ACTION' | 'AWAITING_HUMAN_INTERVENTION' | 'SUBMITTING' | 'COMPLETED' | 'EXPIRED';
+    /**
+     * Whether browser telemetry capture started for this event's browser session.
+     */
+    telemetry_captured?: boolean;
+    /**
+     * When the event was last updated. Present for login/reauth events.
+     */
+    updated_at?: string;
+    /**
+     * Visible error message from the website (e.g., 'Incorrect password'). Present
+     * when the website displayed an error during the attempt.
+     */
+    website_error?: string;
+}
+/**
+ * Request to update an auth connection's configuration
+ */
+export interface ManagedAuthUpdateRequest {
+    /**
+     * Additional hostname roots valid for this auth flow. Each value allows credential
+     * entry on that exact hostname and its subdomains; leading `www.` and `*.` labels
+     * are normalized away. An empty list leaves credential entry unrestricted.
+     * Replaces the existing list.
+     */
+    allowed_domains?: Array<string>;
+    /**
+     * Whether automatic re-authentication is permitted for this connection. This is an
+     * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+     * when true, re-auth only runs when the system has what it needs to perform it
+     * (for example, saved credentials for the required login fields), and only after a
+     * scheduled health check detects an expired session — so this flag has no effect
+     * when `health_checks` is false. When false, expired sessions detected by a health
+     * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+     */
+    auto_reauth?: boolean;
+    /**
+     * Browser configuration updates for future login, reauthentication, and
+     * health-check sessions. Omitted properties remain unchanged.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ManagedAuthUpdateRequest.BrowserTelemetry | null;
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    credential?: ManagedAuthUpdateRequest.Credential;
+    /**
+     * Interval in seconds between automatic health checks
+     */
+    health_check_interval?: number;
+    /**
+     * Whether periodic health checks are enabled. When set to false, the system will
+     * not automatically verify authentication status, and `auto_reauth` has no effect
+     * on the automatic flow (since re-auth is only triggered by a failed scheduled
+     * health check).
+     */
+    health_checks?: boolean;
+    /**
+     * Login page URL. Set to empty string to clear.
+     */
+    login_url?: string;
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    proxy?: ManagedAuthUpdateRequest.Proxy;
+    /**
+     * Whether to record browser sessions for this connection by default
+     */
+    record_session?: boolean;
+    /**
+     * Whether to save credentials after every successful login
+     */
+    save_credentials?: boolean;
+}
+export declare namespace ManagedAuthUpdateRequest {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    interface Credential {
+        /**
+         * If true, lookup by domain from the specified provider
+         */
+        auto?: boolean;
+        /**
+         * Kernel credential name
+         */
+        name?: string;
+        /**
+         * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+         */
+        path?: string;
+        /**
+         * External provider name (e.g., "my-1p")
+         */
+        provider?: string;
+    }
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    interface Proxy {
+        /**
+         * Proxy ID
+         */
+        id?: string;
+        /**
+         * Proxy name
+         */
+        name?: string;
+    }
+}
+/**
+ * Request to submit field values, click an SSO button, select an MFA method, or
+ * select a sign-in option. Prefer canonical selected_choice_id/field_values when
+ * the API returns fields/choices; legacy
+ * fields/sso_button_selector/sso_provider/mfa_option_id/sign_in_option_id remain
+ * supported during deprecation.
+ */
+export interface SubmitFieldsRequest {
+    /**
+     * Canonical map of field ID to submitted value.
+     */
+    field_values?: {
+        [key: string]: string;
+    };
+    /**
+     * Map of field name to value
+     */
+    fields?: {
+        [key: string]: string;
+    };
+    /**
+     * Opaque interaction ID returned with canonical fields and choices. Required for
+     * canonical submissions.
+     */
+    interaction_id?: string;
+    /**
+     * The MFA method type to select (when mfa_options were returned)
+     */
+    mfa_option_id?: string;
+    /**
+     * Canonical choice ID selected by the user.
+     */
+    selected_choice_id?: string;
+    /**
+     * The sign-in option ID to select (when sign_in_options were returned)
+     */
+    sign_in_option_id?: string;
+    /**
+     * XPath selector for the SSO button to click (ODA). Use sso_provider instead for
+     * CUA.
+     */
+    sso_button_selector?: string;
+    /**
+     * SSO provider to click, matching the provider field from pending_sso_buttons
+     * (e.g., "google", "github"). Cannot be used with sso_button_selector.
+     */
+    sso_provider?: string;
+}
+/**
+ * Response from submitting field values
+ */
+export interface SubmitFieldsResponse {
+    /**
+     * Whether the submission was accepted for processing
+     */
+    accepted: boolean;
+}
+/**
+ * Union type representing any managed auth event.
+ */
+export type ConnectionFollowResponse = ConnectionFollowResponse.ManagedAuthStateEvent | Shared.ErrorEvent | Shared.HeartbeatEvent;
+export declare namespace ConnectionFollowResponse {
+    /**
+     * An event representing the current state of a managed auth flow.
+     */
+    interface ManagedAuthStateEvent {
+        /**
+         * Event type identifier (always "managed_auth_state").
+         */
+        event: 'managed_auth_state';
+        /**
+         * Current flow status.
+         */
+        flow_status: 'IN_PROGRESS' | 'SUCCESS' | 'FAILED' | 'EXPIRED' | 'CANCELED';
+        /**
+         * Current step in the flow.
+         */
+        flow_step: 'DISCOVERING' | 'AWAITING_INPUT' | 'AWAITING_EXTERNAL_ACTION' | 'SUBMITTING' | 'COMPLETED';
+        /**
+         * Time the state was reported.
+         */
+        timestamp: string;
+        /**
+         * Canonical choices awaiting selection. Prefer this over pending_sso_buttons,
+         * mfa_options, and sign_in_options when present.
+         */
+        choices?: Array<ManagedAuthStateEvent.Choice>;
+        /**
+         * Fields awaiting input (present when flow_step=AWAITING_INPUT; may also be
+         * present with AWAITING_EXTERNAL_ACTION as fallback actions).
+         */
+        discovered_fields?: Array<ManagedAuthStateEvent.DiscoveredField>;
+        /**
+         * Machine-readable error code (present when flow_status=FAILED).
+         */
+        error_code?: string;
+        /**
+         * Error message (present when flow_status=FAILED).
+         */
+        error_message?: string;
+        /**
+         * Instructions for external action (present when
+         * flow_step=AWAITING_EXTERNAL_ACTION).
+         */
+        external_action_message?: string;
+        /**
+         * Canonical fields awaiting input. Prefer this over discovered_fields when
+         * present.
+         */
+        fields?: Array<ManagedAuthStateEvent.Field>;
+        /**
+         * Type of the current flow.
+         */
+        flow_type?: 'LOGIN' | 'REAUTH';
+        /**
+         * URL to redirect user to for hosted login.
+         */
+        hosted_url?: string;
+        /**
+         * Opaque identifier for the current canonical interaction. Required when
+         * submitting fields or choices and changes for each new actionable pause.
+         */
+        interaction_id?: string;
+        /**
+         * Browser live view URL for debugging.
+         */
+        live_view_url?: string;
+        /**
+         * MFA method options (present when flow_step=AWAITING_INPUT; may also be present
+         * with AWAITING_EXTERNAL_ACTION as fallback actions).
+         */
+        mfa_options?: Array<ManagedAuthStateEvent.MfaOption>;
+        /**
+         * SSO buttons available (present when flow_step=AWAITING_INPUT; may also be
+         * present with AWAITING_EXTERNAL_ACTION as fallback actions).
+         */
+        pending_sso_buttons?: Array<ManagedAuthStateEvent.PendingSSOButton>;
+        /**
+         * URL where the browser landed after successful login.
+         */
+        post_login_url?: string;
+        /**
+         * Non-MFA choices presented during the auth flow, such as account selection or org
+         * pickers (present when flow_step=AWAITING_INPUT; may also be present with
+         * AWAITING_EXTERNAL_ACTION as fallback actions).
+         */
+        sign_in_options?: Array<ManagedAuthStateEvent.SignInOption>;
+        /**
+         * Visible error message from the website (e.g., 'Incorrect password'). Present
+         * when the website displays an error during login.
+         */
+        website_error?: string;
+    }
+    namespace ManagedAuthStateEvent {
+        /**
+         * Canonical auth-flow choice awaiting user selection.
+         */
+        interface Choice {
+            /**
+             * Stable choice identifier for canonical submit.
+             */
+            id: string;
+            /**
+             * Human-readable choice label.
+             */
+            label: string;
+            /**
+             * Choice type.
+             */
+            type: 'mfa_method' | 'sso_provider' | 'sign_in_method' | 'auth_method' | 'identifier_method' | 'account' | 'other';
+            /**
+             * Context captured for a choice.
+             */
+            context?: string | null;
+            /**
+             * Additional context for the choice.
+             */
+            description?: string | null;
+            /**
+             * Display text captured for a choice.
+             */
+            display_text?: string | null;
+            /**
+             * Masked phone number or email address shown for an MFA choice.
+             */
+            masked_destination?: string | null;
+            /**
+             * Semantic MFA method. Choice id remains the stable identity of the exact option
+             * selected.
+             */
+            mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'passkey' | 'switch' | 'other' | null;
+            /**
+             * Selector for the visible choice, when available.
+             */
+            observed_selector?: string | null;
+        }
+        /**
+         * A discovered form field
+         */
+        interface DiscoveredField {
+            /**
+             * Field label
+             */
+            label: string;
+            /**
+             * Field name
+             */
+            name: string;
+            /**
+             * CSS selector for the field
+             */
+            selector: string;
+            /**
+             * Field type
+             */
+            type: 'text' | 'email' | 'password' | 'tel' | 'number' | 'url' | 'code' | 'totp';
+            /**
+             * Contextual help text near the field that tells the user what to enter (e.g.,
+             * "Enter the phone ending in (**_) _**-\*\*92")
+             */
+            hint?: string;
+            /**
+             * If this field is associated with an MFA option, the type of that option (e.g.,
+             * password field linked to "Enter password" option)
+             */
+            linked_mfa_type?: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch' | null;
+            /**
+             * Field placeholder
+             */
+            placeholder?: string;
+            /**
+             * Whether field is required
+             */
+            required?: boolean;
+        }
+        /**
+         * Canonical field awaiting user input.
+         */
+        interface Field {
+            /**
+             * Stable field identifier for canonical submit.
+             */
+            id: string;
+            /**
+             * Why the field requires user input.
+             */
+            reason: 'missing' | 'rejected';
+            /**
+             * Credential reference name to store the submitted value under.
+             */
+            ref: string;
+            /**
+             * Managed-auth field type.
+             */
+            type: 'identifier' | 'password' | 'code' | 'totp_code' | 'totp_secret' | 'text';
+            /**
+             * Context shown near the field, including a masked code destination.
+             */
+            hint?: string;
+            /**
+             * Virtual keyboard hint, independent of field type and browser validation.
+             */
+            input_mode?: 'text' | 'email' | 'tel' | 'numeric';
+            /**
+             * Human-readable label shown to the user.
+             */
+            label?: string;
+            /**
+             * Selector for the visible field, when available.
+             */
+            observed_selector?: string | null;
+            /**
+             * Whether this field is required.
+             */
+            required?: boolean;
+        }
+        /**
+         * An MFA method option for verification
+         */
+        interface MfaOption {
+            /**
+             * The visible option text
+             */
+            label: string;
+            /**
+             * The MFA delivery method type. Includes 'password' for auth method selection
+             * pages and 'switch' for generic method-switcher links like "Use another method"
+             * that do not name a specific method.
+             */
+            type: 'sms' | 'call' | 'email' | 'totp' | 'push' | 'password' | 'switch';
+            /**
+             * Additional instructions from the site
+             */
+            description?: string | null;
+            /**
+             * The masked destination (phone/email) if shown
+             */
+            target?: string | null;
+        }
+        /**
+         * An SSO button for signing in with an external identity provider
+         */
+        interface PendingSSOButton {
+            /**
+             * Visible button text
+             */
+            label: string;
+            /**
+             * Identity provider name
+             */
+            provider: string;
+            /**
+             * XPath selector for the button
+             */
+            selector: string;
+        }
+        /**
+         * A non-MFA choice presented during the auth flow (e.g. account selection, org
+         * picker)
+         */
+        interface SignInOption {
+            /**
+             * Unique identifier for this option (used to submit selection back)
+             */
+            id: string;
+            /**
+             * Display text for the option
+             */
+            label: string;
+            /**
+             * Additional context such as email address or org name
+             */
+            description?: string | null;
+        }
+    }
+}
+export interface ConnectionCreateParams {
+    /**
+     * Domain for authentication
+     */
+    domain: string;
+    /**
+     * Name of the profile to manage authentication for. If the profile does not exist,
+     * it is created automatically.
+     */
+    profile_name: string;
+    /**
+     * Additional hostname roots valid for this auth flow, besides the primary domain.
+     * Each value allows credential entry on that exact hostname and its subdomains.
+     * Leading `www.` and `*.` labels are normalized away. When omitted or empty,
+     * credential entry is unrestricted.
+     *
+     * The following SSO/OAuth provider domains are automatically allowed by default
+     * and do not need to be specified:
+     *
+     * - Google: accounts.google.com
+     * - Microsoft/Azure AD: login.microsoftonline.com, login.live.com
+     * - Okta: _.okta.com, _.oktapreview.com
+     * - Auth0: _.auth0.com, _.us.auth0.com, _.eu.auth0.com, _.au.auth0.com
+     * - Apple: appleid.apple.com
+     * - GitHub: github.com
+     * - Facebook/Meta: www.facebook.com
+     * - LinkedIn: www.linkedin.com
+     * - Amazon Cognito: \*.amazoncognito.com
+     * - OneLogin: \*.onelogin.com
+     * - Ping Identity: _.pingone.com, _.pingidentity.com
+     */
+    allowed_domains?: Array<string>;
+    /**
+     * Whether to permit automatic re-authentication when a scheduled health check
+     * detects an expired session. This is an opt-in flag only — it does not check
+     * whether re-auth is actually feasible. Even when true, re-auth only runs when the
+     * system has what it needs to perform it (for example, saved credentials for the
+     * required login fields), and only after a scheduled health check detects an
+     * expired session — so this flag has no effect when `health_checks` is false. When
+     * false, expired sessions are marked as `NEEDS_AUTH` instead of attempting
+     * re-auth. Defaults to true.
+     */
+    auto_reauth?: boolean;
+    /**
+     * Default browser configuration for login, reauthentication, and health-check
+     * sessions.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ConnectionCreateParams.BrowserTelemetry | null;
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    credential?: ConnectionCreateParams.Credential;
+    /**
+     * Interval in seconds between automatic health checks. When set, the system
+     * periodically verifies the authentication status and triggers re-authentication
+     * if needed. Maximum is 86400 (24 hours). Default is 3600 (1 hour) or your plan
+     * minimum, whichever is larger. The minimum depends on your plan: Enterprise: 300
+     * (5 minutes), Startup: 1200 (20 minutes), Hobbyist: 3600 (1 hour), Free: 21600 (6
+     * hours).
+     */
+    health_check_interval?: number;
+    /**
+     * Whether to enable periodic health checks. When false, the system will not
+     * automatically verify authentication status, and `auto_reauth` has no effect on
+     * the automatic flow (since re-auth is only triggered by a failed scheduled health
+     * check). Defaults to true.
+     */
+    health_checks?: boolean;
+    /**
+     * Optional login page URL to skip discovery
+     */
+    login_url?: string;
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    proxy?: ConnectionCreateParams.Proxy;
+    /**
+     * Whether to record browser sessions for this connection by default. Useful for
+     * debugging. Can be overridden per-login. Defaults to false.
+     */
+    record_session?: boolean;
+    /**
+     * Whether to save credentials after every successful login. Defaults to true.
+     * One-time codes (TOTP, SMS, etc.) are not saved.
+     */
+    save_credentials?: boolean;
+}
+export declare namespace ConnectionCreateParams {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    interface Credential {
+        /**
+         * If true, lookup by domain from the specified provider
+         */
+        auto?: boolean;
+        /**
+         * Kernel credential name
+         */
+        name?: string;
+        /**
+         * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+         */
+        path?: string;
+        /**
+         * External provider name (e.g., "my-1p")
+         */
+        provider?: string;
+    }
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    interface Proxy {
+        /**
+         * Proxy ID
+         */
+        id?: string;
+        /**
+         * Proxy name
+         */
+        name?: string;
+    }
+}
+export interface ConnectionUpdateParams {
+    /**
+     * Additional hostname roots valid for this auth flow. Each value allows credential
+     * entry on that exact hostname and its subdomains; leading `www.` and `*.` labels
+     * are normalized away. An empty list leaves credential entry unrestricted.
+     * Replaces the existing list.
+     */
+    allowed_domains?: Array<string>;
+    /**
+     * Whether automatic re-authentication is permitted for this connection. This is an
+     * opt-in flag only — it does not check whether re-auth is actually feasible. Even
+     * when true, re-auth only runs when the system has what it needs to perform it
+     * (for example, saved credentials for the required login fields), and only after a
+     * scheduled health check detects an expired session — so this flag has no effect
+     * when `health_checks` is false. When false, expired sessions detected by a health
+     * check are marked as `NEEDS_AUTH` instead of attempting re-auth.
+     */
+    auto_reauth?: boolean;
+    /**
+     * Browser configuration updates for future login, reauthentication, and
+     * health-check sessions. Omitted properties remain unchanged.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ConnectionUpdateParams.BrowserTelemetry | null;
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    credential?: ConnectionUpdateParams.Credential;
+    /**
+     * Interval in seconds between automatic health checks
+     */
+    health_check_interval?: number;
+    /**
+     * Whether periodic health checks are enabled. When set to false, the system will
+     * not automatically verify authentication status, and `auto_reauth` has no effect
+     * on the automatic flow (since re-auth is only triggered by a failed scheduled
+     * health check).
+     */
+    health_checks?: boolean;
+    /**
+     * Login page URL. Set to empty string to clear.
+     */
+    login_url?: string;
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    proxy?: ConnectionUpdateParams.Proxy;
+    /**
+     * Whether to record browser sessions for this connection by default
+     */
+    record_session?: boolean;
+    /**
+     * Whether to save credentials after every successful login
+     */
+    save_credentials?: boolean;
+}
+export declare namespace ConnectionUpdateParams {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * Reference to credentials for the auth connection. Use one of:
+     *
+     * - { name } for Kernel credentials
+     * - { provider, path } for external provider item
+     * - { provider, auto: true } for external provider domain lookup
+     */
+    interface Credential {
+        /**
+         * If true, lookup by domain from the specified provider
+         */
+        auto?: boolean;
+        /**
+         * Kernel credential name
+         */
+        name?: string;
+        /**
+         * Provider-specific path (e.g., "VaultName/ItemName" for 1Password)
+         */
+        path?: string;
+        /**
+         * External provider name (e.g., "my-1p")
+         */
+        provider?: string;
+    }
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    interface Proxy {
+        /**
+         * Proxy ID
+         */
+        id?: string;
+        /**
+         * Proxy name
+         */
+        name?: string;
+    }
+}
+export interface ConnectionListParams extends OffsetPaginationParams {
+    /**
+     * Filter by domain
+     */
+    domain?: string;
+    /**
+     * Filter by profile name
+     */
+    profile_name?: string;
+    /**
+     * Search auth connections by ID, domain, or profile name.
+     */
+    query?: string;
+}
+export interface ConnectionLoginParams {
+    /**
+     * Browser configuration override for this login. Omitted properties inherit the
+     * connection defaults.
+     */
+    browser?: ManagedAuthBrowserConfig;
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    browser_telemetry?: ConnectionLoginParams.BrowserTelemetry | null;
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    proxy?: ConnectionLoginParams.Proxy;
+    /**
+     * Override the connection's default for recording this login's browser session.
+     * When omitted, the connection's record_session default is used.
+     */
+    record_session?: boolean;
+}
+export declare namespace ConnectionLoginParams {
+    /**
+     * @deprecated Deprecated. Use browser.telemetry. Retained during migration for
+     * existing clients.
+     */
+    interface BrowserTelemetry {
+        /**
+         * Per-category capture flags. The operational categories (control, connection,
+         * system, captcha) are captured whenever telemetry is enabled; set one to
+         * enabled=false to opt out. The CDP categories (console, network, page,
+         * interaction), screenshot and platform are off by default; set enabled=true to
+         * opt in. On create, provided categories layer onto the default set. On update,
+         * provided categories merge onto the session's current config; when no telemetry
+         * is active this falls back to the default set (matching create). If browser is
+         * omitted or empty, the default set is used. A browser config that disables every
+         * category stops capture on update and starts no capture on create.
+         */
+        browser?: TelemetryAPI.BrowserTelemetryCategoriesConfig;
+        /**
+         * Request shortcut for browser telemetry capture. True enables capture; with no
+         * browser category settings it captures the default set (control, connection,
+         * system, captcha), and any browser category settings are layered onto that
+         * default set. On update, enabled=true resolves the config fresh from the default
+         * set plus any provided categories, replacing the session's current selection
+         * rather than merging onto it; omit enabled to merge categories onto the current
+         * selection instead. False stops capture on update and starts no capture on
+         * create. enabled=false cannot be combined with browser category settings.
+         */
+        enabled?: boolean;
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        export?: BrowserTelemetry.Export;
+    }
+    namespace BrowserTelemetry {
+        /**
+         * Where to export this session's captured telemetry. Omit to capture without
+         * exporting.
+         */
+        interface Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            otlp?: Export.Otlp;
+        }
+        namespace Export {
+            /**
+             * Export captured telemetry over OTLP to one of the org's configured destinations.
+             */
+            interface Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                destination?: Otlp.Destination;
+                /**
+                 * Whether to export captured telemetry over OTLP. Setting destination implies
+                 * enabled=true, so this only needs to be set explicitly to disable export
+                 * (enabled=false with a destination is rejected).
+                 */
+                enabled?: boolean;
+            }
+            namespace Otlp {
+                /**
+                 * OTLP destination to export this session's captured telemetry to. Provide either
+                 * id or name. Requires telemetry capture to be enabled.
+                 */
+                interface Destination {
+                    /**
+                     * OTLP destination ID
+                     */
+                    id?: string;
+                    /**
+                     * OTLP destination name
+                     */
+                    name?: string;
+                }
+            }
+        }
+    }
+    /**
+     * @deprecated Deprecated. Use browser.proxy. Retained during migration for
+     * existing clients.
+     */
+    interface Proxy {
+        /**
+         * Proxy ID
+         */
+        id?: string;
+        /**
+         * Proxy name
+         */
+        name?: string;
+    }
+}
+export interface ConnectionSubmitParams {
+    /**
+     * Canonical map of field ID to submitted value.
+     */
+    field_values?: {
+        [key: string]: string;
+    };
+    /**
+     * Map of field name to value
+     */
+    fields?: {
+        [key: string]: string;
+    };
+    /**
+     * Opaque interaction ID returned with canonical fields and choices. Required for
+     * canonical submissions.
+     */
+    interaction_id?: string;
+    /**
+     * The MFA method type to select (when mfa_options were returned)
+     */
+    mfa_option_id?: string;
+    /**
+     * Canonical choice ID selected by the user.
+     */
+    selected_choice_id?: string;
+    /**
+     * The sign-in option ID to select (when sign_in_options were returned)
+     */
+    sign_in_option_id?: string;
+    /**
+     * XPath selector for the SSO button to click (ODA). Use sso_provider instead for
+     * CUA.
+     */
+    sso_button_selector?: string;
+    /**
+     * SSO provider to click, matching the provider field from pending_sso_buttons
+     * (e.g., "google", "github"). Cannot be used with sso_button_selector.
+     */
+    sso_provider?: string;
+}
+export interface ConnectionTimelineParams extends OffsetPaginationParams {
+    /**
+     * Filter the timeline to a single event type.
+     */
+    type?: 'login' | 'reauth' | 'health_check';
+}
+export declare namespace Connections {
+    export { type LoginResponse as LoginResponse, type ManagedAuth as ManagedAuth, type ManagedAuthBrowserConfig as ManagedAuthBrowserConfig, type ManagedAuthCreateRequest as ManagedAuthCreateRequest, type ManagedAuthTimelineEvent as ManagedAuthTimelineEvent, type ManagedAuthUpdateRequest as ManagedAuthUpdateRequest, type SubmitFieldsRequest as SubmitFieldsRequest, type SubmitFieldsResponse as SubmitFieldsResponse, type ConnectionFollowResponse as ConnectionFollowResponse, type ManagedAuthsOffsetPagination as ManagedAuthsOffsetPagination, type ManagedAuthTimelineEventsOffsetPagination as ManagedAuthTimelineEventsOffsetPagination, type ConnectionCreateParams as ConnectionCreateParams, type ConnectionUpdateParams as ConnectionUpdateParams, type ConnectionListParams as ConnectionListParams, type ConnectionLoginParams as ConnectionLoginParams, type ConnectionSubmitParams as ConnectionSubmitParams, type ConnectionTimelineParams as ConnectionTimelineParams, };
+}
+//# sourceMappingURL=connections.d.ts.map

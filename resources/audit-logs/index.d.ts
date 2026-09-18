@@ -1,0 +1,3 @@
+export { AuditLogs, type AuditLogEntry, type AuditLogListParams, type AuditLogExportChunkParams, type AuditLogEntriesPageTokenPagination, type AuditLogDownloadDestination, type AuditLogDownloadOptions, type AuditLogDownloadParams, type AuditLogDownloadProgress, type AuditLogDownloadResult, } from "./audit-logs.js";
+export { ExportDestinations, type AuditLogExportDestination, type AuditLogExportDestinationTestResult, type CreateAuditLogExportDestinationRequest, type UpdateAuditLogExportDestinationRequest, type ExportDestinationCreateParams, type ExportDestinationUpdateParams, type ExportDestinationListParams, type AuditLogExportDestinationsOffsetPagination, } from "./export-destinations.js";
+//# sourceMappingURL=index.d.ts.map
