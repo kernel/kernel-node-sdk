@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.111.0](https://github.com/kernel/kernel-node-sdk/compare/v0.110.0...v0.111.0) (2026-09-18)
+
+
+### Features
+
+* Publish restricted_route_unavailable and unknown proxy_error codes ([e1593e6](https://github.com/kernel/kernel-node-sdk/commit/e1593e60bd25ccf001acf7ad35ebc46e1c00dffc))
+
 ## [0.110.0](https://github.com/kernel/kernel-node-sdk/compare/v0.109.0...v0.110.0) (2026-09-18)
 
 
