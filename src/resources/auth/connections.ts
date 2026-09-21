@@ -2492,6 +2492,13 @@ export interface ConnectionLoginParams {
    * When omitted, the connection's record_session default is used.
    */
   record_session?: boolean;
+
+  /**
+   * Controls whether this login reads and writes learned domain skills. Automatic
+   * reauths inherit the selected mode until a later accepted login sets enabled or
+   * omits this field. Defaults to enabled when omitted.
+   */
+  skill_mode?: 'enabled' | 'disabled';
 }
 
 export namespace ConnectionLoginParams {

@@ -257,6 +257,7 @@ describe('resource connections', () => {
           },
           proxy: { id: 'id', name: 'name' },
           record_session: true,
+          skill_mode: 'enabled',
         },
         { path: '/_stainless_unknown_path' },
       ),
