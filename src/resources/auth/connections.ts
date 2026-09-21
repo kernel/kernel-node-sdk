@@ -1306,6 +1306,13 @@ export interface ManagedAuthTimelineEvent {
   browser_session_id?: string;
 
   /**
+   * When the login/reauth attempt first reached a terminal status. Stable across
+   * retries and subsequent cleanup writes. Absent for in-progress attempts, health
+   * checks, and historical attempts without a recorded completion time.
+   */
+  completed_at?: string;
+
+  /**
    * Machine-readable error code. Present when a login/reauth event failed.
    */
   error_code?: string;
