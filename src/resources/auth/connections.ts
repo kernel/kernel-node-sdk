@@ -314,16 +314,18 @@ export interface ManagedAuth {
   browser_telemetry?: ManagedAuth.BrowserTelemetry | null;
 
   /**
-   * Whether Kernel can automatically re-authenticate this connection when the
-   * session expires. Requires a prior successful login plus either a Kernel
-   * credential or an external credential reference. See `can_reauth_reason` for the
-   * specific outcome.
+   * Whether this connection's stored requirements are eligible for unattended
+   * re-authentication. A true value can represent either fully satisfiable
+   * requirements or a best-effort attempt. It does not account for whether automatic
+   * re-authentication is enabled or parent workflow state such as an active flow or
+   * circuit-breaker cooldown, so it does not guarantee an attempt on the next health
+   * check. See `can_reauth_reason` for the specific outcome.
    */
   can_reauth?: boolean;
 
   /**
    * Machine-readable reason for the current value of `can_reauth`. Affirmative
-   * values (re-auth is possible):
+   * values (requirements are eligible for unattended re-authentication):
    *
    * - `external_credential` — an external credential provider is attached
    * - `cua_has_credential` — CUA flow with a stored credential
@@ -332,8 +334,12 @@ export interface ManagedAuth {
    * - `viable_plans_found` — at least one stored login plan can be replayed
    * - `no_requirements_recorded` — no recorded credential requirements to fail
    *   against
-   * - `totp_reauth_allowed` — TOTP is the only recorded requirement and is safe to
-   *   attempt automatically
+   * - `totp_reauth_allowed` — TOTP is the only recorded requirement and a stored
+   *   secret can generate the code
+   * - `optimistic_totp_attempt` — TOTP was previously required but no reusable
+   *   secret is stored; the connection remains eligible for a
+   *   circuit-breaker-bounded attempt because the site may not challenge returning
+   *   sessions
    * - `requirements_satisfiable` — recorded requirements contain no recognized
    *   blocker
    *
@@ -363,6 +369,7 @@ export interface ManagedAuth {
     | 'viable_plans_found'
     | 'no_requirements_recorded'
     | 'totp_reauth_allowed'
+    | 'optimistic_totp_attempt'
     | 'requirements_satisfiable'
     | 'no_prior_successful_login'
     | 'no_credential'
