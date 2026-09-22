@@ -654,3 +654,43 @@ Methods:
 - <code title="delete /org/credential_providers/{id}">client.credentialProviders.<a href="./src/resources/credential-providers.ts">delete</a>(id) -> void</code>
 - <code title="get /org/credential_providers/{id}/items">client.credentialProviders.<a href="./src/resources/credential-providers.ts">listItems</a>(id) -> CredentialProviderListItemsResponse</code>
 - <code title="post /org/credential_providers/{id}/test">client.credentialProviders.<a href="./src/resources/credential-providers.ts">test</a>(id) -> CredentialProviderTestResult</code>
+
+# Search
+
+Types:
+
+- <code><a href="./src/resources/search/search.ts">Attempt</a></code>
+- <code><a href="./src/resources/search/search.ts">ProviderTarget</a></code>
+- <code><a href="./src/resources/search/search.ts">Request</a></code>
+- <code><a href="./src/resources/search/search.ts">Result</a></code>
+- <code><a href="./src/resources/search/search.ts">Search</a></code>
+- <code><a href="./src/resources/search/search.ts">Strategy</a></code>
+- <code><a href="./src/resources/search/search.ts">Usage</a></code>
+- <code><a href="./src/resources/search/search.ts">Warning</a></code>
+
+Methods:
+
+- <code title="post /search">client.search.<a href="./src/resources/search/search.ts">create</a>({ ...params }) -> Search</code>
+- <code title="get /search/{id}">client.search.<a href="./src/resources/search/search.ts">retrieve</a>(id) -> Search</code>
+
+## Contents
+
+Types:
+
+- <code><a href="./src/resources/search/contents.ts">FetchRequest</a></code>
+- <code><a href="./src/resources/search/contents.ts">Response</a></code>
+
+Methods:
+
+- <code title="post /search/{id}/contents">client.search.contents.<a href="./src/resources/search/contents.ts">fetch</a>(id, { ...params }) -> void</code>
+
+## Providers
+
+Types:
+
+- <code><a href="./src/resources/search/providers.ts">Provider</a></code>
+- <code><a href="./src/resources/search/providers.ts">ProviderListResponse</a></code>
+
+Methods:
+
+- <code title="get /search/providers">client.search.providers.<a href="./src/resources/search/providers.ts">list</a>({ ...params }) -> ProviderListResponse</code>

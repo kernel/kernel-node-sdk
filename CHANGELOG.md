@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.111.0](https://github.com/kernel/kernel-node-sdk/compare/v0.110.0...v0.111.0) (2026-09-22)
+
+
+### Features
+
+* Allow managed auth logins to disable learned skills ([44a8405](https://github.com/kernel/kernel-node-sdk/commit/44a84053583ee6cc6a9d4dd606e5ea451df84639))
+* Distinguish optimistic managed auth reauth ([3e5f69d](https://github.com/kernel/kernel-node-sdk/commit/3e5f69d8cdeacb19c724492b3f7b1807e5bd4410))
+* Implement Search API v1 providers ([114768a](https://github.com/kernel/kernel-node-sdk/commit/114768a44145ce1eaaf13345bf2f5ae665b7947a))
+* Persist stable managed auth completion timestamps ([5495ce6](https://github.com/kernel/kernel-node-sdk/commit/5495ce64ac30df65e4550101a3e206b1bf011cb5))
+* Publish restricted_route_unavailable and unknown proxy_error codes ([e1593e6](https://github.com/kernel/kernel-node-sdk/commit/e1593e60bd25ccf001acf7ad35ebc46e1c00dffc))
+* Support native prepared Adyen Sessions checkout ([53311cd](https://github.com/kernel/kernel-node-sdk/commit/53311cd171547408c410b4389197abb8b100febc))
+
 ## [0.110.0](https://github.com/kernel/kernel-node-sdk/compare/v0.109.0...v0.110.0) (2026-09-18)
 
 

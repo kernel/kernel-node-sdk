@@ -185,6 +185,18 @@ export {
   type ProxyCheckParams,
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
+export {
+  SearchResource,
+  type Attempt,
+  type ProviderTarget,
+  type Request,
+  type Result,
+  type Search,
+  type Strategy,
+  type Usage,
+  type Warning,
+  type SearchCreateParams,
+} from './search/search';
 export { Telemetry } from './telemetry/telemetry';
 export {
   VaultProviderConfigs,

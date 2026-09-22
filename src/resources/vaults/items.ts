@@ -259,8 +259,10 @@ export interface AgentcardCheckoutAuthorization {
 
 /**
  * One-use processor-bound checkout preparation. Keep the approval page open
- * through token handoff. The amount is display-only and does not constrain the
- * merchant's eventual charge.
+ * through device handoff, including Adyen encryption. The amount is declared by
+ * the caller and does not constrain the merchant's eventual charge. Adyen device
+ * approval and browser Authorised responses are not capture or fulfillment
+ * evidence.
  */
 export interface AgentcardCheckoutPreparation {
   browser_id: string;
@@ -293,7 +295,13 @@ export interface AgentcardCheckoutPreparation {
   expires_at?: string;
 }
 
-export type AgentcardPreparedProcessor = 'square' | 'braintree' | 'worldpay' | 'bambora' | 'mercado_pago';
+export type AgentcardPreparedProcessor =
+  | 'square'
+  | 'braintree'
+  | 'worldpay'
+  | 'bambora'
+  | 'mercado_pago'
+  | 'adyen';
 
 /**
  * Authorize a Link card using its existing purchase specification. Use only after
@@ -522,8 +530,10 @@ export namespace CardVaultItemState {
 
     /**
      * One-use processor-bound checkout preparation. Keep the approval page open
-     * through token handoff. The amount is display-only and does not constrain the
-     * merchant's eventual charge.
+     * through device handoff, including Adyen encryption. The amount is declared by
+     * the caller and does not constrain the merchant's eventual charge. Adyen device
+     * approval and browser Authorised responses are not capture or fulfillment
+     * evidence.
      */
     preparation?: ItemsAPI.AgentcardCheckoutPreparation;
 
@@ -997,8 +1007,8 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * Prepare an unused AgentCard card for a supported tokenization checkout. Deliver
- * the returned approval URL and keep the approval page open. Poll the item until
+ * Prepare an unused AgentCard card for a supported checkout. Deliver the returned
+ * approval URL and keep the approval page open. Poll the item until
  * ready_to_submit, then submit native Pay before preparation.expires_at. Readiness
  * lasts at most 30 seconds. Unused preparations expire automatically. Preparations
  * are single-use even after failure or expiry; do not automatically retry and
@@ -1006,7 +1016,7 @@ export interface FillVaultItemOperationResult {
  */
 export interface PrepareCheckoutVaultItemOperationRequest {
   /**
-   * Required when preparing an unused AgentCard card for a supported tokenization
+   * Required when preparing an unused AgentCard card for a supported checkout
    * processor. Consent is bound to this browser and declared merchant origin, not a
    * tab. Wait for the item's ready_to_submit status before native Pay and submit
    * within its readiness deadline. Unused preparations expire automatically; every
@@ -1083,7 +1093,7 @@ export namespace VaultCardFillField {
 }
 
 /**
- * Required when preparing an unused AgentCard card for a supported tokenization
+ * Required when preparing an unused AgentCard card for a supported checkout
  * processor. Consent is bound to this browser and declared merchant origin, not a
  * tab. Wait for the item's ready_to_submit status before native Pay and submit
  * within its readiness deadline. Unused preparations expire automatically; every
@@ -1096,8 +1106,8 @@ export interface VaultCheckoutContext {
   browser_id: string;
 
   /**
-   * Use production or sandbox for Square, Braintree and Worldpay; shared for Bambora
-   * and Mercado Pago. Shared endpoints do not establish test mode. Merchant
+   * Use production or sandbox for Square, Braintree, Worldpay and Adyen; shared for
+   * Bambora and Mercado Pago. Shared endpoints do not establish test mode. Merchant
    * credentials/configuration determine processor test mode, independently of the
    * AgentCard credential mode.
    */
@@ -1110,8 +1120,11 @@ export interface VaultCheckoutContext {
   merchant_origin: string;
 
   /**
-   * Tokenization processor. Omit for Square compatibility. Non-Square processors
-   * require multi-processor preparation enablement.
+   * Checkout processor. Omit for Square compatibility. Adyen supports fresh-card
+   * Sessions requests on Adyen hosts only. Use public dummy card fields, not vault
+   * aliases. The unique armed preparation is associated with the subsequent eligible
+   * request from this browser and declared merchant origin; competing preparations
+   * are rejected.
    */
   psp?: AgentcardPreparedProcessor;
 }
@@ -1791,7 +1804,7 @@ export declare namespace ItemPerformOperationParams {
 
     /**
      * Body param: Required when preparing an unused AgentCard card for a supported
-     * tokenization processor. Consent is bound to this browser and declared merchant
+     * checkout processor. Consent is bound to this browser and declared merchant
      * origin, not a tab. Wait for the item's ready_to_submit status before native Pay
      * and submit within its readiness deadline. Unused preparations expire
      * automatically; every preparation is single-use, including after failure or
