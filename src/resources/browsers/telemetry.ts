@@ -2979,7 +2979,14 @@ export interface BrowserEventContext {
   /**
    * CDP target type of the page that produced the event.
    */
-  target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+  target_type?:
+    | 'page'
+    | 'iframe'
+    | 'worker'
+    | 'background_page'
+    | 'service_worker'
+    | 'shared_worker'
+    | 'other';
 
   /**
    * URL relevant to this event — page URL for navigation and page events, request
@@ -3769,7 +3776,14 @@ export namespace BrowserPageCrashedEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * URL the page was on when its renderer process crashed.
@@ -4135,7 +4149,14 @@ export namespace BrowserPageNavigationEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type?:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * URL navigated to.
@@ -4222,7 +4243,14 @@ export namespace BrowserPageTabOpenedEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type?:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * Initial page title of the new tab.
