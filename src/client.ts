@@ -216,6 +216,18 @@ import {
   ProjectsOffsetPagination,
   UpdateProjectRequest,
 } from './resources/projects/projects';
+import {
+  Attempt,
+  ProviderTarget,
+  Request,
+  Result,
+  Search,
+  SearchCreateParams,
+  SearchResource,
+  Strategy,
+  Usage,
+  Warning,
+} from './resources/search/search';
 import { Telemetry } from './resources/telemetry/telemetry';
 import {
   Vault,
@@ -1104,6 +1116,10 @@ export class Kernel {
    * Configure external credential providers like 1Password.
    */
   credentialProviders: API.CredentialProviders = new API.CredentialProviders(this);
+  /**
+   * Search the web and retrieve content for selected results.
+   */
+  search: API.SearchResource = new API.SearchResource(this);
 }
 
 Kernel.Deployments = Deployments;
@@ -1125,6 +1141,7 @@ Kernel.Organization = Organization;
 Kernel.AuditLogs = AuditLogs;
 Kernel.APIKeys = APIKeys;
 Kernel.CredentialProviders = CredentialProviders;
+Kernel.SearchResource = SearchResource;
 
 export declare namespace Kernel {
   export type RequestOptions = Opts.RequestOptions;
@@ -1356,6 +1373,19 @@ export declare namespace Kernel {
     type CredentialProviderCreateParams as CredentialProviderCreateParams,
     type CredentialProviderUpdateParams as CredentialProviderUpdateParams,
     type CredentialProviderListParams as CredentialProviderListParams,
+  };
+
+  export {
+    SearchResource as SearchResource,
+    type Attempt as Attempt,
+    type ProviderTarget as ProviderTarget,
+    type Request as Request,
+    type Result as Result,
+    type Search as Search,
+    type Strategy as Strategy,
+    type Usage as Usage,
+    type Warning as Warning,
+    type SearchCreateParams as SearchCreateParams,
   };
 
   export type AppAction = API.AppAction;
