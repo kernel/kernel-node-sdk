@@ -1067,6 +1067,13 @@ export interface BrowserPoolAcquireParams {
   name?: string;
 
   /**
+   * Profile selection for the browser session. Provide either id or name. If
+   * specified, the matching profile will be loaded into the browser session.
+   * Profiles must be created beforehand.
+   */
+  profile?: Shared.BrowserProfile;
+
+  /**
    * Optional URL to navigate the acquired browser to. Overrides the pool's start_url
    * for this acquire only. Best-effort: failures to navigate do not fail the
    * acquire.
@@ -1200,7 +1207,8 @@ export interface BrowserPoolReleaseParams {
    * Defaults to true. A reused browser keeps the configuration it was created with,
    * so it does not pick up pool configuration changes made while it was in use.
    * Release with `reuse: false`, or flush the pool afterward, to rebuild it with the
-   * current configuration.
+   * current configuration. Browsers loaded with an acquire-time profile are always
+   * destroyed and replaced, even when reuse is true.
    */
   reuse?: boolean;
 }
