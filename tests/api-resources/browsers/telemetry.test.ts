@@ -32,6 +32,7 @@ describe('resource telemetry', () => {
           offset: 0,
           order: 'order',
           since: 'since',
+          type: ['string'],
           until: 'until',
         },
         { path: '/_stainless_unknown_path' },
