@@ -59,6 +59,12 @@ export namespace OrgEntitlements {
     proxy_bypass_hosts: Features.ProxyBypassHosts;
 
     /**
+     * Whether the Search API is enabled for the organization by its rollout feature
+     * flag.
+     */
+    search: Features.Search;
+
+    /**
      * Whether the organization can access vaults, using the same access check as vault
      * API routes.
      */
@@ -177,6 +183,17 @@ export namespace OrgEntitlements {
     }
 
     export interface ProxyBypassHosts {
+      /**
+       * Whether the organization is entitled to use this feature.
+       */
+      enabled: boolean;
+    }
+
+    /**
+     * Whether the Search API is enabled for the organization by its rollout feature
+     * flag.
+     */
+    export interface Search {
       /**
        * Whether the organization is entitled to use this feature.
        */
