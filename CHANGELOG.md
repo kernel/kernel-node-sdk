@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.112.0](https://github.com/kernel/kernel-node-sdk/compare/v0.111.0...v0.112.0) (2026-09-24)
+
+
+### Features
+
+* Add profiles to browser pool acquire ([0b0f348](https://github.com/kernel/kernel-node-sdk/commit/0b0f348c33f9e9c372b31dbcfd19b505a26057ef))
+* Correct monitor_disconnected description on computed state ([809b9c8](https://github.com/kernel/kernel-node-sdk/commit/809b9c8be2eb8919389bc5369e8a8a3cc5590182))
+* Expose Search rollout access in org entitlements ([68ff158](https://github.com/kernel/kernel-node-sdk/commit/68ff158188ce06e5f7526a324217d945e1970cc3))
+* Filter archived telemetry events by type ([dc46ab2](https://github.com/kernel/kernel-node-sdk/commit/dc46ab213c0333cd16510c789a3fc10cb4bc0383))
+* Proxy custom WebMCP tools in the control plane ([44e5665](https://github.com/kernel/kernel-node-sdk/commit/44e5665b3edd75f94605cca72479e89029225b38))
+* Publish iframe and worker browser target types ([3d555d7](https://github.com/kernel/kernel-node-sdk/commit/3d555d700e9854a2ec1d095d484d916abea4541e))
+* Route browser destinations through selected proxies ([27108aa](https://github.com/kernel/kernel-node-sdk/commit/27108aa04eb3be3f307a696421e33c45071a5584))
+
 ## [0.111.0](https://github.com/kernel/kernel-node-sdk/compare/v0.110.0...v0.111.0) (2026-09-22)
 
 

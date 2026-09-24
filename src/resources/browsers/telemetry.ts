@@ -16,8 +16,9 @@ export class Telemetry extends APIResource {
   /**
    * Reads a page of telemetry events for the browser session. To page through
    * results, pass the X-Next-Offset value from the previous response as offset and
-   * repeat while X-Has-More is true. Returns an empty list when telemetry data is
-   * unavailable.
+   * repeat while X-Has-More is true. The category and type filters apply within each
+   * page, so a filtered page may be empty while X-Has-More is true. Returns an empty
+   * list when telemetry data is unavailable.
    *
    * @example
    * ```ts
@@ -2979,7 +2980,14 @@ export interface BrowserEventContext {
   /**
    * CDP target type of the page that produced the event.
    */
-  target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+  target_type?:
+    | 'page'
+    | 'iframe'
+    | 'worker'
+    | 'background_page'
+    | 'service_worker'
+    | 'shared_worker'
+    | 'other';
 
   /**
    * URL relevant to this event — page URL for navigation and page events, request
@@ -3283,8 +3291,12 @@ export namespace BrowserLiveViewDisconnectEvent {
 
 /**
  * The CDP connection to Chrome was lost. Telemetry events may be dropped until
- * monitor_reconnected arrives. Treat any in-progress computed state (network_idle,
- * page_layout_settled) as unreliable until then.
+ * monitor_reconnected arrives. In-progress computed state is discarded rather than
+ * paused, so computed events still pending for the current navigation
+ * (network_idle, page_layout_settled, page_navigation_settled) never fire.
+ * monitor_reconnected does not restore them. After reattachment a fresh state
+ * machine starts, so computed events can resume before the next navigation and
+ * carry empty navigation context until one occurs.
  */
 export interface BrowserMonitorDisconnectedEvent {
   category: 'monitor';
@@ -3769,7 +3781,14 @@ export namespace BrowserPageCrashedEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * URL the page was on when its renderer process crashed.
@@ -4135,7 +4154,14 @@ export namespace BrowserPageNavigationEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type?:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * URL navigated to.
@@ -4222,7 +4248,14 @@ export namespace BrowserPageTabOpenedEvent {
     /**
      * CDP target type of the page that produced the event.
      */
-    target_type?: 'page' | 'background_page' | 'service_worker' | 'shared_worker' | 'other';
+    target_type?:
+      | 'page'
+      | 'iframe'
+      | 'worker'
+      | 'background_page'
+      | 'service_worker'
+      | 'shared_worker'
+      | 'other';
 
     /**
      * Initial page title of the new tab.
@@ -4337,15 +4370,16 @@ export namespace BrowserProxyErrorEvent {
     /**
      * Proxy-layer error code: the X-Kernel-Proxy-Error response header value from a
      * branded 5xx error page served by the metro egress host-proxy. Values mirror what
-     * the proxy emits: destination_blocked, provider_blacklisted,
-     * provider_unreachable, provider_rejected, origin_tls_timeout,
-     * origin_response_incomplete, proxy_unavailable, restricted_route_unavailable,
-     * upstream_timeout, upstream_dns_failure, upstream_connect_failed. A header value
-     * the browser image does not recognize is reported as unknown, with the header
-     * value in raw_code.
+     * the proxy emits: destination_blocked, destination_route_unavailable,
+     * provider_blacklisted, provider_unreachable, provider_rejected,
+     * origin_tls_timeout, origin_response_incomplete, proxy_unavailable,
+     * restricted_route_unavailable, upstream_timeout, upstream_dns_failure,
+     * upstream_connect_failed. A header value the browser image does not recognize is
+     * reported as unknown, with the header value in raw_code.
      */
     code:
       | 'destination_blocked'
+      | 'destination_route_unavailable'
       | 'provider_blacklisted'
       | 'provider_unreachable'
       | 'provider_rejected'
@@ -4830,9 +4864,7 @@ export interface TelemetryEventsParams extends OffsetPaginationParams {
    * Read direction. asc (default) reads oldest first, starting from since or the
    * offset cursor. desc reads newest first: each request returns one page of up to
    * limit records ending at the offset cursor (or until, or the newest archived
-   * event); combining desc with since is rejected with a 400. In either direction
-   * the category filter applies within the page, so a filtered page may be empty
-   * while X-Has-More is true.
+   * event); combining desc with since is rejected with a 400.
    */
   order?: string;
 
@@ -4841,6 +4873,13 @@ export interface TelemetryEventsParams extends OffsetPaginationParams {
    * long ago. Defaults to 5m. Ignored when offset is set.
    */
   since?: string;
+
+  /**
+   * Restrict results to these event types, such as page_crashed or
+   * captcha_challenge_result. Repeat the parameter for multiple values. Combines
+   * with category: when both are set an event must match both.
+   */
+  type?: Array<string>;
 
   /**
    * End of the window (exclusive): an RFC-3339 timestamp, or a duration like 5m

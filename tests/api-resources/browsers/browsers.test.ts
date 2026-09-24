@@ -34,7 +34,15 @@ describe('resource browsers', () => {
           kiosk_mode: true,
           memory: '8GiB',
           name: 'checkout-flow-1',
-          network: { private_hosts: ['*.example.ts.net', '100.64.0.0/10'] },
+          network: {
+            private_hosts: ['*.example.ts.net', '100.64.0.0/10'],
+            proxy_routes: [
+              {
+                hosts: ['string'],
+                proxy: { id: 'x', name: 'x' },
+              },
+            ],
+          },
           profile: {
             id: 'id',
             name: 'name',

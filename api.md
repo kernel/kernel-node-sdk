@@ -307,19 +307,36 @@ Methods:
 
 Types:
 
-- <code><a href="./src/resources/browsers/webmcp.ts">InvocationFailure</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">InvocationResult</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">InvokeRequest</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">Tool</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">ToolAnnotations</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">ToolFrame</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">ToolSource</a></code>
-- <code><a href="./src/resources/browsers/webmcp.ts">ToolsResponse</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">CustomToolSource</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">InvocationFailure</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">InvocationResult</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">InvokeRequest</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">Tool</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">ToolAnnotations</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">ToolFrame</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">ToolMetadata</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">ToolSource</a></code>
+- <code><a href="./src/resources/browsers/webmcp/webmcp.ts">ToolsResponse</a></code>
 
 Methods:
 
-- <code title="post /browsers/{id_or_name}/webmcp/invoke">client.browsers.webmcp.<a href="./src/resources/browsers/webmcp.ts">invokeTool</a>(idOrName, { ...params }) -> InvocationResult</code>
-- <code title="get /browsers/{id_or_name}/webmcp/tools">client.browsers.webmcp.<a href="./src/resources/browsers/webmcp.ts">listTools</a>(idOrName) -> ToolsResponse</code>
+- <code title="post /browsers/{id_or_name}/webmcp/invoke">client.browsers.webmcp.<a href="./src/resources/browsers/webmcp/webmcp.ts">invokeTool</a>(idOrName, { ...params }) -> InvocationResult</code>
+- <code title="get /browsers/{id_or_name}/webmcp/tools">client.browsers.webmcp.<a href="./src/resources/browsers/webmcp/webmcp.ts">listTools</a>(idOrName, { ...params }) -> ToolsResponse</code>
+
+### CustomTools
+
+Types:
+
+- <code><a href="./src/resources/browsers/webmcp/custom-tools.ts">AddRequest</a></code>
+- <code><a href="./src/resources/browsers/webmcp/custom-tools.ts">CustomToolsResponse</a></code>
+- <code><a href="./src/resources/browsers/webmcp/custom-tools.ts">Definition</a></code>
+- <code><a href="./src/resources/browsers/webmcp/custom-tools.ts">Match</a></code>
+
+Methods:
+
+- <code title="get /browsers/{id_or_name}/webmcp/custom-tools">client.browsers.webmcp.customTools.<a href="./src/resources/browsers/webmcp/custom-tools.ts">list</a>(idOrName) -> CustomToolsResponse</code>
+- <code title="post /browsers/{id_or_name}/webmcp/custom-tools">client.browsers.webmcp.customTools.<a href="./src/resources/browsers/webmcp/custom-tools.ts">add</a>(idOrName, { ...params }) -> CustomToolsResponse</code>
+- <code title="delete /browsers/{id_or_name}/webmcp/custom-tools/{id}">client.browsers.webmcp.customTools.<a href="./src/resources/browsers/webmcp/custom-tools.ts">remove</a>(id, { ...params }) -> void</code>
 
 # Profiles
 
