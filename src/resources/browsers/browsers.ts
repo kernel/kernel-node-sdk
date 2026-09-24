@@ -109,19 +109,6 @@ import {
   TelemetryStreamParams,
   TelemetryStreamResponse,
 } from './telemetry';
-import * as WebmcpAPI from './webmcp';
-import {
-  InvocationFailure,
-  InvocationResult,
-  InvokeRequest,
-  Tool,
-  ToolAnnotations,
-  ToolFrame,
-  ToolSource,
-  ToolsResponse,
-  Webmcp,
-  WebmcpInvokeToolParams,
-} from './webmcp';
 import * as FsAPI from './fs/fs';
 import {
   FCreateDirectoryParams,
@@ -140,6 +127,22 @@ import {
   FWriteFileParams,
   Fs,
 } from './fs/fs';
+import * as WebmcpAPI from './webmcp/webmcp';
+import {
+  CustomToolSource,
+  InvocationFailure,
+  InvocationResult,
+  InvokeRequest,
+  Tool,
+  ToolAnnotations,
+  ToolFrame,
+  ToolMetadata,
+  ToolSource,
+  ToolsResponse,
+  Webmcp,
+  WebmcpInvokeToolParams,
+  WebmcpListToolsParams,
+} from './webmcp/webmcp';
 import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
 import { type Uploadable } from '../../core/uploads';
@@ -2065,14 +2068,17 @@ export declare namespace Browsers {
 
   export {
     Webmcp as Webmcp,
+    type CustomToolSource as CustomToolSource,
     type InvocationFailure as InvocationFailure,
     type InvocationResult as InvocationResult,
     type InvokeRequest as InvokeRequest,
     type Tool as Tool,
     type ToolAnnotations as ToolAnnotations,
     type ToolFrame as ToolFrame,
+    type ToolMetadata as ToolMetadata,
     type ToolSource as ToolSource,
     type ToolsResponse as ToolsResponse,
     type WebmcpInvokeToolParams as WebmcpInvokeToolParams,
+    type WebmcpListToolsParams as WebmcpListToolsParams,
   };
 }

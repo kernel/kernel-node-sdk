@@ -152,13 +152,16 @@ export {
 } from './telemetry';
 export {
   Webmcp,
+  type CustomToolSource,
   type InvocationFailure,
   type InvocationResult,
   type InvokeRequest,
   type Tool,
   type ToolAnnotations,
   type ToolFrame,
+  type ToolMetadata,
   type ToolSource,
   type ToolsResponse,
   type WebmcpInvokeToolParams,
-} from './webmcp';
+  type WebmcpListToolsParams,
+} from './webmcp/index';
