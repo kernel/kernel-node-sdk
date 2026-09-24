@@ -375,6 +375,52 @@ export interface BrowserNetworkConfig {
    * upstream-proxy and Kernel-managed direct egress and cannot reach into a VPN.
    */
   private_hosts?: Array<string>;
+
+  /**
+   * Per-destination proxy routes for a browser session. After setup, a destination
+   * hostname is matched against every route's hosts, regardless of port; route order
+   * does not matter. An exact hostname beats a wildcard, and a longer wildcard
+   * suffix beats a shorter one (for a.b.example.com: "a.b.example.com" >
+   * "_.b.example.com" > "_.example.com"). A host pattern may appear in only one
+   * route. "\*.example.com" matches subdomains only, not example.com. A matched
+   * request selects the route's proxy instead of the session's top-level proxy
+   * (including mode: direct); the route proxy's own bypass_hosts still apply. If the
+   * route proxy becomes unavailable, matched requests fail closed without falling
+   * back. Requests that match no route use the session's default egress from the
+   * top-level proxy field (or the browser default when proxy is omitted: stealth
+   * proxy or direct egress). Routes take effect once the session is created;
+   * start_url and other traffic during browser setup use the top-level proxy.
+   * Setting routes requires proxy v3. Not supported on browser pools.
+   */
+  proxy_routes?: Array<BrowserNetworkConfig.ProxyRoute>;
+}
+
+export namespace BrowserNetworkConfig {
+  export interface ProxyRoute {
+    /**
+     * Exact hostnames or leading \*. wildcard patterns (subdomains only); patterns
+     * cannot include ports, and matching ignores the destination port. Hosts not
+     * matched by any route use the session's top-level proxy (or the browser default
+     * when proxy is omitted).
+     */
+    hosts: Array<string>;
+
+    /**
+     * Select an active non-direct proxy by ID or name. Responses always use ID.
+     */
+    proxy: ProxyRoute.Proxy;
+  }
+
+  export namespace ProxyRoute {
+    /**
+     * Select an active non-direct proxy by ID or name. Responses always use ID.
+     */
+    export interface Proxy {
+      id?: string;
+
+      name?: string;
+    }
+  }
 }
 
 /**
