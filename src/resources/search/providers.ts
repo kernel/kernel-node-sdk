@@ -173,7 +173,8 @@ export type ProviderListResponse = Array<Provider>;
 
 export interface ProviderListParams {
   /**
-   * Optional concrete provider slug filter. Omit to list every provider.
+   * Optional concrete provider slug filter. Omit to list every provider. A slug that
+   * is not listed returns an empty array.
    */
   slug?:
     | 'brave'
