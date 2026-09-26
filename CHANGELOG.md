@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.113.0](https://github.com/kernel/kernel-node-sdk/compare/v0.112.0...v0.113.0) (2026-09-26)
+
+
+### Features
+
+* Randomize automatic search provider routing ([0b866b2](https://github.com/kernel/kernel-node-sdk/commit/0b866b2ad6a4f7486047afd5e2086c2791ab5dd5))
+
 ## [0.112.0](https://github.com/kernel/kernel-node-sdk/compare/v0.111.0...v0.112.0) (2026-09-24)
 
 
