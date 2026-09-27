@@ -259,6 +259,11 @@ export namespace BrowserPool {
     kiosk_mode?: boolean;
 
     /**
+     * Memory allocated to the browser session.
+     */
+    memory?: BrowsersAPI.BrowserMemory;
+
+    /**
      * Optional name for the browser pool. Must be unique within the project.
      */
     name?: string;
@@ -570,6 +575,11 @@ export interface BrowserPoolCreateParams {
   kiosk_mode?: boolean;
 
   /**
+   * Memory requested for headful browsers in this pool.
+   */
+  memory?: BrowsersAPI.BrowserMemoryRequest;
+
+  /**
    * Optional name for the browser pool. Must be unique within the project.
    */
   name?: string;
@@ -813,6 +823,13 @@ export interface BrowserPoolUpdateParams {
    * If provided, replaces whether browsers launch in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Memory requested for newly-warmed headful browsers in this pool. Existing
+   * browsers retain their original allocation. Use discard_all_idle to replace idle
+   * browsers.
+   */
+  memory?: '8GiB' | '16GiB';
 
   /**
    * If provided, replaces the pool name. Empty string is a no-op; the pool name

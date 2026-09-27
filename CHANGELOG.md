@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.113.0](https://github.com/kernel/kernel-node-sdk/compare/v0.112.0...v0.113.0) (2026-09-27)
+
+
+### Features
+
+* Randomize automatic search provider routing ([0b866b2](https://github.com/kernel/kernel-node-sdk/commit/0b866b2ad6a4f7486047afd5e2086c2791ab5dd5))
+* Support 16GiB memory in browser pools ([8aa203e](https://github.com/kernel/kernel-node-sdk/commit/8aa203ed994b45bd978cabd260fb0c0f969e26c3))
+
 ## [0.112.0](https://github.com/kernel/kernel-node-sdk/compare/v0.111.0...v0.112.0) (2026-09-24)
 
 

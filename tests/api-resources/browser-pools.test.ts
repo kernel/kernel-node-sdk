@@ -29,6 +29,7 @@ describe('resource browserPools', () => {
       fill_rate_per_minute: 0,
       headless: false,
       kiosk_mode: true,
+      memory: '8GiB',
       name: 'my-pool',
       network: {
         private_hosts: ['*.example.ts.net', '100.64.0.0/10'],
