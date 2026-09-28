@@ -256,7 +256,8 @@ export interface ManagedAuth {
   save_credentials: boolean;
 
   /**
-   * Current authentication status of the managed profile
+   * Last known authentication status of the managed profile. An inconclusive health
+   * check preserves this status and does not verify the current session.
    */
   status: 'AUTHENTICATED' | 'NEEDS_AUTH';
 
@@ -462,6 +463,13 @@ export interface ManagedAuth {
    * hours).
    */
   health_check_interval?: number | null;
+
+  /**
+   * Why health checks cannot verify this connection. Present when health checks are
+   * enabled but no auth check URL is available; a recent last_auth_check_at is not
+   * evidence of a valid session.
+   */
+  health_check_unavailable_reason?: 'no_auth_check_url';
 
   /**
    * Whether periodic health checks are enabled for this connection. When false, the
