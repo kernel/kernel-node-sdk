@@ -587,6 +587,11 @@ export namespace ManagedAuth {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -637,6 +642,17 @@ export namespace ManagedAuth {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -970,6 +986,11 @@ export namespace ManagedAuthBrowserConfig {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1020,6 +1041,17 @@ export namespace ManagedAuthBrowserConfig {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 }
@@ -1173,6 +1205,11 @@ export namespace ManagedAuthCreateRequest {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -1223,6 +1260,17 @@ export namespace ManagedAuthCreateRequest {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -1479,6 +1527,11 @@ export namespace ManagedAuthUpdateRequest {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -1529,6 +1582,17 @@ export namespace ManagedAuthUpdateRequest {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2141,6 +2205,11 @@ export namespace ConnectionCreateParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2191,6 +2260,17 @@ export namespace ConnectionCreateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2352,6 +2432,11 @@ export namespace ConnectionUpdateParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2402,6 +2487,17 @@ export namespace ConnectionUpdateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2537,6 +2633,11 @@ export namespace ConnectionLoginParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2587,6 +2688,17 @@ export namespace ConnectionLoginParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 

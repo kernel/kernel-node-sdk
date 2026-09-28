@@ -102,6 +102,7 @@ import {
   BrowserTelemetryEvent,
   BrowserTelemetryExportConfig,
   BrowserTelemetryOtlpExportConfig,
+  BrowserTelemetryStorageConfig,
   Telemetry as TelemetryAPITelemetry,
   TelemetryEventsParams,
   TelemetryEventsResponse,
@@ -1556,6 +1557,11 @@ export namespace BrowserCreateParams {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1606,6 +1612,17 @@ export namespace BrowserCreateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 }
@@ -1722,6 +1739,11 @@ export namespace BrowserUpdateParams {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1772,6 +1794,17 @@ export namespace BrowserUpdateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false is not supported yet and is rejected.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -1989,6 +2022,7 @@ export declare namespace Browsers {
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
     type BrowserTelemetryExportConfig as BrowserTelemetryExportConfig,
     type BrowserTelemetryOtlpExportConfig as BrowserTelemetryOtlpExportConfig,
+    type BrowserTelemetryStorageConfig as BrowserTelemetryStorageConfig,
     type TelemetryEventsResponse as TelemetryEventsResponse,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,
