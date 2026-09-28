@@ -650,7 +650,8 @@ export namespace ManagedAuth {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1049,7 +1050,8 @@ export namespace ManagedAuthBrowserConfig {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1268,7 +1270,8 @@ export namespace ManagedAuthCreateRequest {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1590,7 +1593,8 @@ export namespace ManagedAuthUpdateRequest {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -2268,7 +2272,8 @@ export namespace ConnectionCreateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -2495,7 +2500,8 @@ export namespace ConnectionUpdateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -2696,7 +2702,8 @@ export namespace ConnectionLoginParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }

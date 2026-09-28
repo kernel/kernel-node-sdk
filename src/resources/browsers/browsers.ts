@@ -1620,7 +1620,8 @@ export namespace BrowserCreateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1802,7 +1803,8 @@ export namespace BrowserUpdateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }

@@ -789,7 +789,8 @@ export namespace BrowserPoolCreateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1063,7 +1064,8 @@ export namespace BrowserPoolUpdateParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
@@ -1254,7 +1256,8 @@ export namespace BrowserPoolAcquireParams {
     export interface Storage {
       /**
        * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
-       * Setting false is not supported yet and is rejected.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
        */
       enabled?: boolean;
     }
