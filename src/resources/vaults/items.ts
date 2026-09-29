@@ -569,6 +569,75 @@ export interface CollectVaultItemOperationRequest {
   type: 'collect';
 }
 
+export interface CredentialAccountVaultItem {
+  id: string;
+
+  available_expansions: Array<CredentialAccountVaultItem.AvailableExpansion>;
+
+  /**
+   * Advertises 1pw_recover when Kernel can recover a failed account link. Recovery
+   * is unavailable while authorization is pending or after the connection has
+   * already been reset.
+   */
+  available_operations: Array<CredentialAccountVaultItem.AvailableOperation>;
+
+  created_at: string;
+
+  /**
+   * Immutable item key assigned when the item is created.
+   */
+  key: string;
+
+  spec: OnePasswordCredentialAccountSpec;
+
+  state: OnePasswordCredentialAccountState;
+
+  type: 'credential_account';
+
+  updated_at: string;
+
+  action?: OnePasswordOAuthAction;
+
+  expires_at?: string;
+}
+
+export namespace CredentialAccountVaultItem {
+  /**
+   * Live data that can currently be requested by passing its type to the item GET
+   * expand parameter.
+   */
+  export interface AvailableExpansion {
+    description: string;
+
+    type: 'payment_methods';
+  }
+
+  /**
+   * An operation that is currently valid for this item. Read the description before
+   * invoking it through the item operations endpoint.
+   */
+  export interface AvailableOperation {
+    description: string;
+
+    type:
+      | 'authorize'
+      | 'collect'
+      | 'prepare_checkout'
+      | 'fill'
+      | '1pw_create_access_request'
+      | '1pw_access_request_status'
+      | '1pw_fill'
+      | '1pw_recover'
+      | '1pw_update_access_token';
+  }
+}
+
+export interface CredentialAccountVaultItemRequest {
+  spec: OnePasswordCredentialAccountSpec;
+
+  type: 'credential_account';
+}
+
 /**
  * One schema-derived form for the item, available in ready or pending_collection
  * state. Render every form-supported field as editable; omit totp fields and
@@ -736,8 +805,10 @@ export interface CredentialVaultItem {
   available_expansions: Array<CredentialVaultItem.AvailableExpansion>;
 
   /**
-   * Advertises collect for ready and pending_collection items. Browser fill is
-   * advertised only when separately implemented and eligible.
+   * Kernel credentials advertise collect and fill when eligible. 1Password
+   * credentials advertise 1pw_create_access_request until a request is made,
+   * 1pw_access_request_status while its approval is pending, and 1pw_fill after
+   * access is granted.
    */
   available_operations: Array<CredentialVaultItem.AvailableOperation>;
 
@@ -748,6 +819,10 @@ export interface CredentialVaultItem {
    */
   key: string;
 
+  /**
+   * Stored-token credentials omit account and never return access_token or
+   * integration_key.
+   */
   spec: CredentialVaultItemSpec;
 
   state: CredentialVaultItemState;
@@ -789,7 +864,7 @@ export interface CredentialVaultItem {
    * authenticate the customer's end users. Treat URLs and submitted values as
    * secrets and exclude them from logs, traces, and errors.
    */
-  action?: CredentialCollectionAction;
+  action?: CredentialCollectionAction | CredentialVaultItem.OnePasswordAccessApprovalAction;
 }
 
 export namespace CredentialVaultItem {
@@ -810,23 +885,47 @@ export namespace CredentialVaultItem {
   export interface AvailableOperation {
     description: string;
 
-    type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+    type:
+      | 'authorize'
+      | 'collect'
+      | 'prepare_checkout'
+      | 'fill'
+      | '1pw_create_access_request'
+      | '1pw_access_request_status'
+      | '1pw_fill'
+      | '1pw_recover'
+      | '1pw_update_access_token';
+  }
+
+  export interface OnePasswordAccessApprovalAction {
+    /**
+     * Steps for the agent to hand approval to the human and poll the resulting
+     * decision.
+     */
+    instructions: string;
+
+    name: '1password_access_approval';
+
+    /**
+     * Native 1Password approval link. Present it to the account owner without
+     * modifying it; it does not grant access until they approve in their app.
+     */
+    url: string;
   }
 }
 
 /**
- * Create a credential item without a wallet or external provider. Do not use
- * credential items to store, collect, or fill credit card data, including card
- * numbers (PANs), security codes (CVV/CVC), or expiration dates. Use wallet and
- * card item types for credit cards and payment checkout instead. If all required
- * fields have values, return ready without a collection action; collect can still
- * open its form. Otherwise return pending_collection with a time-scoped
- * Kernel-hosted collection action. Missing optional fields alone do not trigger
- * collection. Repeating the original creation request returns the current item
- * without overwriting later edits; a different request at the same key
- * returns 409. Use PATCH for updates. Required totp fields must include a valid
- * seed on creation; otherwise return 400 rather than opening a form that cannot
- * collect it. Optional totp fields may be unset and populated later through PATCH.
+ * Ask the end-user whether to link their site credential through 1Password. If
+ * they choose 1Password, connect their account and request access to a login in
+ * their own non-shared vault; passkeys are not supported. If they decline or that
+ * path fails, collect a Kernel-hosted credential item instead. Never automatically
+ * retry an uncertain 1Password request or fill. Do not use credential items for
+ * credit card data. Use wallet and card item types instead. Kernel credentials
+ * declare fields and may enter pending_collection. 1Password credentials either
+ * reference a connected credential_account or store a supplied access token and
+ * integration key encrypted on the item. They store no login values or selectors.
+ * Repeating the original creation request returns the current item without
+ * overwriting later state. A different request at the same key returns 409.
  */
 export interface CredentialVaultItemRequest {
   /**
@@ -841,19 +940,11 @@ export interface CredentialVaultItemRequest {
   type: 'credential';
 }
 
-export interface CredentialVaultItemSpec {
-  /**
-   * Ordered field definitions rendered in this order by credential collection forms.
-   */
-  fields: Array<CredentialVaultFieldDefinition>;
-
-  /**
-   * Recognizable site or service name displayed verbatim as the form title, without
-   * suffixes such as sign-in credentials. Display text only, not an enforced
-   * destination policy.
-   */
-  description?: string;
-}
+/**
+ * Stored-token credentials omit account and never return access_token or
+ * integration_key.
+ */
+export type CredentialVaultItemSpec = KernelCredentialVaultItemSpec | OnePasswordCredentialVaultItemSpec;
 
 /**
  * Credential fields are for login and other non-payment credentials. Do not store,
@@ -862,21 +953,9 @@ export interface CredentialVaultItemSpec {
  * the user-facing collection form, so list fields in the same top-to-bottom order
  * as the website.
  */
-export interface CredentialVaultItemSpecInput {
-  /**
-   * Ordered field definitions. Use the website's top-to-bottom field order; the
-   * collection form renders this order unchanged.
-   */
-  fields: Array<CredentialVaultFieldInput>;
-
-  /**
-   * The site's recognizable display name, used verbatim as the user-facing form
-   * title (for example, Hacker News). Use only the site or service name; do not
-   * append sign-in, login, credentials, or task instructions. This is display text,
-   * not an enforced destination policy. At most 16 KiB in UTF-8 bytes.
-   */
-  description?: string;
-}
+export type CredentialVaultItemSpecInput =
+  | KernelCredentialVaultItemSpecInput
+  | OnePasswordCredentialVaultItemSpecInput;
 
 export interface CredentialVaultItemSpecUpdate {
   /**
@@ -889,18 +968,7 @@ export interface CredentialVaultItemSpecUpdate {
   fields?: { [key: string]: CredentialVaultFieldUpdate };
 }
 
-export interface CredentialVaultItemState {
-  /**
-   * Exactly one entry for each declared field.
-   */
-  fields: { [key: string]: CredentialVaultFieldState };
-
-  /**
-   * Ready means all required fields have values, not that a login succeeded.
-   * Optional fields may remain unset.
-   */
-  status: 'pending_collection' | 'ready';
-}
+export type CredentialVaultItemState = KernelCredentialVaultItemState | OnePasswordCredentialVaultItemState;
 
 /**
  * Atomically update description and selected values. Omitted properties are
@@ -1004,6 +1072,438 @@ export interface FillVaultItemOperationResult {
   status: 'completed' | 'failed' | 'unknown';
 
   type: 'fill';
+}
+
+export interface KernelCredentialVaultItemSpec {
+  /**
+   * Ordered field definitions rendered in this order by credential collection forms.
+   */
+  fields: Array<CredentialVaultFieldDefinition>;
+
+  provider: 'kernel';
+
+  /**
+   * Recognizable site or service name displayed verbatim as the form title, without
+   * suffixes such as sign-in credentials. Display text only, not an enforced
+   * destination policy.
+   */
+  description?: string;
+}
+
+/**
+ * Credential fields are for login and other non-payment credentials. Do not store,
+ * collect, or fill credit card data in credential items. Use wallet and card item
+ * types for credit cards and payment checkout instead. Field order is preserved in
+ * the user-facing collection form, so list fields in the same top-to-bottom order
+ * as the website.
+ */
+export interface KernelCredentialVaultItemSpecInput {
+  /**
+   * Ordered field definitions. Use the website's top-to-bottom field order; the
+   * collection form renders this order unchanged.
+   */
+  fields: Array<CredentialVaultFieldInput>;
+
+  provider: 'kernel';
+
+  /**
+   * The site's recognizable display name, used verbatim as the user-facing form
+   * title (for example, Hacker News). Use only the site or service name; do not
+   * append sign-in, login, credentials, or task instructions. This is display text,
+   * not an enforced destination policy. At most 16 KiB in UTF-8 bytes.
+   */
+  description?: string;
+}
+
+export interface KernelCredentialVaultItemState {
+  /**
+   * Exactly one entry for each declared field.
+   */
+  fields: { [key: string]: CredentialVaultFieldState };
+
+  provider: 'kernel';
+
+  /**
+   * Ready means all required fields have values, not that a login succeeded.
+   * Optional fields may remain unset.
+   */
+  status: 'pending_collection' | 'ready';
+}
+
+export interface OnePasswordCredentialAccountSpec {
+  authorization: OnePasswordCredentialAccountSpec.Authorization;
+
+  provider: '1password';
+}
+
+export namespace OnePasswordCredentialAccountSpec {
+  export interface Authorization {
+    client: Authorization.Client;
+
+    method: 'oauth';
+  }
+
+  export namespace Authorization {
+    export interface Client {
+      type: 'kernel_managed';
+    }
+  }
+}
+
+export interface OnePasswordCredentialAccountState {
+  provider: '1password';
+
+  status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'declined';
+
+  status_reason?: string;
+}
+
+/**
+ * Stored-token credentials omit account and never return access_token or
+ * integration_key.
+ */
+export interface OnePasswordCredentialVaultItemSpec {
+  provider: '1password';
+
+  /**
+   * Credential Request v2 input sent to the extension. A credential item may request
+   * up to five login entries.
+   */
+  requests: OnePasswordCredentialVaultItemSpec.Requests;
+
+  /**
+   * Customer-supplied expiry metadata, if provided.
+   */
+  access_token_expires_at?: string;
+
+  account?: string;
+}
+
+export namespace OnePasswordCredentialVaultItemSpec {
+  /**
+   * Credential Request v2 input sent to the extension. A credential item may request
+   * up to five login entries.
+   */
+  export interface Requests {
+    entries: Array<Requests.Entry>;
+
+    /**
+     * Must be 2.
+     */
+    version: number;
+
+    goal?: string;
+  }
+
+  export namespace Requests {
+    export interface Entry {
+      parameters: Entry.Parameters;
+
+      /**
+       * Must be login.
+       */
+      type: string;
+
+      keywords?: Array<string>;
+
+      reason?: string;
+    }
+
+    export namespace Entry {
+      export interface Parameters {
+        website: string;
+      }
+    }
+  }
+}
+
+/**
+ * A login request backed by a connected 1Password account or by a
+ * customer-supplied access token and matching integration key. Supply either
+ * account or both secrets, never both. Supplied secrets are write-only and never
+ * returned. Supply requests for new items; website remains supported for existing
+ * account-backed callers.
+ */
+export interface OnePasswordCredentialVaultItemSpecInput {
+  provider: '1password';
+
+  /**
+   * Optional supplied token expiry metadata for stored-token credentials. Omit if
+   * providing a connected credential_account item via the account field.
+   */
+  access_token_expires_at?: string;
+
+  /**
+   * Key of a connected credential_account item in the same vault. Omit for
+   * stored-token credentials.
+   */
+  account?: string;
+
+  /**
+   * Credential Request v2 input sent to the extension. A credential item may request
+   * up to five login entries.
+   */
+  requests?: OnePasswordCredentialVaultItemSpecInput.Requests;
+
+  /**
+   * @deprecated Legacy single-login shorthand. Supply requests instead.
+   */
+  website?: string;
+}
+
+export namespace OnePasswordCredentialVaultItemSpecInput {
+  /**
+   * Credential Request v2 input sent to the extension. A credential item may request
+   * up to five login entries.
+   */
+  export interface Requests {
+    entries: Array<Requests.Entry>;
+
+    /**
+     * Must be 2.
+     */
+    version: number;
+
+    goal?: string;
+  }
+
+  export namespace Requests {
+    export interface Entry {
+      parameters: Entry.Parameters;
+
+      /**
+       * Must be login.
+       */
+      type: string;
+
+      keywords?: Array<string>;
+
+      reason?: string;
+    }
+
+    export namespace Entry {
+      export interface Parameters {
+        website: string;
+      }
+    }
+  }
+}
+
+export interface OnePasswordCredentialVaultItemState {
+  provider: '1password';
+
+  status: 'pending_authorization' | 'ready' | 'declined' | 'failed';
+
+  /**
+   * Non-secret broker state. Granted credential references stay encrypted
+   * server-side and can only be used by the fill operation.
+   */
+  access_request?: OnePasswordCredentialVaultItemState.AccessRequest;
+
+  /**
+   * Opaque request ID returned by the 1Password broker after a successful
+   * createAccessRequest call.
+   */
+  access_request_id?: string;
+
+  status_reason?: string;
+}
+
+export namespace OnePasswordCredentialVaultItemState {
+  /**
+   * Non-secret broker state. Granted credential references stay encrypted
+   * server-side and can only be used by the fill operation.
+   */
+  export interface AccessRequest {
+    id: string;
+
+    has_autofill_token: boolean;
+
+    /**
+     * One of pending, resolved, denied, or failed.
+     */
+    state: string;
+
+    /**
+     * Provider-created timestamp as returned by the broker.
+     */
+    createdAt?: string;
+
+    /**
+     * Login entries returned directly on accessRequest by the observed extension
+     * build. Omitted when the provider does not supply them.
+     */
+    entries?: Array<AccessRequest.Entry>;
+
+    /**
+     * Goal echoed by the observed createAccessRequest response when present.
+     */
+    goal?: string;
+
+    granted_count?: number;
+
+    /**
+     * Opaque provider identity returned by the broker.
+     */
+    identity?: string;
+
+    /**
+     * Provider path if supplied in the broker response.
+     */
+    path?: string;
+
+    /**
+     * The request object if returned by the extension. The observed create response
+     * may omit entries; no entry IDs are invented.
+     */
+    request?: AccessRequest.Request;
+  }
+
+  export namespace AccessRequest {
+    export interface Entry {
+      id?: string;
+
+      keywords?: Array<string>;
+
+      parameters?: Entry.Parameters;
+
+      reason?: string;
+
+      type?: string;
+    }
+
+    export namespace Entry {
+      export interface Parameters {
+        website?: string;
+      }
+    }
+
+    /**
+     * The request object if returned by the extension. The observed create response
+     * may omit entries; no entry IDs are invented.
+     */
+    export interface Request {
+      entries?: Array<Request.Entry>;
+
+      goal?: string;
+
+      version?: number;
+    }
+
+    export namespace Request {
+      export interface Entry {
+        id?: string;
+
+        keywords?: Array<string>;
+
+        parameters?: Entry.Parameters;
+
+        reason?: string;
+
+        type?: string;
+      }
+
+      export namespace Entry {
+        export interface Parameters {
+          website?: string;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Fill and submit an approved 1Password login in the selected browser page. The
+ * page must share the selected entry's login origin. Supply entry_id when more
+ * than one approved entry matches the page origin. The extension selects fields;
+ * callers cannot supply selectors or secret values. Submission does not confirm
+ * website authentication.
+ */
+export interface OnePasswordFillVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  /**
+   * Exact current top-level page URL. Must match exactly one open page in the
+   * browser.
+   */
+  page_url: string;
+
+  type: '1pw_fill';
+
+  /**
+   * ID of an approved request entry. Required when several approved entries have the
+   * page's origin.
+   */
+  entry_id?: string;
+
+  timeout_ms?: number;
+}
+
+/**
+ * The submission result reported by the 1Password extension when available. Kernel
+ * returns fill_unknown if the extension call has no conclusive result. Inspect the
+ * page to determine successful authentication on the website.
+ */
+export interface OnePasswordFillVaultItemOperationResult {
+  /**
+   * Kernel's outcome of the extension call. fill_submitted means the extension
+   * reported submission, not website authentication. fill_failed means the extension
+   * returned a known failure and may include error_code. fill_unknown means
+   * submission may have happened without a conclusive response; it has no error_code
+   * and must not be retried in the same browser.
+   */
+  status: 'fill_submitted' | 'fill_failed' | 'fill_unknown';
+
+  type: '1pw_fill';
+
+  /**
+   * Present only for a conclusive fill_failed response. These are allowlisted
+   * 1Password extension codes, never raw errors, secrets, or page content.
+   */
+  error_code?: 'fillFailed' | 'autosubmitFailed' | 'noExistingCredentials' | 'authenticationFailed';
+}
+
+export interface OnePasswordOAuthAction {
+  name: '1password_oauth';
+
+  /**
+   * 1Password-hosted OAuth authorization URL for the human to open.
+   */
+  url: string;
+}
+
+/**
+ * Kernel encountered a recoverable error while linking this 1Password account. Use
+ * this action to get a new link to recover the connection. After recovery
+ * completes, start a new authorization on the same item.
+ */
+export interface OnePasswordRecoverVaultItemOperationRequest {
+  type: '1pw_recover';
+}
+
+/**
+ * Request access to login entries in the end-user's own, non-shared 1Password
+ * vault through the browser extension, auto-loaded into the browser. The end-user
+ * approves access in the 1Password app. Shared-vault items and passkeys are not
+ * supported. Per-entry reason and keywords overrides are only supported for a
+ * single login entry.
+ */
+export interface OnePasswordRequestAccessVaultItemOperationRequest {
+  /**
+   * Kernel browser session used to invoke the extension.
+   */
+  browser_id: string;
+
+  type: '1pw_create_access_request';
+
+  goal?: string;
+
+  keywords?: Array<string>;
+
+  reason?: string;
 }
 
 /**
@@ -1171,7 +1671,11 @@ export interface VaultFillFieldResult {
     | 'execution_failed';
 }
 
-export type VaultItem = VaultItem.WalletVaultItem | VaultItem.CardVaultItem | CredentialVaultItem;
+export type VaultItem =
+  | VaultItem.WalletVaultItem
+  | VaultItem.CardVaultItem
+  | CredentialAccountVaultItem
+  | CredentialVaultItem;
 
 export namespace VaultItem {
   export interface WalletVaultItem {
@@ -1232,7 +1736,16 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+      type:
+        | 'authorize'
+        | 'collect'
+        | 'prepare_checkout'
+        | 'fill'
+        | '1pw_create_access_request'
+        | '1pw_access_request_status'
+        | '1pw_fill'
+        | '1pw_recover'
+        | '1pw_update_access_token';
     }
 
     /**
@@ -1295,13 +1808,23 @@ export namespace VaultItem {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+      type:
+        | 'authorize'
+        | 'collect'
+        | 'prepare_checkout'
+        | 'fill'
+        | '1pw_create_access_request'
+        | '1pw_access_request_status'
+        | '1pw_fill'
+        | '1pw_recover'
+        | '1pw_update_access_token';
     }
   }
 }
 
 export type VaultItemAction =
   | VaultItemAction.LinkOAuthAction
+  | OnePasswordOAuthAction
   | VaultItemAction.SpendApprovalAction
   | VaultItemAction.PushApprovalAction
   | VaultItemAction.CollectAction
@@ -1361,15 +1884,17 @@ export interface VaultItemEvent {
 }
 
 /**
- * Authorization and preparation return the existing item shape. Fill returns a
- * value-free execution result; it does not persist transient field outcomes on the
- * item.
+ * The submission result reported by the 1Password extension when available. Kernel
+ * returns fill_unknown if the extension call has no conclusive result. Inspect the
+ * page to determine successful authentication on the website.
  */
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
   | VaultItemOperationResponse.CardVaultItem
+  | CredentialAccountVaultItem
   | CredentialVaultItem
-  | FillVaultItemOperationResult;
+  | FillVaultItemOperationResult
+  | OnePasswordFillVaultItemOperationResult;
 
 export namespace VaultItemOperationResponse {
   export interface WalletVaultItem {
@@ -1430,7 +1955,16 @@ export namespace VaultItemOperationResponse {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+      type:
+        | 'authorize'
+        | 'collect'
+        | 'prepare_checkout'
+        | 'fill'
+        | '1pw_create_access_request'
+        | '1pw_access_request_status'
+        | '1pw_fill'
+        | '1pw_recover'
+        | '1pw_update_access_token';
     }
 
     /**
@@ -1493,7 +2027,16 @@ export namespace VaultItemOperationResponse {
     export interface AvailableOperation {
       description: string;
 
-      type: 'authorize' | 'collect' | 'prepare_checkout' | 'fill';
+      type:
+        | 'authorize'
+        | 'collect'
+        | 'prepare_checkout'
+        | 'fill'
+        | '1pw_create_access_request'
+        | '1pw_access_request_status'
+        | '1pw_fill'
+        | '1pw_recover'
+        | '1pw_update_access_token';
     }
   }
 }
@@ -1582,7 +2125,7 @@ export namespace WalletVaultItemSpec {
       export interface CustomerManagedOAuthClient {
         /**
          * Select a provider config by ID or name. Responses return the ID. Renaming a
-         * config does not change existing wallet bindings; a wallet cannot switch to a
+         * config does not change existing wallet bindings; an item cannot switch to a
          * different config after creation.
          */
         provider_config: CustomerManagedOAuthClient.ProviderConfig;
@@ -1593,7 +2136,7 @@ export namespace WalletVaultItemSpec {
       export namespace CustomerManagedOAuthClient {
         /**
          * Select a provider config by ID or name. Responses return the ID. Renaming a
-         * config does not change existing wallet bindings; a wallet cannot switch to a
+         * config does not change existing wallet bindings; an item cannot switch to a
          * different config after creation.
          */
         export interface ProviderConfig {
@@ -1769,7 +2312,12 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.AuthorizeVaultItemOperationRequest
   | ItemPerformOperationParams.CollectVaultItemOperationRequest
   | ItemPerformOperationParams.PrepareCheckoutVaultItemOperationRequest
-  | ItemPerformOperationParams.FillVaultItemOperationRequest;
+  | ItemPerformOperationParams.FillVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordRequestAccessVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordPollAccessVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest;
 
 export declare namespace ItemPerformOperationParams {
   export interface AuthorizeVaultItemOperationRequest {
@@ -1854,11 +2402,134 @@ export declare namespace ItemPerformOperationParams {
      */
     timeout_ms?: number;
   }
+
+  export interface OnePasswordRequestAccessVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Kernel browser session used to invoke the extension.
+     */
+    browser_id: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_create_access_request';
+
+    /**
+     * Body param
+     */
+    goal?: string;
+
+    /**
+     * Body param
+     */
+    keywords?: Array<string>;
+
+    /**
+     * Body param
+     */
+    reason?: string;
+  }
+
+  export interface OnePasswordPollAccessVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    browser_id: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_access_request_status';
+
+    /**
+     * Body param
+     */
+    timeout_seconds?: number;
+  }
+
+  export interface OnePasswordFillVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param: Exact current top-level page URL. Must match exactly one open page
+     * in the browser.
+     */
+    page_url: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_fill';
+
+    /**
+     * Body param: ID of an approved request entry. Required when several approved
+     * entries have the page's origin.
+     */
+    entry_id?: string;
+
+    /**
+     * Body param
+     */
+    timeout_ms?: number;
+  }
+
+  export interface OnePasswordRecoverVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_recover';
+  }
+
+  export interface OnePasswordUpdateAccessTokenVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    access_token: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_update_access_token';
+
+    /**
+     * Body param: Optional supplied expiry. Omit to clear the old expiry.
+     */
+    access_token_expires_at?: string;
+  }
 }
 
 export type ItemUpsertParams =
   | ItemUpsertParams.WalletVaultItemRequest
   | ItemUpsertParams.CardVaultItemRequest
+  | ItemUpsertParams.CredentialAccountVaultItemRequest
   | ItemUpsertParams.CredentialVaultItemRequest;
 
 export declare namespace ItemUpsertParams {
@@ -1961,7 +2632,7 @@ export declare namespace ItemUpsertParams {
         export interface Client {
           /**
            * Select a provider config by ID or name. Responses return the ID. Renaming a
-           * config does not change existing wallet bindings; a wallet cannot switch to a
+           * config does not change existing wallet bindings; an item cannot switch to a
            * different config after creation.
            */
           provider_config: Client.ProviderConfig;
@@ -1972,7 +2643,7 @@ export declare namespace ItemUpsertParams {
         export namespace Client {
           /**
            * Select a provider config by ID or name. Responses return the ID. Renaming a
-           * config does not change existing wallet bindings; a wallet cannot switch to a
+           * config does not change existing wallet bindings; an item cannot switch to a
            * different config after creation.
            */
           export interface ProviderConfig {
@@ -2047,6 +2718,23 @@ export declare namespace ItemUpsertParams {
     type: 'card';
   }
 
+  export interface CredentialAccountVaultItemRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    spec: OnePasswordCredentialAccountSpec;
+
+    /**
+     * Body param
+     */
+    type: 'credential_account';
+  }
+
   export interface CredentialVaultItemRequest {
     /**
      * Path param
@@ -2078,6 +2766,8 @@ export declare namespace Items {
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
     type CollectVaultItemOperationRequest as CollectVaultItemOperationRequest,
+    type CredentialAccountVaultItem as CredentialAccountVaultItem,
+    type CredentialAccountVaultItemRequest as CredentialAccountVaultItemRequest,
     type CredentialCollectionAction as CredentialCollectionAction,
     type CredentialVaultFieldDefinition as CredentialVaultFieldDefinition,
     type CredentialVaultFieldInput as CredentialVaultFieldInput,
@@ -2093,6 +2783,19 @@ export declare namespace Items {
     type CredentialVaultItemUpdateRequest as CredentialVaultItemUpdateRequest,
     type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
     type FillVaultItemOperationResult as FillVaultItemOperationResult,
+    type KernelCredentialVaultItemSpec as KernelCredentialVaultItemSpec,
+    type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
+    type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
+    type OnePasswordCredentialAccountSpec as OnePasswordCredentialAccountSpec,
+    type OnePasswordCredentialAccountState as OnePasswordCredentialAccountState,
+    type OnePasswordCredentialVaultItemSpec as OnePasswordCredentialVaultItemSpec,
+    type OnePasswordCredentialVaultItemSpecInput as OnePasswordCredentialVaultItemSpecInput,
+    type OnePasswordCredentialVaultItemState as OnePasswordCredentialVaultItemState,
+    type OnePasswordFillVaultItemOperationRequest as OnePasswordFillVaultItemOperationRequest,
+    type OnePasswordFillVaultItemOperationResult as OnePasswordFillVaultItemOperationResult,
+    type OnePasswordOAuthAction as OnePasswordOAuthAction,
+    type OnePasswordRecoverVaultItemOperationRequest as OnePasswordRecoverVaultItemOperationRequest,
+    type OnePasswordRequestAccessVaultItemOperationRequest as OnePasswordRequestAccessVaultItemOperationRequest,
     type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
