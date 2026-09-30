@@ -185,6 +185,7 @@ Types:
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryEvent</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryExportConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryOtlpExportConfig</a></code>
+- <code><a href="./src/resources/browsers/telemetry.ts">BrowserTelemetryStorageConfig</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">TelemetryEventsResponse</a></code>
 - <code><a href="./src/resources/browsers/telemetry.ts">TelemetryStreamResponse</a></code>
 
@@ -495,6 +496,8 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CollectVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">CredentialAccountVaultItem</a></code>
+- <code><a href="./src/resources/vaults/items.ts">CredentialAccountVaultItemRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialCollectionAction</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldDefinition</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldInput</a></code>
@@ -510,6 +513,19 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultItemUpdateRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationResult</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpecInput</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialVaultItemSpecInput</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordFillVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordFillVaultItemOperationResult</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordOAuthAction</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordRecoverVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">OnePasswordRequestAccessVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">PrepareCheckoutVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>

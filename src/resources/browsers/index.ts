@@ -144,6 +144,7 @@ export {
   type BrowserTelemetryEvent,
   type BrowserTelemetryExportConfig,
   type BrowserTelemetryOtlpExportConfig,
+  type BrowserTelemetryStorageConfig,
   type TelemetryEventsResponse,
   type TelemetryStreamResponse,
   type TelemetryEventsParams,

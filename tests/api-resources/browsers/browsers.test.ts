@@ -81,6 +81,7 @@ describe('resource browsers', () => {
                 enabled: true,
               },
             },
+            storage: { enabled: true },
           },
           timeout_seconds: 10,
           vaults: [{ id: 'id', name: 'x' }],

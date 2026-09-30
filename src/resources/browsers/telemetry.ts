@@ -4694,6 +4694,12 @@ export interface BrowserTelemetryConfig {
    * export state is unknown.
    */
   export?: BrowserTelemetryExportConfig;
+
+  /**
+   * Whether the session's captured telemetry is persisted to Kernel storage. Omitted
+   * for browsers created before this setting existed, which persist it.
+   */
+  storage?: BrowserTelemetryStorageConfig;
 }
 
 /**
@@ -4785,6 +4791,18 @@ export interface BrowserTelemetryOtlpExportConfig {
 
   /**
    * Whether the session is exporting captured telemetry over OTLP.
+   */
+  enabled?: boolean;
+}
+
+/**
+ * Kernel storage state for a session's captured telemetry.
+ */
+export interface BrowserTelemetryStorageConfig {
+  /**
+   * Whether captured telemetry is persisted to Kernel storage. When off, the
+   * session's events are only available on the live stream and through any
+   * configured export.
    */
   enabled?: boolean;
 }
@@ -4955,6 +4973,7 @@ export declare namespace Telemetry {
     type BrowserTelemetryEvent as BrowserTelemetryEvent,
     type BrowserTelemetryExportConfig as BrowserTelemetryExportConfig,
     type BrowserTelemetryOtlpExportConfig as BrowserTelemetryOtlpExportConfig,
+    type BrowserTelemetryStorageConfig as BrowserTelemetryStorageConfig,
     type TelemetryEventsResponse as TelemetryEventsResponse,
     type TelemetryStreamResponse as TelemetryStreamResponse,
     type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,
