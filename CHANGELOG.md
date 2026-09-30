@@ -7,10 +7,10 @@
 
 * Accept telemetry.storage and settle it at browser create ([3ef0e3b](https://github.com/kernel/kernel-node-sdk/commit/3ef0e3bdb82efcb7e0c507ea754c9873d3215269))
 * Allow export-only network and console telemetry for BAA orgs ([db2aeee](https://github.com/kernel/kernel-node-sdk/commit/db2aeee160879f89df81a0bdd5c3147648fb4c89))
-* chore(stlc): seal custom-code tracking files ([0e42728](https://github.com/kernel/kernel-node-sdk/commit/0e427286118637317cb3f796f5124d4e868494a4))
 * Expose 1Password supplied-token inputs in the Node SDK ([eb88be6](https://github.com/kernel/kernel-node-sdk/commit/eb88be6f349083eb2eea6e0024b2b1362bca291d))
 * Expose missing managed auth check URL as verification unavailable ([eafcdcf](https://github.com/kernel/kernel-node-sdk/commit/eafcdcf57f345c2495fdfc37501b1be2118cb5b8))
 * Let Vaults fill credentials from 1Password ([d2383af](https://github.com/kernel/kernel-node-sdk/commit/d2383af2bd08443d548ae14bff22a790f87d03a9))
+* Send Stripe publishable key when refreshing customer-owned Link grants ([0e42728](https://github.com/kernel/kernel-node-sdk/commit/0e427286118637317cb3f796f5124d4e868494a4))
 
 ## [0.113.0](https://github.com/kernel/kernel-node-sdk/compare/v0.112.0...v0.113.0) (2026-09-27)
 
