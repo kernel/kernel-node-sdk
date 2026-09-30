@@ -715,7 +715,7 @@ Types:
 
 Methods:
 
-- <code title="post /search/{id}/contents">client.search.contents.<a href="./src/resources/search/contents.ts">fetch</a>(id, { ...params }) -> void</code>
+- <code title="post /search/{id}/contents">client.search.contents.<a href="./src/resources/search/contents.ts">fetch</a>(id, { ...params }) -> Response</code>
 
 ## Providers
 
