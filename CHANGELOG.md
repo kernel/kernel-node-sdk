@@ -5,7 +5,7 @@
 
 ### Features
 
-* chore(stlc): seal custom-code tracking files ([5102ab5](https://github.com/kernel/kernel-node-sdk/commit/5102ab5af3c6a2bcbc4b680f84d81a95c48b21ab))
+* Fetch content for selected results from retained searches ([kernel/kernel#3978](https://github.com/kernel/kernel/pull/3978))
 
 ## [0.114.0](https://github.com/kernel/kernel-node-sdk/compare/v0.113.0...v0.114.0) (2026-09-30)
 
