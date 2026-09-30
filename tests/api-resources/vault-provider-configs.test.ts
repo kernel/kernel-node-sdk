@@ -27,7 +27,11 @@ describe('resource vaultProviderConfigs', () => {
   // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.vaultProviderConfigs.create({
-      credentials: { client_id: 'x', client_secret: 'x' },
+      credentials: {
+        client_id: 'x',
+        client_secret: 'x',
+        publishable_key: 'pk_test_lK9w2kI5J1',
+      },
       name: 'name',
       provider: 'link',
     });
