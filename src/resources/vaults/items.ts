@@ -413,8 +413,9 @@ export namespace CardVaultItemSpec {
 
   /**
    * AgentCard reusable live payment card. Test-mode card creation is not supported.
-   * Each checkout creates an approval-gated authorization for spec.merchant /
-   * spec.amount. The card stays ready after each authorization.
+   * Each checkout creates an authorization for spec.merchant / spec.amount that the
+   * cardholder approves, unless AgentCard runs it under one of the cardholder's
+   * autopilot rules. The card stays ready after each authorization.
    */
   export interface AgentCardCardVaultItemSpec {
     /**
@@ -442,6 +443,18 @@ export namespace CardVaultItemSpec {
      * picks on the approval screen.
      */
     card_id?: string;
+
+    /**
+     * Origin of the top-level checkout page, such as https://shop.example.com: https,
+     * a lowercase host, a port only when it is not 443, and no path. http is accepted
+     * only for localhost test pages. Checkouts without a preparation send it to
+     * AgentCard, which uses it to match the cardholder's autopilot rules; prepared
+     * checkouts send the preparation's merchant_origin instead. Kernel sends the
+     * declared value and does not compare it with the page the browser has open.
+     * Omitted, those checkouts ask the cardholder to approve. Card updates replace the
+     * whole spec, so an update that omits it removes it.
+     */
+    checkout_origin?: string;
   }
 }
 
