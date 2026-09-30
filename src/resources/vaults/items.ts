@@ -1228,6 +1228,13 @@ export interface OnePasswordCredentialVaultItemSpecInput {
   provider: '1password';
 
   /**
+   * Customer-supplied 1Password broker token. Requires integration_key; stored
+   * encrypted on this item. Omit if providing a connected credential_account item
+   * via the account field.
+   */
+  access_token?: string;
+
+  /**
    * Optional supplied token expiry metadata for stored-token credentials. Omit if
    * providing a connected credential_account item via the account field.
    */
@@ -1238,6 +1245,13 @@ export interface OnePasswordCredentialVaultItemSpecInput {
    * stored-token credentials.
    */
   account?: string;
+
+  /**
+   * Matching customer-supplied integration key. Requires access_token; stored
+   * encrypted on this item. Omit if providing a connected credential_account item
+   * via the account field.
+   */
+  integration_key?: string;
 
   /**
    * Credential Request v2 input sent to the extension. A credential item may request
