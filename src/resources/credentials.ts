@@ -139,8 +139,29 @@ export interface CreateCredentialRequest {
   sso_provider?: string;
 
   /**
-   * Base32-encoded TOTP secret for generating one-time passwords. Used for automatic
-   * 2FA during login.
+   * HMAC algorithm used to generate TOTP codes. Defaults to SHA1 and is ignored when
+   * an `otpauth://` URI supplies the algorithm.
+   */
+  totp_algorithm?: 'SHA1' | 'SHA256' | 'SHA512';
+
+  /**
+   * Number of digits in generated TOTP codes. Defaults to 6 and is ignored when an
+   * `otpauth://` URI supplies the digit count.
+   */
+  totp_digits?: number;
+
+  /**
+   * TOTP rotation period in seconds. Defaults to 30 and is ignored when an
+   * `otpauth://` URI supplies the period.
+   */
+  totp_period?: number;
+
+  /**
+   * Accepts a 16-128 character base32-encoded TOTP secret or an `otpauth://totp/...`
+   * URI. The range accepts existing shorter seeds and longer seeds regardless of
+   * HMAC algorithm; RFC 6238 recommends unpadded base32 lengths of 32/52/103 for
+   * SHA1/SHA256/SHA512. Only URI parameters present override the corresponding
+   * explicit TOTP fields. Used for automatic 2FA during login.
    */
   totp_secret?: string;
 }
@@ -193,8 +214,14 @@ export interface Credential {
   sso_provider?: string | null;
 
   /**
-   * Current 6-digit TOTP code. Only included in create/update responses when
-   * totp_secret was just set.
+   * HMAC algorithm used to generate TOTP codes. Defaults to SHA1 for credentials
+   * created before this metadata was stored.
+   */
+  totp_algorithm?: 'SHA1' | 'SHA256' | 'SHA512';
+
+  /**
+   * Current TOTP code. Only included in create/update responses when totp_secret was
+   * just set.
    */
   totp_code?: string;
 
@@ -202,6 +229,18 @@ export interface Credential {
    * When the totp_code expires. Only included when totp_code is present.
    */
   totp_code_expires_at?: string;
+
+  /**
+   * Number of digits in generated TOTP codes. Defaults to 6 for credentials created
+   * before this metadata was stored.
+   */
+  totp_digits?: number;
+
+  /**
+   * TOTP rotation period in seconds. Defaults to 30 for credentials created before
+   * this metadata was stored.
+   */
+  totp_period?: number;
 
   /**
    * The field names stored in this credential's values (e.g., username, password).
@@ -233,8 +272,29 @@ export interface UpdateCredentialRequest {
   sso_provider?: string | null;
 
   /**
-   * Base32-encoded TOTP secret for generating one-time passwords. Spaces and
-   * formatting are automatically normalized. Set to empty string to remove.
+   * HMAC algorithm used to generate TOTP codes. Requires totp_secret and is ignored
+   * when an `otpauth://` URI supplies the algorithm.
+   */
+  totp_algorithm?: 'SHA1' | 'SHA256' | 'SHA512';
+
+  /**
+   * Number of digits in generated TOTP codes. Requires totp_secret and is ignored
+   * when an `otpauth://` URI supplies the digit count.
+   */
+  totp_digits?: number;
+
+  /**
+   * TOTP rotation period in seconds. Requires totp_secret and is ignored when an
+   * `otpauth://` URI supplies the period.
+   */
+  totp_period?: number;
+
+  /**
+   * Accepts a 16-128 character base32-encoded TOTP secret or an `otpauth://totp/...`
+   * URI. Only URI parameters present override the corresponding explicit TOTP
+   * fields. When rotating a raw secret, omitted fields preserve their existing
+   * values; a new URI defaults unspecified fields to SHA1/6/30. Set to empty string
+   * to remove the secret and its metadata.
    */
   totp_secret?: string;
 
@@ -282,8 +342,29 @@ export interface CredentialCreateParams {
   sso_provider?: string;
 
   /**
-   * Base32-encoded TOTP secret for generating one-time passwords. Used for automatic
-   * 2FA during login.
+   * HMAC algorithm used to generate TOTP codes. Defaults to SHA1 and is ignored when
+   * an `otpauth://` URI supplies the algorithm.
+   */
+  totp_algorithm?: 'SHA1' | 'SHA256' | 'SHA512';
+
+  /**
+   * Number of digits in generated TOTP codes. Defaults to 6 and is ignored when an
+   * `otpauth://` URI supplies the digit count.
+   */
+  totp_digits?: number;
+
+  /**
+   * TOTP rotation period in seconds. Defaults to 30 and is ignored when an
+   * `otpauth://` URI supplies the period.
+   */
+  totp_period?: number;
+
+  /**
+   * Accepts a 16-128 character base32-encoded TOTP secret or an `otpauth://totp/...`
+   * URI. The range accepts existing shorter seeds and longer seeds regardless of
+   * HMAC algorithm; RFC 6238 recommends unpadded base32 lengths of 32/52/103 for
+   * SHA1/SHA256/SHA512. Only URI parameters present override the corresponding
+   * explicit TOTP fields. Used for automatic 2FA during login.
    */
   totp_secret?: string;
 }
@@ -307,8 +388,29 @@ export interface CredentialUpdateParams {
   sso_provider?: string | null;
 
   /**
-   * Base32-encoded TOTP secret for generating one-time passwords. Spaces and
-   * formatting are automatically normalized. Set to empty string to remove.
+   * HMAC algorithm used to generate TOTP codes. Requires totp_secret and is ignored
+   * when an `otpauth://` URI supplies the algorithm.
+   */
+  totp_algorithm?: 'SHA1' | 'SHA256' | 'SHA512';
+
+  /**
+   * Number of digits in generated TOTP codes. Requires totp_secret and is ignored
+   * when an `otpauth://` URI supplies the digit count.
+   */
+  totp_digits?: number;
+
+  /**
+   * TOTP rotation period in seconds. Requires totp_secret and is ignored when an
+   * `otpauth://` URI supplies the period.
+   */
+  totp_period?: number;
+
+  /**
+   * Accepts a 16-128 character base32-encoded TOTP secret or an `otpauth://totp/...`
+   * URI. Only URI parameters present override the corresponding explicit TOTP
+   * fields. When rotating a raw secret, omitted fields preserve their existing
+   * values; a new URI defaults unspecified fields to SHA1/6/30. Set to empty string
+   * to remove the secret and its metadata.
    */
   totp_secret?: string;
 
