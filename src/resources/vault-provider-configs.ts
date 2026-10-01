@@ -22,6 +22,7 @@ export class VaultProviderConfigs extends APIResource {
    *     credentials: {
    *       client_id: 'example-client-id',
    *       client_secret: 'example-client-secret',
+   *       publishable_key: 'pk_live_example',
    *     },
    *     name: 'my-link-client',
    *     provider: 'link',
@@ -143,6 +144,12 @@ export namespace VaultProviderConfig {
     provider: 'link';
 
     updated_at: string;
+
+    /**
+     * Stripe publishable key sent to Link when refreshing and revoking wallet grants.
+     * Omitted when not configured.
+     */
+    publishable_key?: string;
   }
 
   /**
@@ -191,6 +198,14 @@ export declare namespace VaultProviderConfigCreateParams {
       client_id: string;
 
       client_secret: string;
+
+      /**
+       * Stripe publishable key for the account that owns the Link OAuth client. Link
+       * requires it as the bearer credential when Kernel refreshes or revokes imported
+       * wallet grants; without it, those wallets stop working when the imported access
+       * token expires.
+       */
+      publishable_key?: string;
     }
   }
 
@@ -234,6 +249,12 @@ export namespace VaultProviderConfigUpdateParams {
    */
   export interface Credentials {
     client_secret?: string;
+
+    /**
+     * Link configurations only. Stripe publishable key sent to Link when refreshing
+     * and revoking wallet grants.
+     */
+    publishable_key?: string;
   }
 }
 

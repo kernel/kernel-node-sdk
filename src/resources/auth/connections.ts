@@ -256,7 +256,8 @@ export interface ManagedAuth {
   save_credentials: boolean;
 
   /**
-   * Current authentication status of the managed profile
+   * Last known authentication status of the managed profile. An inconclusive health
+   * check preserves this status and does not verify the current session.
    */
   status: 'AUTHENTICATED' | 'NEEDS_AUTH';
 
@@ -464,6 +465,13 @@ export interface ManagedAuth {
   health_check_interval?: number | null;
 
   /**
+   * Why health checks cannot verify this connection. Present when health checks are
+   * enabled but no auth check URL is available; a recent last_auth_check_at is not
+   * evidence of a valid session.
+   */
+  health_check_unavailable_reason?: 'no_auth_check_url';
+
+  /**
    * Whether periodic health checks are enabled for this connection. When false, the
    * system will not automatically verify authentication status, and `auto_reauth`
    * has no effect on the automatic flow (since re-auth is only triggered by a failed
@@ -587,6 +595,11 @@ export namespace ManagedAuth {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -637,6 +650,18 @@ export namespace ManagedAuth {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -970,6 +995,11 @@ export namespace ManagedAuthBrowserConfig {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1020,6 +1050,18 @@ export namespace ManagedAuthBrowserConfig {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 }
@@ -1173,6 +1215,11 @@ export namespace ManagedAuthCreateRequest {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -1223,6 +1270,18 @@ export namespace ManagedAuthCreateRequest {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -1479,6 +1538,11 @@ export namespace ManagedAuthUpdateRequest {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -1529,6 +1593,18 @@ export namespace ManagedAuthUpdateRequest {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2141,6 +2217,11 @@ export namespace ConnectionCreateParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2191,6 +2272,18 @@ export namespace ConnectionCreateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2352,6 +2445,11 @@ export namespace ConnectionUpdateParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2402,6 +2500,18 @@ export namespace ConnectionUpdateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 
@@ -2537,6 +2647,11 @@ export namespace ConnectionLoginParams {
      * exporting.
      */
     export?: BrowserTelemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: BrowserTelemetry.Storage;
   }
 
   export namespace BrowserTelemetry {
@@ -2587,6 +2702,18 @@ export namespace ConnectionLoginParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 

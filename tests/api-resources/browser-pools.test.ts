@@ -69,6 +69,7 @@ describe('resource browserPools', () => {
             enabled: true,
           },
         },
+        storage: { enabled: true },
       },
       timeout_seconds: 10,
       viewport: {

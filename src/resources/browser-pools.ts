@@ -726,6 +726,11 @@ export namespace BrowserPoolCreateParams {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -776,6 +781,18 @@ export namespace BrowserPoolCreateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 }
@@ -984,6 +1001,11 @@ export namespace BrowserPoolUpdateParams {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1034,6 +1056,18 @@ export namespace BrowserPoolUpdateParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 }
@@ -1159,6 +1193,11 @@ export namespace BrowserPoolAcquireParams {
      * exporting.
      */
     export?: Telemetry.Export;
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    storage?: Telemetry.Storage;
   }
 
   export namespace Telemetry {
@@ -1209,6 +1248,18 @@ export namespace BrowserPoolAcquireParams {
           name?: string;
         }
       }
+    }
+
+    /**
+     * Whether to persist this session's captured telemetry to Kernel storage.
+     */
+    export interface Storage {
+      /**
+       * Whether captured telemetry is persisted to Kernel storage. Defaults to true.
+       * Setting false requires an OTLP destination and cannot be changed after the
+       * browser is created.
+       */
+      enabled?: boolean;
     }
   }
 }

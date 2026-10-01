@@ -61,6 +61,7 @@ describe('resource connections', () => {
               enabled: true,
             },
           },
+          storage: { enabled: true },
         },
       },
       browser_telemetry: {
@@ -86,6 +87,7 @@ describe('resource connections', () => {
             enabled: true,
           },
         },
+        storage: { enabled: true },
       },
       credential: {
         auto: true,
@@ -229,6 +231,7 @@ describe('resource connections', () => {
                   enabled: true,
                 },
               },
+              storage: { enabled: true },
             },
           },
           browser_telemetry: {
@@ -254,6 +257,7 @@ describe('resource connections', () => {
                 enabled: true,
               },
             },
+            storage: { enabled: true },
           },
           proxy: { id: 'id', name: 'name' },
           record_session: true,
