@@ -31,6 +31,9 @@ describe('resource credentials', () => {
       name: 'my-netflix-login',
       values: { username: 'user@example.com', password: 'mysecretpassword' },
       sso_provider: 'google',
+      totp_algorithm: 'SHA1',
+      totp_digits: 6,
+      totp_period: 30,
       totp_secret: 'JBSWY3DPEHPK3PXP',
     });
   });
