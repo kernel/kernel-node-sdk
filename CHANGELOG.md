@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.119.0](https://github.com/kernel/kernel-node-sdk/compare/v0.118.0...v0.119.0) (2026-10-02)
+
+
+### Features
+
+* Add managed auth provider to vault credential items ([6a23c73](https://github.com/kernel/kernel-node-sdk/commit/6a23c73ccc4716c40fff473e2234194e76a354e0))
+
 ## [0.118.0](https://github.com/kernel/kernel-node-sdk/compare/v0.117.0...v0.118.0) (2026-10-02)
 
 

@@ -93,7 +93,8 @@ export class Items extends APIResource {
    * recovery_required whose checkout create response returned no authorization ID
    * may be explicitly abandoned by deleting that card directly; deleting its wallet
    * or vault remains blocked. Deleting or recreating an item is not proof that a
-   * payment did not occur.
+   * payment did not occur. Deleting a managed auth credential item leaves the
+   * connection and its saved credential unchanged.
    *
    * @example
    * ```ts
@@ -185,8 +186,8 @@ export class Items extends APIResource {
    * ```ts
    * const vaultItem = await client.vaults.items.upsert('x', {
    *   id_or_name: 'id_or_name',
-   *   spec: { provider: 'link' },
-   *   type: 'card',
+   *   spec: { provider: 'managed_auth' },
+   *   type: 'credential',
    * });
    * ```
    */
@@ -839,7 +840,8 @@ export interface CredentialVaultItem {
    * Kernel credentials advertise collect and fill when eligible. 1Password
    * credentials advertise 1pw_create_access_request until a request is made,
    * 1pw_access_request_status while its approval is pending, and 1pw_fill after
-   * access is granted.
+   * access is granted. Managed auth credentials advertise fill while ready and
+   * nothing otherwise.
    */
   available_operations: Array<CredentialVaultItem.AvailableOperation>;
 
@@ -864,7 +866,8 @@ export interface CredentialVaultItem {
 
   /**
    * Starts at 1 and increments on PATCH and successful hosted submission, but not
-   * collection-link renewal.
+   * collection-link renewal. Managed auth credentials stay at 1; changes to the
+   * underlying credential are read at fill time and do not change the version.
    */
   version: number;
 
@@ -956,7 +959,9 @@ export namespace CredentialVaultItem {
  * declare fields and may enter pending_collection. 1Password credentials either
  * reference a connected credential_account or store a supplied access token and
  * integration key encrypted on the item. They store no login values or selectors.
- * Repeating the original creation request returns the current item without
+ * Managed auth credentials reference a managed auth connection in the same project
+ * that already has a saved credential, and read it at fill time; they store no
+ * values. Repeating the original creation request returns the current item without
  * overwriting later state. A different request at the same key returns 409.
  */
 export interface CredentialVaultItemRequest {
@@ -976,7 +981,10 @@ export interface CredentialVaultItemRequest {
  * Stored-token credentials omit account and never return access_token or
  * integration_key.
  */
-export type CredentialVaultItemSpec = KernelCredentialVaultItemSpec | OnePasswordCredentialVaultItemSpec;
+export type CredentialVaultItemSpec =
+  | KernelCredentialVaultItemSpec
+  | OnePasswordCredentialVaultItemSpec
+  | ManagedAuthCredentialVaultItemSpec;
 
 /**
  * Credential fields are for login and other non-payment credentials. Do not store,
@@ -987,7 +995,8 @@ export type CredentialVaultItemSpec = KernelCredentialVaultItemSpec | OnePasswor
  */
 export type CredentialVaultItemSpecInput =
   | KernelCredentialVaultItemSpecInput
-  | OnePasswordCredentialVaultItemSpecInput;
+  | OnePasswordCredentialVaultItemSpecInput
+  | ManagedAuthCredentialVaultItemSpecInput;
 
 export interface CredentialVaultItemSpecUpdate {
   /**
@@ -1000,7 +1009,10 @@ export interface CredentialVaultItemSpecUpdate {
   fields?: { [key: string]: CredentialVaultFieldUpdate };
 }
 
-export type CredentialVaultItemState = KernelCredentialVaultItemState | OnePasswordCredentialVaultItemState;
+export type CredentialVaultItemState =
+  | KernelCredentialVaultItemState
+  | OnePasswordCredentialVaultItemState
+  | ManagedAuthCredentialVaultItemState;
 
 /**
  * Atomically update description and selected values. Omitted properties are
@@ -1010,7 +1022,8 @@ export type CredentialVaultItemState = KernelCredentialVaultItemState | OnePassw
  * invalidates outstanding Kernel-hosted collection sessions. If required values
  * remain missing, return pending_collection and a fresh collection action.
  * Otherwise return ready without an action; collect can open the form again
- * without clearing values. Customer URLs have no Kernel-managed expiry.
+ * without clearing values. Customer URLs have no Kernel-managed expiry. 1Password
+ * and managed auth credentials return 409.
  */
 export interface CredentialVaultItemUpdateRequest {
   spec: CredentialVaultItemSpecUpdate;
@@ -1281,6 +1294,94 @@ export interface KernelWalletState {
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
+}
+
+export interface ManagedAuthCredentialVaultField {
+  /**
+   * Text, email, and password have form inputs; totp does not and is omitted from
+   * both Kernel-hosted and customer React forms. Password and totp must be
+   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
+   * optional trailing padding), not an otpauth URI or current code. Reject invalid
+   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
+   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
+   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
+   * unsupported.
+   */
+  type: CredentialVaultFieldType;
+}
+
+export interface ManagedAuthCredentialVaultItemSpec {
+  /**
+   * ID of the managed auth connection whose saved credential this item reads. List
+   * connections with `GET /auth/connections`.
+   */
+  connection_id: string;
+
+  provider: 'managed_auth';
+
+  /**
+   * Display text supplied when the item was created. Omitted when none was given.
+   */
+  description?: string;
+}
+
+/**
+ * A credential backed by a managed auth connection. The item stores no values: it
+ * reads the connection's saved credential at fill time, so updates made through
+ * managed auth apply immediately. The connection must be in the vault's project
+ * and hold a saved Kernel credential. The check is the saved credential, not
+ * connection status: a connection that needs re-authentication qualifies, and an
+ * authenticated one without a saved credential does not. Returns 404 for an
+ * unknown connection, and 409 when the connection is in another project, has no
+ * saved credential yet, or uses an external credential provider such as 1Password.
+ * No collection form is offered; managed auth collects the login.
+ */
+export interface ManagedAuthCredentialVaultItemSpecInput {
+  /**
+   * ID of the managed auth connection whose saved credential this item reads. List
+   * connections with `GET /auth/connections`.
+   */
+  connection_id: string;
+
+  provider: 'managed_auth';
+
+  /**
+   * Optional display text for the item, such as the site or service name. Set at
+   * creation and cannot be changed later; repeating the request with a different
+   * description returns 409. At most 16 KiB in UTF-8 bytes.
+   */
+  description?: string;
+}
+
+export interface ManagedAuthCredentialVaultItemState {
+  provider: 'managed_auth';
+
+  /**
+   * Items are created ready, which means the connection has a saved Kernel
+   * credential that stores values or a TOTP seed (what has_values or has_totp_secret
+   * report on credentials), not that a login succeeded. Unavailable means it no
+   * longer does; such items advertise no operations.
+   */
+  status: 'ready' | 'unavailable';
+
+  /**
+   * One entry per non-empty value on the connection's saved credential, keyed by the
+   * field name to use in fill bindings. Included on single-item responses (create
+   * and get) and omitted from list responses, like `value_keys` on credentials.
+   * Empty when unavailable or when every stored value is empty. A stored value named
+   * totp_secret is never listed or filled. Values are never returned. A totp entry
+   * is present when the credential has a TOTP seed; fill writes a generated code for
+   * it. Entries follow the connection's credential.
+   */
+  fields?: { [key: string]: ManagedAuthCredentialVaultField };
+
+  /**
+   * Present when status is unavailable. connection_not_found means the connection
+   * was deleted. no_credential means the connection's credential was deleted or
+   * emptied after the item was created. external_credential means the connection was
+   * moved to an external credential provider.
+   */
+  status_reason?: 'connection_not_found' | 'no_credential' | 'external_credential';
 }
 
 export interface OnePasswordCredentialAccountSpec {
@@ -1798,8 +1899,9 @@ export interface VaultCheckoutContext {
 
 export interface VaultFillField {
   /**
-   * A declared credential field name or a supported card field. Unset credential
-   * fields cannot be filled.
+   * A credential field name from the item's declared fields (Kernel) or state.fields
+   * from a single-item read (managed auth), or a supported card field. Unset
+   * credential fields cannot be filled.
    */
   field: string;
 
@@ -2503,7 +2605,8 @@ export interface ItemRetrieveParams {
    * authorization, approval, or credential collection. Return the current item when
    * ready or when the wait elapses. This does not wait for edits to an already-ready
    * credential; poll GET without wait and compare version to observe changes after
-   * collect.
+   * collect. Managed auth credentials are created ready, so wait returns
+   * immediately.
    */
   wait?: number;
 }
@@ -3112,6 +3215,10 @@ export declare namespace Items {
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
+    type ManagedAuthCredentialVaultField as ManagedAuthCredentialVaultField,
+    type ManagedAuthCredentialVaultItemSpec as ManagedAuthCredentialVaultItemSpec,
+    type ManagedAuthCredentialVaultItemSpecInput as ManagedAuthCredentialVaultItemSpecInput,
+    type ManagedAuthCredentialVaultItemState as ManagedAuthCredentialVaultItemState,
     type OnePasswordCredentialAccountSpec as OnePasswordCredentialAccountSpec,
     type OnePasswordCredentialAccountState as OnePasswordCredentialAccountState,
     type OnePasswordCredentialVaultItemSpec as OnePasswordCredentialVaultItemSpec,
