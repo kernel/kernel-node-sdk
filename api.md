@@ -520,6 +520,10 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultField</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultItemSpecInput</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialVaultItemSpec</a></code>
