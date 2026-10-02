@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.118.0](https://github.com/kernel/kernel-node-sdk/compare/v0.117.0...v0.118.0) (2026-10-02)
+
+
+### Features
+
+* Add a query filter to the vault list endpoint ([2a9d2e8](https://github.com/kernel/kernel-node-sdk/commit/2a9d2e844cb301f882f807a304b7fb6dc82ea077))
+* Add Kernel wallets backed by VGS agentic network tokens, with hosted card capture ([3fced64](https://github.com/kernel/kernel-node-sdk/commit/3fced64a6872afc6dd92f22713c61716cc75ecaa))
+
 ## [0.117.0](https://github.com/kernel/kernel-node-sdk/compare/v0.116.0...v0.117.0) (2026-10-02)
 
 

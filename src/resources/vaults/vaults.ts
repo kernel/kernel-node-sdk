@@ -36,9 +36,13 @@ import {
   ItemUpdateParams,
   ItemUpsertParams,
   Items,
+  KernelCardState,
+  KernelCardVaultItemSpec,
   KernelCredentialVaultItemSpec,
   KernelCredentialVaultItemSpecInput,
   KernelCredentialVaultItemState,
+  KernelWalletState,
+  KernelWalletVaultItemSpec,
   OnePasswordCredentialAccountSpec,
   OnePasswordCredentialAccountState,
   OnePasswordCredentialVaultItemSpec,
@@ -106,9 +110,11 @@ export class Vaults extends APIResource {
   }
 
   /**
-   * Unresolved payment operations block deletion. Reconcile the original attempt
-   * with the provider or support first; deleting or recreating an item is not proof
-   * that a payment did not occur.
+   * Unresolved payment operations block deletion. Deleting a connected Kernel wallet
+   * first blocks new payments on it, then removes its enrolled card. If that fails,
+   * the wallet is kept and keeps refusing payments; retry the deletion. Reconcile
+   * the original attempt with the provider or support first; deleting or recreating
+   * an item is not proof that a payment did not occur.
    *
    * @example
    * ```ts
@@ -154,7 +160,12 @@ export interface Vault {
   updated_at: string;
 }
 
-export interface VaultListParams extends OffsetPaginationParams {}
+export interface VaultListParams extends OffsetPaginationParams {
+  /**
+   * Case-insensitive substring match against vault name. IDs match by exact value.
+   */
+  query?: string;
+}
 
 export interface VaultUpsertParams {
   /**
@@ -199,9 +210,13 @@ export declare namespace Vaults {
     type CredentialVaultItemUpdateRequest as CredentialVaultItemUpdateRequest,
     type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
     type FillVaultItemOperationResult as FillVaultItemOperationResult,
+    type KernelCardState as KernelCardState,
+    type KernelCardVaultItemSpec as KernelCardVaultItemSpec,
     type KernelCredentialVaultItemSpec as KernelCredentialVaultItemSpec,
     type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
+    type KernelWalletState as KernelWalletState,
+    type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
     type OnePasswordCredentialAccountSpec as OnePasswordCredentialAccountSpec,
     type OnePasswordCredentialAccountState as OnePasswordCredentialAccountState,
     type OnePasswordCredentialVaultItemSpec as OnePasswordCredentialVaultItemSpec,
