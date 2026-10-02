@@ -537,8 +537,11 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">VaultItemEvent</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItemOperationResponse</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethod</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultWebmcpBinding</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">WebmcpInvokeVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">WebmcpInvokeVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ItemListResponse</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ItemEventsResponse</a></code>
 

@@ -60,8 +60,11 @@ import {
   VaultItemEvent,
   VaultItemOperationResponse,
   VaultPaymentMethod,
+  VaultWebmcpBinding,
   WalletVaultItemSpec,
   WalletVaultItemState,
+  WebmcpInvokeVaultItemOperationRequest,
+  WebmcpInvokeVaultItemOperationResult,
 } from './items';
 import { APIPromise } from '../../core/api-promise';
 import { OffsetPagination, type OffsetPaginationParams, PagePromise } from '../../core/pagination';
@@ -220,8 +223,11 @@ export declare namespace Vaults {
     type VaultItemEvent as VaultItemEvent,
     type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
+    type VaultWebmcpBinding as VaultWebmcpBinding,
     type WalletVaultItemSpec as WalletVaultItemSpec,
     type WalletVaultItemState as WalletVaultItemState,
+    type WebmcpInvokeVaultItemOperationRequest as WebmcpInvokeVaultItemOperationRequest,
+    type WebmcpInvokeVaultItemOperationResult as WebmcpInvokeVaultItemOperationResult,
     type ItemListResponse as ItemListResponse,
     type ItemEventsResponse as ItemEventsResponse,
     type ItemRetrieveParams as ItemRetrieveParams,
