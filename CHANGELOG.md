@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.117.0](https://github.com/kernel/kernel-node-sdk/compare/v0.116.0...v0.117.0) (2026-10-02)
+
+
+### Features
+
+* Invoke WebMCP tools with vault item fields ([c05cf49](https://github.com/kernel/kernel-node-sdk/commit/c05cf4977c3fa33b2525e61eebd74728991e5e36))
+
 ## [0.116.0](https://github.com/kernel/kernel-node-sdk/compare/v0.115.0...v0.116.0) (2026-10-01)
 
 
