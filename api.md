@@ -513,9 +513,13 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultItemUpdateRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationResult</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelCardState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelCardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpecInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialAccountState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordCredentialVaultItemSpec</a></code>

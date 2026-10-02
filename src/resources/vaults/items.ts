@@ -87,10 +87,13 @@ export class Items extends APIResource {
 
   /**
    * Unresolved payment operations normally block deletion, including operations on
-   * child cards of a wallet. An AgentCard card in recovery_required whose checkout
-   * create response returned no authorization ID may be explicitly abandoned by
-   * deleting that card directly; deleting its wallet or vault remains blocked.
-   * Deleting or recreating an item is not proof that a payment did not occur.
+   * child cards of a wallet. Deleting a connected Kernel wallet first blocks new
+   * payments on it, then removes its enrolled card. If that fails, the wallet is
+   * kept and keeps refusing payments; retry the deletion. An AgentCard card in
+   * recovery_required whose checkout create response returned no authorization ID
+   * may be explicitly abandoned by deleting that card directly; deleting its wallet
+   * or vault remains blocked. Deleting or recreating an item is not proof that a
+   * payment did not occur.
    *
    * @example
    * ```ts
@@ -304,8 +307,8 @@ export type AgentcardPreparedProcessor =
   | 'adyen';
 
 /**
- * Authorize a Link card using its existing purchase specification. Use only after
- * explicit user approval and when the item advertises authorize. Do not
+ * Authorize a Link or Kernel card using its existing purchase specification. Use
+ * only after explicit user approval and when the item advertises authorize. Do not
  * automatically retry provider failures or indeterminate outcomes. Checkout
  * context is not accepted.
  */
@@ -318,7 +321,8 @@ export interface AuthorizeVaultItemOperationRequest {
  */
 export type CardVaultItemSpec =
   | CardVaultItemSpec.LinkCardVaultItemSpec
-  | CardVaultItemSpec.AgentCardCardVaultItemSpec;
+  | CardVaultItemSpec.AgentCardCardVaultItemSpec
+  | KernelCardVaultItemSpec;
 
 export namespace CardVaultItemSpec {
   /**
@@ -462,7 +466,10 @@ export namespace CardVaultItemSpec {
  * Issued Link cards retain encrypted card material for the fill operation. Link
  * cards do not expose aliases or support egress substitution.
  */
-export type CardVaultItemState = CardVaultItemState.LinkCardState | CardVaultItemState.AgentCardCardState;
+export type CardVaultItemState =
+  | CardVaultItemState.LinkCardState
+  | CardVaultItemState.AgentCardCardState
+  | KernelCardState;
 
 export namespace CardVaultItemState {
   /**
@@ -500,6 +507,11 @@ export namespace CardVaultItemState {
       brand?: string;
 
       last4?: string;
+
+      /**
+       * Last four digits of the network token presented to the merchant.
+       */
+      token_last4?: string;
 
       [k: string]: string | undefined;
     }
@@ -558,6 +570,11 @@ export namespace CardVaultItemState {
       brand?: string;
 
       last4?: string;
+
+      /**
+       * Last four digits of the network token presented to the merchant.
+       */
+      token_last4?: string;
 
       [k: string]: string | undefined;
     }
@@ -1015,11 +1032,11 @@ export interface CredentialVaultItemUpdateRequest {
 }
 
 /**
- * Fill selected fields from one ready credential or ready, unexpired Link card
- * into a browser linked to its vault. Only invoke when the item advertises `fill`.
- * Browser and vault must belong to the same project. Kernel checks access and
- * allowed destinations before filling; providing a page URL does not authorize a
- * destination.
+ * Fill selected fields from one ready credential or ready, unexpired Link or
+ * Kernel card into a browser linked to its vault. Only invoke when the item
+ * advertises `fill`. Browser and vault must belong to the same project. Kernel
+ * checks access and allowed destinations before filling; providing a page URL does
+ * not authorize a destination.
  *
  * Find exactly one open page matching `page_url`. Credential items may omit
  * `page_url` to require exactly one open page; cards require an HTTPS page URL.
@@ -1035,9 +1052,10 @@ export interface CredentialVaultItemUpdateRequest {
  *
  * Fill in request order and stop on the first failure. This operation is not
  * atomic: previously filled fields are not rolled back. Never submit the form or
- * click buttons, though input/change events may trigger site behavior. Link cards
- * use fill for browser checkout and do not expose aliases or support egress
- * substitution. Do not automatically retry a failed or indeterminate operation.
+ * click buttons, though input/change events may trigger site behavior. Link and
+ * Kernel cards use fill for browser checkout and do not expose aliases or support
+ * egress substitution. Do not automatically retry a failed or indeterminate
+ * operation.
  *
  * Secret values are never returned or included in operation logs, traces, audit
  * events, or error details. This does not prevent an agent with unrestricted
@@ -1087,6 +1105,98 @@ export interface FillVaultItemOperationResult {
   status: 'completed' | 'failed' | 'unknown';
 
   type: 'fill';
+}
+
+/**
+ * A ready Kernel card retains its encrypted network token and one-time code for
+ * the fill operation until the item's expires_at. Fill and submit checkout before
+ * then. Visa cards can be enrolled, but Visa purchases are not yet supported and
+ * authorize returns 400; supported Mastercard purchases need no cardholder
+ * approval. masks.last4 is the enrolled card's last four digits; masks.token_last4
+ * is the network token's last four digits shown to the merchant. Kernel cards do
+ * not expose aliases or support egress substitution. Kernel does not observe
+ * whether the merchant charged the card.
+ */
+export interface KernelCardState {
+  provider: 'kernel';
+
+  /**
+   * recovery_required means issuing the one-time code has an unresolved outcome.
+   * Kernel never issues another code for the item automatically, and the item cannot
+   * be deleted or replaced until the original attempt is reconciled with support.
+   * When status_reason says the provider refused retrieval before acceptance, no
+   * code was issued and a later read retries.
+   */
+  status:
+    | 'requested'
+    | 'pending_authorization'
+    | 'ready'
+    | 'consumed'
+    | 'expired'
+    | 'declined'
+    | 'recovery_required';
+
+  /**
+   * Informational registrable domain. Fill is locked to merchant_url's exact origin.
+   */
+  domains?: Array<string>;
+
+  masks?: KernelCardState.Masks;
+
+  status_reason?: string;
+}
+
+export namespace KernelCardState {
+  export interface Masks {
+    brand?: string;
+
+    last4?: string;
+
+    /**
+     * Last four digits of the network token presented to the merchant.
+     */
+    token_last4?: string;
+
+    [k: string]: string | undefined;
+  }
+}
+
+/**
+ * One live purchase with a Kernel-enrolled card. Authorization obtains an agentic
+ * network token number, expiry and one-time 3-digit code. They are stored
+ * encrypted for the fill operation, which types them only on merchant_url's
+ * origin; the merchant's own checkout submits the payment. The one-time code is
+ * valid until the item's expires_at; fill and submit checkout before then. Visa
+ * cards can be enrolled, but Visa purchases are not yet supported: authorize
+ * returns 400. Supported Mastercard purchases need no cardholder approval. Card
+ * updates are not supported; delete and create a new item instead.
+ */
+export interface KernelCardVaultItemSpec {
+  /**
+   * Integer amount in minor currency units (at most 50000), bound to the one-time
+   * code.
+   */
+  amount: number;
+
+  /**
+   * ISO 4217 code. Supported: aud, brl, cad, chf, czk, dkk, eur, gbp, hkd, inr, jpy,
+   * krw, mxn, nok, nzd, pln, sek, sgd, usd, zar.
+   */
+  currency: string;
+
+  merchant_name: string;
+
+  /**
+   * Merchant checkout URL. Fill is allowed only on this URL's origin.
+   */
+  merchant_url: string;
+
+  provider: 'kernel';
+
+  /**
+   * Key of the Kernel wallet item whose enrolled card pays.
+   */
+  wallet: string;
 }
 
 export interface KernelCredentialVaultItemSpec {
@@ -1143,6 +1253,34 @@ export interface KernelCredentialVaultItemState {
    * Optional fields may remain unset.
    */
   status: 'pending_collection' | 'ready';
+}
+
+export interface KernelWalletState {
+  provider: 'kernel';
+
+  /**
+   * pending_authorization asks the cardholder to use the card_enrollment action.
+   * connected is ready for supported purchases. reconnect_required asks the
+   * cardholder to use a new card_enrollment action after an uncertain enrollment was
+   * safely removed. degraded means the enrollment outcome is unknown and the wallet
+   * must be deleted before adding another card.
+   */
+  status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'degraded';
+
+  status_reason?: string;
+}
+
+/**
+ * One card Kernel enrolls for Visa or Mastercard agentic network tokens using
+ * Kernel-managed credentials. Creation returns a card_enrollment action: the
+ * cardholder enters the card and their email on a Kernel-hosted page, then Kernel
+ * enrolls the securely stored card. The card number never reaches Kernel. The
+ * connected wallet's payment_methods expansion lists the enrolled card. Visa cards
+ * can be enrolled, but Visa purchases are not yet supported: authorize
+ * returns 400.
+ */
+export interface KernelWalletVaultItemSpec {
+  provider: 'kernel';
 }
 
 export interface OnePasswordCredentialAccountSpec {
@@ -2156,7 +2294,8 @@ export interface VaultWebmcpBinding {
  */
 export type WalletVaultItemSpec =
   | WalletVaultItemSpec.LinkWalletVaultItemSpec
-  | WalletVaultItemSpec.AgentCardWalletVaultItemSpec;
+  | WalletVaultItemSpec.AgentCardWalletVaultItemSpec
+  | KernelWalletVaultItemSpec;
 
 export namespace WalletVaultItemSpec {
   export interface LinkWalletVaultItemSpec {
@@ -2238,7 +2377,8 @@ export namespace WalletVaultItemSpec {
 
 export type WalletVaultItemState =
   | WalletVaultItemState.LinkWalletState
-  | WalletVaultItemState.AgentCardWalletState;
+  | WalletVaultItemState.AgentCardWalletState
+  | KernelWalletState;
 
 export namespace WalletVaultItemState {
   export interface LinkWalletState {
@@ -2730,7 +2870,8 @@ export declare namespace ItemUpsertParams {
      */
     spec:
       | WalletVaultItemRequest.LinkWalletVaultItemRequestSpec
-      | WalletVaultItemRequest.AgentCardWalletVaultItemSpec;
+      | WalletVaultItemRequest.AgentCardWalletVaultItemSpec
+      | KernelWalletVaultItemSpec;
 
     /**
      * Body param
@@ -2964,9 +3105,13 @@ export declare namespace Items {
     type CredentialVaultItemUpdateRequest as CredentialVaultItemUpdateRequest,
     type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
     type FillVaultItemOperationResult as FillVaultItemOperationResult,
+    type KernelCardState as KernelCardState,
+    type KernelCardVaultItemSpec as KernelCardVaultItemSpec,
     type KernelCredentialVaultItemSpec as KernelCredentialVaultItemSpec,
     type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
+    type KernelWalletState as KernelWalletState,
+    type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
     type OnePasswordCredentialAccountSpec as OnePasswordCredentialAccountSpec,
     type OnePasswordCredentialAccountState as OnePasswordCredentialAccountState,
     type OnePasswordCredentialVaultItemSpec as OnePasswordCredentialVaultItemSpec,
