@@ -641,7 +641,8 @@ export namespace CredentialAccountVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
-      | '1pw_update_access_token';
+      | '1pw_update_access_token'
+      | 'webmcp_invoke';
   }
 }
 
@@ -907,7 +908,8 @@ export namespace CredentialVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
-      | '1pw_update_access_token';
+      | '1pw_update_access_token'
+      | 'webmcp_invoke';
   }
 
   export interface OnePasswordAccessApprovalAction {
@@ -1772,7 +1774,8 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
-        | '1pw_update_access_token';
+        | '1pw_update_access_token'
+        | 'webmcp_invoke';
     }
 
     /**
@@ -1844,7 +1847,8 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
-        | '1pw_update_access_token';
+        | '1pw_update_access_token'
+        | 'webmcp_invoke';
     }
   }
 }
@@ -1911,9 +1915,9 @@ export interface VaultItemEvent {
 }
 
 /**
- * The submission result reported by the 1Password extension when available. Kernel
- * returns fill_unknown if the extension call has no conclusive result. Inspect the
- * page to determine successful authentication on the website.
+ * Authorization and preparation return the existing item shape. Fill returns a
+ * value-free result; WebMCP invocation returns the tool's output. Neither persists
+ * transient outcomes on the item.
  */
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
@@ -1921,7 +1925,8 @@ export type VaultItemOperationResponse =
   | CredentialAccountVaultItem
   | CredentialVaultItem
   | FillVaultItemOperationResult
-  | OnePasswordFillVaultItemOperationResult;
+  | OnePasswordFillVaultItemOperationResult
+  | WebmcpInvokeVaultItemOperationResult;
 
 export namespace VaultItemOperationResponse {
   export interface WalletVaultItem {
@@ -1991,7 +1996,8 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
-        | '1pw_update_access_token';
+        | '1pw_update_access_token'
+        | 'webmcp_invoke';
     }
 
     /**
@@ -2063,7 +2069,8 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
-        | '1pw_update_access_token';
+        | '1pw_update_access_token'
+        | 'webmcp_invoke';
     }
   }
 }
@@ -2116,6 +2123,27 @@ export namespace VaultPaymentMethod {
 
     last4?: string;
   }
+}
+
+export interface VaultWebmcpBinding {
+  /**
+   * A declared, populated credential field or supported card field. A TOTP field
+   * supplies a fresh code, never its seed.
+   */
+  field: string;
+
+  /**
+   * RFC 6901 JSON Pointer to an existing null value in input. Object keys are exact;
+   * array indices must be canonical and in range. No root or array-append paths.
+   * Each path and each field may occur only once.
+   */
+  input_path: string;
+
+  /**
+   * Required for card expiration (MM/YY or MM/YYYY), forbidden for other fields.
+   * Invalid formats are rejected before invocation.
+   */
+  format?: string;
 }
 
 /**
@@ -2235,6 +2263,85 @@ export namespace WalletVaultItemState {
   }
 }
 
+/**
+ * Invoke a WebMCP tool using values from a vaulted item. The browser must be
+ * attached to the item's vault. Discover the tool_ref, inputSchema, and source
+ * with GET /browsers/{id_or_name}/webmcp/tools or webmcp.listTools() in the
+ * Browser REPL (POST /browsers/{id_or_name}/repl) before invoking it. Input paths
+ * replace existing null slots in input. Tool output is returned without redaction
+ * and may include the supplied values. The tool may submit or perform other side
+ * effects. Any item destination restrictions apply to the tool's top-level page
+ * and registering frame (if any).
+ */
+export interface WebmcpInvokeVaultItemOperationRequest {
+  bindings: Array<VaultWebmcpBinding>;
+
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  /**
+   * Public tool arguments with an existing null slot at each binding path. At most
+   * 64 KiB after JSON serialization, including substituted values. Never include
+   * vault values here.
+   */
+  input: { [key: string]: unknown };
+
+  /**
+   * Exact top-level URL from the discovered tool source (fragment omitted). This
+   * pins the target page; it does not authorize a destination.
+   */
+  page_url: string;
+
+  /**
+   * Opaque reference to the exact live WebMCP registration.
+   */
+  tool_ref: string;
+
+  type: 'webmcp_invoke';
+
+  /**
+   * Tool invocation timeout in seconds; preflight and response handling have an
+   * additional bounded allowance. An indeterminate outcome is not retried.
+   */
+  timeout_sec?: number;
+}
+
+/**
+ * Returns the same tool result fields as the browser WebMCP invoke API, plus the
+ * vault operation discriminator. Output and error text are untrusted page-provided
+ * data, returned without redaction; tools may include supplied vault values.
+ * Inspect the browser page to determine whether the intended site action
+ * succeeded.
+ */
+export interface WebmcpInvokeVaultItemOperationResult {
+  /**
+   * Unknown means invocation may have run; do not retry automatically. No status
+   * confirms that the website accepted the action.
+   */
+  status: 'completed' | 'canceled' | 'error' | 'awaiting_submission' | 'unknown';
+
+  type: 'webmcp_invoke';
+
+  /**
+   * Untrusted page-provided error text, returned without redaction. May contain
+   * supplied vault values.
+   */
+  error_text?: string;
+
+  /**
+   * Present when the browser reported one.
+   */
+  invocation_id?: string;
+
+  /**
+   * Untrusted page-provided output, returned without redaction. May contain supplied
+   * vault values.
+   */
+  output?: unknown;
+}
+
 export type ItemListResponse = Array<VaultItem>;
 
 export type ItemEventsResponse = Array<VaultItemEvent>;
@@ -2344,7 +2451,8 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordPollAccessVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
-  | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest;
+  | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
+  | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest;
 
 export declare namespace ItemPerformOperationParams {
   export interface AuthorizeVaultItemOperationRequest {
@@ -2550,6 +2658,52 @@ export declare namespace ItemPerformOperationParams {
      * Body param: Optional supplied expiry. Omit to clear the old expiry.
      */
     access_token_expires_at?: string;
+  }
+
+  export interface WebmcpInvokeVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    bindings: Array<VaultWebmcpBinding>;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param: Public tool arguments with an existing null slot at each binding
+     * path. At most 64 KiB after JSON serialization, including substituted values.
+     * Never include vault values here.
+     */
+    input: { [key: string]: unknown };
+
+    /**
+     * Body param: Exact top-level URL from the discovered tool source (fragment
+     * omitted). This pins the target page; it does not authorize a destination.
+     */
+    page_url: string;
+
+    /**
+     * Body param: Opaque reference to the exact live WebMCP registration.
+     */
+    tool_ref: string;
+
+    /**
+     * Body param
+     */
+    type: 'webmcp_invoke';
+
+    /**
+     * Body param: Tool invocation timeout in seconds; preflight and response handling
+     * have an additional bounded allowance. An indeterminate outcome is not retried.
+     */
+    timeout_sec?: number;
   }
 }
 
@@ -2834,8 +2988,11 @@ export declare namespace Items {
     type VaultItemEvent as VaultItemEvent,
     type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
+    type VaultWebmcpBinding as VaultWebmcpBinding,
     type WalletVaultItemSpec as WalletVaultItemSpec,
     type WalletVaultItemState as WalletVaultItemState,
+    type WebmcpInvokeVaultItemOperationRequest as WebmcpInvokeVaultItemOperationRequest,
+    type WebmcpInvokeVaultItemOperationResult as WebmcpInvokeVaultItemOperationResult,
     type ItemListResponse as ItemListResponse,
     type ItemEventsResponse as ItemEventsResponse,
     type ItemRetrieveParams as ItemRetrieveParams,
