@@ -154,7 +154,12 @@ export interface Vault {
   updated_at: string;
 }
 
-export interface VaultListParams extends OffsetPaginationParams {}
+export interface VaultListParams extends OffsetPaginationParams {
+  /**
+   * Case-insensitive substring match against vault name. IDs match by exact value.
+   */
+  query?: string;
+}
 
 export interface VaultUpsertParams {
   /**
