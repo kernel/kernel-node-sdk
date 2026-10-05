@@ -202,7 +202,8 @@ export namespace ProviderTarget {
        */
       export interface Contents {
         /**
-         * Return query-relevant provider excerpts.
+         * Return query-relevant provider excerpts. Defaults to true for Exa search
+         * requests; set false to disable.
          */
         highlights?: boolean;
 
@@ -255,7 +256,8 @@ export namespace ProviderTarget {
       query?: Array<string>;
 
       /**
-       * Provider context size supported by the selected model.
+       * Amount of page content Perplexity extracts per result. Defaults to medium unless
+       * max_tokens or max_tokens_per_page is set.
        */
       search_context_size?: 'low' | 'medium' | 'high';
 
