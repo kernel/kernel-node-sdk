@@ -1273,10 +1273,11 @@ export interface KernelWalletState {
 
   /**
    * pending_authorization asks the cardholder to use the card_enrollment action.
-   * connected is ready for supported purchases. reconnect_required asks the
-   * cardholder to use a new card_enrollment action after an uncertain enrollment was
-   * safely removed. degraded means the enrollment outcome is unknown and the wallet
-   * must be deleted before adding another card.
+   * connected means the card is stored; it can pay once payment_methods reports
+   * capabilities.single_use_card.eligible. reconnect_required asks the cardholder to
+   * use a new card_enrollment action after an uncertain enrollment was safely
+   * removed. degraded means the enrollment outcome is unknown and the wallet must be
+   * deleted before adding another card.
    */
   status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'degraded';
 
@@ -1284,13 +1285,15 @@ export interface KernelWalletState {
 }
 
 /**
- * One card Kernel enrolls for Visa or Mastercard agentic network tokens using
- * Kernel-managed credentials. Creation returns a card_enrollment action: the
- * cardholder enters the card and their email on a Kernel-hosted page, then Kernel
- * enrolls the securely stored card. The card number never reaches Kernel. The
- * connected wallet's payment_methods expansion lists the enrolled card. Visa cards
- * can be enrolled, but Visa purchases are not yet supported: authorize
- * returns 400.
+ * One card stored with Kernel-managed credentials. Creation returns a
+ * card*enrollment action: the cardholder enters the card and their email on a
+ * Kernel-hosted page, and the wallet connects once the card is stored. Kernel then
+ * enrolls it for an agentic network token when the issuer supports it. The card
+ * number never reaches Kernel. The connected wallet's payment_methods expansion
+ * lists the card; capabilities.single_use_card.eligible is false, with a
+ * network_token*\* reason, until the card has a network token, and authorize
+ * returns 400 for such a card. Visa cards can be enrolled, but Visa purchases are
+ * not yet supported: authorize returns 400.
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
