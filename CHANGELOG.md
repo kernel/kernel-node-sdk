@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.120.0](https://github.com/kernel/kernel-node-sdk/compare/v0.119.0...v0.120.0) (2026-10-06)
+
+
+### Features
+
+* Accept network.allowed_hosts on browser create behind an org flag ([69b54dc](https://github.com/kernel/kernel-node-sdk/commit/69b54dcd5d6184312665abddfc73e446b70a768d))
+* Add us-west placement region support ([555d03d](https://github.com/kernel/kernel-node-sdk/commit/555d03d1d36bb81a3a3d47a2dbe3a65b330de3a4))
+* Add Visa passkey approval for VGS purchases ([0924846](https://github.com/kernel/kernel-node-sdk/commit/0924846a9b3909116344bed6bc1e0aee034be869))
+* Connect Kernel wallets once the card is stored, with best-effort network tokens ([2f5b4d3](https://github.com/kernel/kernel-node-sdk/commit/2f5b4d3d9f5c1244383577a3e9b0f63f79ac9cf4))
+* Enable Exa highlights and default Perplexity to medium context ([a1c3426](https://github.com/kernel/kernel-node-sdk/commit/a1c3426fc0837824b42d14312dcbb7b1f82363f3))
+* Expose named Playwright executors on the browser API ([f2fc555](https://github.com/kernel/kernel-node-sdk/commit/f2fc555805093f7c4d405ddb10a00295134382e3))
+
 ## [0.119.0](https://github.com/kernel/kernel-node-sdk/compare/v0.118.0...v0.119.0) (2026-10-02)
 
 
