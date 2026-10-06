@@ -355,6 +355,29 @@ export type BrowserMemoryRequest = '8GiB' | '16GiB';
  */
 export interface BrowserNetworkConfig {
   /**
+   * Egress allowlist for a browser session: the only destinations the browser may
+   * reach through Kernel-managed egress. Any other destination is refused with a 403
+   * whose X-Kernel-Proxy-Error header is network_policy_denied, so pages cannot load
+   * or send data to unlisted hosts, including with fetch() and WebSockets. Omit the
+   * field for unfiltered egress; an empty list is invalid. The allowlist applies
+   * from the browser's first request, and start_url must be allowed by it. Entries
+   * are exact hostnames ("example.com"), one leading "_." wildcard that matches
+   * subdomains at any depth but not the domain itself ("_.example.com" matches
+   * api.example.com, not example.com), public IPv4 addresses ("8.8.8.8"), bracketed
+   * public IPv6 addresses ("[2001:4860:4860::8888]"), or public CIDR ranges in
+   * canonical form ("8.8.4.0/24", "2001:4860::/32"). IP and CIDR entries only match
+   * destinations written as an IP address, never hostnames that resolve into the
+   * range. Entries cannot include ports, paths, or schemes, and match every port on
+   * their host. Wildcards over a public suffix ("_.com", "_.github.io") and private
+   * or reserved IP ranges are rejected, as are entries that overlap private_hosts.
+   * Enforced at Kernel's egress proxy only: destinations in private_hosts, and
+   * processes in the browser VM that do not use the browser's proxy, are not
+   * filtered, and Kernel's own control traffic is always allowed. Requires proxy v3.
+   * Not supported on browser pools.
+   */
+  allowed_hosts?: Array<string>;
+
+  /**
    * Destinations the browser reaches directly through the session's own network
    * instead of through Kernel-managed egress — for private hosts reachable over a
    * VPN or tunnel the session has joined (e.g. a Tailscale tailnet). By default,

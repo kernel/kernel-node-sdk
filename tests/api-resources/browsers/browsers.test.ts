@@ -35,6 +35,7 @@ describe('resource browsers', () => {
           memory: '8GiB',
           name: 'checkout-flow-1',
           network: {
+            allowed_hosts: ['example.com', '*.example.com'],
             private_hosts: ['*.example.ts.net', '100.64.0.0/10'],
             proxy_routes: [
               {
