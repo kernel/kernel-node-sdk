@@ -946,7 +946,7 @@ export interface ManagedAuthBrowserConfig {
    * region, or on login to inherit it. Login overrides apply only to that login.
    * Non-default regions require an eligible plan and organization access.
    */
-  region?: 'us-east' | 'eu-west' | 'ap-southeast';
+  region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Whether managed auth browser sessions use stealth mode. Defaults to true when

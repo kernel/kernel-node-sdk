@@ -4325,12 +4325,13 @@ export namespace BrowserPlatformAPICallEvent {
 
 /**
  * A branded proxy-layer failure observed by the browser. Emitted when the metro
- * egress host-proxy serves a branded 5xx error page whose response carries the
- * X-Kernel-Proxy-Error header. Low-volume and carries a typed code. Its value is
- * per-session and per-URL attribution for sessions that already capture the
- * network stream: proxy failures are only observable while the CDP network
- * collector is running, so this is an opt-in refinement of the raw network events
- * rather than a default-on alerting signal.
+ * egress host-proxy serves a branded error page whose response carries the
+ * X-Kernel-Proxy-Error header: a 502 for proxy-layer failures, or a 403 when the
+ * session's network policy blocks the destination. Low-volume and carries a typed
+ * code. Its value is per-session and per-URL attribution for sessions that already
+ * capture the network stream: proxy failures are only observable while the CDP
+ * network collector is running, so this is an opt-in refinement of the raw network
+ * events rather than a default-on alerting signal.
  */
 export interface BrowserProxyErrorEvent {
   category: 'network';
@@ -4369,17 +4370,18 @@ export namespace BrowserProxyErrorEvent {
   export interface Data extends TelemetryAPI.BrowserEventContext {
     /**
      * Proxy-layer error code: the X-Kernel-Proxy-Error response header value from a
-     * branded 5xx error page served by the metro egress host-proxy. Values mirror what
-     * the proxy emits: destination_blocked, destination_route_unavailable,
-     * provider_blacklisted, provider_unreachable, provider_rejected,
-     * origin_tls_timeout, origin_response_incomplete, proxy_unavailable,
-     * restricted_route_unavailable, upstream_timeout, upstream_dns_failure,
-     * upstream_connect_failed. A header value the browser image does not recognize is
-     * reported as unknown, with the header value in raw_code.
+     * branded error page served by the metro egress host-proxy. Values mirror what the
+     * proxy emits: destination_blocked, destination_route_unavailable,
+     * network_policy_denied, provider_blacklisted, provider_unreachable,
+     * provider_rejected, origin_tls_timeout, origin_response_incomplete,
+     * proxy_unavailable, restricted_route_unavailable, upstream_timeout,
+     * upstream_dns_failure, upstream_connect_failed. A header value the browser image
+     * does not recognize is reported as unknown, with the header value in raw_code.
      */
     code:
       | 'destination_blocked'
       | 'destination_route_unavailable'
+      | 'network_policy_denied'
       | 'provider_blacklisted'
       | 'provider_unreachable'
       | 'provider_rejected'
@@ -4398,7 +4400,8 @@ export namespace BrowserProxyErrorEvent {
     request_id: string;
 
     /**
-     * HTTP response status of the branded error page (502).
+     * HTTP response status of the branded error page (502, or 403 for
+     * network_policy_denied).
      */
     status: number;
 

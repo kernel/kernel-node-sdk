@@ -22,8 +22,6 @@ import {
 } from './computer';
 import * as LogsAPI from './logs';
 import { LogStreamParams, Logs } from './logs';
-import * as PlaywrightAPI from './playwright';
-import { Playwright, PlaywrightExecuteParams, PlaywrightExecuteResponse } from './playwright';
 import * as ProcessAPI from './process';
 import {
   Process,
@@ -128,6 +126,14 @@ import {
   FWriteFileParams,
   Fs,
 } from './fs/fs';
+import * as PlaywrightAPI from './playwright/playwright';
+import {
+  ExecutorLimitError,
+  Playwright,
+  PlaywrightExecuteParams,
+  PlaywrightExecuteResponse,
+  Tab,
+} from './playwright/playwright';
 import * as WebmcpAPI from './webmcp/webmcp';
 import {
   CustomToolSource,
@@ -354,6 +360,29 @@ export type BrowserMemoryRequest = '8GiB' | '16GiB';
  * Network configuration for a browser session or browser pool.
  */
 export interface BrowserNetworkConfig {
+  /**
+   * Egress allowlist for a browser session: the only destinations the browser may
+   * reach through Kernel-managed egress. Any other destination is refused with a 403
+   * whose X-Kernel-Proxy-Error header is network_policy_denied, so pages cannot load
+   * or send data to unlisted hosts, including with fetch() and WebSockets. Omit the
+   * field for unfiltered egress; an empty list is invalid. The allowlist applies
+   * from the browser's first request, and start_url must be allowed by it. Entries
+   * are exact hostnames ("example.com"), one leading "_." wildcard that matches
+   * subdomains at any depth but not the domain itself ("_.example.com" matches
+   * api.example.com, not example.com), public IPv4 addresses ("8.8.8.8"), bracketed
+   * public IPv6 addresses ("[2001:4860:4860::8888]"), or public CIDR ranges in
+   * canonical form ("8.8.4.0/24", "2001:4860::/32"). IP and CIDR entries only match
+   * destinations written as an IP address, never hostnames that resolve into the
+   * range. Entries cannot include ports, paths, or schemes, and match every port on
+   * their host. Wildcards over a public suffix ("_.com", "_.github.io") and private
+   * or reserved IP ranges are rejected, as are entries that overlap private_hosts.
+   * Enforced at Kernel's egress proxy only: destinations in private_hosts, and
+   * processes in the browser VM that do not use the browser's proxy, are not
+   * filtered, and Kernel's own control traffic is always allowed. Requires proxy v3.
+   * Not supported on browser pools.
+   */
+  allowed_hosts?: Array<string>;
+
   /**
    * Destinations the browser reaches directly through the session's own network
    * instead of through Kernel-managed egress — for private hosts reachable over a
@@ -684,7 +713,7 @@ export interface BrowserCreateResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west' | 'ap-southeast';
+  region: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -855,7 +884,7 @@ export interface BrowserRetrieveResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west' | 'ap-southeast';
+  region: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -1026,7 +1055,7 @@ export interface BrowserUpdateResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west' | 'ap-southeast';
+  region: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -1197,7 +1226,7 @@ export interface BrowserListResponse {
   /**
    * Geographic region of the browser session. Fixed once the session is created.
    */
-  region: 'us-east' | 'eu-west' | 'ap-southeast';
+  region: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Unique identifier for the browser session
@@ -1452,7 +1481,7 @@ export interface BrowserCreateParams {
    * created. Region selection requires a Start-Up or Enterprise plan, defaults to
    * us-east when omitted on create.
    */
-  region?: 'us-east' | 'eu-west' | 'ap-southeast';
+  region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Optional URL to open when the browser session is created. Navigation is
@@ -1839,7 +1868,7 @@ export interface BrowserListParams extends OffsetPaginationParams {
   /**
    * Filter sessions by geographic region. Omit to list sessions in all regions.
    */
-  region?: 'us-east' | 'eu-west' | 'ap-southeast';
+  region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
    * Filter sessions by status. "active" returns only active sessions (default),
@@ -2098,6 +2127,8 @@ export declare namespace Browsers {
 
   export {
     Playwright as Playwright,
+    type ExecutorLimitError as ExecutorLimitError,
+    type Tab as Tab,
     type PlaywrightExecuteResponse as PlaywrightExecuteResponse,
     type PlaywrightExecuteParams as PlaywrightExecuteParams,
   };
