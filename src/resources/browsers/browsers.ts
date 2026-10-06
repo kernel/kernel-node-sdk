@@ -22,8 +22,6 @@ import {
 } from './computer';
 import * as LogsAPI from './logs';
 import { LogStreamParams, Logs } from './logs';
-import * as PlaywrightAPI from './playwright';
-import { Playwright, PlaywrightExecuteParams, PlaywrightExecuteResponse } from './playwright';
 import * as ProcessAPI from './process';
 import {
   Process,
@@ -128,6 +126,14 @@ import {
   FWriteFileParams,
   Fs,
 } from './fs/fs';
+import * as PlaywrightAPI from './playwright/playwright';
+import {
+  ExecutorLimitError,
+  Playwright,
+  PlaywrightExecuteParams,
+  PlaywrightExecuteResponse,
+  Tab,
+} from './playwright/playwright';
 import * as WebmcpAPI from './webmcp/webmcp';
 import {
   CustomToolSource,
@@ -2121,6 +2127,8 @@ export declare namespace Browsers {
 
   export {
     Playwright as Playwright,
+    type ExecutorLimitError as ExecutorLimitError,
+    type Tab as Tab,
     type PlaywrightExecuteResponse as PlaywrightExecuteResponse,
     type PlaywrightExecuteParams as PlaywrightExecuteParams,
   };

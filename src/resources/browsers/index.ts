@@ -67,7 +67,13 @@ export {
   type FWriteFileParams,
 } from './fs/index';
 export { Logs, type LogStreamParams } from './logs';
-export { Playwright, type PlaywrightExecuteResponse, type PlaywrightExecuteParams } from './playwright';
+export {
+  Playwright,
+  type ExecutorLimitError,
+  type Tab,
+  type PlaywrightExecuteResponse,
+  type PlaywrightExecuteParams,
+} from './playwright/index';
 export {
   Process,
   type ProcessExecResponse,

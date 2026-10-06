@@ -298,11 +298,25 @@ Methods:
 
 Types:
 
-- <code><a href="./src/resources/browsers/playwright.ts">PlaywrightExecuteResponse</a></code>
+- <code><a href="./src/resources/browsers/playwright/playwright.ts">ExecutorLimitError</a></code>
+- <code><a href="./src/resources/browsers/playwright/playwright.ts">Tab</a></code>
+- <code><a href="./src/resources/browsers/playwright/playwright.ts">PlaywrightExecuteResponse</a></code>
 
 Methods:
 
-- <code title="post /browsers/{id_or_name}/playwright/execute">client.browsers.playwright.<a href="./src/resources/browsers/playwright.ts">execute</a>(idOrName, { ...params }) -> PlaywrightExecuteResponse</code>
+- <code title="post /browsers/{id_or_name}/playwright/execute">client.browsers.playwright.<a href="./src/resources/browsers/playwright/playwright.ts">execute</a>(idOrName, { ...params }) -> PlaywrightExecuteResponse</code>
+
+### Executors
+
+Types:
+
+- <code><a href="./src/resources/browsers/playwright/executors.ts">Executor</a></code>
+- <code><a href="./src/resources/browsers/playwright/executors.ts">ExecutorList</a></code>
+
+Methods:
+
+- <code title="get /browsers/{id_or_name}/playwright/executors">client.browsers.playwright.executors.<a href="./src/resources/browsers/playwright/executors.ts">list</a>(idOrName) -> ExecutorList</code>
+- <code title="delete /browsers/{id_or_name}/playwright/executors/{name}">client.browsers.playwright.executors.<a href="./src/resources/browsers/playwright/executors.ts">delete</a>(name, { ...params }) -> void</code>
 
 ## Webmcp
 

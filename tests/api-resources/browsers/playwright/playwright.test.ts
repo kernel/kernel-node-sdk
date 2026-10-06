@@ -24,6 +24,7 @@ describe('resource playwright', () => {
   test.skip('execute: required and optional params', async () => {
     const response = await client.browsers.playwright.execute('htzv5orfit78e1m2biiifpbv', {
       code: 'code',
+      executor: 'checkout',
       timeout_sec: 1,
     });
   });
