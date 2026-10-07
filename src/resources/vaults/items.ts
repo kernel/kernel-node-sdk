@@ -1768,17 +1768,11 @@ export interface OnePasswordRecoverVaultItemOperationRequest {
 
 /**
  * Request access to login entries in the end-user's own, non-shared 1Password
- * vault through the browser extension, auto-loaded into the browser. The end-user
- * approves access in the 1Password app. Shared-vault items and passkeys are not
- * supported. Per-entry reason and keywords overrides are only supported for a
- * single login entry.
+ * vault. No browser is needed; the end-user approves access in the 1Password app.
+ * Shared-vault items and passkeys are not supported. Per-entry reason and keywords
+ * overrides are only supported for a single login entry.
  */
 export interface OnePasswordRequestAccessVaultItemOperationRequest {
-  /**
-   * Kernel browser session used to invoke the extension.
-   */
-  browser_id: string;
-
   type: '1pw_create_access_request';
 
   goal?: string;
@@ -2802,11 +2796,6 @@ export declare namespace ItemPerformOperationParams {
     id_or_name: string;
 
     /**
-     * Body param: Kernel browser session used to invoke the extension.
-     */
-    browser_id: string;
-
-    /**
      * Body param
      */
     type: '1pw_create_access_request';
@@ -2832,11 +2821,6 @@ export declare namespace ItemPerformOperationParams {
      * Path param
      */
     id_or_name: string;
-
-    /**
-     * Body param
-     */
-    browser_id: string;
 
     /**
      * Body param

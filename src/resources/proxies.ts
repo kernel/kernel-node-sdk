@@ -16,9 +16,7 @@ export class Proxies extends APIResource {
    *
    * @example
    * ```ts
-   * const proxy = await client.proxies.create({
-   *   type: 'datacenter',
-   * });
+   * const proxy = await client.proxies.create({ type: 'isp' });
    * ```
    */
   create(body: ProxyCreateParams, options?: RequestOptions): APIPromise<ProxyCreateResponse> {
@@ -92,11 +90,11 @@ export class Proxies extends APIResource {
 
   /**
    * Run a health check on the proxy to verify it's working. Optionally specify a URL
-   * to test reachability against a specific target. For ISP and datacenter proxies,
-   * this reliably tests whether the target site is reachable from the proxy's stable
-   * exit IP. For residential and mobile proxies, the exit node varies between
-   * requests, so this validates proxy configuration and connectivity rather than
-   * guaranteeing site-specific reachability.
+   * to test reachability against a specific target. For ISP proxies, this reliably
+   * tests whether the target site is reachable from the proxy's stable exit IP. For
+   * residential and mobile proxies, the exit node varies between requests, so this
+   * validates proxy configuration and connectivity rather than guaranteeing
+   * site-specific reachability.
    *
    * @example
    * ```ts
@@ -118,11 +116,7 @@ export type ProxyListResponsesOffsetPagination = OffsetPagination<ProxyListRespo
  * Configuration for routing traffic through a proxy.
  */
 export interface ProxyCreateResponse {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
 
@@ -132,10 +126,9 @@ export interface ProxyCreateResponse {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyCreateResponse.DatacenterProxyConfig
     | ProxyCreateResponse.IspProxyConfig
     | ProxyCreateResponse.ResidentialProxyConfig
     | ProxyCreateResponse.MobileProxyConfig
@@ -168,16 +161,6 @@ export interface ProxyCreateResponse {
 }
 
 export namespace ProxyCreateResponse {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -282,11 +265,7 @@ export namespace ProxyCreateResponse {
  * Configuration for routing traffic through a proxy.
  */
 export interface ProxyRetrieveResponse {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
 
@@ -296,10 +275,9 @@ export interface ProxyRetrieveResponse {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyRetrieveResponse.DatacenterProxyConfig
     | ProxyRetrieveResponse.IspProxyConfig
     | ProxyRetrieveResponse.ResidentialProxyConfig
     | ProxyRetrieveResponse.MobileProxyConfig
@@ -332,16 +310,6 @@ export interface ProxyRetrieveResponse {
 }
 
 export namespace ProxyRetrieveResponse {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -446,11 +414,7 @@ export namespace ProxyRetrieveResponse {
  * Configuration for routing traffic through a proxy.
  */
 export interface ProxyUpdateResponse {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
 
@@ -460,10 +424,9 @@ export interface ProxyUpdateResponse {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyUpdateResponse.DatacenterProxyConfig
     | ProxyUpdateResponse.IspProxyConfig
     | ProxyUpdateResponse.ResidentialProxyConfig
     | ProxyUpdateResponse.MobileProxyConfig
@@ -496,16 +459,6 @@ export interface ProxyUpdateResponse {
 }
 
 export namespace ProxyUpdateResponse {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -610,11 +563,7 @@ export namespace ProxyUpdateResponse {
  * Configuration for routing traffic through a proxy.
  */
 export interface ProxyListResponse {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
 
@@ -624,10 +573,9 @@ export interface ProxyListResponse {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyListResponse.DatacenterProxyConfig
     | ProxyListResponse.IspProxyConfig
     | ProxyListResponse.ResidentialProxyConfig
     | ProxyListResponse.MobileProxyConfig
@@ -660,16 +608,6 @@ export interface ProxyListResponse {
 }
 
 export namespace ProxyListResponse {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -774,11 +712,7 @@ export namespace ProxyListResponse {
  * Configuration for routing traffic through a proxy.
  */
 export interface ProxyCheckResponse {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   id?: string;
 
@@ -788,10 +722,9 @@ export interface ProxyCheckResponse {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyCheckResponse.DatacenterProxyConfig
     | ProxyCheckResponse.IspProxyConfig
     | ProxyCheckResponse.ResidentialProxyConfig
     | ProxyCheckResponse.MobileProxyConfig
@@ -824,16 +757,6 @@ export interface ProxyCheckResponse {
 }
 
 export namespace ProxyCheckResponse {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -935,11 +858,7 @@ export namespace ProxyCheckResponse {
 }
 
 export interface ProxyCreateParams {
-  /**
-   * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-   * worst: `mobile` > `residential` > `isp` > `datacenter`.
-   */
-  type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+  type: 'isp' | 'residential' | 'mobile' | 'custom';
 
   /**
    * Hostnames that should bypass the parent proxy and connect directly.
@@ -947,10 +866,9 @@ export interface ProxyCreateParams {
   bypass_hosts?: Array<string>;
 
   /**
-   * Configuration specific to the selected proxy `type`.
+   * Configuration for an ISP proxy.
    */
   config?:
-    | ProxyCreateParams.DatacenterProxyConfig
     | ProxyCreateParams.IspProxyConfig
     | ProxyCreateParams.ResidentialProxyConfig
     | ProxyCreateParams.MobileProxyConfig
@@ -968,16 +886,6 @@ export interface ProxyCreateParams {
 }
 
 export namespace ProxyCreateParams {
-  /**
-   * Configuration for a datacenter proxy.
-   */
-  export interface DatacenterProxyConfig {
-    /**
-     * ISO 3166 country code. Defaults to US if not provided.
-     */
-    country?: string;
-  }
-
   /**
    * Configuration for an ISP proxy.
    */
@@ -1108,15 +1016,15 @@ export interface ProxyCheckParams {
    * An optional URL to test reachability against. If provided, the proxy check will
    * test connectivity to this URL instead of the default test URLs. Only HTTP and
    * HTTPS schemes are allowed, and the URL must resolve to a public IP address. For
-   * ISP and datacenter proxies, the exit IP is stable, so a successful check
-   * reliably indicates that subsequent browser sessions will reach the target site
-   * with the same IP. For residential and mobile proxies, the exit node changes
-   * between requests, so a successful check validates proxy configuration but does
-   * not guarantee that a subsequent browser session will use the same exit IP or
-   * reach the same site — it is useful for verifying credentials and connectivity,
-   * not for predicting site-specific behavior. When provided, the check result does
-   * not update the proxy's health status, since a failure may indicate a problem
-   * with the target site rather than the proxy itself.
+   * ISP proxies, the exit IP is stable, so a successful check reliably indicates
+   * that subsequent browser sessions will reach the target site with the same IP.
+   * For residential and mobile proxies, the exit node changes between requests, so a
+   * successful check validates proxy configuration but does not guarantee that a
+   * subsequent browser session will use the same exit IP or reach the same site — it
+   * is useful for verifying credentials and connectivity, not for predicting
+   * site-specific behavior. When provided, the check result does not update the
+   * proxy's health status, since a failure may indicate a problem with the target
+   * site rather than the proxy itself.
    */
   url?: string;
 }
