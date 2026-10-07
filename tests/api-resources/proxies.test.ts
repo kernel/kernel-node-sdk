@@ -10,7 +10,7 @@ const client = new Kernel({
 describe('resource proxies', () => {
   // Mock server tests are disabled
   test.skip('create: only required params', async () => {
-    const responsePromise = client.proxies.create({ type: 'datacenter' });
+    const responsePromise = client.proxies.create({ type: 'isp' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -23,7 +23,7 @@ describe('resource proxies', () => {
   // Mock server tests are disabled
   test.skip('create: required and optional params', async () => {
     const response = await client.proxies.create({
-      type: 'datacenter',
+      type: 'isp',
       bypass_hosts: ['string'],
       config: { country: 'US' },
       name: 'name',

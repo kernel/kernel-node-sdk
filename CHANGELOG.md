@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.121.0](https://github.com/kernel/kernel-node-sdk/compare/v0.120.0...v0.121.0) (2026-10-07)
+
+
+### Features
+
+* Create and poll 1Password access requests over the 1Password API ([b2e4e32](https://github.com/kernel/kernel-node-sdk/commit/b2e4e326e0bcde7957c8e18948d80a49080e73bf))
+* Deprecate datacenter proxies in the API ([9254bdb](https://github.com/kernel/kernel-node-sdk/commit/9254bdbf083ce8e97ee9b03485521429ddcd0a8e))
+
 ## [0.120.0](https://github.com/kernel/kernel-node-sdk/compare/v0.119.0...v0.120.0) (2026-10-06)
 
 
