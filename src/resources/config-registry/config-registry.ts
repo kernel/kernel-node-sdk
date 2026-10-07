@@ -303,11 +303,7 @@ export namespace Proxy {
      * Configuration for routing traffic through a proxy.
      */
     export interface Create {
-      /**
-       * Proxy type to use. In terms of quality for avoiding bot-detection, from best to
-       * worst: `mobile` > `residential` > `isp` > `datacenter`.
-       */
-      type: 'datacenter' | 'isp' | 'residential' | 'mobile' | 'custom';
+      type: 'isp' | 'residential' | 'mobile' | 'custom';
 
       /**
        * Hostnames that should bypass the parent proxy and connect directly.
@@ -315,10 +311,9 @@ export namespace Proxy {
       bypass_hosts?: Array<string>;
 
       /**
-       * Configuration specific to the selected proxy `type`.
+       * Configuration for an ISP proxy.
        */
       config?:
-        | Create.DatacenterProxyConfig
         | Create.IspProxyConfig
         | Create.ResidentialProxyConfig
         | Create.MobileProxyConfig
@@ -336,16 +331,6 @@ export namespace Proxy {
     }
 
     export namespace Create {
-      /**
-       * Configuration for a datacenter proxy.
-       */
-      export interface DatacenterProxyConfig {
-        /**
-         * ISO 3166 country code. Defaults to US if not provided.
-         */
-        country?: string;
-      }
-
       /**
        * Configuration for an ISP proxy.
        */
