@@ -232,9 +232,7 @@ export namespace BrowserCaptchaChallengeResultEvent {
    */
   export interface Data {
     /**
-     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
-     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
-     * press_and_hold, and unlisted kinds use other.
+     * @deprecated Deprecated: use captcha_provider.
      */
     captcha_type:
       | 'hcaptcha'
@@ -273,6 +271,23 @@ export namespace BrowserCaptchaChallengeResultEvent {
      * does not prove the site accepted the token or that the guarded action succeeded.
      */
     status: 'solved' | 'failure' | 'timeout' | 'abandoned';
+
+    /**
+     * Captcha product the challenge belongs to, not the service that solved it.
+     * Enterprise reCAPTCHA variants are grouped into their version bucket
+     * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
+     * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
+     * products use other.
+     */
+    captcha_provider?:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'arkose'
+      | 'human'
+      | 'other';
 
     /**
      * Host of the page where the challenge appeared.
@@ -315,9 +330,7 @@ export interface BrowserCaptchaSolveResultEvent {
 export namespace BrowserCaptchaSolveResultEvent {
   export interface Data {
     /**
-     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
-     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
-     * press_and_hold, and unlisted kinds use other.
+     * @deprecated Deprecated: use captcha_provider and task_kind.
      */
     captcha_type:
       | 'hcaptcha'
@@ -344,6 +357,23 @@ export namespace BrowserCaptchaSolveResultEvent {
     status: 'success' | 'failure' | 'timeout' | 'abandoned';
 
     /**
+     * Captcha product the challenge belongs to, not the service that solved it.
+     * Enterprise reCAPTCHA variants are grouped into their version bucket
+     * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
+     * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
+     * products use other.
+     */
+    captcha_provider?:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'arkose'
+      | 'human'
+      | 'other';
+
+    /**
      * Opaque identifier shared by events for one visible challenge. An image-grid
      * captcha may create multiple task_id values for one challenge_id. The same value
      * may continue across a page reload when the challenge episode continues. It does
@@ -361,6 +391,11 @@ export namespace BrowserCaptchaSolveResultEvent {
      * Opaque identifier shared with the matching captcha_solve_started.
      */
     task_id?: string;
+
+    /**
+     * What the solver task produces. Absent when the producer cannot tell.
+     */
+    task_kind?: 'token' | 'image_challenge' | 'press_and_hold';
 
     /**
      * Host of the page where the captcha was solved.
@@ -415,9 +450,7 @@ export namespace BrowserCaptchaSolveStartedEvent {
    */
   export interface Data {
     /**
-     * Captcha kind. Enterprise reCAPTCHA variants are grouped into their version
-     * bucket (recaptcha_v2 or recaptcha_v3), press-and-hold challenges use
-     * press_and_hold, and unlisted kinds use other.
+     * @deprecated Deprecated: use captcha_provider and task_kind.
      */
     captcha_type:
       | 'hcaptcha'
@@ -426,6 +459,23 @@ export namespace BrowserCaptchaSolveStartedEvent {
       | 'turnstile'
       | 'geetest'
       | 'press_and_hold'
+      | 'other';
+
+    /**
+     * Captcha product the challenge belongs to, not the service that solved it.
+     * Enterprise reCAPTCHA variants are grouped into their version bucket
+     * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
+     * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
+     * products use other.
+     */
+    captcha_provider?:
+      | 'hcaptcha'
+      | 'recaptcha_v2'
+      | 'recaptcha_v3'
+      | 'turnstile'
+      | 'geetest'
+      | 'arkose'
+      | 'human'
       | 'other';
 
     /**
@@ -440,6 +490,11 @@ export namespace BrowserCaptchaSolveStartedEvent {
      * Opaque identifier shared with the matching captcha_solve_result.
      */
     task_id?: string;
+
+    /**
+     * What the solver task produces. Absent when the producer cannot tell.
+     */
+    task_kind?: 'token' | 'image_challenge' | 'press_and_hold';
 
     /**
      * Host of the page where the captcha is being solved. May be empty for solver

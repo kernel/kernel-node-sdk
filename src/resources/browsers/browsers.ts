@@ -379,8 +379,9 @@ export interface BrowserNetworkConfig {
    * Enforced at Kernel's egress proxy only: destinations in private_hosts, and
    * processes in the browser VM that do not use the browser's proxy, are not
    * filtered, and Kernel's own control traffic is always allowed. Can be replaced or
-   * removed while the session runs with PATCH /browsers/{id_or_name}. Requires proxy
-   * v3. Not supported on browser pools.
+   * removed while the session runs with PATCH /browsers/{id_or_name}, but not added
+   * to a browser created without one. Requires proxy v3. Not supported on browser
+   * pools.
    */
   allowed_hosts?: Array<string>;
 
@@ -411,20 +412,20 @@ export interface BrowserNetworkConfig {
   private_hosts?: Array<string>;
 
   /**
-   * Per-destination proxy routes for a browser session. After setup, a destination
-   * hostname is matched against every route's hosts, regardless of port; route order
-   * does not matter. An exact hostname beats a wildcard, and a longer wildcard
-   * suffix beats a shorter one (for a.b.example.com: "a.b.example.com" >
-   * "_.b.example.com" > "_.example.com"). A host pattern may appear in only one
-   * route. "\*.example.com" matches subdomains only, not example.com. A matched
-   * request selects the route's proxy instead of the session's top-level proxy
-   * (including mode: direct); the route proxy's own bypass_hosts still apply. If the
-   * route proxy becomes unavailable, matched requests fail closed without falling
-   * back. Requests that match no route use the session's default egress from the
-   * top-level proxy field (or the browser default when proxy is omitted: stealth
-   * proxy or direct egress). Routes take effect once the session is created;
-   * start_url and other traffic during browser setup use the top-level proxy.
-   * Setting routes requires proxy v3. Not supported on browser pools.
+   * Per-destination proxy routes for a browser session. A destination hostname is
+   * matched against every route's hosts, regardless of port; route order does not
+   * matter. An exact hostname beats a wildcard, and a longer wildcard suffix beats a
+   * shorter one (for a.b.example.com: "a.b.example.com" > "_.b.example.com" >
+   * "_.example.com"). A host pattern may appear in only one route. "\*.example.com"
+   * matches subdomains only, not example.com. A matched request selects the route's
+   * proxy instead of the session's top-level proxy (including mode: direct); the
+   * route proxy's own bypass_hosts still apply. If the route proxy becomes
+   * unavailable, matched requests fail closed without falling back. Requests that
+   * match no route use the session's default egress from the top-level proxy field
+   * (or the browser default when proxy is omitted: stealth proxy or direct egress).
+   * Routes apply from the start of the session, including to start_url and other
+   * traffic during browser setup. Setting routes requires proxy v3. Browser pools
+   * also support these routes.
    */
   proxy_routes?: Array<BrowserNetworkConfig.ProxyRoute>;
 }
@@ -464,16 +465,18 @@ export namespace BrowserNetworkConfig {
 export interface BrowserNetworkUpdate {
   /**
    * Replaces the session's egress allowlist, using the same entry rules as
-   * network.allowed_hosts on create. Omit to leave the allowlist unchanged, or set
-   * to null to remove it and return to unfiltered egress; an empty list is invalid.
-   * The new list applies without restarting the browser: new requests to
-   * destinations it no longer allows are refused within a few seconds, and open
-   * connections to them are closed within about 30 seconds, or up to 10 minutes
-   * during a Kernel deploy. Connections to destinations it still allows, such as
-   * WebSockets, stay open. A start_url in the same request must be allowed by the
-   * updated list, and is loaded only after the list takes effect. Requires a browser
-   * created with proxy v3, and not supported on pooled browsers. If the request
-   * fails, retry it: the new list may already apply to some requests.
+   * network.allowed_hosts on create. Only an allowlist the browser was created with
+   * can be changed: a browser created without one can't be given one, and an
+   * allowlist removed with null can't be added back. Omit to leave the allowlist
+   * unchanged, or set to null to remove it and return to unfiltered egress; an empty
+   * list is invalid. The new list applies without restarting the browser: new
+   * requests to destinations it no longer allows are refused within a few seconds,
+   * and open connections to them are closed within about 30 seconds, or up to 10
+   * minutes during a Kernel deploy. Connections to destinations it still allows,
+   * such as WebSockets, stay open. A start_url in the same request must be allowed
+   * by the updated list, and is loaded only after the list takes effect. Requires a
+   * browser created with proxy v3, and not supported on pooled browsers. If the
+   * request fails, retry it: the new list may already apply to some requests.
    */
   allowed_hosts?: Array<string> | null;
 }
