@@ -47,7 +47,10 @@ export class Telemetry extends APIResource {
    * stream closes when the browser session terminates. Each event frame includes an
    * id: field containing a monotonically increasing sequence number; pass it as
    * Last-Event-ID on reconnect to resume without gaps. The event: field is never
-   * set; all frames carry JSON in the data: field. A keepalive comment frame is sent
+   * set; event frames carry JSON in the data: field. A frame with an id: field and
+   * no data: field moves Last-Event-ID past events that were not delivered, because
+   * a type filter excluded them or they could not be decoded or exceeded the size
+   * limit; SSE clients dispatch no event for it. A keepalive comment frame is sent
    * every 15 seconds when no events arrive. Returns 404 if the browser session does
    * not exist. If telemetry was not enabled on the session, the stream opens but no
    * events are delivered. Fresh connections only see new events; pass replay=all to
@@ -4995,6 +4998,17 @@ export interface TelemetryStreamParams {
    * the first event id may be greater than 1 if older events were evicted.
    */
   replay?: string;
+
+  /**
+   * Query param: Deliver only these event types, such as captcha_solve_started or
+   * captcha_challenge_result. Repeat the parameter or pass comma-separated values
+   * for multiple types. Keepalive frames are always delivered. Filtered-out events
+   * are not sent. An id-only frame carrying the latest skipped id is sent about
+   * every 15 seconds while skipped events keep arriving, and otherwise with the next
+   * keepalive or when the stream ends, so the connection stays active and
+   * Last-Event-ID moves past them; a reconnect resumes after the skipped events.
+   */
+  type?: Array<string>;
 
   /**
    * Header param: Last event sequence number for SSE reconnection (sent by SSE
