@@ -113,6 +113,7 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserReplResult</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserReplTextContent</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserVideoMemory</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">VaultReference</a></code>

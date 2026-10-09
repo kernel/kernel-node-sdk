@@ -518,6 +518,11 @@ export interface BrowserPoolAcquireResponse {
   vaults?: Array<BrowsersAPI.VaultReference>;
 
   /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowsersAPI.BrowserVideoMemory;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.

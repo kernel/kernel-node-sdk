@@ -16,6 +16,7 @@ export {
   type BrowserReplResult,
   type BrowserReplTextContent,
   type BrowserUsage,
+  type BrowserVideoMemory,
   type Profile,
   type Tags,
   type VaultReference,

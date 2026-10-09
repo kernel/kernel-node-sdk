@@ -349,7 +349,7 @@ export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 /**
  * Memory allocated to the browser session.
  */
-export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '16GiB';
+export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '12GiB' | '16GiB';
 
 /**
  * Memory requested for a headful, non-GPU browser session.
@@ -671,6 +671,12 @@ export interface BrowserUsage {
 }
 
 /**
+ * Video memory (VRAM) of a GPU browser session. 2GiB sessions have 4 vCPU and 6GiB
+ * memory. 4GiB sessions have 8 vCPU and 12GiB memory.
+ */
+export type BrowserVideoMemory = '2GiB' | '4GiB';
+
+/**
  * Browser profile metadata.
  */
 export interface Profile {
@@ -869,6 +875,11 @@ export interface BrowserCreateResponse {
   vaults?: Array<VaultReference>;
 
   /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -1038,6 +1049,11 @@ export interface BrowserRetrieveResponse {
    * Vaults linked when the browser session was created.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1211,6 +1227,11 @@ export interface BrowserUpdateResponse {
   vaults?: Array<VaultReference>;
 
   /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -1380,6 +1401,11 @@ export interface BrowserListResponse {
    * Vaults linked when the browser session was created.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1555,6 +1581,13 @@ export interface BrowserCreateParams {
    * creation.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) for a GPU browser session. Requires gpu=true. Defaults to
+   * 2GiB, which comes with 4 vCPU and 6GiB memory. 4GiB comes with 8 vCPU and 12GiB
+   * memory.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -2016,6 +2049,7 @@ export declare namespace Browsers {
     type BrowserReplResult as BrowserReplResult,
     type BrowserReplTextContent as BrowserReplTextContent,
     type BrowserUsage as BrowserUsage,
+    type BrowserVideoMemory as BrowserVideoMemory,
     type Profile as Profile,
     type Tags as Tags,
     type VaultReference as VaultReference,
