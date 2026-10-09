@@ -232,6 +232,7 @@ import {
 import { Telemetry } from './resources/telemetry/telemetry';
 import {
   Vault,
+  VaultEncryptionKey,
   VaultListParams,
   VaultUpsertParams,
   Vaults,
@@ -1313,6 +1314,7 @@ export declare namespace Kernel {
   export {
     Vaults as Vaults,
     type Vault as Vault,
+    type VaultEncryptionKey as VaultEncryptionKey,
     type VaultsOffsetPagination as VaultsOffsetPagination,
     type VaultListParams as VaultListParams,
     type VaultUpsertParams as VaultUpsertParams,

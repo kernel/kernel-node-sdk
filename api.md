@@ -492,12 +492,14 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/vaults/vaults.ts">Vault</a></code>
+- <code><a href="./src/resources/vaults/vaults.ts">VaultEncryptionKey</a></code>
 
 Methods:
 
 - <code title="get /vaults/{id_or_name}">client.vaults.<a href="./src/resources/vaults/vaults.ts">retrieve</a>(idOrName) -> Vault</code>
 - <code title="get /vaults">client.vaults.<a href="./src/resources/vaults/vaults.ts">list</a>({ ...params }) -> VaultsOffsetPagination</code>
 - <code title="delete /vaults/{id_or_name}">client.vaults.<a href="./src/resources/vaults/vaults.ts">delete</a>(idOrName) -> void</code>
+- <code title="get /vaults/{id_or_name}/encryption_key">client.vaults.<a href="./src/resources/vaults/vaults.ts">retrieveEncryptionKey</a>(idOrName) -> VaultEncryptionKey</code>
 - <code title="post /vaults">client.vaults.<a href="./src/resources/vaults/vaults.ts">upsert</a>({ ...params }) -> Vault</code>
 
 ## Items

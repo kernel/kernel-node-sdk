@@ -133,6 +133,26 @@ export class Vaults extends APIResource {
   }
 
   /**
+   * Returns the public key that custom credential collection web apps use to encrypt
+   * values in the browser. Use this only if you run your own credential collection
+   * web app and want values encrypted in the browser, sent to your backend still
+   * encrypted, and forwarded to Kernel's API still encrypted. In every other case,
+   * including server-side code that already holds the plaintext, use value. The page
+   * encrypts each value to this key, your backend forwards the ciphertext unchanged
+   * as encrypted_value when creating or updating a credential item in this vault,
+   * and Kernel decrypts it.
+   *
+   * @example
+   * ```ts
+   * const vaultEncryptionKey =
+   *   await client.vaults.retrieveEncryptionKey('id_or_name');
+   * ```
+   */
+  retrieveEncryptionKey(idOrName: string, options?: RequestOptions): APIPromise<VaultEncryptionKey> {
+    return this._client.get(path`/vaults/${idOrName}/encryption_key`, options);
+  }
+
+  /**
    * Free organizations can store up to 3 non-deleted vaults across all projects.
    * Paid plans and active trials have no vault cap. Retrieving an existing vault by
    * name succeeds even at the limit.
@@ -164,6 +184,58 @@ export interface Vault {
   updated_at: string;
 }
 
+/**
+ * Public key for encrypted_value on credential fields. Use this only if you run
+ * your own credential collection web app and want values encrypted in the browser,
+ * sent to your backend still encrypted, and forwarded to Kernel's API still
+ * encrypted. In every other case, including server-side code that already holds
+ * the plaintext, use value. Each vault has its own key; a value encrypted for one
+ * vault is rejected by every other vault. The key is created on first request and
+ * stays the same for the vault's lifetime, so it may be cached.
+ */
+export interface VaultEncryptionKey {
+  /**
+   * JWE key management algorithm.
+   */
+  alg: 'ECDH-ES';
+
+  /**
+   * JWE content encryption algorithm.
+   */
+  enc: 'A256GCM';
+
+  /**
+   * P-256 public key in JWK form.
+   */
+  jwk: VaultEncryptionKey.Jwk;
+
+  /**
+   * Key ID. Set it as the kid protected header of every encrypted_value.
+   */
+  kid: string;
+}
+
+export namespace VaultEncryptionKey {
+  /**
+   * P-256 public key in JWK form.
+   */
+  export interface Jwk {
+    crv: 'P-256';
+
+    kty: 'EC';
+
+    /**
+     * Base64url-encoded x coordinate.
+     */
+    x: string;
+
+    /**
+     * Base64url-encoded y coordinate.
+     */
+    y: string;
+  }
+}
+
 export interface VaultListParams extends OffsetPaginationParams {
   /**
    * Case-insensitive substring match against vault name. IDs match by exact value.
@@ -183,6 +255,7 @@ Vaults.Items = Items;
 export declare namespace Vaults {
   export {
     type Vault as Vault,
+    type VaultEncryptionKey as VaultEncryptionKey,
     type VaultsOffsetPagination as VaultsOffsetPagination,
     type VaultListParams as VaultListParams,
     type VaultUpsertParams as VaultUpsertParams,

@@ -75,6 +75,7 @@ export {
 export {
   Vaults,
   type Vault,
+  type VaultEncryptionKey,
   type VaultListParams,
   type VaultUpsertParams,
   type VaultsOffsetPagination,
