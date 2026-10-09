@@ -336,8 +336,8 @@ export namespace Proxy {
        */
       export interface IspProxyConfig {
         /**
-         * ISO 3166 country code. Supported countries are US, GB, FR, DE, and SG. Defaults
-         * to US if not provided.
+         * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
+         * Defaults to US if not provided.
          */
         country?: string;
       }

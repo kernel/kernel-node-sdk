@@ -60,6 +60,18 @@ describe('resource vaults', () => {
   });
 
   // Mock server tests are disabled
+  test.skip('retrieveEncryptionKey', async () => {
+    const responsePromise = client.vaults.retrieveEncryptionKey('id_or_name');
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Mock server tests are disabled
   test.skip('upsert: only required params', async () => {
     const responsePromise = client.vaults.upsert({ name: 'checkout' });
     const rawResponse = await responsePromise.asResponse();
