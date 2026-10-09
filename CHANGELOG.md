@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.122.0](https://github.com/kernel/kernel-node-sdk/compare/v0.121.0...v0.122.0) (2026-10-09)
+
+
+### Features
+
+* Accept client-encrypted credential values in vault items ([78ee783](https://github.com/kernel/kernel-node-sdk/commit/78ee783d057d99807cb2693a017d22714113b94e))
+* Add feature-gated Korean ISP proxies ([96d63e2](https://github.com/kernel/kernel-node-sdk/commit/96d63e2d31b3ee1b3d65d5056db49f58705f96ef))
+* Describe vault fill as safe to retry ([b96e6ca](https://github.com/kernel/kernel-node-sdk/commit/b96e6cadb4decdbb9f2618853b1f571aa5af7f2b))
+* Infer a challenge result for unobserved captcha providers in the relay ([84022be](https://github.com/kernel/kernel-node-sdk/commit/84022be96b336b7f43a8e89293b8c72985ddbbbe))
+* Support proxy routes in browser pools ([e5b2ffc](https://github.com/kernel/kernel-node-sdk/commit/e5b2ffc07188d09ca6b04c253b5daf394aac7fbd))
+
 ## [0.121.0](https://github.com/kernel/kernel-node-sdk/compare/v0.120.0...v0.121.0) (2026-10-07)
 
 
