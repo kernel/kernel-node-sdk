@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.123.0](https://github.com/kernel/kernel-node-sdk/compare/v0.122.0...v0.123.0) (2026-10-09)
+
+
+### Features
+
+* Add video_memory to request the 4GiB VRAM GPU browser tier ([364255d](https://github.com/kernel/kernel-node-sdk/commit/364255de6aa44d55e1563dec5696d76a4516e325))
+* Filter the telemetry SSE stream by event type ([2ccedc6](https://github.com/kernel/kernel-node-sdk/commit/2ccedc68f5abfbfe048145e0ca91fc4f4707e130))
+* Fix 1Password fill classification for repeat fills and unconfirmed submits ([4133242](https://github.com/kernel/kernel-node-sdk/commit/4133242031661afedca190f247a1c19e01070096))
+* Support egress allowlists on browser pools ([41f4980](https://github.com/kernel/kernel-node-sdk/commit/41f49801bfe0c7fa67cacc13c096f07270b2a6af))
+
 ## [0.122.0](https://github.com/kernel/kernel-node-sdk/compare/v0.121.0...v0.122.0) (2026-10-09)
 
 

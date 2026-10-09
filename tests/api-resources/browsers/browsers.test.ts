@@ -86,6 +86,7 @@ describe('resource browsers', () => {
           },
           timeout_seconds: 10,
           vaults: [{ id: 'id', name: 'x' }],
+          video_memory: '2GiB',
           viewport: {
             height: 800,
             width: 1280,

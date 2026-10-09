@@ -58,7 +58,11 @@ describe('resource telemetry', () => {
     await expect(
       client.browsers.telemetry.stream(
         'htzv5orfit78e1m2biiifpbv',
-        { replay: 'replay', 'Last-Event-ID': 'Last-Event-ID' },
+        {
+          replay: 'replay',
+          type: ['string'],
+          'Last-Event-ID': 'Last-Event-ID',
+        },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);

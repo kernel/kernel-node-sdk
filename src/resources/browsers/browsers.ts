@@ -349,7 +349,7 @@ export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 /**
  * Memory allocated to the browser session.
  */
-export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '16GiB';
+export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '12GiB' | '16GiB';
 
 /**
  * Memory requested for a headful, non-GPU browser session.
@@ -380,8 +380,10 @@ export interface BrowserNetworkConfig {
    * processes in the browser VM that do not use the browser's proxy, are not
    * filtered, and Kernel's own control traffic is always allowed. Can be replaced or
    * removed while the session runs with PATCH /browsers/{id_or_name}, but not added
-   * to a browser created without one. Requires proxy v3. Not supported on browser
-   * pools.
+   * to a browser created without one. Supported on browser pools and their leased
+   * browsers. Per-lease changes are reset to the pool's allowlist on release. If a
+   * lessee removes the allowlist and the pool still requires one, the browser is
+   * replaced on release rather than given an allowlist again. Requires proxy v3.
    */
   allowed_hosts?: Array<string>;
 
@@ -475,8 +477,10 @@ export interface BrowserNetworkUpdate {
    * minutes during a Kernel deploy. Connections to destinations it still allows,
    * such as WebSockets, stay open. A start_url in the same request must be allowed
    * by the updated list, and is loaded only after the list takes effect. Requires a
-   * browser created with proxy v3, and not supported on pooled browsers. If the
-   * request fails, retry it: the new list may already apply to some requests.
+   * browser created with proxy v3. Supported on leased pooled browsers; the pool's
+   * allowlist is restored before reuse, or the browser is destroyed if it cannot be
+   * safely restored. If the request fails, retry it: the new list may already apply
+   * to some requests.
    */
   allowed_hosts?: Array<string> | null;
 }
@@ -669,6 +673,12 @@ export interface BrowserUsage {
    */
   uptime_ms: number;
 }
+
+/**
+ * Video memory (VRAM) of a GPU browser session. 2GiB sessions have 4 vCPU and 6GiB
+ * memory. 4GiB sessions have 8 vCPU and 12GiB memory.
+ */
+export type BrowserVideoMemory = '2GiB' | '4GiB';
 
 /**
  * Browser profile metadata.
@@ -869,6 +879,11 @@ export interface BrowserCreateResponse {
   vaults?: Array<VaultReference>;
 
   /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -1038,6 +1053,11 @@ export interface BrowserRetrieveResponse {
    * Vaults linked when the browser session was created.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1211,6 +1231,11 @@ export interface BrowserUpdateResponse {
   vaults?: Array<VaultReference>;
 
   /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
+
+  /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
    * image defaults apply (1920x1080@25). For GPU images, the default is
    * 1920x1080@60. Arbitrary viewport dimensions and refresh rates are accepted.
@@ -1380,6 +1405,11 @@ export interface BrowserListResponse {
    * Vaults linked when the browser session was created.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) of the GPU browser session. Only present when gpu is true.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -1555,6 +1585,13 @@ export interface BrowserCreateParams {
    * creation.
    */
   vaults?: Array<VaultReference>;
+
+  /**
+   * Video memory (VRAM) for a GPU browser session. Requires gpu=true. Defaults to
+   * 2GiB, which comes with 4 vCPU and 6GiB memory. 4GiB comes with 8 vCPU and 12GiB
+   * memory.
+   */
+  video_memory?: BrowserVideoMemory;
 
   /**
    * Initial browser window size in pixels with optional refresh rate. If omitted,
@@ -2016,6 +2053,7 @@ export declare namespace Browsers {
     type BrowserReplResult as BrowserReplResult,
     type BrowserReplTextContent as BrowserReplTextContent,
     type BrowserUsage as BrowserUsage,
+    type BrowserVideoMemory as BrowserVideoMemory,
     type Profile as Profile,
     type Tags as Tags,
     type VaultReference as VaultReference,
