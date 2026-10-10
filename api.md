@@ -514,6 +514,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CollectVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ConfirmTransactionVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialAccountVaultItem</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialAccountVaultItemRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialCollectionAction</a></code>

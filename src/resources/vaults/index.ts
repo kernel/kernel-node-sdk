@@ -9,6 +9,7 @@ export {
   type CardVaultItemSpec,
   type CardVaultItemState,
   type CollectVaultItemOperationRequest,
+  type ConfirmTransactionVaultItemOperationRequest,
   type CredentialAccountVaultItem,
   type CredentialAccountVaultItemRequest,
   type CredentialCollectionAction,
