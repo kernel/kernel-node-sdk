@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.124.0](https://github.com/kernel/kernel-node-sdk/compare/v0.123.0...v0.124.0) (2026-10-10)
+
+
+### Features
+
+* Complete Visa vault verification and transaction reporting ([41d139b](https://github.com/kernel/kernel-node-sdk/commit/41d139b651d5231e6e32a0d43f6343a2c5bd34ac))
+
 ## [0.123.0](https://github.com/kernel/kernel-node-sdk/compare/v0.122.0...v0.123.0) (2026-10-09)
 
 
