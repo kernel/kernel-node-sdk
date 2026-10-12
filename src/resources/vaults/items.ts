@@ -690,6 +690,7 @@ export namespace CredentialAccountVaultItem {
 
     type:
       | 'authorize'
+      | 'restart_verification'
       | 'confirm_transaction'
       | 'collect'
       | 'prepare_checkout'
@@ -999,6 +1000,7 @@ export namespace CredentialVaultItem {
 
     type:
       | 'authorize'
+      | 'restart_verification'
       | 'confirm_transaction'
       | 'collect'
       | 'prepare_checkout'
@@ -1217,12 +1219,16 @@ export interface KernelCardState {
   /**
    * pending_authorization on a Visa purchase waits for the cardholder to approve it
    * through the spend_approval action; an unused link expires after 30 minutes.
-   * recovery_required means approving the purchase or issuing the one-time code has
-   * an unresolved outcome. Kernel never approves again or issues another code for
-   * the item automatically, and the item cannot be deleted or replaced until the
-   * original attempt is reconciled with support. When status_reason says the
-   * provider refused retrieval before acceptance, no code was issued and a later
-   * read retries. declined means the card network refused to issue a code.
+   * recovery_required means verification, approving the purchase or issuing the
+   * one-time code has an unresolved outcome. A server-classified initial attestation
+   * failure before intent dispatch may advertise restart_verification to prepare a
+   * fresh local verification link; this does not approve spending or replay any
+   * provider request. Unclassified legacy recovery and uncertain intent creation
+   * cannot restart. Kernel never approves again or issues another code for the item
+   * automatically, and the item cannot be deleted or replaced until the original
+   * attempt is reconciled with support. When status_reason says the provider refused
+   * retrieval before acceptance, no code was issued and a later read retries.
+   * declined means the card network refused to issue a code.
    */
   status:
     | 'requested'
@@ -1898,6 +1904,21 @@ export interface PrepareCheckoutVaultItemOperationRequest {
   type: 'prepare_checkout';
 }
 
+/**
+ * Explicitly prepare a fresh local verification session for the same Kernel Visa
+ * purchase and connected wallet, only when restart_verification is advertised.
+ * Kernel must have durable proof of an initial attestation failure before intent
+ * dispatch. Replaces the spend_approval capability and discards session-bound
+ * verification data without calling the provider or granting spend consent. The
+ * cardholder must use the new link, verify again and explicitly approve the
+ * purchase. Unknown intent creation, legacy unclassified recovery, enrollment
+ * completion, issuance and confirmation cannot restart. Do not automatically retry
+ * this operation.
+ */
+export interface RestartVerificationVaultItemOperationRequest {
+  type: 'restart_verification';
+}
+
 export interface VaultCardAliases {
   cvc: string;
 
@@ -2110,6 +2131,7 @@ export namespace VaultItem {
 
       type:
         | 'authorize'
+        | 'restart_verification'
         | 'confirm_transaction'
         | 'collect'
         | 'prepare_checkout'
@@ -2184,6 +2206,7 @@ export namespace VaultItem {
 
       type:
         | 'authorize'
+        | 'restart_verification'
         | 'confirm_transaction'
         | 'collect'
         | 'prepare_checkout'
@@ -2334,6 +2357,7 @@ export namespace VaultItemOperationResponse {
 
       type:
         | 'authorize'
+        | 'restart_verification'
         | 'confirm_transaction'
         | 'collect'
         | 'prepare_checkout'
@@ -2408,6 +2432,7 @@ export namespace VaultItemOperationResponse {
 
       type:
         | 'authorize'
+        | 'restart_verification'
         | 'confirm_transaction'
         | 'collect'
         | 'prepare_checkout'
@@ -2794,6 +2819,7 @@ export interface ItemEventsParams {
 
 export type ItemPerformOperationParams =
   | ItemPerformOperationParams.AuthorizeVaultItemOperationRequest
+  | ItemPerformOperationParams.RestartVerificationVaultItemOperationRequest
   | ItemPerformOperationParams.ConfirmTransactionVaultItemOperationRequest
   | ItemPerformOperationParams.CollectVaultItemOperationRequest
   | ItemPerformOperationParams.PrepareCheckoutVaultItemOperationRequest
@@ -2816,6 +2842,18 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: 'authorize';
+  }
+
+  export interface RestartVerificationVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'restart_verification';
   }
 
   export interface ConfirmTransactionVaultItemOperationRequest {
@@ -3375,6 +3413,7 @@ export declare namespace Items {
     type OnePasswordRecoverVaultItemOperationRequest as OnePasswordRecoverVaultItemOperationRequest,
     type OnePasswordRequestAccessVaultItemOperationRequest as OnePasswordRequestAccessVaultItemOperationRequest,
     type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
+    type RestartVerificationVaultItemOperationRequest as RestartVerificationVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
     type VaultCheckoutContext as VaultCheckoutContext,

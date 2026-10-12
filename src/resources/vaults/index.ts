@@ -49,6 +49,7 @@ export {
   type OnePasswordRecoverVaultItemOperationRequest,
   type OnePasswordRequestAccessVaultItemOperationRequest,
   type PrepareCheckoutVaultItemOperationRequest,
+  type RestartVerificationVaultItemOperationRequest,
   type VaultCardAliases,
   type VaultCardFillField,
   type VaultCheckoutContext,

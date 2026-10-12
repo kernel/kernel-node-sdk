@@ -554,6 +554,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRecoverVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRequestAccessVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">PrepareCheckoutVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">RestartVerificationVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCheckoutContext</a></code>
