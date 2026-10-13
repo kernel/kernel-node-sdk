@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.124.0](https://github.com/kernel/kernel-node-sdk/compare/v0.123.0...v0.124.0) (2026-10-13)
+
+
+### Features
+
+* Accept intent creation without a fixed status ([7cf9f3d](https://github.com/kernel/kernel-node-sdk/commit/7cf9f3def47e2f39f0c7c21d6067882cc0b86201))
+* Complete Visa vault verification and transaction reporting ([41d139b](https://github.com/kernel/kernel-node-sdk/commit/41d139b651d5231e6e32a0d43f6343a2c5bd34ac))
+
+
+### Bug Fixes
+
+* seal browser pool acquire SDK results ([05baf34](https://github.com/kernel/kernel-node-sdk/commit/05baf34b4a49ee7817c3f0f782fb6874fd6ab937))
+
 ## [0.123.0](https://github.com/kernel/kernel-node-sdk/compare/v0.122.0...v0.123.0) (2026-10-09)
 
 
