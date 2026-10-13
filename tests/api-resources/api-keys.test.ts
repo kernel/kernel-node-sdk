@@ -25,6 +25,10 @@ describe('resource apiKeys', () => {
     const response = await client.apiKeys.create({
       name: 'staging',
       days_to_expire: 30,
+      expires_at: '2025-01-15T09:00:00Z',
+      policy: {
+        statements: [{ action: 'browsers:use', resource: 'projects/proj_abc123/browsers/br_abc123' }],
+      },
       project_id: 'proj_abc123',
     });
   });
