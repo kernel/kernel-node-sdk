@@ -12,7 +12,8 @@ import { path } from '../internal/utils/path';
  */
 export class APIKeys extends APIResource {
   /**
-   * Create a new API key within the authenticated organization.
+   * Create a new API key. API keys may be scoped by project and may include a
+   * policy.
    *
    * @example
    * ```ts
@@ -156,6 +157,12 @@ export interface APIKey {
    * project name is unavailable.
    */
   project_name: string | null;
+
+  /**
+   * Permissions granted to a scoped API key. Absent for an ordinary key, which keeps
+   * unrestricted access within its organization or project.
+   */
+  policy?: APIKey.Policy | null;
 }
 
 export namespace APIKey {
@@ -174,6 +181,32 @@ export namespace APIKey {
      * Display name of the creator, if available.
      */
     name: string | null;
+  }
+
+  /**
+   * Permissions granted to a scoped API key. Absent for an ordinary key, which keeps
+   * unrestricted access within its organization or project.
+   */
+  export interface Policy {
+    /**
+     * Allow statements. Every action and resource not listed is denied.
+     */
+    statements: Array<Policy.Statement>;
+  }
+
+  export namespace Policy {
+    export interface Statement {
+      /**
+       * Permitted action, such as browsers:use or vaults:read.
+       */
+      action: string;
+
+      /**
+       * Resource the action applies to, in the format projects/{project_id}/{kind}/{id}.
+       * Wildcards are supported.
+       */
+      resource: string;
+    }
   }
 }
 
@@ -194,14 +227,55 @@ export interface APIKeyCreateParams {
   name: string;
 
   /**
-   * Number of days until expiry, up to 3650. Use null for never.
+   * Number of days until expiry, up to 3650. Use null for never. Cannot be combined
+   * with expires_at.
    */
   days_to_expire?: number | null;
+
+  /**
+   * Exact expiry time. Must be in the future and no later than the issuing
+   * credential's own expiry. Cannot be combined with days_to_expire.
+   */
+  expires_at?: string | null;
+
+  /**
+   * Issue a scoped key that may only perform the listed actions on the listed
+   * resources.
+   */
+  policy?: APIKeyCreateParams.Policy;
 
   /**
    * Unique project identifier
    */
   project_id?: string | null;
+}
+
+export namespace APIKeyCreateParams {
+  /**
+   * Issue a scoped key that may only perform the listed actions on the listed
+   * resources.
+   */
+  export interface Policy {
+    /**
+     * Allow statements. Every action and resource not listed is denied.
+     */
+    statements: Array<Policy.Statement>;
+  }
+
+  export namespace Policy {
+    export interface Statement {
+      /**
+       * Permitted action, such as browsers:use or vaults:read.
+       */
+      action: string;
+
+      /**
+       * Resource the action applies to, in the format projects/{project_id}/{kind}/{id}.
+       * Wildcards are supported.
+       */
+      resource: string;
+    }
+  }
 }
 
 export interface APIKeyRetrieveParams {
