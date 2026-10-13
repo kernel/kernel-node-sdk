@@ -53,10 +53,6 @@ export class Playwright extends APIResource {
    * executors are not removed automatically while the browser runs; when it shuts
    * down, they are removed and their tabs closed.
    *
-   * A named call to a browser whose image predates executors fails with 400 instead
-   * of running on the active tab; calls without 'executor' keep working on every
-   * image.
-   *
    * @example
    * ```ts
    * const response = await client.browsers.playwright.execute(

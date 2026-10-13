@@ -119,7 +119,7 @@ export class BrowserPools extends APIResource {
     idOrName: string,
     body: BrowserPoolAcquireParams,
     options?: RequestOptions,
-  ): APIPromise<BrowserPoolAcquireResponse> {
+  ): APIPromise<BrowserPoolAcquireResponse | null> {
     return this._client.post(path`/browser_pools/${idOrName}/acquire`, { body, ...options });
   }
 
