@@ -519,6 +519,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CredentialAccountVaultItemRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialCollectionAction</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldDefinition</a></code>
+- <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldDefinitionInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultFieldType</a></code>
