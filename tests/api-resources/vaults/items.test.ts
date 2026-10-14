@@ -171,6 +171,8 @@ describe('resource items', () => {
     const response = await client.vaults.items.performOperation('key', {
       id_or_name: 'id_or_name',
       type: 'authorize',
+      browser_id: 'x',
+      page_url: 'https://example.com',
     });
   });
 
