@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.126.0](https://github.com/kernel/kernel-node-sdk/compare/v0.125.0...v0.126.0) (2026-10-14)
+
+
+### Features
+
+* support Link Pay Tokens when authorizing Link cards at checkout ([9b8ccd8](https://github.com/kernel/kernel-node-sdk/commit/9b8ccd8c2ac16091b1d57c0246aefa59d4d33eef))
+
 ## [0.125.0](https://github.com/kernel/kernel-node-sdk/compare/v0.124.0...v0.125.0) (2026-10-13)
 
 
