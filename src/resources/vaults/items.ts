@@ -1393,7 +1393,7 @@ export namespace KernelCardState {
  */
 export interface KernelCardVaultItemSpec {
   /**
-   * Integer amount in minor currency units (at most 50000), bound to the one-time
+   * Integer amount in minor currency units (at most 1000000), bound to the one-time
    * code.
    */
   amount: number;
