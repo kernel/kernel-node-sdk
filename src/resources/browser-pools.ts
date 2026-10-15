@@ -828,6 +828,16 @@ export interface BrowserPoolUpdateParams {
   discard_all_idle?: boolean;
 
   /**
+   * Optional optimistic concurrency precondition. Send the network configuration
+   * from the last pool response, or {} when it has no network configuration. The
+   * entire update is rejected with 409 stale_network if the saved network differs,
+   * checked atomically with the write. Omit for unconditional updates. Explicit
+   * empty lists differ from omitted lists; route targets must match the saved
+   * references (resolved IDs, not equivalent proxy names).
+   */
+  expected_network?: BrowsersAPI.BrowserNetworkConfig;
+
+  /**
    * If provided, replaces the extension list. Empty array clears all
    * previously-selected extensions. Omit this field to leave extensions unchanged.
    */
