@@ -282,7 +282,7 @@ export namespace BrowserCaptchaChallengeResultEvent {
      * Enterprise reCAPTCHA variants are grouped into their version bucket
      * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
      * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
-     * products use other.
+     * products, including text captchas a site draws itself, use other.
      */
     captcha_provider?:
       | 'hcaptcha'
@@ -292,6 +292,7 @@ export namespace BrowserCaptchaChallengeResultEvent {
       | 'geetest'
       | 'arkose'
       | 'human'
+      | 'binance'
       | 'other';
 
     /**
@@ -388,7 +389,7 @@ export namespace BrowserCaptchaSolveResultEvent {
      * Enterprise reCAPTCHA variants are grouped into their version bucket
      * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
      * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
-     * products use other.
+     * products, including text captchas a site draws itself, use other.
      */
     captcha_provider?:
       | 'hcaptcha'
@@ -398,6 +399,7 @@ export namespace BrowserCaptchaSolveResultEvent {
       | 'geetest'
       | 'arkose'
       | 'human'
+      | 'binance'
       | 'other';
 
     /**
@@ -413,6 +415,11 @@ export namespace BrowserCaptchaSolveResultEvent {
      * success.
      */
     error_code?: string;
+
+    /**
+     * Captured hCaptcha recognition media, when known.
+     */
+    media?: 'image' | 'video';
 
     /**
      * Opaque identifier shared with the matching captcha_solve_started.
@@ -493,7 +500,7 @@ export namespace BrowserCaptchaSolveStartedEvent {
      * Enterprise reCAPTCHA variants are grouped into their version bucket
      * (recaptcha_v2 or recaptcha_v3), FunCaptcha uses arkose, press-and-hold
      * challenges served by HUMAN (formerly PerimeterX) use human, and unlisted
-     * products use other.
+     * products, including text captchas a site draws itself, use other.
      */
     captcha_provider?:
       | 'hcaptcha'
@@ -503,6 +510,7 @@ export namespace BrowserCaptchaSolveStartedEvent {
       | 'geetest'
       | 'arkose'
       | 'human'
+      | 'binance'
       | 'other';
 
     /**
@@ -512,6 +520,11 @@ export namespace BrowserCaptchaSolveStartedEvent {
      * not indicate task ordering or challenge completion.
      */
     challenge_id?: string;
+
+    /**
+     * Captured hCaptcha recognition media, when known.
+     */
+    media?: 'image' | 'video';
 
     /**
      * Opaque identifier shared with the matching captcha_solve_result.
