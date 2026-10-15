@@ -113,10 +113,52 @@ jobs:
 
           if git -C ../sdk rev-parse --verify "refs/tags/v$old_version" >/dev/null 2>&1; then
             git -C ../sdk diff "refs/tags/v$old_version" "$SDK_SHA" -- api.md src/resources > "$RUNNER_TEMP/sdk-diff.patch"
+            echo "old_date=$(git -C ../sdk log -1 --format=%cI "refs/tags/v$old_version")" >> "$GITHUB_OUTPUT"
           else
             printf 'Baseline %s unavailable; audit all of api.md and src/resources.\n' "$old_version" > "$RUNNER_TEMP/sdk-diff.patch"
           fi
+          echo "new_date=$(git -C ../sdk log -1 --format=%cI "$SDK_SHA")" >> "$GITHUB_OUTPUT"
           echo "update=true" >> "$GITHUB_OUTPUT"
+
+      - name: Generate API read token
+        if: steps.prepare.outputs.update == 'true'
+        id: api-read-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: kernel
+          permission-contents: read
+
+      - name: Fetch API spec
+        if: steps.prepare.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ steps.api-read-token.outputs.token }}
+          OLD_DATE: ${{ steps.prepare.outputs.old_date }}
+          NEW_DATE: ${{ steps.prepare.outputs.new_date }}
+        run: |
+          gh repo clone kernel/kernel "$RUNNER_TEMP/kernel-api" -- --depth=1
+          spec=packages/api/openapi.yaml
+          spec_commit() {
+            gh api "repos/kernel/kernel/commits?sha=main&path=$spec&until=$1&per_page=1" --jq '.[0].sha // empty'
+          }
+          base=""
+          head=$(spec_commit "$NEW_DATE")
+          if [[ -n "$OLD_DATE" ]]; then
+            base=$(spec_commit "$OLD_DATE")
+          fi
+          if [[ -n "$base" && -n "$head" ]]; then
+            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$spec?ref=$base" > "$RUNNER_TEMP/openapi-base.yaml"
+            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$spec?ref=$head" > "$RUNNER_TEMP/openapi-head.yaml"
+            diff -u --label "openapi.yaml@$base" --label "openapi.yaml@$head" \
+              "$RUNNER_TEMP/openapi-base.yaml" "$RUNNER_TEMP/openapi-head.yaml" \
+              > "$RUNNER_TEMP/openapi-diff.patch" || [[ $? -eq 1 ]]
+            rm "$RUNNER_TEMP/openapi-base.yaml" "$RUNNER_TEMP/openapi-head.yaml"
+          else
+            printf 'Spec baseline unavailable; compare all relevant descriptions in openapi.yaml.\n' > "$RUNNER_TEMP/openapi-diff.patch"
+          fi
+          gh api --method DELETE /installation/token
 
       - name: Install Pi
         if: steps.prepare.outputs.update == 'true'

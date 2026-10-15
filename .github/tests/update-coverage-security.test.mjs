@@ -20,6 +20,17 @@ test('actions are pinned and checkouts do not persist credentials', () => {
   }
 });
 
+test('API source access is read-only and revoked before generation', () => {
+  const readToken = step('Generate API read token');
+  assert.match(readToken, /repositories: kernel\n/);
+  assert.match(readToken, /permission-contents: read/);
+  assert.doesNotMatch(readToken, /permission-[\w-]+: write/);
+  const fetch = step('Fetch API spec');
+  assert.match(fetch, /GH_TOKEN: \$\{\{ steps\.api-read-token\.outputs\.token \}\}/);
+  assert.match(fetch, /gh api --method DELETE \/installation\/token\s*$/);
+  assert.ok(steps.indexOf(fetch) < steps.indexOf(step('Update SDK dependency and MCP coverage')));
+});
+
 test('the write token is minted only after generation and validation', () => {
   const agent = steps.indexOf(step('Update SDK dependency and MCP coverage'));
   const verify = steps.indexOf(step('Verify MCP changes'));

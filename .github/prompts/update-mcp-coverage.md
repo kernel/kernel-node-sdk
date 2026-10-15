@@ -27,6 +27,31 @@ Do not downgrade or change that version.
    tests. Verify input schemas and forwarded SDK arguments, including false/zero
    values. Do not make production API calls or create real resources.
 
+## Sync descriptions with the API spec
+
+The Kernel API spec is at `$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml`, and
+`$RUNNER_TEMP/openapi-diff.patch` shows spec changes between the previous SDK release
+and this one. The SDK is generated from this spec, so its endpoint, parameter, and
+schema descriptions are the source of truth for what the API does.
+
+1. For every changed `summary` or `description` in the spec diff that belongs to an
+   endpoint, parameter, or field the MCP server exposes, update the matching tool
+   description, action description, or input `.describe()` text. Use the spec text
+   for anything you add in this run too.
+2. Adapt the text; do not copy it verbatim. API descriptions are written for HTTP
+   callers and often reference other endpoints, HTTP methods, status codes,
+   headers, or JSON body paths that mean nothing to an MCP client. Rewrite those
+   references in MCP terms: name the tool and action that does the equivalent and
+   use the tool's parameter names. For example, "List connections with
+   `GET /auth/connections`" becomes "list connections with manage_auth_connections
+   action `list`". Drop API details that do not apply to the tool, and follow the
+   existing description style (lowercase, concise, action prefixes like
+   "(create)").
+3. Preserve meaning exactly: limits, defaults, units, accepted values, deprecations,
+   and caveats must match the spec. Do not invent behavior the spec does not state.
+4. Change only text whose meaning the spec change affects, or existing text the
+   spec now shows to be wrong. Do not restyle unrelated descriptions.
+
 ## Validate and report
 
 Use Bun 1.3.3 for all MCP dependency and test commands. Run:
@@ -45,6 +70,8 @@ comments, type casts, defensive wrappers, and unrelated changes.
 Write `$RUNNER_TEMP/mcp-coverage-report.md` with concise sections describing:
 
 - Added or updated MCP tools, actions, and fields, with their SDK counterparts.
+- Descriptions updated to match spec changes, with the spec operation or field each
+  one follows.
 - Intentional exclusions and reasons.
 - Any validation limitations.
 
