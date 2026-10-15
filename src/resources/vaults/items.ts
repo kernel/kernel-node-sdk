@@ -42,10 +42,10 @@ export class Items extends APIResource {
    * request, subject to atomic provider approval checks; omitted optional fields
    * remain unchanged and explicit empty lists clear them. Wallet/provider binding
    * and unsupported fields cannot change after authorization starts. An uncertain
-   * update enters recovery_required and must not be retried. Checkout cards may be
-   * edited between authorizations. A Link card authorized with browser_id and
-   * page_url cannot be changed; delete it and create a new card with the updated
-   * details.
+   * update enters recovery_required; delete the card and create a new one rather
+   * than retrying the update. Checkout cards may be edited between authorizations. A
+   * Link card authorized with browser_id and page_url cannot be changed; delete it
+   * and create a new card with the updated details.
    *
    * @example
    * ```ts
@@ -91,11 +91,12 @@ export class Items extends APIResource {
    * Unresolved payment operations normally block deletion, including operations on
    * child cards of a wallet. Deleting a connected Kernel wallet first blocks new
    * payments on it, then removes its enrolled card. If that fails, the wallet is
-   * kept and keeps refusing payments; retry the deletion. An AgentCard card in
-   * recovery_required whose checkout create response returned no authorization ID
-   * may be explicitly abandoned by deleting that card directly; deleting its wallet
-   * or vault remains blocked. Deleting or recreating an item is not proof that a
-   * payment did not occur. Deleting a managed auth credential item leaves the
+   * kept and keeps refusing payments; retry the deletion. A Link or Kernel card in
+   * recovery_required for issuance, or an AgentCard card in recovery_required whose
+   * checkout create response returned no authorization ID, may be explicitly
+   * abandoned by deleting that card directly; deleting its wallet or vault remains
+   * blocked until the card is deleted. Deleting or recreating an item is not proof
+   * that a payment did not occur. Deleting a managed auth credential item leaves the
    * connection and its saved credential unchanged.
    *
    * @example
@@ -516,11 +517,12 @@ export namespace CardVaultItemState {
     provider: 'link';
 
     /**
-     * recovery_required means an original provider operation has an unresolved
-     * outcome. Do not retry, delete, or replace it. Known references may be observed
-     * safely, but unknown creation without an ID and uncertain card-material retrieval
-     * require manual reconciliation with the provider or support. There is no reset or
-     * caller-asserted reconciliation operation.
+     * recovery_required means an original provider operation has an unresolved outcome
+     * and the card cannot be used. Reads keep observing a known provider request and
+     * may clear the recovery. To continue, delete this card and create a new one;
+     * deleting cancels the original request when its ID is known and keeps the
+     * recovery evidence. The user may see an approval request for the original card
+     * and should approve only the new one.
      */
     status:
       | 'requested'
@@ -1335,10 +1337,12 @@ export interface KernelCardState {
    * fresh local verification link; this does not approve spending or replay any
    * provider request. Unclassified legacy recovery and uncertain intent creation
    * cannot restart. Kernel never approves again or issues another code for the item
-   * automatically, and the item cannot be deleted or replaced until the original
-   * attempt is reconciled with support. When status_reason says the provider refused
-   * retrieval before acceptance, no code was issued and a later read retries.
-   * declined means the card network refused to issue a code.
+   * automatically. To continue, delete this card and create a new purchase; the
+   * cardholder approves the new purchase separately. Recovery while reporting a
+   * merchant transaction cannot be deleted and must be reconciled with support. When
+   * status_reason says the provider refused retrieval before acceptance, no code was
+   * issued and a later read retries. declined means the card network refused to
+   * issue a code.
    */
   status:
     | 'requested'
