@@ -395,8 +395,6 @@ export namespace CardVaultItemSpec {
      */
     wallet: string;
 
-    expires_at?: number;
-
     line_items?: Array<LinkCardVaultItemSpec.LineItem>;
 
     metadata?: { [key: string]: string };

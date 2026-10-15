@@ -68,7 +68,6 @@ describe('resource items', () => {
         payment_method_id: 'x',
         provider: 'link',
         wallet: 'wallet',
-        expires_at: 0,
         line_items: [
           {
             name: 'name',
