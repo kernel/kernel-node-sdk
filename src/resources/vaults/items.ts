@@ -145,6 +145,9 @@ export class Items extends APIResource {
    * return HTTP 429 and retain the card item; stop, back off, and retry the same
    * authorize operation.
    *
+   * Ready Kernel cards advertise fill. Fill delivers card details for a few minutes;
+   * submit checkout promptly after filling. A repeated fill is safe.
+   *
    * Fill returns a value-free execution result. Validation failures before writing
    * return 400 (invalid request or targets), 403 (access or destination denied), 404
    * (resource not found), or 409 (item or browser not ready). Once writing starts,
@@ -1314,13 +1317,13 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * A ready Kernel card retains its encrypted network token and one-time code for
- * the fill operation until the item's expires_at. Fill and submit checkout before
- * then. Visa purchases require a spend_approval action before the code is issued;
- * Mastercard purchases need no hosted approval. masks.last4 is the enrolled card's
- * last four digits; masks.token_last4 is the network token's last four digits
- * shown to the merchant. Kernel cards do not expose aliases or support egress
- * substitution. Kernel does not observe whether the merchant charged the card.
+ * A ready Kernel card supports authorize, fill, then submit checkout. Card details
+ * are delivered for a few minutes after fill; submit promptly. Repeated fill is
+ * safe and never submits checkout. Visa purchases require a spend_approval action
+ * before details are issued; Mastercard purchases need no hosted approval.
+ * masks.last4 is the enrolled card's last four digits; masks.token_last4, when
+ * present, is the token's last four digits shown to the merchant. Kernel does not
+ * observe whether the merchant charged the card.
  */
 export interface KernelCardState {
   provider: 'kernel';
@@ -1382,8 +1385,13 @@ export namespace KernelCardState {
  * Mastercard purchases need no cardholder approval. A Visa purchase returns a
  * spend_approval action: the cardholder approves it with a Visa passkey, and
  * Kernel registers a Visa intent for one transaction up to the amount before
- * issuing the code. Card updates are not supported; delete and create a new item
- * instead.
+ * issuing the code. For supported cards whose network cannot be enrolled for
+ * agentic tokens, authorize prepares checkout details without issuing a one-time
+ * code. The card can be filled into one checkout before its expires_at, one hour
+ * after authorization. Fill types those details on merchant_url's origin. The
+ * amount, merchant_url and merchant_country are recorded but do not restrict
+ * payment requests sent by the browser. Card updates are not supported; delete and
+ * create a new item instead.
  */
 export interface KernelCardVaultItemSpec {
   /**
@@ -1510,9 +1518,10 @@ export interface KernelWalletState {
  * number never reaches Kernel. The connected wallet's payment_methods expansion
  * lists the card; capabilities.single_use_card.eligible is false, with a
  * network_token*\* reason, until the card has a network token, and authorize
- * returns 400 for such a card. Visa purchases require the cardholder to complete a
- * spend_approval action before Kernel issues a one-time code; Mastercard purchases
- * need no hosted approval.
+ * returns 400 for such a card unless Kernel supports checkout delivery without a
+ * network token for that card. In that case, fill types the checkout details. Visa
+ * purchases require the cardholder to complete a spend_approval action before
+ * Kernel issues a one-time code; Mastercard purchases need no hosted approval.
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
