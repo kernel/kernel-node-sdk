@@ -111,6 +111,7 @@ jobs:
           else
             git switch -c "$UPDATE_BRANCH" origin/main
           fi
+          echo "agent_base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
           old_version=$(jq -er '.dependencies["@onkernel/sdk"]' package.json)
           if [[ "$old_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] &&
@@ -201,10 +202,13 @@ jobs:
         if: steps.prepare.outputs.update == 'true'
         id: snapshot
         working-directory: mcp
+        env:
+          AGENT_BASE: ${{ steps.prepare.outputs.agent_base }}
         run: |
+          git reset -q --soft "$AGENT_BASE"
           git add -A
           git diff --cached --name-only --no-renames -z \
-            | ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
+            | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
           if [[ -s "$RUNNER_TEMP/excluded-paths" ]]; then
             echo "::warning::Discarding changes outside the MCP updater allowlist:"
             tr '\0' '\n' < "$RUNNER_TEMP/excluded-paths"
@@ -288,7 +292,7 @@ jobs:
           fi
           git apply --index "$RUNNER_TEMP/mcp-coverage-update/changes.patch"
           git diff --cached --name-only --no-renames -z \
-            | ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
+            | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
           if [[ -s "$RUNNER_TEMP/disallowed-paths" ]]; then
             echo "::error::Validated changes include paths outside the MCP updater allowlist:"
             tr '\0' '\n' < "$RUNNER_TEMP/disallowed-paths"

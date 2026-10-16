@@ -61,6 +61,12 @@ test('changes are restricted to the allowlist before validation', () => {
   assert.ok(jobs.generate.indexOf(snapshot) < jobs.generate.indexOf(verify));
   assert.match(snapshot, /mcp-update-disallowed-paths\.sh/);
   assert.match(snapshot, /git reset -q --hard\n\s+git clean -fdq/);
+  assert.match(snapshot, /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/);
+  assert.match(snapshot, /git reset -q --soft "\$AGENT_BASE"\n\s+git add -A/);
+  assert.match(step('generate', 'Prepare update branch and SDK diff'), /agent_base=\$\(git rev-parse HEAD\)/);
+  const scriptCalls = workflow.match(/^.*disallowed-paths\.sh.*$/gm);
+  assert.equal(scriptCalls.length, 2);
+  for (const line of scriptCalls) assert.match(line, /\| bash /);
   assert.match(verify, /has\("@onkernel\/sdk"\)/);
   assert.deepEqual(
     disallowedPaths([
