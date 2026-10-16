@@ -349,12 +349,13 @@ export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 /**
  * Memory allocated to the browser session.
  */
-export type BrowserMemory = '1GiB' | '2GiB' | '6GiB' | '8GiB' | '12GiB' | '16GiB';
+export type BrowserMemory = '1GiB' | '2GiB' | '4GiB' | '6GiB' | '8GiB' | '12GiB' | '16GiB';
 
 /**
- * Memory requested for a headful, non-GPU browser session.
+ * Memory requested for a non-GPU browser. Headless browsers support 1GiB
+ * (default), 2GiB, or 4GiB; headful browsers support 8GiB (default) or 16GiB.
  */
-export type BrowserMemoryRequest = '8GiB' | '16GiB';
+export type BrowserMemoryRequest = '1GiB' | '2GiB' | '4GiB' | '8GiB' | '16GiB';
 
 /**
  * Network configuration for a browser session or browser pool.
@@ -1491,7 +1492,8 @@ export interface BrowserCreateParams {
   kiosk_mode?: boolean;
 
   /**
-   * Memory for a headful, non-GPU browser session. Defaults to 8GiB.
+   * Memory for a non-GPU browser. Headless: 1GiB (default), 2GiB, or 4GiB. Headful:
+   * 8GiB (default) or 16GiB.
    */
   memory?: BrowserMemoryRequest;
 
