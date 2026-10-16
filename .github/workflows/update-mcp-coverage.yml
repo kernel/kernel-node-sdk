@@ -41,11 +41,15 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-  update-mcp-coverage:
+  generate:
     needs: sdk-version
     if: needs.sdk-version.outputs.version != ''
     runs-on: ubuntu-latest
     timeout-minutes: 55
+    outputs:
+      changed: ${{ steps.snapshot.outputs.changed }}
+      main_sha: ${{ steps.prepare.outputs.main_sha }}
+      update_sha: ${{ steps.prepare.outputs.update_sha }}
     env:
       SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
       SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
@@ -96,9 +100,14 @@ jobs:
         run: |
           git config user.name 'kernel-internal[bot]'
           git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
+          echo "main_sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
           if git show-ref --verify --quiet "refs/remotes/origin/$UPDATE_BRANCH"; then
+            echo "update_sha=$(git rev-parse "origin/$UPDATE_BRANCH")" >> "$GITHUB_OUTPUT"
             git switch --track "origin/$UPDATE_BRANCH"
-            git merge origin/main --no-edit
+            if ! git merge origin/main --no-edit; then
+              echo "::error::$UPDATE_BRANCH conflicts with main. Resolve the conflicts on that branch, or delete it to start fresh, then rerun this workflow."
+              exit 1
+            fi
           else
             git switch -c "$UPDATE_BRANCH" origin/main
           fi
@@ -113,11 +122,11 @@ jobs:
 
           if git -C ../sdk rev-parse --verify "refs/tags/v$old_version" >/dev/null 2>&1; then
             git -C ../sdk diff "refs/tags/v$old_version" "$SDK_SHA" -- api.md src/resources > "$RUNNER_TEMP/sdk-diff.patch"
-            echo "old_date=$(git -C ../sdk log -1 --format=%cI "refs/tags/v$old_version")" >> "$GITHUB_OUTPUT"
+            echo "old_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "refs/tags/v$old_version")" >> "$GITHUB_OUTPUT"
           else
             printf 'Baseline %s unavailable; audit all of api.md and src/resources.\n' "$old_version" > "$RUNNER_TEMP/sdk-diff.patch"
           fi
-          echo "new_date=$(git -C ../sdk log -1 --format=%cI "$SDK_SHA")" >> "$GITHUB_OUTPUT"
+          echo "new_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "$SDK_SHA")" >> "$GITHUB_OUTPUT"
           echo "update=true" >> "$GITHUB_OUTPUT"
 
       - name: Generate API read token
@@ -138,23 +147,27 @@ jobs:
           OLD_DATE: ${{ steps.prepare.outputs.old_date }}
           NEW_DATE: ${{ steps.prepare.outputs.new_date }}
         run: |
-          gh repo clone kernel/kernel "$RUNNER_TEMP/kernel-api" -- --depth=1
-          spec=packages/api/openapi.yaml
-          spec_commit() {
-            gh api "repos/kernel/kernel/commits?sha=main&path=$spec&until=$1&per_page=1" --jq '.[0].sha // empty'
+          main_at() {
+            gh api -X GET repos/kernel/kernel/commits -f sha=main -f until="$1" -f per_page=1 --jq '.[0].sha // empty'
           }
+          file_at() {
+            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$1?ref=$2"
+          }
+          spec="$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml"
+          head=$(main_at "$NEW_DATE")
+          test -n "$head"
+          mkdir -p "$(dirname "$spec")"
+          file_at packages/api/openapi.yaml "$head" > "$spec"
           base=""
-          head=$(spec_commit "$NEW_DATE")
           if [[ -n "$OLD_DATE" ]]; then
-            base=$(spec_commit "$OLD_DATE")
+            base=$(main_at "$OLD_DATE")
           fi
-          if [[ -n "$base" && -n "$head" ]]; then
-            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$spec?ref=$base" > "$RUNNER_TEMP/openapi-base.yaml"
-            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$spec?ref=$head" > "$RUNNER_TEMP/openapi-head.yaml"
+          if [[ -n "$base" ]]; then
+            file_at packages/api/openapi.yaml "$base" > "$RUNNER_TEMP/openapi-base.yaml"
             diff -u --label "openapi.yaml@$base" --label "openapi.yaml@$head" \
-              "$RUNNER_TEMP/openapi-base.yaml" "$RUNNER_TEMP/openapi-head.yaml" \
+              "$RUNNER_TEMP/openapi-base.yaml" "$spec" \
               > "$RUNNER_TEMP/openapi-diff.patch" || [[ $? -eq 1 ]]
-            rm "$RUNNER_TEMP/openapi-base.yaml" "$RUNNER_TEMP/openapi-head.yaml"
+            rm "$RUNNER_TEMP/openapi-base.yaml"
           else
             printf 'Spec baseline unavailable; compare all relevant descriptions in openapi.yaml.\n' > "$RUNNER_TEMP/openapi-diff.patch"
           fi
@@ -184,22 +197,110 @@ jobs:
             --model "$PI_PREFERRED_MODEL" --thinking max \
             @../.github/prompts/update-mcp-coverage.md
 
+      - name: Snapshot publishable changes
+        if: steps.prepare.outputs.update == 'true'
+        id: snapshot
+        working-directory: mcp
+        run: |
+          git add -A
+          git diff --cached --name-only --no-renames -z \
+            | ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
+          if [[ -s "$RUNNER_TEMP/excluded-paths" ]]; then
+            echo "::warning::Discarding changes outside the MCP updater allowlist:"
+            tr '\0' '\n' < "$RUNNER_TEMP/excluded-paths"
+            GIT_LITERAL_PATHSPECS=1 git reset -q --pathspec-from-file="$RUNNER_TEMP/excluded-paths" --pathspec-file-nul
+          fi
+          git diff --cached --binary --no-renames --no-ext-diff --no-textconv > "$RUNNER_TEMP/changes.patch"
+          git reset -q --hard
+          git clean -fdq
+          if [[ -s "$RUNNER_TEMP/changes.patch" ]]; then
+            git apply --index "$RUNNER_TEMP/changes.patch"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Verify MCP changes
         if: steps.prepare.outputs.update == 'true'
         working-directory: mcp
         run: |
           test -s "$RUNNER_TEMP/mcp-coverage-report.md"
-          test "$(jq -r '.dependencies["@onkernel/sdk"]' package.json)" = "$SDK_VERSION"
+          jq -e --arg version "$SDK_VERSION" '.dependencies["@onkernel/sdk"] == $version and
+            ([.overrides, .resolutions, .patchedDependencies] | map((. // {}) | has("@onkernel/sdk")) | any | not)' package.json
+          grep -qF "\"@onkernel/sdk\": [\"@onkernel/sdk@$SDK_VERSION\", \"\"," bun.lock
           bun install --frozen-lockfile
           bun run check:managed-auth-app
           bunx tsc --noEmit --incremental false
           bun test
           bun scripts/record-oauth-redis-contract.ts
           git diff --exit-code -- fixtures/oauth-redis-recordings.json
-          git diff --check
+          git diff --cached --check
+
+      - name: Upload validated changes
+        if: steps.snapshot.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mcp-coverage-update
+          path: |
+            ${{ runner.temp }}/changes.patch
+            ${{ runner.temp }}/mcp-coverage-report.md
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [sdk-version, generate]
+    if: needs.generate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
+      MAIN_SHA: ${{ needs.generate.outputs.main_sha }}
+      UPDATE_SHA: ${{ needs.generate.outputs.update_sha }}
+      UPDATE_BRANCH: mcp-coverage-update
+    steps:
+      - name: Checkout updater scripts
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Download validated changes
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: mcp-coverage-update
+          path: ${{ runner.temp }}/mcp-coverage-update
+
+      - name: Checkout MCP server
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/kernel-mcp-server
+          path: mcp
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Apply validated changes
+        working-directory: mcp
+        run: |
+          git config user.name 'kernel-internal[bot]'
+          git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
+          if [[ -n "$UPDATE_SHA" ]]; then
+            git switch -c "$UPDATE_BRANCH" "$UPDATE_SHA"
+            git merge --no-edit "$MAIN_SHA"
+          else
+            git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
+          fi
+          git apply --index "$RUNNER_TEMP/mcp-coverage-update/changes.patch"
+          git diff --cached --name-only --no-renames -z \
+            | ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
+          if [[ -s "$RUNNER_TEMP/disallowed-paths" ]]; then
+            echo "::error::Validated changes include paths outside the MCP updater allowlist:"
+            tr '\0' '\n' < "$RUNNER_TEMP/disallowed-paths"
+            exit 1
+          fi
+          if git diff --cached --raw --no-renames | awk '$2 !~ /^(100644|100755|000000)$/ { found = 1 } END { exit !found }'; then
+            echo "::error::Validated changes may only contain regular files."
+            exit 1
+          fi
+          git commit -q -m "Update Node SDK to $SDK_VERSION and MCP coverage"
 
       - name: Generate MCP repository token
-        if: steps.prepare.outputs.update == 'true'
         id: app-token
         uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         with:
@@ -211,15 +312,10 @@ jobs:
           permission-pull-requests: write
 
       - name: Open or update MCP coverage PR
-        if: steps.prepare.outputs.update == 'true'
         working-directory: mcp
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "Update Node SDK to $SDK_VERSION and MCP coverage"
-          fi
           if git diff --quiet origin/main HEAD; then
             echo "MCP coverage is already up to date."
             exit 0
@@ -231,7 +327,7 @@ jobs:
           {
             printf '## Summary\n\n- Update `@onkernel/sdk` to `%s`.\n' "$SDK_VERSION"
             printf '\n## Coverage\n\n'
-            cat "$RUNNER_TEMP/mcp-coverage-report.md"
+            head -c 60000 "$RUNNER_TEMP/mcp-coverage-update/mcp-coverage-report.md"
             printf '\n## Validation\n\n- Frozen Bun install\n- Managed-auth App bundle check\n- TypeScript type check\n- Bun tests\n- OAuth Redis recording check\n'
           } > "$body"
           pr=$(gh pr list --repo kernel/kernel-mcp-server --head "$UPDATE_BRANCH" --base main \

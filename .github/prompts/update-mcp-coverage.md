@@ -29,10 +29,11 @@ Do not downgrade or change that version.
 
 ## Sync descriptions with the API spec
 
-The Kernel API spec is at `$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml`, and
-`$RUNNER_TEMP/openapi-diff.patch` shows spec changes between the previous SDK release
-and this one. The SDK is generated from this spec, so its endpoint, parameter, and
-schema descriptions are the source of truth for what the API does.
+The Kernel API spec as of this SDK release is at
+`$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml`, and `$RUNNER_TEMP/openapi-diff.patch`
+shows spec changes between the previous SDK release and this one. The SDK is generated
+from this spec, so its endpoint, parameter, and schema descriptions are the source of
+truth for what the API does.
 
 1. For every changed `summary` or `description` in the spec diff that belongs to an
    endpoint, parameter, or field the MCP server exposes, update the matching tool
@@ -82,3 +83,8 @@ private discussions, or internal URLs.
 
 Do not commit, push, open or merge a PR. The workflow validates the changes and
 opens or updates the evergreen PR only after all checks pass.
+
+Only `package.json`, `bun.lock`, and `.ts`/`.tsx` files under `src/` (excluding
+`src/lib/mcp/apps/generated/`) are published; the workflow discards every other
+change before validation. Keep scratch files, logs, and command output outside the
+checkout, under `$RUNNER_TEMP`.
