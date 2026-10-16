@@ -580,7 +580,8 @@ export interface BrowserPoolCreateParams {
   kiosk_mode?: boolean;
 
   /**
-   * Memory requested for headful browsers in this pool.
+   * Memory for browsers in this pool. Headless: 1GiB (default), 2GiB, or 4GiB.
+   * Headful: 8GiB (default) or 16GiB.
    */
   memory?: BrowsersAPI.BrowserMemoryRequest;
 
@@ -828,6 +829,16 @@ export interface BrowserPoolUpdateParams {
   discard_all_idle?: boolean;
 
   /**
+   * Optional optimistic concurrency precondition. Send the network configuration
+   * from the last pool response, or {} when it has no network configuration. The
+   * entire update is rejected with 409 stale_network if the saved network differs,
+   * checked atomically with the write. Omit for unconditional updates. Explicit
+   * empty lists differ from omitted lists; route targets must match the saved
+   * references (resolved IDs, not equivalent proxy names).
+   */
+  expected_network?: BrowsersAPI.BrowserNetworkConfig;
+
+  /**
    * If provided, replaces the extension list. Empty array clears all
    * previously-selected extensions. Omit this field to leave extensions unchanged.
    */
@@ -851,11 +862,11 @@ export interface BrowserPoolUpdateParams {
   kiosk_mode?: boolean;
 
   /**
-   * Memory requested for newly-warmed headful browsers in this pool. Existing
-   * browsers retain their original allocation. Use discard_all_idle to replace idle
-   * browsers.
+   * Memory requested for newly-warmed browsers in this pool: 1GiB, 2GiB, or 4GiB for
+   * headless, 8GiB or 16GiB for headful. Existing browsers retain their original
+   * allocation. Use discard_all_idle to replace idle browsers.
    */
-  memory?: '8GiB' | '16GiB';
+  memory?: '1GiB' | '2GiB' | '4GiB' | '8GiB' | '16GiB';
 
   /**
    * If provided, replaces the pool name. Empty string is a no-op; the pool name

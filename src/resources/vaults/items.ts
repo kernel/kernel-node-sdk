@@ -42,10 +42,10 @@ export class Items extends APIResource {
    * request, subject to atomic provider approval checks; omitted optional fields
    * remain unchanged and explicit empty lists clear them. Wallet/provider binding
    * and unsupported fields cannot change after authorization starts. An uncertain
-   * update enters recovery_required and must not be retried. Checkout cards may be
-   * edited between authorizations. A Link card authorized with browser_id and
-   * page_url cannot be changed; delete it and create a new card with the updated
-   * details.
+   * update enters recovery_required; delete the card and create a new one rather
+   * than retrying the update. Checkout cards may be edited between authorizations. A
+   * Link card authorized with browser_id and page_url cannot be changed; delete it
+   * and create a new card with the updated details.
    *
    * @example
    * ```ts
@@ -91,11 +91,12 @@ export class Items extends APIResource {
    * Unresolved payment operations normally block deletion, including operations on
    * child cards of a wallet. Deleting a connected Kernel wallet first blocks new
    * payments on it, then removes its enrolled card. If that fails, the wallet is
-   * kept and keeps refusing payments; retry the deletion. An AgentCard card in
-   * recovery_required whose checkout create response returned no authorization ID
-   * may be explicitly abandoned by deleting that card directly; deleting its wallet
-   * or vault remains blocked. Deleting or recreating an item is not proof that a
-   * payment did not occur. Deleting a managed auth credential item leaves the
+   * kept and keeps refusing payments; retry the deletion. A Link or Kernel card in
+   * recovery_required for issuance, or an AgentCard card in recovery_required whose
+   * checkout create response returned no authorization ID, may be explicitly
+   * abandoned by deleting that card directly; deleting its wallet or vault remains
+   * blocked until the card is deleted. Deleting or recreating an item is not proof
+   * that a payment did not occur. Deleting a managed auth credential item leaves the
    * connection and its saved credential unchanged.
    *
    * @example
@@ -144,6 +145,9 @@ export class Items extends APIResource {
    * deleted and the provider's error code and message are returned. Rate limits
    * return HTTP 429 and retain the card item; stop, back off, and retry the same
    * authorize operation.
+   *
+   * Ready Kernel cards advertise fill. Fill delivers card details for a few minutes;
+   * submit checkout promptly after filling. A repeated fill is safe.
    *
    * Fill returns a value-free execution result. Validation failures before writing
    * return 400 (invalid request or targets), 403 (access or destination denied), 404
@@ -392,8 +396,6 @@ export namespace CardVaultItemSpec {
      */
     wallet: string;
 
-    expires_at?: number;
-
     line_items?: Array<LinkCardVaultItemSpec.LineItem>;
 
     metadata?: { [key: string]: string };
@@ -515,11 +517,12 @@ export namespace CardVaultItemState {
     provider: 'link';
 
     /**
-     * recovery_required means an original provider operation has an unresolved
-     * outcome. Do not retry, delete, or replace it. Known references may be observed
-     * safely, but unknown creation without an ID and uncertain card-material retrieval
-     * require manual reconciliation with the provider or support. There is no reset or
-     * caller-asserted reconciliation operation.
+     * recovery_required means an original provider operation has an unresolved outcome
+     * and the card cannot be used. Reads keep observing a known provider request and
+     * may clear the recovery. To continue, delete this card and create a new one;
+     * deleting cancels the original request when its ID is known and keeps the
+     * recovery evidence. The user may see an approval request for the original card
+     * and should approve only the new one.
      */
     status:
       | 'requested'
@@ -619,16 +622,16 @@ export namespace CardVaultItemState {
 /**
  * Return the credential item with its collection action. Supported for ready and
  * pending_collection credential items. Always render the same form from every
- * form-supported field; totp fields have no form input and are omitted. No
- * caller-selected field subsets or form overrides are accepted. Reuse an active
- * Kernel-hosted session or renew an expired session atomically. Customer-hosted
- * forms use their own backend and ordinary item GET/PATCH. Opening the form does
- * not clear values or change readiness or item version. To observe edits on a
- * ready item, record its version and poll GET without wait until the version
- * changes, then reconcile the returned state. Version changes may also come from
- * PATCH; they do not identify a particular form submission. Customer-hosted apps
- * use their own submission callback, including for unchanged forms. The wait
- * parameter waits for readiness, not edits.
+ * form-supported field; totp and passkey fields have no form input and are
+ * omitted. No caller-selected field subsets or form overrides are accepted. Reuse
+ * an active Kernel-hosted session or renew an expired session atomically.
+ * Customer-hosted forms use their own backend and ordinary item GET/PATCH. Opening
+ * the form does not clear values or change readiness or item version. To observe
+ * edits on a ready item, record its version and poll GET without wait until the
+ * version changes, then reconcile the returned state. Version changes may also
+ * come from PATCH; they do not identify a particular form submission.
+ * Customer-hosted apps use their own submission callback, including for unchanged
+ * forms. The wait parameter waits for readiness, not edits.
  */
 export interface CollectVaultItemOperationRequest {
   type: 'collect';
@@ -746,30 +749,31 @@ export interface CredentialAccountVaultItemRequest {
 
 /**
  * One schema-derived form for the item, available in ready or pending_collection
- * state. Render every form-supported field as editable; omit totp fields and
- * preserve their stored seeds. Prefill non-sensitive values, and allow existing
- * sensitive values to be preserved or replaced without ever revealing them. No
- * field subsets or per-request form configuration exist. Validate required fields
- * against the resulting values, including preserved secrets. Submit changed values
- * only, using the version used to render the form. Scoped hosted submission
- * rejects totp edits; seed writes require the ordinary authenticated item API.
- * Customer forms likewise omit totp from their payloads. Save edits atomically. A
- * successful hosted submission increments the version, marks ready, and consumes
- * the session; an empty edit may complete collection while preserving values. A
- * customer form uses PATCH for changed values and does not send an empty PATCH
- * when nothing changed. Kernel-hosted bearer sessions require no Kernel account
- * and are bound to the item version. Expired, superseded, consumed, or
- * deleted-item sessions cannot submit. Authenticated item GET renews expired
- * active sessions for ready or pending items; pending items always receive an
- * action. A ready item with no active session omits the action until collect is
- * invoked. Concurrent renewals return the same link. Renewal changes neither
- * values nor item version. An expired link cannot renew itself. The hosted form
- * handles its collection protocol; callers only open the returned URL and do not
- * extract or submit its token through the public API. For customer-hosted forms,
- * use @onkernel/vault-react and an authenticated customer backend calling the
- * ordinary item GET/PATCH API. Kernel does not store customer collection URLs or
- * authenticate the customer's end users. Treat URLs and submitted values as
- * secrets and exclude them from logs, traces, and errors.
+ * state. Render every form-supported field as editable; omit totp and passkey
+ * fields and preserve their stored values. Prefill non-sensitive values, and allow
+ * existing sensitive values to be preserved or replaced without ever revealing
+ * them. No field subsets or per-request form configuration exist. Validate
+ * required fields against the resulting values, including preserved secrets.
+ * Submit changed values only, using the version used to render the form. Scoped
+ * hosted submission rejects totp and passkey edits; those writes require the
+ * ordinary authenticated item API. Customer forms likewise omit them from their
+ * payloads. Save edits atomically. A successful hosted submission increments the
+ * version, marks ready, and consumes the session; an empty edit may complete
+ * collection while preserving values. A customer form uses PATCH for changed
+ * values and does not send an empty PATCH when nothing changed. Kernel-hosted
+ * bearer sessions require no Kernel account and are bound to the item version.
+ * Expired, superseded, consumed, or deleted-item sessions cannot submit.
+ * Authenticated item GET renews expired active sessions for ready or pending
+ * items; pending items always receive an action. A ready item with no active
+ * session omits the action until collect is invoked. Concurrent renewals return
+ * the same link. Renewal changes neither values nor item version. An expired link
+ * cannot renew itself. The hosted form handles its collection protocol; callers
+ * only open the returned URL and do not extract or submit its token through the
+ * public API. For customer-hosted forms, use @onkernel/vault-react and an
+ * authenticated customer backend calling the ordinary item GET/PATCH API. Kernel
+ * does not store customer collection URLs or authenticate the customer's end
+ * users. Treat URLs and submitted values as secrets and exclude them from logs,
+ * traces, and errors.
  */
 export interface CredentialCollectionAction {
   /**
@@ -805,14 +809,19 @@ export interface CredentialVaultFieldDefinition {
   sensitive: boolean;
 
   /**
-   * Text, email, and password have form inputs; totp does not and is omitted from
-   * both Kernel-hosted and customer React forms. Password and totp must be
-   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
-   * optional trailing padding), not an otpauth URI or current code. Reject invalid
-   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
-   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
-   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
-   * unsupported.
+   * Text, email, and password have form inputs; totp and passkey do not and are
+   * omitted from both Kernel-hosted and customer React forms. Password, totp, and
+   * passkey must be sensitive. A totp value is an RFC 4648 Base32 generator seed
+   * (case-insensitive, optional trailing padding), not an otpauth URI or current
+   * code. Reject invalid or empty decoded seeds. Browser fill generates an RFC 6238
+   * code at execution time using HMAC-SHA1, 6 digits, and a 30-second period.
+   * Preserve leading zeros; never fill the seed. Custom algorithms, digits, periods,
+   * and form enrollment are unsupported. A passkey value is a JSON-encoded FIDO
+   * Credential Exchange Format passkey object with unpadded base64url
+   * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
+   * private key), a lowercase `rpId` domain, and optional `username` and
+   * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
+   * pages.
    */
   type: CredentialVaultFieldType;
 
@@ -825,6 +834,53 @@ export interface CredentialVaultFieldDefinition {
   label?: string;
 }
 
+/**
+ * A field definition without a value. Field updates add fields with this shape and
+ * set their values in `fields`.
+ */
+export interface CredentialVaultFieldDefinitionInput {
+  /**
+   * Unique stable field name used to key values, updates, and browser fills.
+   */
+  name: string;
+
+  /**
+   * Text, email, and password have form inputs; totp and passkey do not and are
+   * omitted from both Kernel-hosted and customer React forms. Password, totp, and
+   * passkey must be sensitive. A totp value is an RFC 4648 Base32 generator seed
+   * (case-insensitive, optional trailing padding), not an otpauth URI or current
+   * code. Reject invalid or empty decoded seeds. Browser fill generates an RFC 6238
+   * code at execution time using HMAC-SHA1, 6 digits, and a 30-second period.
+   * Preserve leading zeros; never fill the seed. Custom algorithms, digits, periods,
+   * and form enrollment are unsupported. A passkey value is a JSON-encoded FIDO
+   * Credential Exchange Format passkey object with unpadded base64url
+   * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
+   * private key), a lowercase `rpId` domain, and optional `username` and
+   * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
+   * pages.
+   */
+  type: CredentialVaultFieldType;
+
+  /**
+   * Optional human-readable display label. It is returned as non-secret metadata and
+   * never affects value keys, updates, or browser fills. Use single-line, trimmed
+   * display text without control or formatting characters. The server enforces a
+   * 128-byte UTF-8 limit.
+   */
+  label?: string;
+
+  required?: boolean;
+
+  /**
+   * Set false explicitly for ordinary usernames, email addresses, and other
+   * non-secret identifiers. Reserve true for secrets such as passwords, API tokens,
+   * and TOTP seeds. Password, totp, and passkey fields must be true. Omission
+   * defaults to true for safety; do not rely on that default for every field. False
+   * permits API reads and form prefilling.
+   */
+  sensitive?: boolean;
+}
+
 export interface CredentialVaultFieldInput {
   /**
    * Unique stable field name used to key values, updates, and browser fills.
@@ -832,14 +888,19 @@ export interface CredentialVaultFieldInput {
   name: string;
 
   /**
-   * Text, email, and password have form inputs; totp does not and is omitted from
-   * both Kernel-hosted and customer React forms. Password and totp must be
-   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
-   * optional trailing padding), not an otpauth URI or current code. Reject invalid
-   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
-   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
-   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
-   * unsupported.
+   * Text, email, and password have form inputs; totp and passkey do not and are
+   * omitted from both Kernel-hosted and customer React forms. Password, totp, and
+   * passkey must be sensitive. A totp value is an RFC 4648 Base32 generator seed
+   * (case-insensitive, optional trailing padding), not an otpauth URI or current
+   * code. Reject invalid or empty decoded seeds. Browser fill generates an RFC 6238
+   * code at execution time using HMAC-SHA1, 6 digits, and a 30-second period.
+   * Preserve leading zeros; never fill the seed. Custom algorithms, digits, periods,
+   * and form enrollment are unsupported. A passkey value is a JSON-encoded FIDO
+   * Credential Exchange Format passkey object with unpadded base64url
+   * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
+   * private key), a lowercase `rpId` domain, and optional `username` and
+   * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
+   * pages.
    */
   type: CredentialVaultFieldType;
 
@@ -872,9 +933,9 @@ export interface CredentialVaultFieldInput {
   /**
    * Set false explicitly for ordinary usernames, email addresses, and other
    * non-secret identifiers. Reserve true for secrets such as passwords, API tokens,
-   * and TOTP seeds. Password and totp fields must be true. Omission defaults to true
-   * for safety; do not rely on that default for every field. False permits API reads
-   * and form prefilling.
+   * and TOTP seeds. Password, totp, and passkey fields must be true. Omission
+   * defaults to true for safety; do not rely on that default for every field. False
+   * permits API reads and form prefilling.
    */
   sensitive?: boolean;
 
@@ -900,16 +961,21 @@ export interface CredentialVaultFieldState {
 }
 
 /**
- * Text, email, and password have form inputs; totp does not and is omitted from
- * both Kernel-hosted and customer React forms. Password and totp must be
- * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
- * optional trailing padding), not an otpauth URI or current code. Reject invalid
- * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
- * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
- * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
- * unsupported.
+ * Text, email, and password have form inputs; totp and passkey do not and are
+ * omitted from both Kernel-hosted and customer React forms. Password, totp, and
+ * passkey must be sensitive. A totp value is an RFC 4648 Base32 generator seed
+ * (case-insensitive, optional trailing padding), not an otpauth URI or current
+ * code. Reject invalid or empty decoded seeds. Browser fill generates an RFC 6238
+ * code at execution time using HMAC-SHA1, 6 digits, and a 30-second period.
+ * Preserve leading zeros; never fill the seed. Custom algorithms, digits, periods,
+ * and form enrollment are unsupported. A passkey value is a JSON-encoded FIDO
+ * Credential Exchange Format passkey object with unpadded base64url
+ * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
+ * private key), a lowercase `rpId` domain, and optional `username` and
+ * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
+ * pages.
  */
-export type CredentialVaultFieldType = 'text' | 'email' | 'password' | 'totp';
+export type CredentialVaultFieldType = 'text' | 'email' | 'password' | 'totp' | 'passkey';
 
 /**
  * Set exactly one of value or encrypted_value. Use value unless the update comes
@@ -938,8 +1004,9 @@ export interface CredentialVaultFieldUpdate {
    * immediately clear the stored value. Clearing a required form-supported field
    * reopens collection; clearing an optional field does not prevent readiness.
    * Values must satisfy the declared field type. For totp, value is the generator
-   * seed, never a current code. Clearing a required totp field returns 400 because
-   * it cannot be collected in a form.
+   * seed, never a current code. For passkey, value is the JSON-encoded CXF passkey
+   * object. Clearing a required totp or passkey field returns 400 because it cannot
+   * be collected in a form.
    */
   value?: string | null;
 }
@@ -986,30 +1053,31 @@ export interface CredentialVaultItem {
 
   /**
    * One schema-derived form for the item, available in ready or pending_collection
-   * state. Render every form-supported field as editable; omit totp fields and
-   * preserve their stored seeds. Prefill non-sensitive values, and allow existing
-   * sensitive values to be preserved or replaced without ever revealing them. No
-   * field subsets or per-request form configuration exist. Validate required fields
-   * against the resulting values, including preserved secrets. Submit changed values
-   * only, using the version used to render the form. Scoped hosted submission
-   * rejects totp edits; seed writes require the ordinary authenticated item API.
-   * Customer forms likewise omit totp from their payloads. Save edits atomically. A
-   * successful hosted submission increments the version, marks ready, and consumes
-   * the session; an empty edit may complete collection while preserving values. A
-   * customer form uses PATCH for changed values and does not send an empty PATCH
-   * when nothing changed. Kernel-hosted bearer sessions require no Kernel account
-   * and are bound to the item version. Expired, superseded, consumed, or
-   * deleted-item sessions cannot submit. Authenticated item GET renews expired
-   * active sessions for ready or pending items; pending items always receive an
-   * action. A ready item with no active session omits the action until collect is
-   * invoked. Concurrent renewals return the same link. Renewal changes neither
-   * values nor item version. An expired link cannot renew itself. The hosted form
-   * handles its collection protocol; callers only open the returned URL and do not
-   * extract or submit its token through the public API. For customer-hosted forms,
-   * use @onkernel/vault-react and an authenticated customer backend calling the
-   * ordinary item GET/PATCH API. Kernel does not store customer collection URLs or
-   * authenticate the customer's end users. Treat URLs and submitted values as
-   * secrets and exclude them from logs, traces, and errors.
+   * state. Render every form-supported field as editable; omit totp and passkey
+   * fields and preserve their stored values. Prefill non-sensitive values, and allow
+   * existing sensitive values to be preserved or replaced without ever revealing
+   * them. No field subsets or per-request form configuration exist. Validate
+   * required fields against the resulting values, including preserved secrets.
+   * Submit changed values only, using the version used to render the form. Scoped
+   * hosted submission rejects totp and passkey edits; those writes require the
+   * ordinary authenticated item API. Customer forms likewise omit them from their
+   * payloads. Save edits atomically. A successful hosted submission increments the
+   * version, marks ready, and consumes the session; an empty edit may complete
+   * collection while preserving values. A customer form uses PATCH for changed
+   * values and does not send an empty PATCH when nothing changed. Kernel-hosted
+   * bearer sessions require no Kernel account and are bound to the item version.
+   * Expired, superseded, consumed, or deleted-item sessions cannot submit.
+   * Authenticated item GET renews expired active sessions for ready or pending
+   * items; pending items always receive an action. A ready item with no active
+   * session omits the action until collect is invoked. Concurrent renewals return
+   * the same link. Renewal changes neither values nor item version. An expired link
+   * cannot renew itself. The hosted form handles its collection protocol; callers
+   * only open the returned URL and do not extract or submit its token through the
+   * public API. For customer-hosted forms, use @onkernel/vault-react and an
+   * authenticated customer backend calling the ordinary item GET/PATCH API. Kernel
+   * does not store customer collection URLs or authenticate the customer's end
+   * users. Treat URLs and submitted values as secrets and exclude them from logs,
+   * traces, and errors.
    */
   action?: CredentialCollectionAction | CredentialVaultItem.OnePasswordAccessApprovalAction;
 }
@@ -1116,6 +1184,14 @@ export type CredentialVaultItemSpecInput =
 
 export interface CredentialVaultItemSpecUpdate {
   /**
+   * Field definitions to append, with the same defaults as creation. Set their
+   * values in `fields` in the same update. Names must be unique after removals; at
+   * most 32 fields may result. A required totp or passkey field needs a value in
+   * `fields`.
+   */
+  add_fields?: Array<CredentialVaultFieldDefinitionInput>;
+
+  /**
    * Recognizable site or service name used as the form title, without suffixes such
    * as sign-in credentials. An empty string clears it. Display text only, not an
    * enforced destination policy. The server also enforces a 16 KiB UTF-8 byte limit.
@@ -1123,6 +1199,12 @@ export interface CredentialVaultItemSpecUpdate {
   description?: string;
 
   fields?: { [key: string]: CredentialVaultFieldUpdate };
+
+  /**
+   * Names of fields to delete with their values. Unknown names return 400. At least
+   * one field must remain.
+   */
+  remove_fields?: Array<string>;
 }
 
 export type CredentialVaultItemState =
@@ -1131,15 +1213,18 @@ export type CredentialVaultItemState =
   | ManagedAuthCredentialVaultItemState;
 
 /**
- * Atomically update description and selected values. Omitted properties are
- * preserved. Field names, types, required flags, and sensitivity cannot change.
- * Unknown field names return 400; stale versions or mismatched item types return
- * 409 without changing the item. A successful update increments version and
- * invalidates outstanding Kernel-hosted collection sessions. If required values
- * remain missing, return pending_collection and a fresh collection action.
- * Otherwise return ready without an action; collect can open the form again
- * without clearing values. Customer URLs have no Kernel-managed expiry. 1Password
- * and managed auth credentials return 409.
+ * Atomically update description, field definitions, and selected values. Omitted
+ * properties are preserved. `remove_fields` deletes definitions and their values,
+ * then `add_fields` appends definitions, then `fields` sets values, including for
+ * added fields. An existing field's definition cannot be edited in place; to
+ * change it, remove the field and add it again, in the same update or a later one.
+ * The old value is deleted with it. Unknown field names return 400; stale versions
+ * or mismatched item types return 409 without changing the item. A successful
+ * update increments version and invalidates outstanding Kernel-hosted collection
+ * sessions. If required values remain missing, return pending_collection and a
+ * fresh collection action. Otherwise return ready without an action; collect can
+ * open the form again without clearing values. Customer URLs have no
+ * Kernel-managed expiry. 1Password and managed auth credentials return 409.
  */
 export interface CredentialVaultItemUpdateRequest {
   spec: CredentialVaultItemSpecUpdate;
@@ -1232,13 +1317,13 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * A ready Kernel card retains its encrypted network token and one-time code for
- * the fill operation until the item's expires_at. Fill and submit checkout before
- * then. Visa purchases require a spend_approval action before the code is issued;
- * Mastercard purchases need no hosted approval. masks.last4 is the enrolled card's
- * last four digits; masks.token_last4 is the network token's last four digits
- * shown to the merchant. Kernel cards do not expose aliases or support egress
- * substitution. Kernel does not observe whether the merchant charged the card.
+ * A ready Kernel card supports authorize, fill, then submit checkout. Card details
+ * are delivered for a few minutes after fill; submit promptly. Repeated fill is
+ * safe and never submits checkout. Visa purchases require a spend_approval action
+ * before details are issued; Mastercard purchases need no hosted approval.
+ * masks.last4 is the enrolled card's last four digits; masks.token_last4, when
+ * present, is the token's last four digits shown to the merchant. Kernel does not
+ * observe whether the merchant charged the card.
  */
 export interface KernelCardState {
   provider: 'kernel';
@@ -1252,10 +1337,12 @@ export interface KernelCardState {
    * fresh local verification link; this does not approve spending or replay any
    * provider request. Unclassified legacy recovery and uncertain intent creation
    * cannot restart. Kernel never approves again or issues another code for the item
-   * automatically, and the item cannot be deleted or replaced until the original
-   * attempt is reconciled with support. When status_reason says the provider refused
-   * retrieval before acceptance, no code was issued and a later read retries.
-   * declined means the card network refused to issue a code.
+   * automatically. To continue, delete this card and create a new purchase; the
+   * cardholder approves the new purchase separately. Recovery while reporting a
+   * merchant transaction cannot be deleted and must be reconciled with support. When
+   * status_reason says the provider refused retrieval before acceptance, no code was
+   * issued and a later read retries. declined means the card network refused to
+   * issue a code.
    */
   status:
     | 'requested'
@@ -1300,12 +1387,17 @@ export namespace KernelCardState {
  * Mastercard purchases need no cardholder approval. A Visa purchase returns a
  * spend_approval action: the cardholder approves it with a Visa passkey, and
  * Kernel registers a Visa intent for one transaction up to the amount before
- * issuing the code. Card updates are not supported; delete and create a new item
- * instead.
+ * issuing the code. For supported cards whose network cannot be enrolled for
+ * agentic tokens, authorize prepares checkout details without issuing a one-time
+ * code. The card can be filled into one checkout before its expires_at, one hour
+ * after authorization. Fill types those details on merchant_url's origin. The
+ * amount, merchant_url and merchant_country are recorded but do not restrict
+ * payment requests sent by the browser. Card updates are not supported; delete and
+ * create a new item instead.
  */
 export interface KernelCardVaultItemSpec {
   /**
-   * Integer amount in minor currency units (at most 50000), bound to the one-time
+   * Integer amount in minor currency units (at most 1000000), bound to the one-time
    * code.
    */
   amount: number;
@@ -1428,9 +1520,10 @@ export interface KernelWalletState {
  * number never reaches Kernel. The connected wallet's payment_methods expansion
  * lists the card; capabilities.single_use_card.eligible is false, with a
  * network_token*\* reason, until the card has a network token, and authorize
- * returns 400 for such a card. Visa purchases require the cardholder to complete a
- * spend_approval action before Kernel issues a one-time code; Mastercard purchases
- * need no hosted approval.
+ * returns 400 for such a card unless Kernel supports checkout delivery without a
+ * network token for that card. In that case, fill types the checkout details. Visa
+ * purchases require the cardholder to complete a spend_approval action before
+ * Kernel issues a one-time code; Mastercard purchases need no hosted approval.
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
@@ -1438,14 +1531,19 @@ export interface KernelWalletVaultItemSpec {
 
 export interface ManagedAuthCredentialVaultField {
   /**
-   * Text, email, and password have form inputs; totp does not and is omitted from
-   * both Kernel-hosted and customer React forms. Password and totp must be
-   * sensitive. A totp value is an RFC 4648 Base32 generator seed (case-insensitive,
-   * optional trailing padding), not an otpauth URI or current code. Reject invalid
-   * or empty decoded seeds. Browser fill generates an RFC 6238 code at execution
-   * time using HMAC-SHA1, 6 digits, and a 30-second period. Preserve leading zeros;
-   * never fill the seed. Custom algorithms, digits, periods, and form enrollment are
-   * unsupported.
+   * Text, email, and password have form inputs; totp and passkey do not and are
+   * omitted from both Kernel-hosted and customer React forms. Password, totp, and
+   * passkey must be sensitive. A totp value is an RFC 4648 Base32 generator seed
+   * (case-insensitive, optional trailing padding), not an otpauth URI or current
+   * code. Reject invalid or empty decoded seeds. Browser fill generates an RFC 6238
+   * code at execution time using HMAC-SHA1, 6 digits, and a 30-second period.
+   * Preserve leading zeros; never fill the seed. Custom algorithms, digits, periods,
+   * and form enrollment are unsupported. A passkey value is a JSON-encoded FIDO
+   * Credential Exchange Format passkey object with unpadded base64url
+   * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
+   * private key), a lowercase `rpId` domain, and optional `username` and
+   * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
+   * pages.
    */
   type: CredentialVaultFieldType;
 }
@@ -2547,7 +2645,7 @@ export namespace VaultPaymentMethod {
 export interface VaultWebmcpBinding {
   /**
    * A declared, populated credential field or supported card field. A TOTP field
-   * supplies a fresh code, never its seed.
+   * supplies a fresh code, never its seed. Passkey fields cannot be filled.
    */
   field: string;
 
@@ -3452,6 +3550,7 @@ export declare namespace Items {
     type CredentialAccountVaultItemRequest as CredentialAccountVaultItemRequest,
     type CredentialCollectionAction as CredentialCollectionAction,
     type CredentialVaultFieldDefinition as CredentialVaultFieldDefinition,
+    type CredentialVaultFieldDefinitionInput as CredentialVaultFieldDefinitionInput,
     type CredentialVaultFieldInput as CredentialVaultFieldInput,
     type CredentialVaultFieldState as CredentialVaultFieldState,
     type CredentialVaultFieldType as CredentialVaultFieldType,

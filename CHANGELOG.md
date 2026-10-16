@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.127.0](https://github.com/kernel/kernel-node-sdk/compare/v0.126.0...v0.127.0) (2026-10-16)
+
+
+### Features
+
+* Add atomic preconditions to pool network updates ([50d68f4](https://github.com/kernel/kernel-node-sdk/commit/50d68f4a37942f828a5ed2e1484d9f4e3f0604ec))
+* Add passkey credential fields and PATCH field add/remove ([d1001f3](https://github.com/kernel/kernel-node-sdk/commit/d1001f3ada17f6951453337d61a66054d46ada91))
+* Allow replacing vault cards whose provider outcome is unknown ([060038b](https://github.com/kernel/kernel-node-sdk/commit/060038b80d7bdc0a3feb63c5bb8a9dc9624b6308))
+* chore(stlc): seal custom-code tracking files ([2b47c61](https://github.com/kernel/kernel-node-sdk/commit/2b47c615b08d72fb5ea27120cbc6509d22d9931f))
+* Classify text captchas as token tasks and Binance as a provider ([0974d4f](https://github.com/kernel/kernel-node-sdk/commit/0974d4f31fa6104d5a7be2cfbb9b0fcdd1766559))
+* Deliver Kernel card details through fill ([03d2609](https://github.com/kernel/kernel-node-sdk/commit/03d2609d2f0694f9a50988d476b5eb1ff0efeb0b))
+* Raise Kernel card amount cap to $10,000 ([1f992aa](https://github.com/kernel/kernel-node-sdk/commit/1f992aaadfef30a8d8ddc2abd7105b855866d051))
+* Remove Link expires_at, return 400 for missing credential values, and log fill failures ([8dea4a0](https://github.com/kernel/kernel-node-sdk/commit/8dea4a0085460718baf7cc210b74875138065407))
+
 ## [0.126.0](https://github.com/kernel/kernel-node-sdk/compare/v0.125.0...v0.126.0) (2026-10-14)
 
 

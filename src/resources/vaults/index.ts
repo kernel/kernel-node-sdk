@@ -14,6 +14,7 @@ export {
   type CredentialAccountVaultItemRequest,
   type CredentialCollectionAction,
   type CredentialVaultFieldDefinition,
+  type CredentialVaultFieldDefinitionInput,
   type CredentialVaultFieldInput,
   type CredentialVaultFieldState,
   type CredentialVaultFieldType,
