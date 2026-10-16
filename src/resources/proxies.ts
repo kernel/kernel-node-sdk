@@ -24,32 +24,37 @@ export class Proxies extends APIResource {
   }
 
   /**
-   * Retrieve a proxy in the resolved project by ID.
+   * Retrieve a proxy in the resolved project by ID or exact name using the database
+   * collation. IDs take precedence when a value matches both an ID and a name. Proxy
+   * names are not unique; an ambiguous name returns a 400 response with code
+   * ambiguous_proxy_name.
    *
    * @example
    * ```ts
-   * const proxy = await client.proxies.retrieve('id');
+   * const proxy = await client.proxies.retrieve('id_or_name');
    * ```
    */
-  retrieve(id: string, options?: RequestOptions): APIPromise<ProxyRetrieveResponse> {
-    return this._client.get(path`/proxies/${id}`, options);
+  retrieve(idOrName: string, options?: RequestOptions): APIPromise<ProxyRetrieveResponse> {
+    return this._client.get(path`/proxies/${idOrName}`, options);
   }
 
   /**
-   * Update a proxy's name. Proxy names are not unique and are not ID-or-name
-   * addressable on this endpoint; duplicate names are allowed. Name-based
-   * session-create lookups can remain ambiguous until callers resolve proxies by ID
-   * or the API adds a stronger uniqueness contract.
+   * Update a proxy's name. Proxy names are not unique and duplicate names are
+   * allowed.
    *
    * @example
    * ```ts
-   * const proxy = await client.proxies.update('id', {
+   * const proxy = await client.proxies.update('id_or_name', {
    *   name: 'my-renamed-proxy',
    * });
    * ```
    */
-  update(id: string, body: ProxyUpdateParams, options?: RequestOptions): APIPromise<ProxyUpdateResponse> {
-    return this._client.patch(path`/proxies/${id}`, { body, ...options });
+  update(
+    idOrName: string,
+    body: ProxyUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<ProxyUpdateResponse> {
+    return this._client.patch(path`/proxies/${idOrName}`, { body, ...options });
   }
 
   /**
@@ -78,11 +83,11 @@ export class Proxies extends APIResource {
    *
    * @example
    * ```ts
-   * await client.proxies.delete('id');
+   * await client.proxies.delete('id_or_name');
    * ```
    */
-  delete(id: string, options?: RequestOptions): APIPromise<void> {
-    return this._client.delete(path`/proxies/${id}`, {
+  delete(idOrName: string, options?: RequestOptions): APIPromise<void> {
+    return this._client.delete(path`/proxies/${idOrName}`, {
       ...options,
       headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
     });
@@ -98,15 +103,15 @@ export class Proxies extends APIResource {
    *
    * @example
    * ```ts
-   * const response = await client.proxies.check('id');
+   * const response = await client.proxies.check('id_or_name');
    * ```
    */
   check(
-    id: string,
+    idOrName: string,
     body: ProxyCheckParams | null | undefined = {},
     options?: RequestOptions,
   ): APIPromise<ProxyCheckResponse> {
-    return this._client.post(path`/proxies/${id}/check`, { body, ...options });
+    return this._client.post(path`/proxies/${idOrName}/check`, { body, ...options });
   }
 }
 
