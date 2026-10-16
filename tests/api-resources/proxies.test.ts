@@ -33,7 +33,7 @@ describe('resource proxies', () => {
 
   // Mock server tests are disabled
   test.skip('retrieve', async () => {
-    const responsePromise = client.proxies.retrieve('id');
+    const responsePromise = client.proxies.retrieve('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -45,7 +45,7 @@ describe('resource proxies', () => {
 
   // Mock server tests are disabled
   test.skip('update: only required params', async () => {
-    const responsePromise = client.proxies.update('id', { name: 'my-renamed-proxy' });
+    const responsePromise = client.proxies.update('id_or_name', { name: 'my-renamed-proxy' });
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -57,7 +57,7 @@ describe('resource proxies', () => {
 
   // Mock server tests are disabled
   test.skip('update: required and optional params', async () => {
-    const response = await client.proxies.update('id', { name: 'my-renamed-proxy' });
+    const response = await client.proxies.update('id_or_name', { name: 'my-renamed-proxy' });
   });
 
   // Mock server tests are disabled
@@ -90,7 +90,7 @@ describe('resource proxies', () => {
 
   // Mock server tests are disabled
   test.skip('delete', async () => {
-    const responsePromise = client.proxies.delete('id');
+    const responsePromise = client.proxies.delete('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -102,7 +102,7 @@ describe('resource proxies', () => {
 
   // Mock server tests are disabled
   test.skip('check', async () => {
-    const responsePromise = client.proxies.check('id');
+    const responsePromise = client.proxies.check('id_or_name');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -116,7 +116,11 @@ describe('resource proxies', () => {
   test.skip('check: request options and params are passed correctly', async () => {
     // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
     await expect(
-      client.proxies.check('id', { url: 'https://example.com' }, { path: '/_stainless_unknown_path' }),
+      client.proxies.check(
+        'id_or_name',
+        { url: 'https://example.com' },
+        { path: '/_stainless_unknown_path' },
+      ),
     ).rejects.toThrow(Kernel.NotFoundError);
   });
 });
