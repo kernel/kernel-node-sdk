@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.128.0](https://github.com/kernel/kernel-node-sdk/compare/v0.127.0...v0.128.0) (2026-10-19)
+
+
+### Features
+
+* Add browser location session policy ([942881d](https://github.com/kernel/kernel-node-sdk/commit/942881d4f685d73cecdfc040115066852b7bf05a))
+* chore(stlc): seal custom-code tracking files ([784dff8](https://github.com/kernel/kernel-node-sdk/commit/784dff8affa0abb1e752609bd1d645578e30677c))
+* Fence browser allowlist updates with revision checks ([733ca11](https://github.com/kernel/kernel-node-sdk/commit/733ca11d1d2ec987d6ffc6e1a1ef96ba769b7bf6))
+* Support existing-user AgentCard wallet imports ([e84e82f](https://github.com/kernel/kernel-node-sdk/commit/e84e82fd96e784397eff238790ab3fc495bc562c))
+
 ## [0.127.0](https://github.com/kernel/kernel-node-sdk/compare/v0.126.0...v0.127.0) (2026-10-16)
 
 
