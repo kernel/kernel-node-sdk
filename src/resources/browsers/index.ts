@@ -2,6 +2,7 @@
 
 export {
   Browsers,
+  type BrowserAllowlistState,
   type BrowserMemory,
   type BrowserMemoryRequest,
   type BrowserNetworkConfig,

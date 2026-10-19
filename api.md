@@ -99,6 +99,7 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserAllowlistState</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserMemory</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserMemoryRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserNetworkConfig</a></code>

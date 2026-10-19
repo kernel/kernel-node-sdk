@@ -346,6 +346,24 @@ export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListR
 
 export type ProfilesOffsetPagination = OffsetPagination<Profile>;
 
+export interface BrowserAllowlistState {
+  /**
+   * Opaque revision to pass as network.expected_allowlist_revision on an update.
+   */
+  revision: string;
+
+  /**
+   * Revision against which that mutation was accepted; reuse it when retrying the
+   * mutation.
+   */
+  base_revision?: string;
+
+  /**
+   * ID of the last conditional allowlist update saved on this browser.
+   */
+  mutation_id?: string;
+}
+
 /**
  * Memory allocated to the browser session.
  */
@@ -387,6 +405,14 @@ export interface BrowserNetworkConfig {
    * replaced on release rather than given an allowlist again. Requires proxy v3.
    */
   allowed_hosts?: Array<string>;
+
+  /**
+   * Concurrency metadata for a browser's saved allowlist configuration. Browser
+   * pools omit it. This remains present after removal so an uncertain removal can be
+   * retried. It does not prove proxy or VM application completed. Do not include it
+   * in creation or pool updates.
+   */
+  allowlist_state?: BrowserAllowlistState;
 
   /**
    * Destinations the browser reaches directly through the session's own network
@@ -484,6 +510,25 @@ export interface BrowserNetworkUpdate {
    * to some requests.
    */
   allowed_hosts?: Array<string> | null;
+
+  /**
+   * The network.allowlist_state.revision from the browser's last saved snapshot.
+   * Supply together with mutation_id to opt into conditional allowlist updates. The
+   * revision is checked atomically with the configuration write. A stale request
+   * returns 409 stale_network without changing the allowlist. A GET alone does not
+   * fence an earlier unfinished PATCH.
+   */
+  expected_allowlist_revision?: string;
+
+  /**
+   * A unique ID for this allowlist update, supplied together with
+   * expected_allowlist_revision. Reuse both values and the identical allowed_hosts
+   * payload when retrying an uncertain update. If it is still the current mutation,
+   * the retry finishes proxy and VM application without creating another revision. A
+   * superseded mutation returns 409 stale_network. These fields guard only
+   * network.allowed_hosts, not other browser update fields.
+   */
+  mutation_id?: string;
 }
 
 /**
@@ -2041,6 +2086,7 @@ Browsers.Webmcp = Webmcp;
 
 export declare namespace Browsers {
   export {
+    type BrowserAllowlistState as BrowserAllowlistState,
     type BrowserMemory as BrowserMemory,
     type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,

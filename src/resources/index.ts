@@ -40,6 +40,7 @@ export {
 } from './browser-pools';
 export {
   Browsers,
+  type BrowserAllowlistState,
   type BrowserMemory,
   type BrowserMemoryRequest,
   type BrowserNetworkConfig,
