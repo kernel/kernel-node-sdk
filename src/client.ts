@@ -153,6 +153,7 @@ import {
 } from './resources/audit-logs/audit-logs';
 import { Auth } from './resources/auth/auth';
 import {
+  BrowserAllowlistState,
   BrowserCreateParams,
   BrowserCreateResponse,
   BrowserCurlParams,
@@ -161,6 +162,10 @@ import {
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
   BrowserLoadExtensionsParams,
+  BrowserLocation,
+  BrowserLocationRequest,
+  BrowserLocationSource,
+  BrowserLocationUpdateRequest,
   BrowserMemory,
   BrowserMemoryRequest,
   BrowserNetworkConfig,
@@ -1221,6 +1226,11 @@ export declare namespace Kernel {
 
   export {
     Browsers as Browsers,
+    type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserLocation as BrowserLocation,
+    type BrowserLocationRequest as BrowserLocationRequest,
+    type BrowserLocationSource as BrowserLocationSource,
+    type BrowserLocationUpdateRequest as BrowserLocationUpdateRequest,
     type BrowserMemory as BrowserMemory,
     type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,

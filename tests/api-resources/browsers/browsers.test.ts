@@ -32,6 +32,7 @@ describe('resource browsers', () => {
           headless: false,
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',
           kiosk_mode: true,
+          location: { locale: 'en-US', timezone: 'America/Los_Angeles' },
           memory: '8GiB',
           name: 'checkout-flow-1',
           network: {
