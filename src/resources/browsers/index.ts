@@ -3,6 +3,10 @@
 export {
   Browsers,
   type BrowserAllowlistState,
+  type BrowserLocation,
+  type BrowserLocationRequest,
+  type BrowserLocationSource,
+  type BrowserLocationUpdateRequest,
   type BrowserMemory,
   type BrowserMemoryRequest,
   type BrowserNetworkConfig,

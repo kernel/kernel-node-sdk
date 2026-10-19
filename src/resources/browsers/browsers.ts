@@ -364,6 +364,68 @@ export interface BrowserAllowlistState {
   mutation_id?: string;
 }
 
+export interface BrowserLocation {
+  /**
+   * Effective canonical BCP 47 formatting locale selected for the browser session.
+   */
+  locale: string;
+
+  /**
+   * Where one effective browser location field came from. `override` is set
+   * explicitly on the session; `metro` is the default for the browser's region.
+   */
+  locale_source: BrowserLocationSource;
+
+  /**
+   * Effective IANA timezone selected for the browser session.
+   */
+  timezone: string;
+
+  /**
+   * Where one effective browser location field came from. `override` is set
+   * explicitly on the session; `metro` is the default for the browser's region.
+   */
+  timezone_source: BrowserLocationSource;
+}
+
+export interface BrowserLocationRequest {
+  /**
+   * Session-only supported canonical BCP 47 locale override. Omit to use the default
+   * for the browser's region.
+   */
+  locale?: string;
+
+  /**
+   * Session-only IANA timezone override. Omit to use the default for the browser's
+   * region.
+   */
+  timezone?: string;
+}
+
+/**
+ * Where one effective browser location field came from. `override` is set
+ * explicitly on the session; `metro` is the default for the browser's region.
+ */
+export type BrowserLocationSource = 'override' | 'metro';
+
+/**
+ * Omit a field to leave it unchanged, set a string override, or set null to clear
+ * the override and use the default for the browser's region.
+ */
+export interface BrowserLocationUpdateRequest {
+  /**
+   * Session-only supported canonical BCP 47 locale override. Null clears the
+   * override and uses the browser region's default.
+   */
+  locale?: string | null;
+
+  /**
+   * Session-only IANA timezone override. Null clears the override and uses the
+   * browser region's default.
+   */
+  timezone?: string | null;
+}
+
 /**
  * Memory allocated to the browser session.
  */
@@ -851,6 +913,11 @@ export interface BrowserCreateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Effective browser timezone and locale with per-field provenance.
+   */
+  location?: BrowserLocation;
+
+  /**
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
@@ -1025,6 +1092,11 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Effective browser timezone and locale with per-field provenance.
+   */
+  location?: BrowserLocation;
 
   /**
    * Human-readable name of the browser session, if one was set at creation.
@@ -1203,6 +1275,11 @@ export interface BrowserUpdateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Effective browser timezone and locale with per-field provenance.
+   */
+  location?: BrowserLocation;
+
+  /**
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
@@ -1379,6 +1456,11 @@ export interface BrowserListResponse {
   kiosk_mode?: boolean;
 
   /**
+   * Effective browser timezone and locale with per-field provenance.
+   */
+  location?: BrowserLocation;
+
+  /**
    * Human-readable name of the browser session, if one was set at creation.
    */
   name?: string;
@@ -1535,6 +1617,12 @@ export interface BrowserCreateParams {
    * view.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * Optional session-only timezone and locale overrides. Each omitted field uses the
+   * default for the browser's region. start_url opens once the location applies.
+   */
+  location?: BrowserLocationRequest;
 
   /**
    * Memory for a non-GPU browser. Headless: 1GiB (default), 2GiB, or 4GiB. Headful:
@@ -1780,6 +1868,17 @@ export interface BrowserUpdateParams {
    * default stealth proxy. Deprecated in favor of proxy.mode.
    */
   disable_default_proxy?: boolean;
+
+  /**
+   * Session-only timezone and locale overrides. Omit the object or a field to leave
+   * it unchanged; set a string to override; set null to clear that field and use the
+   * browser region's default. A browser that cannot change location refuses the
+   * request before anything changes. The location applies after the request's other
+   * changes, and start_url opens once it has applied. If applying it fails, the
+   * other changes and the saved override remain and start_url does not open; retry
+   * the request to apply both.
+   */
+  location?: BrowserLocationUpdateRequest;
 
   /**
    * Human-readable name for the browser session. Omit to leave unchanged, set to an
@@ -2087,6 +2186,10 @@ Browsers.Webmcp = Webmcp;
 export declare namespace Browsers {
   export {
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserLocation as BrowserLocation,
+    type BrowserLocationRequest as BrowserLocationRequest,
+    type BrowserLocationSource as BrowserLocationSource,
+    type BrowserLocationUpdateRequest as BrowserLocationUpdateRequest,
     type BrowserMemory as BrowserMemory,
     type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,

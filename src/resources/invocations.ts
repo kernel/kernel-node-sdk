@@ -528,6 +528,11 @@ export namespace InvocationListBrowsersResponse {
     kiosk_mode?: boolean;
 
     /**
+     * Effective browser timezone and locale with per-field provenance.
+     */
+    location?: BrowsersAPI.BrowserLocation;
+
+    /**
      * Human-readable name of the browser session, if one was set at creation.
      */
     name?: string;
