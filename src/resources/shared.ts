@@ -89,8 +89,8 @@ export interface BrowserViewport {
   width: number;
 
   /**
-   * Display refresh rate in Hz. Any positive integer is accepted; if omitted,
-   * automatically determined from width and height.
+   * Display refresh rate in Hz. Any positive integer is accepted; if omitted, GPU
+   * browsers default to 60 and other browsers derive it from width and height.
    */
   refresh_rate?: number;
 }

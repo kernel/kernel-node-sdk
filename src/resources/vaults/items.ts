@@ -2405,6 +2405,13 @@ export namespace VaultItemAction {
     name: 'card_enrollment';
 
     url: string;
+
+    /**
+     * Secret bearer capability for embedded card capture with @onkernel/vault-react.
+     * Present only for Kernel wallets; never for AgentCard. Treat it like the
+     * enrollment URL and do not log or persist it in browser storage.
+     */
+    capture_token?: string;
   }
 }
 

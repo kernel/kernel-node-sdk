@@ -372,7 +372,7 @@ export interface BrowserLocation {
 
   /**
    * Where one effective browser location field came from. `override` is set
-   * explicitly on the session; `metro` is the default for the browser's region.
+   * explicitly on the session; `default` comes from the browser's region.
    */
   locale_source: BrowserLocationSource;
 
@@ -383,7 +383,7 @@ export interface BrowserLocation {
 
   /**
    * Where one effective browser location field came from. `override` is set
-   * explicitly on the session; `metro` is the default for the browser's region.
+   * explicitly on the session; `default` comes from the browser's region.
    */
   timezone_source: BrowserLocationSource;
 }
@@ -404,9 +404,9 @@ export interface BrowserLocationRequest {
 
 /**
  * Where one effective browser location field came from. `override` is set
- * explicitly on the session; `metro` is the default for the browser's region.
+ * explicitly on the session; `default` comes from the browser's region.
  */
-export type BrowserLocationSource = 'override' | 'metro';
+export type BrowserLocationSource = 'override' | 'default';
 
 /**
  * Omit a field to leave it unchanged, set a string override, or set null to clear
