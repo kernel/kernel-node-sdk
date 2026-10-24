@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.130.0](https://github.com/kernel/kernel-node-sdk/compare/v0.129.0...v0.130.0) (2026-10-24)
+
+
+### Features
+
+* Support Link recurring spend requests on vault Link cards ([6becbe5](https://github.com/kernel/kernel-node-sdk/commit/6becbe5b788088db5334548a1b488208447181df))
+
 ## [0.129.0](https://github.com/kernel/kernel-node-sdk/compare/v0.128.0...v0.129.0) (2026-10-21)
 
 
