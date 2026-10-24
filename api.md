@@ -545,6 +545,8 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">LinkShippingAddress</a></code>
+- <code><a href="./src/resources/vaults/items.ts">LinkUserInfo</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultField</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultItemSpecInput</a></code>

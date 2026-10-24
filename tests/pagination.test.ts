@@ -46,8 +46,32 @@ describe('OffsetPagination', () => {
     expect(page.hasNextPage()).toBe(false);
   });
 
-  test('stops on an empty page', () => {
+  test('continues past an empty page while X-Has-More is true', () => {
+    // A server-side filter can leave a page empty with more records ahead.
     const page = pageWith({ 'x-next-offset': '300', 'x-has-more': 'true' }, [], 200);
+    expect(page.hasNextPage()).toBe(true);
+    expect(page.nextPageRequestOptions()?.query).toEqual({ offset: 300 });
+  });
+
+  test('stops on an empty page when X-Has-More is false', () => {
+    const page = pageWith({ 'x-next-offset': '0', 'x-has-more': 'false' }, [], 200);
+    expect(page.hasNextPage()).toBe(false);
+  });
+
+  test('stops when X-Next-Offset repeats the requested offset', () => {
+    const page = pageWith({ 'x-next-offset': '200', 'x-has-more': 'true' }, [], 200);
+    expect(page.nextPageRequestOptions()).toBeNull();
+    expect(page.hasNextPage()).toBe(false);
+  });
+
+  test('continues past an empty page with a descending cursor', () => {
+    const page = pageWith({ 'x-next-offset': '200', 'x-has-more': 'true' }, [], 300);
+    expect(page.hasNextPage()).toBe(true);
+    expect(page.nextPageRequestOptions()?.query).toEqual({ offset: 200 });
+  });
+
+  test('stops on an empty first page without pagination headers', () => {
+    const page = pageWith({}, []);
     expect(page.hasNextPage()).toBe(false);
   });
 

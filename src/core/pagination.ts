@@ -200,7 +200,7 @@ export class OffsetPagination<Item> extends AbstractPage<Item> {
       return false;
     }
 
-    return super.hasNextPage();
+    return this.nextPageRequestOptions() != null;
   }
 
   nextPageRequestOptions(): PageRequestOptions | null {
@@ -219,6 +219,12 @@ export class OffsetPagination<Item> extends AbstractPage<Item> {
       return null;
     }
     if (offset === 0) {
+      return null;
+    }
+    // Cursors can move in either direction. Stop only when the server repeats
+    // the cursor and would re-request the same page.
+    const requestOffset = (this.options.query as OffsetPaginationParams | undefined)?.offset;
+    if (typeof requestOffset === 'number' && offset === requestOffset) {
       return null;
     }
 

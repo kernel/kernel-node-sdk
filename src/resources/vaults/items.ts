@@ -368,7 +368,8 @@ export namespace CardVaultItemSpec {
    */
   export interface LinkCardVaultItemSpec {
     /**
-     * Integer amount in minor currency units, at most 50000.
+     * Integer amount in minor currency units, at most 50000. With recurring, the
+     * spending limit per period, not a lifetime total.
      */
     amount: number;
 
@@ -397,6 +398,19 @@ export namespace CardVaultItemSpec {
     line_items?: Array<LinkCardVaultItemSpec.LineItem>;
 
     metadata?: { [key: string]: string };
+
+    /**
+     * Recurring terms for a subscription or other repeated purchase. The amount
+     * becomes the spending limit for each period of interval_count intervals, for
+     * example every 2 weeks. The merchant schedules charges. The card stays ready
+     * after each charge until it expires or is deleted; do not create a new card each
+     * period. Deleting the card, its wallet or its vault first cancels the credential
+     * with Link, so later charges decline; if Link cannot be reached, deletion returns
+     * 409 provider_revocation_pending and should be retried. Deletion does not cancel
+     * the subscription with the merchant. Recurring terms cannot be changed once the
+     * card is authorized.
+     */
+    recurring?: LinkCardVaultItemSpec.Recurring;
 
     totals?: Array<LinkCardVaultItemSpec.Total>;
   }
@@ -436,6 +450,26 @@ export namespace CardVaultItemSpec {
 
         type: string;
       }
+    }
+
+    /**
+     * Recurring terms for a subscription or other repeated purchase. The amount
+     * becomes the spending limit for each period of interval_count intervals, for
+     * example every 2 weeks. The merchant schedules charges. The card stays ready
+     * after each charge until it expires or is deleted; do not create a new card each
+     * period. Deleting the card, its wallet or its vault first cancels the credential
+     * with Link, so later charges decline; if Link cannot be reached, deletion returns
+     * 409 provider_revocation_pending and should be retried. Deletion does not cancel
+     * the subscription with the merchant. Recurring terms cannot be changed once the
+     * card is authorized.
+     */
+    export interface Recurring {
+      interval: 'day' | 'week' | 'month' | 'year';
+
+      /**
+       * Number of intervals per period. Link defaults it to 1.
+       */
+      interval_count?: number;
     }
 
     export interface Total {
@@ -713,7 +747,7 @@ export namespace CredentialAccountVaultItem {
   export interface AvailableExpansion {
     description: string;
 
-    type: 'payment_methods';
+    type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
   }
 
   /**
@@ -1088,7 +1122,7 @@ export namespace CredentialVaultItem {
   export interface AvailableExpansion {
     description: string;
 
-    type: 'payment_methods';
+    type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
   }
 
   /**
@@ -1291,7 +1325,8 @@ export interface FillVaultItemOperationRequest {
   page_url?: string;
 
   /**
-   * Total operation deadline in milliseconds, not a per-field timeout.
+   * @deprecated Ignored. Fill sets no operation deadline; typing pace adapts to the
+   * length of the values instead. Accepted for compatibility.
    */
   timeout_ms?: number;
 }
@@ -1327,8 +1362,11 @@ export interface KernelCardState {
   provider: 'kernel';
 
   /**
-   * pending_authorization on a Visa purchase waits for the cardholder to approve it
-   * through the spend_approval action; an unused link expires after 30 minutes.
+   * pending_authorization waits for cardholder approval on Visa purchases or fresh
+   * security-code collection on alias-mode purchases through the spend_approval
+   * action; an unused link expires after 30 minutes. Alias-mode cards become ready
+   * after collection and expire at the temporary security-code alias deadline, by
+   * default five minutes later. An expired alias purchase requires a new card.
    * recovery_required means verification, approving the purchase or issuing the
    * one-time code has an unresolved outcome. A server-classified initial attestation
    * failure before intent dispatch may advertise restart_verification to prepare a
@@ -1386,12 +1424,13 @@ export namespace KernelCardState {
  * spend_approval action: the cardholder approves it with a Visa passkey, and
  * Kernel registers a Visa intent for one transaction up to the amount before
  * issuing the code. For supported cards whose network cannot be enrolled for
- * agentic tokens, authorize prepares checkout details without issuing a one-time
- * code. The card can be filled into one checkout before its expires_at, one hour
- * after authorization. Fill types those details on merchant_url's origin. The
- * amount, merchant_url and merchant_country are recorded but do not restrict
- * payment requests sent by the browser. Card updates are not supported; delete and
- * create a new item instead.
+ * agentic tokens, authorize returns pending_authorization with a spend_approval
+ * action to collect a fresh security code in a hosted field. Once collected, the
+ * card is ready and can be filled before its expires_at, by default five minutes
+ * after collection. An expired card requires a new purchase. Fill types those
+ * details on merchant_url's origin. The amount, merchant_url and merchant_country
+ * are recorded but do not restrict payment requests sent by the browser. Card
+ * updates are not supported; delete and create a new item instead.
  */
 export interface KernelCardVaultItemSpec {
   /**
@@ -1525,6 +1564,196 @@ export interface KernelWalletState {
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
+}
+
+/**
+ * One entry of Link's `GET /shipping_addresses` response, passed through as Link
+ * reports it. Kernel never stores it.
+ */
+export interface LinkShippingAddress {
+  /**
+   * Link shipping address ID.
+   */
+  id: string;
+
+  is_default: boolean;
+
+  nickname: string | null;
+
+  /**
+   * Link's nullable postal address fields. Omitted from the shipping address when
+   * Link reports null.
+   */
+  address?: LinkShippingAddress.Address;
+}
+
+export namespace LinkShippingAddress {
+  /**
+   * Link's nullable postal address fields. Omitted from the shipping address when
+   * Link reports null.
+   */
+  export interface Address {
+    /**
+     * State, province or region.
+     */
+    administrative_area: string | null;
+
+    country_code: string | null;
+
+    dependent_locality: string | null;
+
+    line_1: string | null;
+
+    line_2: string | null;
+
+    /**
+     * City or town.
+     */
+    locality: string | null;
+
+    name: string | null;
+
+    postal_code: string | null;
+
+    sorting_code: string | null;
+  }
+}
+
+/**
+ * Link's `GET /userinfo` response for the connected wallet, passed through as Link
+ * reports it when the `link_user_info` expansion is requested. Kernel never stores
+ * it. Null fields are null at Link; omitted fields were not reported. Amounts are
+ * in the minor unit of `default_spend_request_currency`.
+ */
+export interface LinkUserInfo {
+  /**
+   * Stable Link user ID.
+   */
+  id: string | null;
+
+  email: string | null;
+
+  first_name: string | null;
+
+  last_name: string | null;
+
+  name: string | null;
+
+  phone: string | null;
+
+  /**
+   * The Link user's postal address. Omitted when Link reports none.
+   */
+  address?: LinkUserInfo.Address;
+
+  /**
+   * Link's agent wallet spend limits, per transaction and over rolling periods.
+   */
+  agent_wallet_spend_limits?: LinkUserInfo.AgentWalletSpendLimits;
+
+  /**
+   * Verification Link requires from the user before the agent wallet can spend.
+   */
+  agent_wallet_step_up?: LinkUserInfo.AgentWalletStepUp;
+
+  /**
+   * Lowercase ISO currency Link applies to a spend request created without one.
+   */
+  default_spend_request_currency?: string;
+
+  /**
+   * Whether the user can fund purchases from a Link balance.
+   */
+  eligible_for_balance?: boolean;
+}
+
+export namespace LinkUserInfo {
+  /**
+   * The Link user's postal address. Omitted when Link reports none.
+   */
+  export interface Address {
+    city: string | null;
+
+    country: string | null;
+
+    line1: string | null;
+
+    line2: string | null;
+
+    postal_code: string | null;
+
+    state: string | null;
+  }
+
+  /**
+   * Link's agent wallet spend limits, per transaction and over rolling periods.
+   */
+  export interface AgentWalletSpendLimits {
+    daily: AgentWalletSpendLimits.Daily;
+
+    per_transaction: AgentWalletSpendLimits.PerTransaction;
+
+    thirty_day: AgentWalletSpendLimits.ThirtyDay;
+  }
+
+  export namespace AgentWalletSpendLimits {
+    export interface Daily {
+      /**
+       * Null means unlimited.
+       */
+      limit: number | null;
+
+      /**
+       * Amount still available in the rolling period; null means unlimited.
+       */
+      remaining: number | null;
+
+      /**
+       * Amount already spent in the rolling period.
+       */
+      used: number;
+    }
+
+    export interface PerTransaction {
+      /**
+       * Null means unlimited.
+       */
+      limit: number | null;
+    }
+
+    export interface ThirtyDay {
+      /**
+       * Null means unlimited.
+       */
+      limit: number | null;
+
+      /**
+       * Amount still available in the rolling period; null means unlimited.
+       */
+      remaining: number | null;
+
+      /**
+       * Amount already spent in the rolling period.
+       */
+      used: number;
+    }
+  }
+
+  /**
+   * Verification Link requires from the user before the agent wallet can spend.
+   */
+  export interface AgentWalletStepUp {
+    /**
+     * URL where the user completes verification; null when no action is available.
+     */
+    action_url: string | null;
+
+    /**
+     * Link status such as not_required, ssn_verification, identity_verification,
+     * contact_support or complete.
+     */
+    status: string;
+  }
 }
 
 export interface ManagedAuthCredentialVaultField {
@@ -2255,7 +2484,7 @@ export namespace VaultItem {
     export interface AvailableExpansion {
       description: string;
 
-      type: 'payment_methods';
+      type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
     }
 
     /**
@@ -2284,6 +2513,20 @@ export namespace VaultItem {
      * Live, non-persisted data requested through the item GET expand parameter.
      */
     export interface Expanded {
+      /**
+       * Link's saved shipping addresses, present when the `link_shipping_addresses`
+       * expansion is requested.
+       */
+      link_shipping_addresses?: Array<ItemsAPI.LinkShippingAddress>;
+
+      /**
+       * Link's `GET /userinfo` response for the connected wallet, passed through as Link
+       * reports it when the `link_user_info` expansion is requested. Kernel never stores
+       * it. Null fields are null at Link; omitted fields were not reported. Amounts are
+       * in the minor unit of `default_spend_request_currency`.
+       */
+      link_user_info?: ItemsAPI.LinkUserInfo;
+
       payment_methods?: Array<ItemsAPI.VaultPaymentMethod>;
     }
   }
@@ -2335,7 +2578,7 @@ export namespace VaultItem {
     export interface AvailableExpansion {
       description: string;
 
-      type: 'payment_methods';
+      type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
     }
 
     /**
@@ -2506,7 +2749,7 @@ export namespace VaultItemOperationResponse {
     export interface AvailableExpansion {
       description: string;
 
-      type: 'payment_methods';
+      type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
     }
 
     /**
@@ -2535,6 +2778,20 @@ export namespace VaultItemOperationResponse {
      * Live, non-persisted data requested through the item GET expand parameter.
      */
     export interface Expanded {
+      /**
+       * Link's saved shipping addresses, present when the `link_shipping_addresses`
+       * expansion is requested.
+       */
+      link_shipping_addresses?: Array<ItemsAPI.LinkShippingAddress>;
+
+      /**
+       * Link's `GET /userinfo` response for the connected wallet, passed through as Link
+       * reports it when the `link_user_info` expansion is requested. Kernel never stores
+       * it. Null fields are null at Link; omitted fields were not reported. Amounts are
+       * in the minor unit of `default_spend_request_currency`.
+       */
+      link_user_info?: ItemsAPI.LinkUserInfo;
+
       payment_methods?: Array<ItemsAPI.VaultPaymentMethod>;
     }
   }
@@ -2586,7 +2843,7 @@ export namespace VaultItemOperationResponse {
     export interface AvailableExpansion {
       description: string;
 
-      type: 'payment_methods';
+      type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
     }
 
     /**
@@ -2912,7 +3169,7 @@ export interface ItemRetrieveParams {
    * Query param: Live fields advertised by `available_expansions` to include in
    * `expanded`.
    */
-  expand?: Array<'payment_methods'>;
+  expand?: Array<'payment_methods' | 'link_user_info' | 'link_shipping_addresses'>;
 
   /**
    * Query param: Hold for up to this many seconds while the item is pending
@@ -3172,7 +3429,8 @@ export declare namespace ItemPerformOperationParams {
     page_url?: string;
 
     /**
-     * Body param: Total operation deadline in milliseconds, not a per-field timeout.
+     * @deprecated Body param: Ignored. Fill sets no operation deadline; typing pace
+     * adapts to the length of the values instead. Accepted for compatibility.
      */
     timeout_ms?: number;
   }
@@ -3624,6 +3882,8 @@ export declare namespace Items {
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
+    type LinkShippingAddress as LinkShippingAddress,
+    type LinkUserInfo as LinkUserInfo,
     type ManagedAuthCredentialVaultField as ManagedAuthCredentialVaultField,
     type ManagedAuthCredentialVaultItemSpec as ManagedAuthCredentialVaultItemSpec,
     type ManagedAuthCredentialVaultItemSpecInput as ManagedAuthCredentialVaultItemSpecInput,
