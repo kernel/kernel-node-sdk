@@ -35,6 +35,8 @@ export {
   type KernelCredentialVaultItemState,
   type KernelWalletState,
   type KernelWalletVaultItemSpec,
+  type LinkShippingAddress,
+  type LinkUserInfo,
   type ManagedAuthCredentialVaultField,
   type ManagedAuthCredentialVaultItemSpec,
   type ManagedAuthCredentialVaultItemSpecInput,
