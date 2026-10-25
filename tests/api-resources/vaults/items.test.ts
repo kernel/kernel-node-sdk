@@ -88,6 +88,7 @@ describe('resource items', () => {
           },
         ],
         metadata: { foo: 'string' },
+        recurring: { interval: 'day', interval_count: 1 },
         totals: [
           {
             amount: 0,
