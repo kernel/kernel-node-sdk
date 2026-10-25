@@ -66,7 +66,10 @@ test('changes are restricted to the allowlist before validation', () => {
   const prepare = step('generate', 'Prepare update branch and SDK diff');
   assert.match(prepare, /main_sha=\$\(git rev-parse origin\/main\)/);
   // Only a branch without human commits may be regenerated from main.
-  assert.match(prepare, /git rebase --abort\n[\s\S]*grep -qvxF '260533166\+kernel-internal\[bot\]@users\.noreply\.github\.com'[\s\S]*exit 1\n[\s\S]*git switch -C /);
+  assert.match(
+    prepare,
+    /git rebase --abort\n[\s\S]*grep -qvxF '260533166\+kernel-internal\[bot\]@users\.noreply\.github\.com'[\s\S]*exit 1\n[\s\S]*git switch -C /,
+  );
   const scriptCalls = workflow.match(/^.*disallowed-paths\.sh.*$/gm);
   assert.equal(scriptCalls.length, 2);
   for (const line of scriptCalls) assert.match(line, /\| bash /);
