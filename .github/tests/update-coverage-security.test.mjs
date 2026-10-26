@@ -61,9 +61,15 @@ test('changes are restricted to the allowlist before validation', () => {
   assert.ok(jobs.generate.indexOf(snapshot) < jobs.generate.indexOf(verify));
   assert.match(snapshot, /mcp-update-disallowed-paths\.sh/);
   assert.match(snapshot, /git reset -q --hard\n\s+git clean -fdq/);
-  assert.match(snapshot, /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/);
-  assert.match(snapshot, /git reset -q --soft "\$AGENT_BASE"\n\s+git add -A/);
-  assert.match(step('generate', 'Prepare update branch and SDK diff'), /agent_base=\$\(git rev-parse HEAD\)/);
+  assert.match(snapshot, /MAIN_SHA: \$\{\{ steps\.prepare\.outputs\.main_sha \}\}/);
+  assert.match(snapshot, /git reset -q --soft "\$MAIN_SHA"\n\s+git add -A/);
+  const prepare = step('generate', 'Prepare update branch and SDK diff');
+  assert.match(prepare, /main_sha=\$\(git rev-parse origin\/main\)/);
+  // Only a branch without human commits may be regenerated from main.
+  assert.match(
+    prepare,
+    /git rebase --abort\n[\s\S]*grep -qvxF '260533166\+kernel-internal\[bot\]@users\.noreply\.github\.com'[\s\S]*exit 1\n[\s\S]*git switch -C /,
+  );
   const scriptCalls = workflow.match(/^.*disallowed-paths\.sh.*$/gm);
   assert.equal(scriptCalls.length, 2);
   for (const line of scriptCalls) assert.match(line, /\| bash /);
@@ -106,7 +112,7 @@ test('publishing runs in a separate job that never executes repository code', ()
   assert.doesNotMatch(jobs.publish.slice(0, mint).join(''), /GH_TOKEN:/);
   const publish = step('publish', 'Open or update MCP coverage PR');
   assert.match(publish, /GH_TOKEN: \$\{\{ steps\.app-token\.outputs\.token \}\}/);
-  assert.match(publish, /gh auth setup-git\n\s+git push/);
+  assert.match(publish, /gh auth setup-git\n\s+git push --force-with-lease="\$UPDATE_BRANCH:\$UPDATE_SHA"/);
   for (const entry of jobs.publish) {
     assert.doesNotMatch(entry, /continue-on-error: true|always\(\)/);
   }

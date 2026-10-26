@@ -317,6 +317,39 @@ export type AgentcardPreparedProcessor =
   | 'adyen';
 
 /**
+ * Let a browser attached to the item's vault sign in with a stored passkey. Only
+ * invoke when the item advertises `arm_passkey`. Returns immediately; there is no
+ * time limit. While armed, when a page in that browser whose origin matches the
+ * passkey's relying party asks for a passkey (`navigator.credentials.get`,
+ * including autofill requests made at page load), Kernel answers with this
+ * passkey. The private key never enters the browser: Kernel signs on its servers,
+ * using the origin Chrome reports for the requesting frame. Arming a passkey for a
+ * relying party replaces any passkey armed earlier in the browser for the same
+ * relying party. The arm lasts until `disarm_passkey`, the browser ends, the vault
+ * is detached, or the item or field is deleted. Drive the sign-in with your own
+ * browser tools and inspect the page to confirm it. A page opened in a new tab or
+ * window can run its first scripts before Kernel's handler attaches; if such a
+ * page asks for a passkey as soon as it loads, reload it. While armed, any script
+ * running on the relying party's pages can obtain a sign-in without user
+ * interaction, as with a password manager that fills automatically; disarm when
+ * the task is done. Passkeys report a signature counter of 0 and backup flags, as
+ * synced passkeys do.
+ */
+export interface ArmPasskeyVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  type: 'arm_passkey';
+
+  /**
+   * Passkey field to arm. Required when more than one passkey field holds a passkey.
+   */
+  field?: string;
+}
+
+/**
  * Authorize a Link or Kernel card using its existing purchase specification. Use
  * only after explicit user approval and when the item advertises authorize; follow
  * the advertised operation's description. For a Link card, pass browser_id and
@@ -764,6 +797,9 @@ export namespace CredentialAccountVaultItem {
       | 'collect'
       | 'prepare_checkout'
       | 'fill'
+      | 'arm_passkey'
+      | 'register_passkey'
+      | 'disarm_passkey'
       | '1pw_create_access_request'
       | '1pw_access_request_status'
       | '1pw_fill'
@@ -853,7 +889,7 @@ export interface CredentialVaultFieldDefinition {
    * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
    * private key), a lowercase `rpId` domain, and optional `username` and
    * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
-   * pages.
+   * pages; use arm_passkey to sign in with one and register_passkey to create one.
    */
   type: CredentialVaultFieldType;
 
@@ -889,7 +925,7 @@ export interface CredentialVaultFieldDefinitionInput {
    * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
    * private key), a lowercase `rpId` domain, and optional `username` and
    * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
-   * pages.
+   * pages; use arm_passkey to sign in with one and register_passkey to create one.
    */
   type: CredentialVaultFieldType;
 
@@ -932,7 +968,7 @@ export interface CredentialVaultFieldInput {
    * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
    * private key), a lowercase `rpId` domain, and optional `username` and
    * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
-   * pages.
+   * pages; use arm_passkey to sign in with one and register_passkey to create one.
    */
   type: CredentialVaultFieldType;
 
@@ -1005,7 +1041,7 @@ export interface CredentialVaultFieldState {
  * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
  * private key), a lowercase `rpId` domain, and optional `username` and
  * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
- * pages.
+ * pages; use arm_passkey to sign in with one and register_passkey to create one.
  */
 export type CredentialVaultFieldType = 'text' | 'email' | 'password' | 'totp' | 'passkey';
 
@@ -1139,6 +1175,9 @@ export namespace CredentialVaultItem {
       | 'collect'
       | 'prepare_checkout'
       | 'fill'
+      | 'arm_passkey'
+      | 'register_passkey'
+      | 'disarm_passkey'
       | '1pw_create_access_request'
       | '1pw_access_request_status'
       | '1pw_fill'
@@ -1275,6 +1314,26 @@ export interface CredentialVaultItemUpdateRequest {
    * read item.
    */
   expected_item_id?: string;
+}
+
+/**
+ * Stop a browser from using this item's passkeys: removes its armed passkeys and
+ * its pending registration into this item. Pages that already loaded keep Kernel's
+ * WebAuthn handler but get the browser's own behavior.
+ */
+export interface DisarmPasskeyVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  type: 'disarm_passkey';
+
+  /**
+   * Limit disarming to one passkey field. Omit to disarm every passkey field of the
+   * item.
+   */
+  field?: string;
 }
 
 /**
@@ -1770,7 +1829,7 @@ export interface ManagedAuthCredentialVaultField {
    * `credentialId`, `userHandle` (at most 64 bytes), and `key` (a PKCS#8 ECDSA P-256
    * private key), a lowercase `rpId` domain, and optional `username` and
    * `userDisplayName`. Other CXF members are ignored. Passkeys are never filled into
-   * pages.
+   * pages; use arm_passkey to sign in with one and register_passkey to create one.
    */
   type: CredentialVaultFieldType;
 }
@@ -2235,6 +2294,22 @@ export interface OnePasswordRequestAccessVaultItemOperationRequest {
   reason?: string;
 }
 
+export interface PasskeyVaultItemOperationResult {
+  /**
+   * armed means the browser will answer matching passkey requests; it does not mean
+   * a page has asked yet. disarmed means the browser no longer uses this item's
+   * passkeys.
+   */
+  status: 'armed' | 'disarmed';
+
+  type: 'arm_passkey' | 'register_passkey' | 'disarm_passkey';
+
+  /**
+   * Relying party the armed passkey answers for. Returned by arm_passkey.
+   */
+  rp_id?: string;
+}
+
 /**
  * Prepare an unused AgentCard card for a supported checkout. Deliver the returned
  * approval URL and keep the approval page open. Poll the item until
@@ -2254,6 +2329,35 @@ export interface PrepareCheckoutVaultItemOperationRequest {
   checkout: VaultCheckoutContext;
 
   type: 'prepare_checkout';
+}
+
+/**
+ * Let a browser attached to the item's vault create a passkey on a website and
+ * store it in an empty passkey field. Only invoke when the item advertises
+ * `register_passkey`; declare the field first, for example by adding an optional
+ * passkey field with a credential update. Returns immediately; there is no time
+ * limit. The next passkey a page in that browser creates
+ * (`navigator.credentials.create`) is generated by Kernel, stored in the field,
+ * and only then returned to the page, so the website never receives a passkey
+ * Kernel failed to store. Each browser has one pending registration; a later
+ * `register_passkey` replaces it. Drive the website's "add a passkey" flow with
+ * your own browser tools, then confirm by reading the item (the field reports
+ * `has_value`) or its `credential_passkey_registered` event, and by signing in
+ * with `arm_passkey`. Only ES256 passkeys are created.
+ */
+export interface RegisterPasskeyVaultItemOperationRequest {
+  /**
+   * Browser session ID, not a reusable browser name.
+   */
+  browser_id: string;
+
+  type: 'register_passkey';
+
+  /**
+   * Empty passkey field to store the new passkey in. Required when more than one
+   * passkey field is empty.
+   */
+  field?: string;
 }
 
 /**
@@ -2501,6 +2605,9 @@ export namespace VaultItem {
         | 'collect'
         | 'prepare_checkout'
         | 'fill'
+        | 'arm_passkey'
+        | 'register_passkey'
+        | 'disarm_passkey'
         | '1pw_create_access_request'
         | '1pw_access_request_status'
         | '1pw_fill'
@@ -2595,6 +2702,9 @@ export namespace VaultItem {
         | 'collect'
         | 'prepare_checkout'
         | 'fill'
+        | 'arm_passkey'
+        | 'register_passkey'
+        | 'disarm_passkey'
         | '1pw_create_access_request'
         | '1pw_access_request_status'
         | '1pw_fill'
@@ -2674,9 +2784,9 @@ export interface VaultItemEvent {
 }
 
 /**
- * Authorization and preparation return the existing item shape. Fill returns a
- * value-free result; WebMCP invocation returns the tool's output. Neither persists
- * transient outcomes on the item.
+ * Authorization and preparation return the existing item shape. Fill and passkey
+ * operations return value-free results; WebMCP invocation returns the tool's
+ * output. None persist transient outcomes on the item.
  */
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
@@ -2684,6 +2794,7 @@ export type VaultItemOperationResponse =
   | CredentialAccountVaultItem
   | CredentialVaultItem
   | FillVaultItemOperationResult
+  | PasskeyVaultItemOperationResult
   | OnePasswordFillVaultItemOperationResult
   | WebmcpInvokeVaultItemOperationResult;
 
@@ -2766,6 +2877,9 @@ export namespace VaultItemOperationResponse {
         | 'collect'
         | 'prepare_checkout'
         | 'fill'
+        | 'arm_passkey'
+        | 'register_passkey'
+        | 'disarm_passkey'
         | '1pw_create_access_request'
         | '1pw_access_request_status'
         | '1pw_fill'
@@ -2860,6 +2974,9 @@ export namespace VaultItemOperationResponse {
         | 'collect'
         | 'prepare_checkout'
         | 'fill'
+        | 'arm_passkey'
+        | 'register_passkey'
+        | 'disarm_passkey'
         | '1pw_create_access_request'
         | '1pw_access_request_status'
         | '1pw_fill'
@@ -3268,6 +3385,9 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.CollectVaultItemOperationRequest
   | ItemPerformOperationParams.PrepareCheckoutVaultItemOperationRequest
   | ItemPerformOperationParams.FillVaultItemOperationRequest
+  | ItemPerformOperationParams.ArmPasskeyVaultItemOperationRequest
+  | ItemPerformOperationParams.RegisterPasskeyVaultItemOperationRequest
+  | ItemPerformOperationParams.DisarmPasskeyVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRequestAccessVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordPollAccessVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
@@ -3433,6 +3553,75 @@ export declare namespace ItemPerformOperationParams {
      * adapts to the length of the values instead. Accepted for compatibility.
      */
     timeout_ms?: number;
+  }
+
+  export interface ArmPasskeyVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param
+     */
+    type: 'arm_passkey';
+
+    /**
+     * Body param: Passkey field to arm. Required when more than one passkey field
+     * holds a passkey.
+     */
+    field?: string;
+  }
+
+  export interface RegisterPasskeyVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param
+     */
+    type: 'register_passkey';
+
+    /**
+     * Body param: Empty passkey field to store the new passkey in. Required when more
+     * than one passkey field is empty.
+     */
+    field?: string;
+  }
+
+  export interface DisarmPasskeyVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Browser session ID, not a reusable browser name.
+     */
+    browser_id: string;
+
+    /**
+     * Body param
+     */
+    type: 'disarm_passkey';
+
+    /**
+     * Body param: Limit disarming to one passkey field. Omit to disarm every passkey
+     * field of the item.
+     */
+    field?: string;
   }
 
   export interface OnePasswordRequestAccessVaultItemOperationRequest {
@@ -3852,6 +4041,7 @@ export declare namespace Items {
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
     type AgentcardPreparedProcessor as AgentcardPreparedProcessor,
+    type ArmPasskeyVaultItemOperationRequest as ArmPasskeyVaultItemOperationRequest,
     type AuthorizeVaultItemOperationRequest as AuthorizeVaultItemOperationRequest,
     type CardVaultItemSpec as CardVaultItemSpec,
     type CardVaultItemState as CardVaultItemState,
@@ -3873,6 +4063,7 @@ export declare namespace Items {
     type CredentialVaultItemSpecUpdate as CredentialVaultItemSpecUpdate,
     type CredentialVaultItemState as CredentialVaultItemState,
     type CredentialVaultItemUpdateRequest as CredentialVaultItemUpdateRequest,
+    type DisarmPasskeyVaultItemOperationRequest as DisarmPasskeyVaultItemOperationRequest,
     type FillVaultItemOperationRequest as FillVaultItemOperationRequest,
     type FillVaultItemOperationResult as FillVaultItemOperationResult,
     type KernelCardState as KernelCardState,
@@ -3898,7 +4089,9 @@ export declare namespace Items {
     type OnePasswordOAuthAction as OnePasswordOAuthAction,
     type OnePasswordRecoverVaultItemOperationRequest as OnePasswordRecoverVaultItemOperationRequest,
     type OnePasswordRequestAccessVaultItemOperationRequest as OnePasswordRequestAccessVaultItemOperationRequest,
+    type PasskeyVaultItemOperationResult as PasskeyVaultItemOperationResult,
     type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
+    type RegisterPasskeyVaultItemOperationRequest as RegisterPasskeyVaultItemOperationRequest,
     type RestartVerificationVaultItemOperationRequest as RestartVerificationVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,

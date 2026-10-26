@@ -515,6 +515,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardPreparedProcessor</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ArmPasskeyVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AuthorizeVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CardVaultItemState</a></code>
@@ -536,6 +537,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultItemSpecUpdate</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">CredentialVaultItemUpdateRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">DisarmPasskeyVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">FillVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCardState</a></code>
@@ -561,7 +563,9 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordOAuthAction</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRecoverVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRequestAccessVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">PasskeyVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">PrepareCheckoutVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">RegisterPasskeyVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">RestartVerificationVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
