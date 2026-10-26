@@ -38,6 +38,17 @@ jobs:
             echo "Skipping non-stable SDK version: $version"
             exit 0
           fi
+          # A just-published version can take a few minutes to become installable.
+          for attempt in $(seq 1 30); do
+            if [[ "$(npm view "@onkernel/sdk@$version" version 2>/dev/null)" == "$version" ]]; then
+              break
+            fi
+            if [[ "$attempt" == 30 ]]; then
+              echo "::error::@onkernel/sdk@$version is not available on npm after 15 minutes."
+              exit 1
+            fi
+            sleep 30
+          done
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -104,14 +115,21 @@ jobs:
           if git show-ref --verify --quiet "refs/remotes/origin/$UPDATE_BRANCH"; then
             echo "update_sha=$(git rev-parse "origin/$UPDATE_BRANCH")" >> "$GITHUB_OUTPUT"
             git switch --track "origin/$UPDATE_BRANCH"
-            if ! git merge origin/main --no-edit; then
-              echo "::error::$UPDATE_BRANCH conflicts with main. Resolve the conflicts on that branch, or delete it to start fresh, then rerun this workflow."
-              exit 1
+            if ! git rebase origin/main; then
+              git rebase --abort
+              # The agent covers everything since main's SDK version, so a bot-only
+              # branch can be regenerated from main. Human commits must be kept.
+              if git log --no-merges --format=%ae "origin/main..origin/$UPDATE_BRANCH" \
+                | grep -qvxF '260533166+kernel-internal[bot]@users.noreply.github.com'; then
+                echo "::error::$UPDATE_BRANCH has human commits that conflict with main. Resolve the conflicts on that branch, then rerun this workflow."
+                exit 1
+              fi
+              echo "::warning::$UPDATE_BRANCH conflicts with main; regenerating it from main."
+              git switch -C "$UPDATE_BRANCH" origin/main
             fi
           else
             git switch -c "$UPDATE_BRANCH" origin/main
           fi
-          echo "agent_base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
           old_version=$(jq -er '.dependencies["@onkernel/sdk"]' package.json)
           if [[ "$old_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] &&
@@ -203,9 +221,9 @@ jobs:
         id: snapshot
         working-directory: mcp
         env:
-          AGENT_BASE: ${{ steps.prepare.outputs.agent_base }}
+          MAIN_SHA: ${{ steps.prepare.outputs.main_sha }}
         run: |
-          git reset -q --soft "$AGENT_BASE"
+          git reset -q --soft "$MAIN_SHA"
           git add -A
           git diff --cached --name-only --no-renames -z \
             | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
@@ -284,12 +302,7 @@ jobs:
         run: |
           git config user.name 'kernel-internal[bot]'
           git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
-          if [[ -n "$UPDATE_SHA" ]]; then
-            git switch -c "$UPDATE_BRANCH" "$UPDATE_SHA"
-            git merge --no-edit "$MAIN_SHA"
-          else
-            git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
-          fi
+          git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
           git apply --index "$RUNNER_TEMP/mcp-coverage-update/changes.patch"
           git diff --cached --name-only --no-renames -z \
             | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
@@ -325,7 +338,7 @@ jobs:
             exit 0
           fi
           gh auth setup-git
-          git push origin "$UPDATE_BRANCH"
+          git push --force-with-lease="$UPDATE_BRANCH:$UPDATE_SHA" origin "$UPDATE_BRANCH"
 
           body="$RUNNER_TEMP/mcp-coverage-pr.md"
           {
