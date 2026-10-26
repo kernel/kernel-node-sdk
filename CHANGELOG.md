@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.131.0](https://github.com/kernel/kernel-node-sdk/compare/v0.130.0...v0.131.0) (2026-10-26)
+
+
+### Features
+
+* Arm vault passkeys in browsers and sign WebAuthn requests in metro-api ([1423392](https://github.com/kernel/kernel-node-sdk/commit/14233922402fca4668216fc64bf222ab9947ad60))
+
 ## [0.130.0](https://github.com/kernel/kernel-node-sdk/compare/v0.129.0...v0.130.0) (2026-10-24)
 
 
