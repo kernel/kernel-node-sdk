@@ -111,7 +111,10 @@ test('publishing runs in a separate job that never executes repository code', ()
   assert.match(apply, /100644\|100755\|000000/);
   // Publishing rebuilds the exact head the changes were validated on, so human
   // commits on the update branch are never squashed or dropped.
-  assert.match(apply, /if \[\[ "\$REBASED" == true \]\]; then\n\s+git switch -c \S+ "\$UPDATE_SHA"\n\s+git rebase -q "\$MAIN_SHA"/);
+  assert.match(
+    apply,
+    /if \[\[ "\$REBASED" == true \]\]; then\n\s+git switch -c \S+ "\$UPDATE_SHA"\n\s+git rebase -q "\$MAIN_SHA"/,
+  );
   assert.match(apply, /"\$\(git rev-parse 'HEAD\^\{tree\}'\)" != "\$AGENT_BASE_TREE"[\s\S]*exit 1/);
   assert.ok(apply.indexOf('AGENT_BASE_TREE') < apply.indexOf('git apply --index'));
   const mint = jobs.publish.indexOf(step('publish', 'Generate MCP repository token'));
