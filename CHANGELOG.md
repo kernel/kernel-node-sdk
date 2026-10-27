@@ -5,7 +5,7 @@
 
 ### Features
 
-* Refresh SDK custom-code seals after updater changes ([5182dac](https://github.com/kernel/kernel-node-sdk/commit/5182daceb2b512cde7982d7581eff3f989e16b53))
+* Return `last_used_at` on API keys ([5182dac](https://github.com/kernel/kernel-node-sdk/commit/5182daceb2b512cde7982d7581eff3f989e16b53))
 
 ## [0.131.0](https://github.com/kernel/kernel-node-sdk/compare/v0.130.0...v0.131.0) (2026-10-26)
 
