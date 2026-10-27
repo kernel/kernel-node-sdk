@@ -61,10 +61,12 @@ test('changes are restricted to the allowlist before validation', () => {
   assert.ok(jobs.generate.indexOf(snapshot) < jobs.generate.indexOf(verify));
   assert.match(snapshot, /mcp-update-disallowed-paths\.sh/);
   assert.match(snapshot, /git reset -q --hard\n\s+git clean -fdq/);
-  assert.match(snapshot, /MAIN_SHA: \$\{\{ steps\.prepare\.outputs\.main_sha \}\}/);
-  assert.match(snapshot, /git reset -q --soft "\$MAIN_SHA"\n\s+git add -A/);
+  assert.match(snapshot, /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/);
+  assert.match(snapshot, /git reset -q --soft "\$AGENT_BASE"\n\s+git add -A/);
   const prepare = step('generate', 'Prepare update branch and SDK diff');
   assert.match(prepare, /main_sha=\$\(git rev-parse origin\/main\)/);
+  assert.match(prepare, /git rebase origin\/main; then[\s\S]*else\n\s+echo "rebased=true"/);
+  assert.match(prepare, /agent_base=\$\(git rev-parse HEAD\)[\s\S]*agent_base_tree=/);
   // Only a branch without human commits may be regenerated from main.
   assert.match(
     prepare,
@@ -107,6 +109,11 @@ test('publishing runs in a separate job that never executes repository code', ()
   assert.match(apply, /git apply --index "\$RUNNER_TEMP\/mcp-coverage-update\/changes\.patch"/);
   assert.match(apply, /mcp-update-disallowed-paths\.sh/);
   assert.match(apply, /100644\|100755\|000000/);
+  // Publishing rebuilds the exact head the changes were validated on, so human
+  // commits on the update branch are never squashed or dropped.
+  assert.match(apply, /if \[\[ "\$REBASED" == true \]\]; then\n\s+git switch -c \S+ "\$UPDATE_SHA"\n\s+git rebase -q "\$MAIN_SHA"/);
+  assert.match(apply, /"\$\(git rev-parse 'HEAD\^\{tree\}'\)" != "\$AGENT_BASE_TREE"[\s\S]*exit 1/);
+  assert.ok(apply.indexOf('AGENT_BASE_TREE') < apply.indexOf('git apply --index'));
   const mint = jobs.publish.indexOf(step('publish', 'Generate MCP repository token'));
   assert.ok(jobs.publish.indexOf(apply) < mint);
   assert.doesNotMatch(jobs.publish.slice(0, mint).join(''), /GH_TOKEN:/);
