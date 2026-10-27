@@ -156,6 +156,12 @@ export class Items extends APIResource {
    * `failed` or `unknown`. Fill never submits the page, so it is safe to retry after
    * a failure, an `unknown` outcome, or a transport error.
    *
+   * Connected Kernel wallets may advertise add_payment_method, which returns a
+   * single-use hosted card_enrollment link for a card, and remove_payment_method,
+   * which removes one card without affecting the others. Both operations require
+   * vaults:write in addition to vaults:use on the vault for scoped API keys, and
+   * return 403 without both permissions.
+   *
    * @example
    * ```ts
    * const vaultItemOperationResponse =
@@ -188,8 +194,10 @@ export class Items extends APIResource {
    * Provider-specific authorization requirements and retry behavior are described in
    * the item's request schema. Do not use credential items to store, collect, or
    * fill credit card data, including card numbers (PANs), security codes (CVV/CVC),
-   * or expiration dates. Use wallet and card item types for credit cards and payment
-   * checkout instead.
+   * or expiration dates. Use wallet, payment_request and card item types for credit
+   * cards and payment checkout instead. Where enabled, Link and Kernel purchases can
+   * be payment_request items parented by their wallet; card items remain supported
+   * for them and for AgentCard reusable cards.
    *
    * @example
    * ```ts
@@ -204,6 +212,31 @@ export class Items extends APIResource {
     const { id_or_name, ...body } = params;
     return this._client.put(path`/vaults/${id_or_name}/items/${key}`, { body, ...options });
   }
+}
+
+/**
+ * Start hosted enrollment of a card in a connected Kernel wallet, including its
+ * first card, only when the wallet advertises add_payment_method. Returns a new
+ * payment method in pending_enrollment with a single-use card_enrollment URL for
+ * the cardholder. Card details go directly to the card vault and are never
+ * accepted by this API. Each call creates a separate link that expires after 30
+ * minutes; a failed or expired enrollment does not affect the wallet's other
+ * payment methods. Scoped API keys require vaults:write in addition to vaults:use
+ * on this vault; otherwise the operation returns 403.
+ */
+export interface AddPaymentMethodVaultItemOperationRequest {
+  type: 'add_payment_method';
+}
+
+/**
+ * The payment method created in pending_enrollment. Deliver action.url to the
+ * cardholder; it is a single-use capability and must not be logged. Observe
+ * completion through the wallet's payment_methods expansion.
+ */
+export interface AddPaymentMethodVaultItemOperationResult {
+  payment_method: VaultPaymentMethod;
+
+  type: 'add_payment_method';
 }
 
 /**
@@ -805,7 +838,9 @@ export namespace CredentialAccountVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
-      | 'webmcp_invoke';
+      | 'webmcp_invoke'
+      | 'add_payment_method'
+      | 'remove_payment_method';
   }
 }
 
@@ -1183,7 +1218,9 @@ export namespace CredentialVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
-      | 'webmcp_invoke';
+      | 'webmcp_invoke'
+      | 'add_payment_method'
+      | 'remove_payment_method';
   }
 
   export interface OnePasswordAccessApprovalAction {
@@ -1210,22 +1247,22 @@ export namespace CredentialVaultItem {
  * path fails, collect a Kernel-hosted credential item instead. Never automatically
  * retry an uncertain 1Password request. After an uncertain fill, inspect the page
  * to see the result of the fill. Do not use credential items for credit card data.
- * Use wallet and card item types instead. Kernel credentials declare fields and
- * may enter pending_collection. 1Password credentials either reference a connected
- * credential_account or store a supplied access token and integration key
- * encrypted on the item. They store no login values or selectors. Managed auth
- * credentials reference a managed auth connection in the same project that already
- * has a saved credential, and read it at fill time; they store no values.
- * Repeating the original creation request returns the current item without
+ * Use wallet, payment_request and card item types instead. Kernel credentials
+ * declare fields and may enter pending_collection. 1Password credentials either
+ * reference a connected credential_account or store a supplied access token and
+ * integration key encrypted on the item. They store no login values or selectors.
+ * Managed auth credentials reference a managed auth connection in the same project
+ * that already has a saved credential, and read it at fill time; they store no
+ * values. Repeating the original creation request returns the current item without
  * overwriting later state. A different request at the same key returns 409.
  */
 export interface CredentialVaultItemRequest {
   /**
    * Credential fields are for login and other non-payment credentials. Do not store,
-   * collect, or fill credit card data in credential items. Use wallet and card item
-   * types for credit cards and payment checkout instead. Field order is preserved in
-   * the user-facing collection form, so list fields in the same top-to-bottom order
-   * as the website.
+   * collect, or fill credit card data in credential items. Use wallet,
+   * payment_request and card item types for credit cards and payment checkout
+   * instead. Field order is preserved in the user-facing collection form, so list
+   * fields in the same top-to-bottom order as the website.
    */
   spec: CredentialVaultItemSpecInput;
 
@@ -1243,10 +1280,10 @@ export type CredentialVaultItemSpec =
 
 /**
  * Credential fields are for login and other non-payment credentials. Do not store,
- * collect, or fill credit card data in credential items. Use wallet and card item
- * types for credit cards and payment checkout instead. Field order is preserved in
- * the user-facing collection form, so list fields in the same top-to-bottom order
- * as the website.
+ * collect, or fill credit card data in credential items. Use wallet,
+ * payment_request and card item types for credit cards and payment checkout
+ * instead. Field order is preserved in the user-facing collection form, so list
+ * fields in the same top-to-bottom order as the website.
  */
 export type CredentialVaultItemSpecInput =
   | KernelCredentialVaultItemSpecInput
@@ -1453,7 +1490,24 @@ export interface KernelCardState {
    */
   domains?: Array<string>;
 
+  /**
+   * Whether payment_method_id can still fund this purchase. unavailable means the
+   * method is being removed or awaits recovery, so authorization, fill and
+   * confirmation are refused until it recovers. removed means the method was removed
+   * from its wallet, so this purchase can no longer be paid; create a new purchase
+   * with another method. Neither changes status, which still reports what already
+   * happened to this purchase.
+   */
+  funding_status?: 'available' | 'unavailable' | 'removed';
+
   masks?: KernelCardState.Masks;
+
+  /**
+   * Wallet-scoped ID of the payment method funding this purchase. It is bound when
+   * the purchase is created and never changes; purchases created before payment
+   * methods could be selected report the wallet's default card, card.
+   */
+  payment_method_id?: string;
 
   status_reason?: string;
 }
@@ -1534,6 +1588,15 @@ export interface KernelCardVaultItemSpec {
    * one-time code is issued for the merchant's country.
    */
   merchant_country?: string;
+
+  /**
+   * Wallet-scoped payment method ID from the wallet's payment_methods expansion.
+   * Omission selects the wallet's default card, ID card, for compatibility with
+   * existing requests; it never falls back to another method, and a wallet without a
+   * default card requires the ID. The purchase is bound to the method's enrolled
+   * card and network token, so later operations cannot switch funding.
+   */
+  payment_method_id?: string;
 }
 
 export interface KernelCredentialVaultItemSpec {
@@ -1554,10 +1617,10 @@ export interface KernelCredentialVaultItemSpec {
 
 /**
  * Credential fields are for login and other non-payment credentials. Do not store,
- * collect, or fill credit card data in credential items. Use wallet and card item
- * types for credit cards and payment checkout instead. Field order is preserved in
- * the user-facing collection form, so list fields in the same top-to-bottom order
- * as the website.
+ * collect, or fill credit card data in credential items. Use wallet,
+ * payment_request and card item types for credit cards and payment checkout
+ * instead. Field order is preserved in the user-facing collection form, so list
+ * fields in the same top-to-bottom order as the website.
  */
 export interface KernelCredentialVaultItemSpecInput {
   /**
@@ -1592,16 +1655,80 @@ export interface KernelCredentialVaultItemState {
   status: 'pending_collection' | 'ready';
 }
 
+/**
+ * One live purchase funded by the Kernel wallet payment method named by
+ * payment_method_id. The method must be active and eligible when the request is
+ * created. The purchase is bound to that method; later operations cannot switch
+ * funding, and removing the method makes the purchase unusable rather than moving
+ * it to another card. Approval, issuance, fill and the alias fallback behave as
+ * described for KernelCardVaultItemSpec.
+ */
+export interface KernelPaymentRequestVaultItemSpec {
+  /**
+   * Integer amount in minor currency units (at most 1000000), bound to the one-time
+   * code.
+   */
+  amount: number;
+
+  /**
+   * ISO 4217 code. Supported: aud, brl, cad, chf, czk, dkk, eur, gbp, hkd, inr, jpy,
+   * krw, mxn, nok, nzd, pln, sek, sgd, usd, zar.
+   */
+  currency: string;
+
+  merchant_name: string;
+
+  /**
+   * Merchant checkout URL. Fill is allowed only on this URL's origin.
+   */
+  merchant_url: string;
+
+  /**
+   * Payment method ID from the wallet's payment_methods expansion.
+   */
+  payment_method_id: string;
+
+  provider: 'kernel';
+
+  /**
+   * Key of the Kernel wallet item that owns the payment method.
+   */
+  wallet: string;
+
+  /**
+   * Actual merchant category when known. Omit rather than invent a category.
+   */
+  merchant_category?: string;
+
+  /**
+   * Actual merchant MCC when known. Omit rather than invent a code. 0000 is not
+   * accepted.
+   */
+  merchant_category_code?: string;
+
+  /**
+   * The merchant's ISO 3166-1 alpha-2 country code. Required for Visa cards, whose
+   * one-time code is issued for the merchant's country.
+   */
+  merchant_country?: string;
+}
+
 export interface KernelWalletState {
   provider: 'kernel';
 
   /**
-   * pending_authorization asks the cardholder to use the card_enrollment action.
-   * connected means the card is stored; it can pay once payment_methods reports
-   * capabilities.single_use_card.eligible. reconnect_required asks the cardholder to
-   * use a new card_enrollment action after an uncertain enrollment was safely
-   * removed. degraded means the enrollment outcome is unknown and the wallet must be
-   * deleted before adding another card.
+   * connected means the wallet is usable. It holds zero or more cards as payment
+   * methods, listed by the payment_methods expansion, and each can pay once it
+   * reports capabilities.single_use_card.eligible. A wallet with no cards, before
+   * its first card or after its last is removed, is still connected. Where the
+   * wallet advertises add_payment_method and remove_payment_method, use them to
+   * manage cards. Otherwise the wallet enrolls one default card when created; until
+   * that card is enrolled the wallet reports pending_authorization with the card's
+   * card_enrollment action, or degraded when the card's enrollment outcome is
+   * unknown and the wallet must be deleted before adding another card.
+   * reconnect_required appears only on a wallet created before cards were payment
+   * methods and not yet upgraded. Reads preserve its stored state until the operator
+   * upgrade; payment and deletion requests are refused until then.
    */
   status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'degraded';
 
@@ -1609,17 +1736,21 @@ export interface KernelWalletState {
 }
 
 /**
- * One card stored with Kernel-managed credentials. Creation returns a
- * card*enrollment action: the cardholder enters the card and their email on a
- * Kernel-hosted page, and the wallet connects once the card is stored. Kernel then
- * enrolls it for an agentic network token when the issuer supports it. The card
- * number never reaches Kernel. The connected wallet's payment_methods expansion
- * lists the card; capabilities.single_use_card.eligible is false, with a
- * network_token*\* reason, until the card has a network token, and authorize
- * returns 400 for such a card unless Kernel supports checkout delivery without a
- * network token for that card. In that case, fill types the checkout details. Visa
- * purchases require the cardholder to complete a spend_approval action before
- * Kernel issues a one-time code; Mastercard purchases need no hosted approval.
+ * Cards stored with Kernel-managed credentials, each a payment method of the
+ * wallet. Each card is enrolled through a card*enrollment action: the cardholder
+ * enters the card and their email on a Kernel-hosted page. Where the wallet
+ * advertises add_payment_method, creation returns an empty connected wallet and
+ * each card is enrolled with that operation. Otherwise creation returns the
+ * wallet's default card's card_enrollment action, and the wallet connects once
+ * that card is stored. Kernel then enrolls each card for an agentic network token
+ * when the issuer supports it. The card number never reaches Kernel. The connected
+ * wallet's payment_methods expansion lists the cards;
+ * capabilities.single_use_card.eligible is false, with a network_token*\* reason,
+ * until the card has a network token, and authorize returns 400 for such a card
+ * unless Kernel supports checkout delivery without a network token for that card.
+ * In that case, fill types the checkout details. Visa purchases require the
+ * cardholder to complete a spend_approval action before Kernel issues a one-time
+ * code; Mastercard purchases need no hosted approval.
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
@@ -2311,6 +2442,283 @@ export interface PasskeyVaultItemOperationResult {
 }
 
 /**
+ * One purchase from a Link or Kernel wallet, parented by that wallet. It has the
+ * same lifecycle, operations and fill behavior as a Link or Kernel card item.
+ * AgentCard reusable cards remain card items.
+ */
+export interface PaymentRequestVaultItem {
+  id: string;
+
+  available_expansions: Array<PaymentRequestVaultItem.AvailableExpansion>;
+
+  available_operations: Array<PaymentRequestVaultItem.AvailableOperation>;
+
+  created_at: string;
+
+  /**
+   * Immutable item key assigned when the item is created.
+   */
+  key: string;
+
+  /**
+   * Live Link card request. Test-mode card creation is not supported. The spec can
+   * be changed with PATCH until the card is authorized at a checkout. Authorize it
+   * with the browser at final checkout: Kernel inspects the checkout through WebMCP
+   * and internally chooses a merchant-bound Link Pay Token when supported or a
+   * virtual card otherwise. Callers never receive or choose how the credential is
+   * delivered.
+   */
+  spec: PaymentRequestVaultItemSpec;
+
+  /**
+   * Issued Link cards retain encrypted card material for the fill operation. Link
+   * cards do not expose aliases or support egress substitution.
+   */
+  state: PaymentRequestVaultItemState;
+
+  type: 'payment_request';
+
+  updated_at: string;
+
+  action?: VaultItemAction;
+
+  expires_at?: string;
+}
+
+export namespace PaymentRequestVaultItem {
+  /**
+   * Live data that can currently be requested by passing its type to the item GET
+   * expand parameter.
+   */
+  export interface AvailableExpansion {
+    description: string;
+
+    type: 'payment_methods' | 'link_user_info' | 'link_shipping_addresses';
+  }
+
+  /**
+   * An operation that is currently valid for this item. Read the description before
+   * invoking it through the item operations endpoint.
+   */
+  export interface AvailableOperation {
+    description: string;
+
+    type:
+      | 'authorize'
+      | 'restart_verification'
+      | 'confirm_transaction'
+      | 'collect'
+      | 'prepare_checkout'
+      | 'fill'
+      | 'arm_passkey'
+      | 'register_passkey'
+      | 'disarm_passkey'
+      | '1pw_create_access_request'
+      | '1pw_access_request_status'
+      | '1pw_fill'
+      | '1pw_recover'
+      | '1pw_update_access_token'
+      | 'webmcp_invoke'
+      | 'add_payment_method'
+      | 'remove_payment_method';
+  }
+}
+
+/**
+ * Live Link card request. Test-mode card creation is not supported. The spec can
+ * be changed with PATCH until the card is authorized at a checkout. Authorize it
+ * with the browser at final checkout: Kernel inspects the checkout through WebMCP
+ * and internally chooses a merchant-bound Link Pay Token when supported or a
+ * virtual card otherwise. Callers never receive or choose how the credential is
+ * delivered.
+ */
+export type PaymentRequestVaultItemSpec =
+  | PaymentRequestVaultItemSpec.LinkCardVaultItemSpec
+  | KernelPaymentRequestVaultItemSpec;
+
+export namespace PaymentRequestVaultItemSpec {
+  /**
+   * Live Link card request. Test-mode card creation is not supported. The spec can
+   * be changed with PATCH until the card is authorized at a checkout. Authorize it
+   * with the browser at final checkout: Kernel inspects the checkout through WebMCP
+   * and internally chooses a merchant-bound Link Pay Token when supported or a
+   * virtual card otherwise. Callers never receive or choose how the credential is
+   * delivered.
+   */
+  export interface LinkCardVaultItemSpec {
+    /**
+     * Integer amount in minor currency units, at most 50000. With recurring, the
+     * spending limit per period, not a lifetime total.
+     */
+    amount: number;
+
+    context: string;
+
+    currency: string;
+
+    merchant_name: string;
+
+    merchant_url: string;
+
+    /**
+     * Payment-method ID returned by the referenced wallet's payment-method listing.
+     * The provider decides whether the selected funding method can satisfy the card
+     * request.
+     */
+    payment_method_id: string;
+
+    provider: 'link';
+
+    /**
+     * Connected Link wallet item key.
+     */
+    wallet: string;
+
+    line_items?: Array<LinkCardVaultItemSpec.LineItem>;
+
+    metadata?: { [key: string]: string };
+
+    /**
+     * Recurring terms for a subscription or other repeated purchase. The amount
+     * becomes the spending limit for each period of interval_count intervals, for
+     * example every 2 weeks. The merchant schedules charges. The card stays ready
+     * after each charge until it expires or is deleted; do not create a new card each
+     * period. Deleting the card, its wallet or its vault first cancels the credential
+     * with Link, so later charges decline; if Link cannot be reached, deletion returns
+     * 409 provider_revocation_pending and should be retried. Deletion does not cancel
+     * the subscription with the merchant. Recurring terms cannot be changed once the
+     * card is authorized.
+     */
+    recurring?: LinkCardVaultItemSpec.Recurring;
+
+    totals?: Array<LinkCardVaultItemSpec.Total>;
+  }
+
+  export namespace LinkCardVaultItemSpec {
+    export interface LineItem {
+      name: string;
+
+      description?: string;
+
+      image_url?: string;
+
+      product_url?: string;
+
+      quantity?: number;
+
+      sku?: string;
+
+      totals?: Array<LineItem.Total>;
+
+      /**
+       * Unit amount in minor currency units.
+       */
+      unit_amount?: number;
+
+      url?: string;
+    }
+
+    export namespace LineItem {
+      export interface Total {
+        /**
+         * Total amount in minor currency units.
+         */
+        amount: number;
+
+        display_text: string;
+
+        type: string;
+      }
+    }
+
+    /**
+     * Recurring terms for a subscription or other repeated purchase. The amount
+     * becomes the spending limit for each period of interval_count intervals, for
+     * example every 2 weeks. The merchant schedules charges. The card stays ready
+     * after each charge until it expires or is deleted; do not create a new card each
+     * period. Deleting the card, its wallet or its vault first cancels the credential
+     * with Link, so later charges decline; if Link cannot be reached, deletion returns
+     * 409 provider_revocation_pending and should be retried. Deletion does not cancel
+     * the subscription with the merchant. Recurring terms cannot be changed once the
+     * card is authorized.
+     */
+    export interface Recurring {
+      interval: 'day' | 'week' | 'month' | 'year';
+
+      /**
+       * Number of intervals per period. Link defaults it to 1.
+       */
+      interval_count?: number;
+    }
+
+    export interface Total {
+      /**
+       * Total amount in minor currency units.
+       */
+      amount: number;
+
+      display_text: string;
+
+      type: string;
+    }
+  }
+}
+
+/**
+ * Issued Link cards retain encrypted card material for the fill operation. Link
+ * cards do not expose aliases or support egress substitution.
+ */
+export type PaymentRequestVaultItemState = PaymentRequestVaultItemState.LinkCardState | KernelCardState;
+
+export namespace PaymentRequestVaultItemState {
+  /**
+   * Issued Link cards retain encrypted card material for the fill operation. Link
+   * cards do not expose aliases or support egress substitution.
+   */
+  export interface LinkCardState {
+    provider: 'link';
+
+    /**
+     * recovery_required means an original provider operation has an unresolved outcome
+     * and the card cannot be used. Reads keep observing a known provider request and
+     * may clear the recovery. To continue, delete this card and create a new one;
+     * deleting cancels the original request when its ID is known and keeps the
+     * recovery evidence. The user may see an approval request for the original card
+     * and should approve only the new one.
+     */
+    status:
+      | 'requested'
+      | 'pending_authorization'
+      | 'ready'
+      | 'consumed'
+      | 'expired'
+      | 'declined'
+      | 'recovery_required';
+
+    domains?: Array<string>;
+
+    masks?: LinkCardState.Masks;
+
+    status_reason?: string;
+  }
+
+  export namespace LinkCardState {
+    export interface Masks {
+      brand?: string;
+
+      last4?: string;
+
+      /**
+       * Last four digits of the network token presented to the merchant.
+       */
+      token_last4?: string;
+
+      [k: string]: string | undefined;
+    }
+  }
+}
+
+/**
  * Prepare an unused AgentCard card for a supported checkout. Deliver the returned
  * approval URL and keep the approval page open. Poll the item until
  * ready_to_submit, then submit native Pay before preparation.expires_at. Readiness
@@ -2358,6 +2766,34 @@ export interface RegisterPasskeyVaultItemOperationRequest {
    * passkey field is empty.
    */
   field?: string;
+}
+
+/**
+ * Remove one payment method from a Kernel wallet, only when the wallet advertises
+ * remove_payment_method. Removal deletes the stored card and blocks new purchases,
+ * fills and confirmations funded by it without affecting the wallet's other
+ * payment methods; the wallet stays connected even with no payment methods left. A
+ * purchase funded by the method with an unresolved outcome blocks removal with 409
+ * purchase_unresolved. If the provider outcome is uncertain the method stays in
+ * removal_pending and keeps refusing payments; retry the removal later. Removal is
+ * not proof that a payment did not occur. Scoped API keys require vaults:write in
+ * addition to vaults:use on this vault; otherwise the operation returns 403.
+ */
+export interface RemovePaymentMethodVaultItemOperationRequest {
+  /**
+   * ID from the wallet's payment_methods expansion.
+   */
+  payment_method_id: string;
+
+  type: 'remove_payment_method';
+}
+
+export interface RemovePaymentMethodVaultItemOperationResult {
+  payment_method_id: string;
+
+  status: 'removed';
+
+  type: 'remove_payment_method';
 }
 
 /**
@@ -2520,9 +2956,15 @@ export interface VaultFillFieldResult {
     | 'execution_failed';
 }
 
+/**
+ * One purchase from a Link or Kernel wallet, parented by that wallet. It has the
+ * same lifecycle, operations and fill behavior as a Link or Kernel card item.
+ * AgentCard reusable cards remain card items.
+ */
 export type VaultItem =
   | VaultItem.WalletVaultItem
   | VaultItem.CardVaultItem
+  | PaymentRequestVaultItem
   | CredentialAccountVaultItem
   | CredentialVaultItem;
 
@@ -2613,7 +3055,9 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
-        | 'webmcp_invoke';
+        | 'webmcp_invoke'
+        | 'add_payment_method'
+        | 'remove_payment_method';
     }
 
     /**
@@ -2710,7 +3154,9 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
-        | 'webmcp_invoke';
+        | 'webmcp_invoke'
+        | 'add_payment_method'
+        | 'remove_payment_method';
     }
   }
 }
@@ -2786,17 +3232,21 @@ export interface VaultItemEvent {
 /**
  * Authorization and preparation return the existing item shape. Fill and passkey
  * operations return value-free results; WebMCP invocation returns the tool's
- * output. None persist transient outcomes on the item.
+ * output. None persist transient outcomes on the item. Payment-method operations
+ * return the affected wallet payment method.
  */
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
   | VaultItemOperationResponse.CardVaultItem
+  | PaymentRequestVaultItem
   | CredentialAccountVaultItem
   | CredentialVaultItem
   | FillVaultItemOperationResult
   | PasskeyVaultItemOperationResult
   | OnePasswordFillVaultItemOperationResult
-  | WebmcpInvokeVaultItemOperationResult;
+  | WebmcpInvokeVaultItemOperationResult
+  | AddPaymentMethodVaultItemOperationResult
+  | RemovePaymentMethodVaultItemOperationResult;
 
 export namespace VaultItemOperationResponse {
   export interface WalletVaultItem {
@@ -2885,7 +3335,9 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
-        | 'webmcp_invoke';
+        | 'webmcp_invoke'
+        | 'add_payment_method'
+        | 'remove_payment_method';
     }
 
     /**
@@ -2982,7 +3434,9 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
-        | 'webmcp_invoke';
+        | 'webmcp_invoke'
+        | 'add_payment_method'
+        | 'remove_payment_method';
     }
   }
 }
@@ -2998,6 +3452,11 @@ export interface VaultPaymentMethod {
 
   display: VaultPaymentMethod.Display;
 
+  /**
+   * For Kernel wallets, true for the default card, ID card, which a Kernel card item
+   * that omits payment_method_id selects. Wallets created with payment methods
+   * enabled have no default card.
+   */
   is_default: boolean;
 
   /**
@@ -3009,6 +3468,27 @@ export interface VaultPaymentMethod {
    * Provider-neutral payment-method type normalized to lowercase.
    */
   type: string;
+
+  action?: VaultPaymentMethod.Action;
+
+  /**
+   * Expiry of a pending enrollment link.
+   */
+  expires_at?: string;
+
+  /**
+   * Kernel wallets only. pending_enrollment means a card_enrollment link is open;
+   * active means the card is stored and can pay when
+   * capabilities.single_use_card.eligible is true; removal_pending means removal
+   * started but the provider outcome is unknown, so retry remove_payment_method;
+   * recovery_required means either an enrollment outcome is unknown (remove the
+   * method), or the stored card cannot be read (contact support; removal is refused
+   * with 409). Consult status_reason to distinguish these cases. Absent for other
+   * providers.
+   */
+  status?: 'pending_enrollment' | 'active' | 'removal_pending' | 'recovery_required';
+
+  status_reason?: string;
 }
 
 export namespace VaultPaymentMethod {
@@ -3034,6 +3514,19 @@ export namespace VaultPaymentMethod {
     label?: string;
 
     last4?: string;
+  }
+
+  export interface Action {
+    name: 'card_enrollment';
+
+    url: string;
+
+    /**
+     * Secret bearer capability for embedded card capture with @onkernel/vault-react.
+     * Present only for Kernel wallets; never for AgentCard. Treat it like the
+     * enrollment URL and do not log or persist it in browser storage.
+     */
+    capture_token?: string;
   }
 }
 
@@ -3301,6 +3794,7 @@ export interface ItemRetrieveParams {
 
 export type ItemUpdateParams =
   | ItemUpdateParams.CardVaultItemUpdateRequest
+  | ItemUpdateParams.PaymentRequestVaultItemUpdateRequest
   | ItemUpdateParams.CredentialVaultItemUpdateRequest;
 
 export declare namespace ItemUpdateParams {
@@ -3324,6 +3818,28 @@ export declare namespace ItemUpdateParams {
      * Body param
      */
     type?: 'card';
+  }
+
+  export interface PaymentRequestVaultItemUpdateRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Live Link card request. Test-mode card creation is not supported.
+     * The spec can be changed with PATCH until the card is authorized at a checkout.
+     * Authorize it with the browser at final checkout: Kernel inspects the checkout
+     * through WebMCP and internally chooses a merchant-bound Link Pay Token when
+     * supported or a virtual card otherwise. Callers never receive or choose how the
+     * credential is delivered.
+     */
+    spec: PaymentRequestVaultItemSpec;
+
+    /**
+     * Body param
+     */
+    type: 'payment_request';
   }
 
   export interface CredentialVaultItemUpdateRequest {
@@ -3393,7 +3909,9 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
-  | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest;
+  | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
+  | ItemPerformOperationParams.AddPaymentMethodVaultItemOperationRequest
+  | ItemPerformOperationParams.RemovePaymentMethodVaultItemOperationRequest;
 
 export declare namespace ItemPerformOperationParams {
   export interface AuthorizeVaultItemOperationRequest {
@@ -3781,11 +4299,41 @@ export declare namespace ItemPerformOperationParams {
      */
     timeout_sec?: number;
   }
+
+  export interface AddPaymentMethodVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'add_payment_method';
+  }
+
+  export interface RemovePaymentMethodVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: ID from the wallet's payment_methods expansion.
+     */
+    payment_method_id: string;
+
+    /**
+     * Body param
+     */
+    type: 'remove_payment_method';
+  }
 }
 
 export type ItemUpsertParams =
   | ItemUpsertParams.WalletVaultItemRequest
   | ItemUpsertParams.CardVaultItemRequest
+  | ItemUpsertParams.PaymentRequestVaultItemRequest
   | ItemUpsertParams.CredentialAccountVaultItemRequest
   | ItemUpsertParams.CredentialVaultItemRequest;
 
@@ -3997,6 +4545,28 @@ export declare namespace ItemUpsertParams {
     type: 'card';
   }
 
+  export interface PaymentRequestVaultItemRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param: Live Link card request. Test-mode card creation is not supported.
+     * The spec can be changed with PATCH until the card is authorized at a checkout.
+     * Authorize it with the browser at final checkout: Kernel inspects the checkout
+     * through WebMCP and internally chooses a merchant-bound Link Pay Token when
+     * supported or a virtual card otherwise. Callers never receive or choose how the
+     * credential is delivered.
+     */
+    spec: PaymentRequestVaultItemSpec;
+
+    /**
+     * Body param
+     */
+    type: 'payment_request';
+  }
+
   export interface CredentialAccountVaultItemRequest {
     /**
      * Path param
@@ -4022,10 +4592,10 @@ export declare namespace ItemUpsertParams {
 
     /**
      * Body param: Credential fields are for login and other non-payment credentials.
-     * Do not store, collect, or fill credit card data in credential items. Use wallet
-     * and card item types for credit cards and payment checkout instead. Field order
-     * is preserved in the user-facing collection form, so list fields in the same
-     * top-to-bottom order as the website.
+     * Do not store, collect, or fill credit card data in credential items. Use wallet,
+     * payment_request and card item types for credit cards and payment checkout
+     * instead. Field order is preserved in the user-facing collection form, so list
+     * fields in the same top-to-bottom order as the website.
      */
     spec: CredentialVaultItemSpecInput;
 
@@ -4038,6 +4608,8 @@ export declare namespace ItemUpsertParams {
 
 export declare namespace Items {
   export {
+    type AddPaymentMethodVaultItemOperationRequest as AddPaymentMethodVaultItemOperationRequest,
+    type AddPaymentMethodVaultItemOperationResult as AddPaymentMethodVaultItemOperationResult,
     type AgentcardCheckoutAuthorization as AgentcardCheckoutAuthorization,
     type AgentcardCheckoutPreparation as AgentcardCheckoutPreparation,
     type AgentcardPreparedProcessor as AgentcardPreparedProcessor,
@@ -4071,6 +4643,7 @@ export declare namespace Items {
     type KernelCredentialVaultItemSpec as KernelCredentialVaultItemSpec,
     type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
+    type KernelPaymentRequestVaultItemSpec as KernelPaymentRequestVaultItemSpec,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
     type LinkShippingAddress as LinkShippingAddress,
@@ -4090,8 +4663,13 @@ export declare namespace Items {
     type OnePasswordRecoverVaultItemOperationRequest as OnePasswordRecoverVaultItemOperationRequest,
     type OnePasswordRequestAccessVaultItemOperationRequest as OnePasswordRequestAccessVaultItemOperationRequest,
     type PasskeyVaultItemOperationResult as PasskeyVaultItemOperationResult,
+    type PaymentRequestVaultItem as PaymentRequestVaultItem,
+    type PaymentRequestVaultItemSpec as PaymentRequestVaultItemSpec,
+    type PaymentRequestVaultItemState as PaymentRequestVaultItemState,
     type PrepareCheckoutVaultItemOperationRequest as PrepareCheckoutVaultItemOperationRequest,
     type RegisterPasskeyVaultItemOperationRequest as RegisterPasskeyVaultItemOperationRequest,
+    type RemovePaymentMethodVaultItemOperationRequest as RemovePaymentMethodVaultItemOperationRequest,
+    type RemovePaymentMethodVaultItemOperationResult as RemovePaymentMethodVaultItemOperationResult,
     type RestartVerificationVaultItemOperationRequest as RestartVerificationVaultItemOperationRequest,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
