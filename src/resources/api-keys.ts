@@ -137,6 +137,12 @@ export interface APIKey {
   expires_at: string | null;
 
   /**
+   * When the API key last authenticated a request, accurate to within about 20
+   * minutes. Null if the key has not been used since last-use tracking began.
+   */
+  last_used_at: string | null;
+
+  /**
    * Masked version of the API key
    */
   masked_key: string;
