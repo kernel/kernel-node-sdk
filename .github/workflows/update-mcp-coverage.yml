@@ -61,6 +61,8 @@ jobs:
       changed: ${{ steps.snapshot.outputs.changed }}
       main_sha: ${{ steps.prepare.outputs.main_sha }}
       update_sha: ${{ steps.prepare.outputs.update_sha }}
+      rebased: ${{ steps.prepare.outputs.rebased }}
+      agent_base_tree: ${{ steps.prepare.outputs.agent_base_tree }}
     env:
       SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
       SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
@@ -126,10 +128,16 @@ jobs:
               fi
               echo "::warning::$UPDATE_BRANCH conflicts with main; regenerating it from main."
               git switch -C "$UPDATE_BRANCH" origin/main
+            else
+              echo "rebased=true" >> "$GITHUB_OUTPUT"
             fi
           else
             git switch -c "$UPDATE_BRANCH" origin/main
           fi
+          # The agent's changes are published on top of this head, so human
+          # commits on the update branch keep their content and authorship.
+          echo "agent_base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "agent_base_tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
 
           old_version=$(jq -er '.dependencies["@onkernel/sdk"]' package.json)
           if [[ "$old_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] &&
@@ -221,9 +229,9 @@ jobs:
         id: snapshot
         working-directory: mcp
         env:
-          MAIN_SHA: ${{ steps.prepare.outputs.main_sha }}
+          AGENT_BASE: ${{ steps.prepare.outputs.agent_base }}
         run: |
-          git reset -q --soft "$MAIN_SHA"
+          git reset -q --soft "$AGENT_BASE"
           git add -A
           git diff --cached --name-only --no-renames -z \
             | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
@@ -276,6 +284,8 @@ jobs:
       SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
       MAIN_SHA: ${{ needs.generate.outputs.main_sha }}
       UPDATE_SHA: ${{ needs.generate.outputs.update_sha }}
+      REBASED: ${{ needs.generate.outputs.rebased }}
+      AGENT_BASE_TREE: ${{ needs.generate.outputs.agent_base_tree }}
       UPDATE_BRANCH: mcp-coverage-update
     steps:
       - name: Checkout updater scripts
@@ -302,7 +312,16 @@ jobs:
         run: |
           git config user.name 'kernel-internal[bot]'
           git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
-          git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
+          if [[ "$REBASED" == true ]]; then
+            git switch -c "$UPDATE_BRANCH" "$UPDATE_SHA"
+            git rebase -q "$MAIN_SHA"
+          else
+            git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
+          fi
+          if [[ "$(git rev-parse 'HEAD^{tree}')" != "$AGENT_BASE_TREE" ]]; then
+            echo "::error::The rebuilt update branch differs from the one the changes were validated on."
+            exit 1
+          fi
           git apply --index "$RUNNER_TEMP/mcp-coverage-update/changes.patch"
           git diff --cached --name-only --no-renames -z \
             | bash ../.github/scripts/mcp-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
