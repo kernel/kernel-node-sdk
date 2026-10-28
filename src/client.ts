@@ -182,12 +182,14 @@ import {
   BrowserReplTextContent,
   BrowserRetrieveParams,
   BrowserRetrieveResponse,
+  BrowserSaveProfileParams,
   BrowserUpdateParams,
   BrowserUpdateResponse,
   BrowserUsage,
   BrowserVideoMemory,
   Browsers,
   Profile,
+  SaveProfileRequest,
   Tags,
   VaultReference,
 } from './resources/browsers/browsers';
@@ -1248,6 +1250,7 @@ export declare namespace Kernel {
     type BrowserUsage as BrowserUsage,
     type BrowserVideoMemory as BrowserVideoMemory,
     type Profile as Profile,
+    type SaveProfileRequest as SaveProfileRequest,
     type Tags as Tags,
     type VaultReference as VaultReference,
     type BrowserCreateResponse as BrowserCreateResponse,
@@ -1263,6 +1266,7 @@ export declare namespace Kernel {
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
     type BrowserReplParams as BrowserReplParams,
+    type BrowserSaveProfileParams as BrowserSaveProfileParams,
   };
 
   export {

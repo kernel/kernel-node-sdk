@@ -340,6 +340,51 @@ export class Browsers extends APIResource {
   repl(idOrName: string, body: BrowserReplParams, options?: RequestOptions): APIPromise<BrowserReplResult> {
     return this._client.post(path`/browsers/${idOrName}/repl`, { body, ...options });
   }
+
+  /**
+   * Saves the running browser's current user-data state to an existing or new
+   * profile without ending the browser session.
+   *
+   * Saving restarts the browser. Active CDP and WebDriver connections are closed and
+   * must reconnect, and WebDriver clients must create a new session. Open tabs are
+   * restored, but pages reload and in-memory page state is lost. The browser is
+   * stopped only while its user data is copied; this request returns once the
+   * restarted browser accepts CDP connections again and the profile has been
+   * uploaded. Caches, Service Worker storage and Google Drive IndexedDB data are
+   * left out of the saved profile but kept in the running browser.
+   *
+   * This does not attach the destination profile to the browser or change its
+   * save_changes setting. Active browsers that already loaded the destination
+   * profile keep their in-memory state. Pools with refresh_on_profile_update enabled
+   * flush idle sessions and replenish them from the new snapshot; other browsers
+   * receive it the next time they load the profile. When saves made with this
+   * endpoint to the same profile overlap, the save that started most recently wins,
+   * even if an earlier one finishes later. The automatic save at the end of a
+   * session whose profile has save_changes enabled is ordered against these saves by
+   * when each finishes.
+   *
+   * A successful save restarts the browser's inactivity timeout (timeout_seconds). A
+   * failed save leaves it unchanged.
+   *
+   * Returns 409 when the browser is no longer active, when a pooled browser was
+   * released or reacquired after the request was made (browser_lease_changed), or
+   * when the browser is briefly unable to accept a save (browser_busy), in which
+   * case the request can be retried.
+   *
+   * @example
+   * ```ts
+   * const profile = await client.browsers.saveProfile(
+   *   'htzv5orfit78e1m2biiifpbv',
+   * );
+   * ```
+   */
+  saveProfile(
+    idOrName: string,
+    body: BrowserSaveProfileParams,
+    options?: RequestOptions,
+  ): APIPromise<Profile> {
+    return this._client.post(path`/browsers/${idOrName}/profiles`, { body, ...options });
+  }
 }
 
 export type BrowserListResponsesOffsetPagination = OffsetPagination<BrowserListResponse>;
@@ -816,6 +861,23 @@ export interface Profile {
    * Timestamp when the profile was last updated
    */
   updated_at?: string;
+}
+
+/**
+ * Destination profile for a snapshot of the running browser. Provide either id or
+ * name. An id must identify an existing profile. A name overwrites the matching
+ * profile in the browser's project, or creates it when no matching profile exists.
+ */
+export interface SaveProfileRequest {
+  /**
+   * Existing profile ID to overwrite.
+   */
+  id?: string;
+
+  /**
+   * Profile name to overwrite or create.
+   */
+  name?: string;
 }
 
 /**
@@ -2174,6 +2236,18 @@ export interface BrowserReplParams {
   timeout_sec?: number;
 }
 
+export interface BrowserSaveProfileParams {
+  /**
+   * Existing profile ID to overwrite.
+   */
+  id?: string;
+
+  /**
+   * Profile name to overwrite or create.
+   */
+  name?: string;
+}
+
 Browsers.Telemetry = TelemetryAPITelemetry;
 Browsers.Replays = Replays;
 Browsers.Fs = Fs;
@@ -2206,6 +2280,7 @@ export declare namespace Browsers {
     type BrowserUsage as BrowserUsage,
     type BrowserVideoMemory as BrowserVideoMemory,
     type Profile as Profile,
+    type SaveProfileRequest as SaveProfileRequest,
     type Tags as Tags,
     type VaultReference as VaultReference,
     type BrowserCreateResponse as BrowserCreateResponse,
@@ -2221,6 +2296,7 @@ export declare namespace Browsers {
     type BrowserCurlParams as BrowserCurlParams,
     type BrowserLoadExtensionsParams as BrowserLoadExtensionsParams,
     type BrowserReplParams as BrowserReplParams,
+    type BrowserSaveProfileParams as BrowserSaveProfileParams,
   };
 
   export {

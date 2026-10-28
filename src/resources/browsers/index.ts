@@ -23,6 +23,7 @@ export {
   type BrowserUsage,
   type BrowserVideoMemory,
   type Profile,
+  type SaveProfileRequest,
   type Tags,
   type VaultReference,
   type BrowserCreateResponse,
@@ -37,6 +38,7 @@ export {
   type BrowserCurlParams,
   type BrowserLoadExtensionsParams,
   type BrowserReplParams,
+  type BrowserSaveProfileParams,
   type ProfilesOffsetPagination,
   type BrowserListResponsesOffsetPagination,
 } from './browsers';

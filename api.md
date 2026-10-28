@@ -120,6 +120,7 @@ Types:
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserUsage</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserVideoMemory</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Profile</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">SaveProfileRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">Tags</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">VaultReference</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserCreateResponse</a></code>
@@ -138,6 +139,7 @@ Methods:
 - <code title="delete /browsers/{id_or_name}">client.browsers.<a href="./src/resources/browsers/browsers.ts">deleteByID</a>(idOrName) -> void</code>
 - <code title="post /browsers/{id_or_name}/extensions">client.browsers.<a href="./src/resources/browsers/browsers.ts">loadExtensions</a>(idOrName, { ...params }) -> void</code>
 - <code title="post /browsers/{id_or_name}/repl">client.browsers.<a href="./src/resources/browsers/browsers.ts">repl</a>(idOrName, { ...params }) -> BrowserReplResult</code>
+- <code title="post /browsers/{id_or_name}/profiles">client.browsers.<a href="./src/resources/browsers/browsers.ts">saveProfile</a>(idOrName, { ...params }) -> Profile</code>
 
 ## Telemetry
 

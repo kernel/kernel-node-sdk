@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.134.0](https://github.com/kernel/kernel-node-sdk/compare/v0.133.0...v0.134.0) (2026-10-28)
+
+
+### Features
+
+* Add mid-session browser profile saves ([2aef0a4](https://github.com/kernel/kernel-node-sdk/commit/2aef0a43a0e013b09b31f4527a6af3f3c84ac4c9))
+
 ## [0.133.0](https://github.com/kernel/kernel-node-sdk/compare/v0.132.0...v0.133.0) (2026-10-28)
 
 
