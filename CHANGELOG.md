@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.135.0](https://github.com/kernel/kernel-node-sdk/compare/v0.134.0...v0.135.0) (2026-10-28)
+
+
+### Features
+
+* api: sort API keys by last_used_at ([9aa414b](https://github.com/kernel/kernel-node-sdk/commit/9aa414b330a821cf72edc0c08d91a80772968649))
+
 ## [0.134.0](https://github.com/kernel/kernel-node-sdk/compare/v0.133.0...v0.134.0) (2026-10-28)
 
 
