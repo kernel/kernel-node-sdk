@@ -2113,6 +2113,12 @@ export namespace OnePasswordCredentialVaultItemSpec {
        */
       type: string;
 
+      /**
+       * 1Password's ID for this entry in an access request you created. Supply it only
+       * with resolved.
+       */
+      id?: string;
+
       keywords?: Array<string>;
 
       reason?: string;
@@ -2131,10 +2137,19 @@ export namespace OnePasswordCredentialVaultItemSpec {
  * customer-supplied access token and matching integration key. Supply either
  * account or both secrets, never both. Supplied secrets are write-only and never
  * returned. Supply requests for new items; website remains supported for existing
- * account-backed callers.
+ * account-backed callers. To use an access request you already created and the
+ * user approved with the same access token and integration key, also supply
+ * access_request_id, resolved, and each requests entry's id; the item is created
+ * ready and Kernel doesn't create an access request.
  */
 export interface OnePasswordCredentialVaultItemSpecInput {
   provider: '1password';
+
+  /**
+   * ID of an approved access request you created with this access_token and
+   * integration_key. Requires resolved.
+   */
+  access_request_id?: string;
 
   /**
    * Customer-supplied 1Password broker token. Requires integration_key; stored
@@ -2169,6 +2184,14 @@ export interface OnePasswordCredentialVaultItemSpecInput {
   requests?: OnePasswordCredentialVaultItemSpecInput.Requests;
 
   /**
+   * Granted logins from 1Password's status for access_request_id, as returned by the
+   * 1Password SDK or extension. Requires access_request_id and an id on every
+   * requests entry. entryId may be omitted only when requests has one entry. Kernel
+   * doesn't verify the references; 1Password checks them when filling.
+   */
+  resolved?: Array<OnePasswordCredentialVaultItemSpecInput.Resolved>;
+
+  /**
    * @deprecated Legacy single-login shorthand. Supply requests instead.
    */
   website?: string;
@@ -2199,6 +2222,12 @@ export namespace OnePasswordCredentialVaultItemSpecInput {
        */
       type: string;
 
+      /**
+       * 1Password's ID for this entry in an access request you created. Supply it only
+       * with resolved.
+       */
+      id?: string;
+
       keywords?: Array<string>;
 
       reason?: string;
@@ -2209,6 +2238,19 @@ export namespace OnePasswordCredentialVaultItemSpecInput {
         website: string;
       }
     }
+  }
+
+  export interface Resolved {
+    /**
+     * 1Password credential reference. Pass it unchanged as resourcePath to the
+     * extension's fillCredential or to the 1Password SDK.
+     */
+    reference: string;
+
+    /**
+     * The requested entry this login satisfies, when known.
+     */
+    entryId?: string;
   }
 }
 
