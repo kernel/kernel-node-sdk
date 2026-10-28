@@ -243,4 +243,16 @@ describe('resource browsers', () => {
       timeout_sec: 1,
     });
   });
+
+  // Mock server tests are disabled
+  test.skip('saveProfile', async () => {
+    const responsePromise = client.browsers.saveProfile('htzv5orfit78e1m2biiifpbv', {});
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
 });
