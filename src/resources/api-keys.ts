@@ -321,9 +321,10 @@ export interface APIKeyListParams extends OffsetPaginationParams {
   query?: string;
 
   /**
-   * Field to sort API keys by.
+   * Field to sort API keys by. Keys with no expiry or no recorded use sort last for
+   * expires_at and last_used_at in either direction.
    */
-  sort_by?: 'created_at' | 'name' | 'expires_at';
+  sort_by?: 'created_at' | 'name' | 'expires_at' | 'last_used_at';
 
   /**
    * Sort direction for API keys.
