@@ -512,6 +512,8 @@ Methods:
 
 Types:
 
+- <code><a href="./src/resources/vaults/items.ts">AddPaymentMethodVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">AddPaymentMethodVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutAuthorization</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardCheckoutPreparation</a></code>
 - <code><a href="./src/resources/vaults/items.ts">AgentcardPreparedProcessor</a></code>
@@ -545,6 +547,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpecInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelPaymentRequestVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">LinkShippingAddress</a></code>
@@ -564,8 +567,13 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRecoverVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">OnePasswordRequestAccessVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">PasskeyVaultItemOperationResult</a></code>
+- <code><a href="./src/resources/vaults/items.ts">PaymentRequestVaultItem</a></code>
+- <code><a href="./src/resources/vaults/items.ts">PaymentRequestVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">PaymentRequestVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">PrepareCheckoutVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">RegisterPasskeyVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">RemovePaymentMethodVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">RemovePaymentMethodVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">RestartVerificationVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>

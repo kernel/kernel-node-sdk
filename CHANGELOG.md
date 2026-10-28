@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.133.0](https://github.com/kernel/kernel-node-sdk/compare/v0.132.0...v0.133.0) (2026-10-28)
+
+
+### Features
+
+* Forward Idempotency-Key on playwright and REPL execution ([6a0b6b5](https://github.com/kernel/kernel-node-sdk/commit/6a0b6b52fe3eb64c619c7c53d0f5f0d83013fb36))
+* Select 1Password fill pages by target and return stored-token grants ([1d60d43](https://github.com/kernel/kernel-node-sdk/commit/1d60d4398eda7c00432c14bab3264c739ecd9284))
+* Support multiple Kernel wallet payment methods and payment requests ([e338fed](https://github.com/kernel/kernel-node-sdk/commit/e338fedec0766e6f214cc0bec287c8819f402e0b))
+
 ## [0.132.0](https://github.com/kernel/kernel-node-sdk/compare/v0.131.0...v0.132.0) (2026-10-26)
 
 

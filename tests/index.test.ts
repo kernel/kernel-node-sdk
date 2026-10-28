@@ -465,6 +465,16 @@ describe('instantiate client', () => {
   });
 });
 
+describe('idempotency', () => {
+  test.skip('key can be set per-request', async () => {
+    const client = new Kernel({
+      baseURL: process.env['TEST_API_BASE_URL'] ?? 'http://127.0.0.1:4010',
+      apiKey: 'My API Key',
+    });
+    await client.deployments.create({}, { idempotencyKey: 'my-idempotency-key' });
+  });
+});
+
 describe('request building', () => {
   const client = new Kernel({ apiKey: 'My API Key' });
 
