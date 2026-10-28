@@ -386,15 +386,16 @@ export interface ArmPasskeyVaultItemOperationRequest {
  * Authorize a Link, Kernel or Shop Pay card using its existing purchase
  * specification. Use only after explicit user approval and when the item
  * advertises authorize; follow the advertised operation's description. For a Link
- * card, pass browser_id and page_url together while the browser is on the final
- * checkout page: Kernel inspects that checkout, chooses how the credential is
- * delivered, and limits fill to that checkout's origin in any browser with this
- * vault attached. Omitting both issues a virtual card that fills any page on the
+ * or Shop Pay card, pass browser_id and page_url together while the browser is on
+ * the final checkout page: Kernel confirms that checkout is open, sends it to the
+ * provider as the merchant, and limits fill to that checkout's origin in any
+ * browser with this vault attached. For Link it also chooses how the credential is
+ * delivered. Omitting both issues a virtual card that fills any page on the
  * merchant origin. Once approval has been requested, browser_id and page_url are
  * ignored and authorize only re-checks the request. Browser and checkout
  * inspection errors occur before any provider request and can be retried once the
- * browser is on the checkout page. Kernel and Shop Pay cards do not accept
- * browser_id or page_url.
+ * browser is on the checkout page. Kernel cards do not accept browser_id or
+ * page_url.
  */
 export interface AuthorizeVaultItemOperationRequest {
   type: 'authorize';
@@ -775,6 +776,26 @@ export interface ConfirmTransactionVaultItemOperationRequest {
     | 'FRAUD';
 
   type: 'confirm_transaction';
+
+  /**
+   * Why the purchase did not succeed, for any other outcome, such as 3ds_challenge,
+   * captcha, login_required, timeout or site_error. payment_declined goes only with
+   * DECLINED, which takes no other code. Shop Pay reports it; other providers ignore
+   * it.
+   */
+  failure_code?: string;
+
+  /**
+   * The merchant's order number, for an APPROVED outcome. Shop Pay reports it; other
+   * providers ignore it.
+   */
+  order_id?: string;
+
+  /**
+   * The merchant's https order page, for an APPROVED outcome. Shop Pay reports it;
+   * other providers ignore it.
+   */
+  order_url?: string;
 }
 
 export interface CredentialAccountVaultItem {
@@ -2895,7 +2916,9 @@ export interface ShopPayCardState {
   provider: 'shop_pay';
 
   /**
-   * declined covers a request the shopper declined or that was cancelled.
+   * declined covers a request the shopper declined or that was cancelled. consumed
+   * means the transaction outcome was reported with confirm_transaction; the card is
+   * no longer stored and cannot be filled again, whatever the outcome.
    * recovery_required means a provider operation has an unresolved outcome and the
    * card cannot be used. When status_reason says the provider refused retrieval
    * before acceptance, no card was issued and a later read retries. Otherwise follow
@@ -2938,15 +2961,16 @@ export namespace ShopPayCardState {
 /**
  * Shop Pay purchase. amount is the limit the shopper approves; totals must include
  * exactly one positive total no higher than it. context is shown to the shopper
- * when they approve. Authorize without checkout context: authorize returns an
- * approval action for the shopper, who approves the purchase in Shop. Share its
- * URL unchanged when present. Once approved, the card becomes ready and fills
- * checkouts on the merchant_url origin. Report the merchant outcome with
- * confirm_transaction.
+ * when they approve. Authorize it with the browser at final checkout: Kernel sends
+ * that page to Shop as the merchant and the card fills only on its origin. Without
+ * browser_id and page_url it authorizes for merchant_url. authorize returns an
+ * approval action for the shopper, who approves the purchase in Shop; share its
+ * URL unchanged when present. Report the merchant outcome with
+ * confirm_transaction, which ends the card.
  */
 export interface ShopPayCardVaultItemSpec {
   /**
-   * Approval limit in minor currency units.
+   * Approval limit in minor currency units, at most 1000000.
    */
   amount: number;
 
@@ -2955,6 +2979,9 @@ export interface ShopPayCardVaultItemSpec {
    */
   context: string;
 
+  /**
+   * Shop accepts USD spend requests only.
+   */
   currency: string;
 
   merchant_name: string;
@@ -3069,8 +3096,10 @@ export namespace VaultCardFillField {
     /**
      * Field in the decrypted card, not an alias. Number and CVC preserve leading
      * zeros; month uses two digits and year uses four digits. Billing fields use the
-     * provider's stored billing address (name, line1, line2, city, state, postal_code,
-     * country) without reformatting. Request only needed billing fields. An absent or
+     * provider's stored billing address (name, first and last name, line1, line2,
+     * city, state, postal_code, country) without reformatting. First and last name are
+     * available only when the provider returns them separately, such as Shop Pay;
+     * billing_name is never split. Request only needed billing fields. An absent or
      * empty requested billing field returns 400 field_unavailable before any browser
      * writes; it does not make other card fields unavailable.
      */
@@ -3080,6 +3109,8 @@ export namespace VaultCardFillField {
       | 'exp_year'
       | 'cvc'
       | 'billing_name'
+      | 'billing_first_name'
+      | 'billing_last_name'
       | 'billing_line1'
       | 'billing_line2'
       | 'billing_city'
@@ -4241,6 +4272,26 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: 'confirm_transaction';
+
+    /**
+     * Body param: Why the purchase did not succeed, for any other outcome, such as
+     * 3ds_challenge, captcha, login_required, timeout or site_error. payment_declined
+     * goes only with DECLINED, which takes no other code. Shop Pay reports it; other
+     * providers ignore it.
+     */
+    failure_code?: string;
+
+    /**
+     * Body param: The merchant's order number, for an APPROVED outcome. Shop Pay
+     * reports it; other providers ignore it.
+     */
+    order_id?: string;
+
+    /**
+     * Body param: The merchant's https order page, for an APPROVED outcome. Shop Pay
+     * reports it; other providers ignore it.
+     */
+    order_url?: string;
   }
 
   export interface CollectVaultItemOperationRequest {
