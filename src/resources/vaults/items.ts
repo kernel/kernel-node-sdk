@@ -2218,8 +2218,9 @@ export interface OnePasswordCredentialVaultItemState {
   status: 'pending_authorization' | 'ready' | 'declined' | 'failed';
 
   /**
-   * Non-secret broker state. Granted credential references stay encrypted
-   * server-side and can only be used by the fill operation.
+   * Non-secret broker state. Granted credential references are returned in resolved
+   * only for credentials with a customer-supplied access token; otherwise they stay
+   * encrypted server-side and can only be used by the fill operation.
    */
   access_request?: OnePasswordCredentialVaultItemState.AccessRequest;
 
@@ -2234,8 +2235,9 @@ export interface OnePasswordCredentialVaultItemState {
 
 export namespace OnePasswordCredentialVaultItemState {
   /**
-   * Non-secret broker state. Granted credential references stay encrypted
-   * server-side and can only be used by the fill operation.
+   * Non-secret broker state. Granted credential references are returned in resolved
+   * only for credentials with a customer-supplied access token; otherwise they stay
+   * encrypted server-side and can only be used by the fill operation.
    */
   export interface AccessRequest {
     id: string;
@@ -2280,6 +2282,14 @@ export namespace OnePasswordCredentialVaultItemState {
      * may omit entries; no entry IDs are invented.
      */
     request?: AccessRequest.Request;
+
+    /**
+     * Granted logins in the shape 1Password's getAccessRequestStatus returns. Present
+     * only for ready credentials with a customer-supplied access token, on single-item
+     * responses to callers that can use the vault. Each reference works only with that
+     * credential's access token and integration key.
+     */
+    resolved?: Array<AccessRequest.Resolved>;
   }
 
   export namespace AccessRequest {
@@ -2332,15 +2342,28 @@ export namespace OnePasswordCredentialVaultItemState {
         }
       }
     }
+
+    export interface Resolved {
+      /**
+       * 1Password credential reference. Pass it unchanged as resourcePath to the
+       * extension's fillCredential or to the 1Password SDK.
+       */
+      reference: string;
+
+      /**
+       * The requested entry this login satisfies, when known.
+       */
+      entryId?: string;
+    }
   }
 }
 
 /**
  * Fill and submit an approved 1Password login in the selected browser page. The
  * page must share the selected entry's login origin. Supply entry_id when more
- * than one approved entry matches the page origin. The extension selects fields;
- * callers cannot supply selectors or secret values. Submission does not confirm
- * website authentication.
+ * than one approved entry matches the page origin, and target_id when more than
+ * one open page has page_url. The extension selects fields; callers cannot supply
+ * selectors or secret values. Submission does not confirm website authentication.
  */
 export interface OnePasswordFillVaultItemOperationRequest {
   /**
@@ -2350,7 +2373,7 @@ export interface OnePasswordFillVaultItemOperationRequest {
 
   /**
    * Exact current top-level page URL. Must match exactly one open page in the
-   * browser.
+   * browser unless target_id is supplied.
    */
   page_url: string;
 
@@ -2361,6 +2384,14 @@ export interface OnePasswordFillVaultItemOperationRequest {
    * page's origin.
    */
   entry_id?: string;
+
+  /**
+   * CDP target ID of the page to fill, such as tab.target_id from
+   * playwright.execute. Use it when several open pages have page_url. The page's
+   * current URL must equal page_url. Kernel brings the page to the front of its
+   * window before filling.
+   */
+  target_id?: string;
 
   timeout_ms?: number;
 }
@@ -4199,7 +4230,7 @@ export declare namespace ItemPerformOperationParams {
 
     /**
      * Body param: Exact current top-level page URL. Must match exactly one open page
-     * in the browser.
+     * in the browser unless target_id is supplied.
      */
     page_url: string;
 
@@ -4213,6 +4244,14 @@ export declare namespace ItemPerformOperationParams {
      * entries have the page's origin.
      */
     entry_id?: string;
+
+    /**
+     * Body param: CDP target ID of the page to fill, such as tab.target_id from
+     * playwright.execute. Use it when several open pages have page_url. The page's
+     * current URL must equal page_url. Kernel brings the page to the front of its
+     * window before filling.
+     */
+    target_id?: string;
 
     /**
      * Body param
