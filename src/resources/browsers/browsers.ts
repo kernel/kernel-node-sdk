@@ -409,6 +409,16 @@ export interface BrowserAllowlistState {
   mutation_id?: string;
 }
 
+/**
+ * Overrides for browser attributes presented to websites.
+ */
+export interface BrowserFingerprint {
+  /**
+   * Operating system the browser reports to websites.
+   */
+  os: 'macos';
+}
+
 export interface BrowserLocation {
   /**
    * Effective canonical BCP 47 formatting locale selected for the browser session.
@@ -1658,6 +1668,14 @@ export interface BrowserCreateParams {
   extensions?: Array<Shared.BrowserExtension>;
 
   /**
+   * Closed beta: contact Kernel to enable fingerprint overrides for your
+   * organization. Overrides browser attributes presented to websites for this
+   * session. Currently supports macos and requires stealth=true, headless=false,
+   * gpu=false, and default memory. Omit to preserve the default browser behavior.
+   */
+  fingerprint?: BrowserFingerprint;
+
+  /**
    * If true, enables GPU acceleration for the browser session. Requires Start-Up or
    * Enterprise plan, headless=false, and region=us-east.
    */
@@ -2260,6 +2278,7 @@ Browsers.Webmcp = Webmcp;
 export declare namespace Browsers {
   export {
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,
     type BrowserLocationSource as BrowserLocationSource,

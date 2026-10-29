@@ -459,6 +459,8 @@ describe('browser routing', () => {
         'process',
         'fs',
         'logs/stream',
+        'repl',
+        'webmcp',
       ]);
     });
   });
@@ -1142,6 +1144,50 @@ describe('browser routing', () => {
         'https://api.example/browsers/sess-1/logs',
         'https://api.example/browsers/sess-1/logs/history',
         'https://api.example/browsers/sess-1/logstream',
+      ]);
+    });
+  });
+
+  test('routes repl and webmcp to the VM, but not replays', async () => {
+    await withBrowserRoutingEnv(undefined, async () => {
+      const cache = new BrowserRouteCache();
+      cache.set({
+        sessionId: 'sess-1',
+        baseURL: 'http://browser-session.test/browser/kernel',
+        jwt: 'token-abc',
+      });
+
+      const routed: string[] = [];
+      const wrappedFetch = createRoutingFetch(
+        async (input) => {
+          routed.push(normalizeURL(input));
+          return new Response(null, { status: 204 });
+        },
+        {
+          apiBaseURL: 'https://api.example/',
+          subresources: browserRoutingSubresourcesFromEnv(),
+          cache,
+        },
+      );
+
+      for (const path of [
+        'repl',
+        'webmcp/tools',
+        'webmcp/invoke',
+        'webmcp/custom-tools/ct_1',
+        'replays',
+        'replays/rec-1',
+      ]) {
+        await wrappedFetch(`https://api.example/browsers/sess-1/${path}`);
+      }
+
+      expect(routed).toEqual([
+        'http://browser-session.test/browser/kernel/repl?jwt=token-abc',
+        'http://browser-session.test/browser/kernel/webmcp/tools?jwt=token-abc',
+        'http://browser-session.test/browser/kernel/webmcp/invoke?jwt=token-abc',
+        'http://browser-session.test/browser/kernel/webmcp/custom-tools/ct_1?jwt=token-abc',
+        'https://api.example/browsers/sess-1/replays',
+        'https://api.example/browsers/sess-1/replays/rec-1',
       ]);
     });
   });
