@@ -100,6 +100,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserAllowlistState</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserFingerprint</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocation</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocationRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocationSource</a></code>

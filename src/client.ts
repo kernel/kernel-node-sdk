@@ -158,6 +158,7 @@ import {
   BrowserCreateResponse,
   BrowserCurlParams,
   BrowserCurlResponse,
+  BrowserFingerprint,
   BrowserListParams,
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
@@ -1227,6 +1228,7 @@ export declare namespace Kernel {
   export {
     Browsers as Browsers,
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,
     type BrowserLocationSource as BrowserLocationSource,
