@@ -97,6 +97,7 @@ describe('resource connections', () => {
       },
       health_check_interval: 3600,
       health_checks: true,
+      hitl: false,
       login_url: 'https://netflix.com/login',
       proxy: { id: 'id', name: 'name' },
       record_session: false,
