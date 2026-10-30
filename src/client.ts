@@ -158,6 +158,7 @@ import {
   BrowserCreateResponse,
   BrowserCurlParams,
   BrowserCurlResponse,
+  BrowserFingerprint,
   BrowserListParams,
   BrowserListResponse,
   BrowserListResponsesOffsetPagination,
@@ -1109,9 +1110,6 @@ export class Kernel {
   credentials: API.Credentials = new API.Credentials(this);
   /**
    * Create and manage projects for resource isolation within an organization.
-   * When projects are disabled for the organization, project operations return
-   * `404` with code `projects_disabled`.
-   *
    */
   projects: API.Projects = new API.Projects(this);
   organization: API.Organization = new API.Organization(this);
@@ -1230,6 +1228,7 @@ export declare namespace Kernel {
   export {
     Browsers as Browsers,
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,
     type BrowserLocationSource as BrowserLocationSource,

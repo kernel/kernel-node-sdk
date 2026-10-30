@@ -28,6 +28,7 @@ describe('resource browsers', () => {
         {
           chrome_policy: { foo: 'bar' },
           extensions: [{ id: 'id', name: 'name' }],
+          fingerprint: { os: 'macos' },
           gpu: false,
           headless: false,
           invocation_id: 'rr33xuugxj9h0bkf1rdt2bet',

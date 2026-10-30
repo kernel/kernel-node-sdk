@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.139.0](https://github.com/kernel/kernel-node-sdk/compare/v0.138.0...v0.139.0) (2026-10-30)
+
+
+### Features
+
+* Expose leased_at on browser session responses ([c01f102](https://github.com/kernel/kernel-node-sdk/commit/c01f102ca3ee5e8a0473bdbb29aaa681fc0c5e2e))
+
+## [0.138.0](https://github.com/kernel/kernel-node-sdk/compare/v0.137.0...v0.138.0) (2026-10-30)
+
+
+### Features
+
+* Pause managed auth logins for human verification on unsolvable captchas ([963393f](https://github.com/kernel/kernel-node-sdk/commit/963393ff0db25e9f547ec870ba8df57b6ee21a4c))
+
+## [0.137.0](https://github.com/kernel/kernel-node-sdk/compare/v0.136.0...v0.137.0) (2026-10-29)
+
+
+### Features
+
+* Add request-only fingerprint beta contract ([8dfe062](https://github.com/kernel/kernel-node-sdk/commit/8dfe06253ded27d585baeca4353bace83f5eb098))
+* Read Shop Pay card status one read at a time and report outcome details ([007451f](https://github.com/kernel/kernel-node-sdk/commit/007451f806e1f64e6ed8782dae7da383704da47a))
+* Remove the projects_enabled flag from the API ([d4e4c24](https://github.com/kernel/kernel-node-sdk/commit/d4e4c24aa9b4c457542917debaa2d94f850ac31a))
+* route browser REPL and WebMCP calls directly to browser VMs ([3a21439](https://github.com/kernel/kernel-node-sdk/commit/3a21439d98d030b77a820010a99f6736af91638d))
+* Route Evervault alias payment windows through per-window upstreams ([3048bdb](https://github.com/kernel/kernel-node-sdk/commit/3048bdb506ad0f556f11dc94cf8fabd8d5f04360))
+* Wire Shop Pay into the vault API ([a34a3a2](https://github.com/kernel/kernel-node-sdk/commit/a34a3a29ca2c0e3f3b8cf710ce88a168f24cbe9f))
+
 ## [0.136.0](https://github.com/kernel/kernel-node-sdk/compare/v0.135.0...v0.136.0) (2026-10-28)
 
 

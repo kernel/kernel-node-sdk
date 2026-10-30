@@ -409,6 +409,16 @@ export interface BrowserAllowlistState {
   mutation_id?: string;
 }
 
+/**
+ * Overrides for browser attributes presented to websites.
+ */
+export interface BrowserFingerprint {
+  /**
+   * Operating system the browser reports to websites.
+   */
+  os: 'macos';
+}
+
 export interface BrowserLocation {
   /**
    * Effective canonical BCP 47 formatting locale selected for the browser session.
@@ -975,6 +985,12 @@ export interface BrowserCreateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
+
+  /**
    * Effective browser timezone and locale with per-field provenance.
    */
   location?: BrowserLocation;
@@ -1154,6 +1170,12 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
 
   /**
    * Effective browser timezone and locale with per-field provenance.
@@ -1337,6 +1359,12 @@ export interface BrowserUpdateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
+
+  /**
    * Effective browser timezone and locale with per-field provenance.
    */
   location?: BrowserLocation;
@@ -1518,6 +1546,12 @@ export interface BrowserListResponse {
   kiosk_mode?: boolean;
 
   /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
+
+  /**
    * Effective browser timezone and locale with per-field provenance.
    */
   location?: BrowserLocation;
@@ -1656,6 +1690,14 @@ export interface BrowserCreateParams {
    * List of browser extensions to load into the session. Provide each by id or name.
    */
   extensions?: Array<Shared.BrowserExtension>;
+
+  /**
+   * Closed beta: contact Kernel to enable fingerprint overrides for your
+   * organization. Overrides browser attributes presented to websites for this
+   * session. Currently supports macos and requires stealth=true, headless=false,
+   * gpu=false, and default memory. Omit to preserve the default browser behavior.
+   */
+  fingerprint?: BrowserFingerprint;
 
   /**
    * If true, enables GPU acceleration for the browser session. Requires Start-Up or
@@ -2260,6 +2302,7 @@ Browsers.Webmcp = Webmcp;
 export declare namespace Browsers {
   export {
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,
     type BrowserLocationSource as BrowserLocationSource,

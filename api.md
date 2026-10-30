@@ -100,6 +100,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserAllowlistState</a></code>
+- <code><a href="./src/resources/browsers/browsers.ts">BrowserFingerprint</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocation</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocationRequest</a></code>
 - <code><a href="./src/resources/browsers/browsers.ts">BrowserLocationSource</a></code>
@@ -577,6 +578,10 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">RemovePaymentMethodVaultItemOperationRequest</a></code>
 - <code><a href="./src/resources/vaults/items.ts">RemovePaymentMethodVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">RestartVerificationVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ShopPayCardState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ShopPayCardVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ShopPayWalletState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">ShopPayWalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCheckoutContext</a></code>

@@ -91,13 +91,13 @@ export class Items extends APIResource {
    * Unresolved payment operations normally block deletion, including operations on
    * child cards of a wallet. Deleting a connected Kernel wallet first blocks new
    * payments on it, then removes its enrolled card. If that fails, the wallet is
-   * kept and keeps refusing payments; retry the deletion. A Link or Kernel card in
-   * recovery_required for issuance, or an AgentCard card in recovery_required whose
-   * checkout create response returned no authorization ID, may be explicitly
-   * abandoned by deleting that card directly; deleting its wallet or vault remains
-   * blocked until the card is deleted. Deleting or recreating an item is not proof
-   * that a payment did not occur. Deleting a managed auth credential item leaves the
-   * connection and its saved credential unchanged.
+   * kept and keeps refusing payments; retry the deletion. A Link, Kernel or Shop Pay
+   * card in recovery_required for issuance, or an AgentCard card in
+   * recovery_required whose checkout create response returned no authorization ID,
+   * may be explicitly abandoned by deleting that card directly; deleting its wallet
+   * or vault remains blocked until the card is deleted. Deleting or recreating an
+   * item is not proof that a payment did not occur. Deleting a managed auth
+   * credential item leaves the connection and its saved credential unchanged.
    *
    * @example
    * ```ts
@@ -383,17 +383,19 @@ export interface ArmPasskeyVaultItemOperationRequest {
 }
 
 /**
- * Authorize a Link or Kernel card using its existing purchase specification. Use
- * only after explicit user approval and when the item advertises authorize; follow
- * the advertised operation's description. For a Link card, pass browser_id and
- * page_url together while the browser is on the final checkout page: Kernel
- * inspects that checkout, chooses how the credential is delivered, and limits fill
- * to that checkout's origin in any browser with this vault attached. Omitting both
- * issues a virtual card that fills any page on the merchant origin. Once approval
- * has been requested, browser_id and page_url are ignored and authorize only
- * re-checks the request. Browser and checkout inspection errors occur before any
- * provider request and can be retried once the browser is on the checkout page.
- * Kernel cards do not accept browser_id or page_url.
+ * Authorize a Link, Kernel or Shop Pay card using its existing purchase
+ * specification. Use only after explicit user approval and when the item
+ * advertises authorize; follow the advertised operation's description. For a Link
+ * or Shop Pay card, pass browser_id and page_url together while the browser is on
+ * the final checkout page: Kernel confirms that checkout is open, sends it to the
+ * provider as the merchant, and limits fill to that checkout's origin in any
+ * browser with this vault attached. For Link it also chooses how the credential is
+ * delivered. Omitting both issues a virtual card that fills any page on the
+ * merchant origin. Once approval has been requested, browser_id and page_url are
+ * ignored and authorize only re-checks the request. Browser and checkout
+ * inspection errors occur before any provider request and can be retried once the
+ * browser is on the checkout page. Kernel cards do not accept browser_id or
+ * page_url.
  */
 export interface AuthorizeVaultItemOperationRequest {
   type: 'authorize';
@@ -421,7 +423,8 @@ export interface AuthorizeVaultItemOperationRequest {
 export type CardVaultItemSpec =
   | CardVaultItemSpec.LinkCardVaultItemSpec
   | CardVaultItemSpec.AgentCardCardVaultItemSpec
-  | KernelCardVaultItemSpec;
+  | KernelCardVaultItemSpec
+  | ShopPayCardVaultItemSpec;
 
 export namespace CardVaultItemSpec {
   /**
@@ -604,7 +607,8 @@ export namespace CardVaultItemSpec {
 export type CardVaultItemState =
   | CardVaultItemState.LinkCardState
   | CardVaultItemState.AgentCardCardState
-  | KernelCardState;
+  | KernelCardState
+  | ShopPayCardState;
 
 export namespace CardVaultItemState {
   /**
@@ -736,11 +740,12 @@ export interface CollectVaultItemOperationRequest {
 }
 
 /**
- * Report a real merchant transaction outcome for an issued Kernel Visa credential.
- * Never infer success from filling checkout or receiving a credential. Supply the
- * observed status, transaction type, actual amount, currency and timestamp.
- * Unknown outcomes require manual reconciliation, not retry. Each purchase accepts
- * one report.
+ * Report a real merchant transaction outcome for an issued Kernel Visa or Shop Pay
+ * credential. Shop Pay accepts PURCHASE, AUTHORIZATION and CAPTURE. Never infer
+ * success from filling checkout or receiving a credential. Supply the observed
+ * status, transaction type, actual amount, currency and timestamp. Unknown
+ * outcomes require manual reconciliation, not retry. Each purchase accepts one
+ * report.
  */
 export interface ConfirmTransactionVaultItemOperationRequest {
   /**
@@ -771,6 +776,26 @@ export interface ConfirmTransactionVaultItemOperationRequest {
     | 'FRAUD';
 
   type: 'confirm_transaction';
+
+  /**
+   * Why the purchase did not succeed, for any other outcome, such as 3ds_challenge,
+   * captcha, login_required, timeout or site_error. payment_declined goes only with
+   * DECLINED, which takes no other code. Shop Pay reports it; other providers ignore
+   * it.
+   */
+  failure_code?: string;
+
+  /**
+   * The merchant's order number, for an APPROVED outcome. Shop Pay reports it; other
+   * providers ignore it.
+   */
+  order_id?: string;
+
+  /**
+   * The merchant's https order page, for an APPROVED outcome. Shop Pay reports it;
+   * other providers ignore it.
+   */
+  order_url?: string;
 }
 
 export interface CredentialAccountVaultItem {
@@ -2884,6 +2909,170 @@ export interface RestartVerificationVaultItemOperationRequest {
   type: 'restart_verification';
 }
 
+/**
+ * Issued Shop Pay cards retain encrypted card material for the fill operation.
+ */
+export interface ShopPayCardState {
+  provider: 'shop_pay';
+
+  /**
+   * declined covers a request the shopper declined or that was cancelled. consumed
+   * means the transaction outcome was reported with confirm_transaction; the card is
+   * no longer stored and cannot be filled again, whatever the outcome.
+   * recovery_required means a provider operation has an unresolved outcome and the
+   * card cannot be used. When status_reason says the provider refused retrieval
+   * before acceptance, no card was issued and a later read retries. Otherwise follow
+   * status_reason: recovery for issuance can be abandoned by deleting the card and
+   * creating a new one, and the shopper approves the new purchase separately.
+   * Recovery while reporting a merchant transaction cannot be deleted and must be
+   * reconciled with support.
+   */
+  status:
+    | 'requested'
+    | 'pending_authorization'
+    | 'ready'
+    | 'consumed'
+    | 'expired'
+    | 'declined'
+    | 'recovery_required';
+
+  domains?: Array<string>;
+
+  masks?: ShopPayCardState.Masks;
+
+  status_reason?: string;
+}
+
+export namespace ShopPayCardState {
+  export interface Masks {
+    brand?: string;
+
+    last4?: string;
+
+    /**
+     * Last four digits of the network token presented to the merchant.
+     */
+    token_last4?: string;
+
+    [k: string]: string | undefined;
+  }
+}
+
+/**
+ * Shop Pay purchase. amount is the limit the shopper approves; totals must include
+ * exactly one positive total no higher than it. context is shown to the shopper
+ * when they approve. Authorize it with the browser at final checkout: Kernel sends
+ * that page to Shop as the merchant and the card fills only on its origin. Without
+ * browser_id and page_url it authorizes for merchant_url. authorize returns an
+ * approval action for the shopper, who approves the purchase in Shop; share its
+ * URL unchanged when present. Report the merchant outcome with
+ * confirm_transaction, which ends the card.
+ */
+export interface ShopPayCardVaultItemSpec {
+  /**
+   * Approval limit in minor currency units, at most 1000000.
+   */
+  amount: number;
+
+  /**
+   * What is being bought and why, written for the shopper.
+   */
+  context: string;
+
+  /**
+   * Shop accepts USD spend requests only.
+   */
+  currency: string;
+
+  merchant_name: string;
+
+  /**
+   * The merchant's https URL.
+   */
+  merchant_url: string;
+
+  provider: 'shop_pay';
+
+  totals: Array<ShopPayCardVaultItemSpec.Total>;
+
+  /**
+   * Connected Shop Pay wallet item key.
+   */
+  wallet: string;
+
+  line_items?: Array<ShopPayCardVaultItemSpec.LineItem>;
+
+  /**
+   * ISO 3166-1 alpha-2 country of the merchant.
+   */
+  merchant_country?: string;
+
+  /**
+   * Card ID from the wallet's payment_methods expansion. Omit it to use the
+   * shopper's preferred card.
+   */
+  payment_method_id?: string;
+}
+
+export namespace ShopPayCardVaultItemSpec {
+  export interface Total {
+    /**
+     * Amount in minor currency units; discounts are negative.
+     */
+    amount: number;
+
+    /**
+     * For example subtotal, fulfillment, tax, discount or total.
+     */
+    type: string;
+  }
+
+  export interface LineItem {
+    name: string;
+
+    quantity: number;
+
+    /**
+     * Unit price in minor currency units.
+     */
+    unit_amount: number;
+  }
+}
+
+export interface ShopPayWalletState {
+  provider: 'shop_pay';
+
+  status: 'pending_authorization' | 'connected' | 'declined' | 'reconnect_required' | 'degraded';
+
+  status_reason?: string;
+}
+
+/**
+ * Shop Pay wallet connected through Kernel's Shop app. Creation returns a
+ * shop_pay_oauth action: the shopper signs in to Shop and approves the connection,
+ * and the wallet connects. The connected wallet's payment_methods expansion lists
+ * the shopper's saved Shop Pay cards.
+ */
+export interface ShopPayWalletVaultItemSpec {
+  authorization: ShopPayWalletVaultItemSpec.Authorization;
+
+  provider: 'shop_pay';
+}
+
+export namespace ShopPayWalletVaultItemSpec {
+  export interface Authorization {
+    client: Authorization.Client;
+
+    method: 'oauth';
+  }
+
+  export namespace Authorization {
+    export interface Client {
+      type: 'kernel_managed';
+    }
+  }
+}
+
 export interface VaultCardAliases {
   cvc: string;
 
@@ -2907,8 +3096,10 @@ export namespace VaultCardFillField {
     /**
      * Field in the decrypted card, not an alias. Number and CVC preserve leading
      * zeros; month uses two digits and year uses four digits. Billing fields use the
-     * provider's stored billing address (name, line1, line2, city, state, postal_code,
-     * country) without reformatting. Request only needed billing fields. An absent or
+     * provider's stored billing address (name, first and last name, line1, line2,
+     * city, state, postal_code, country) without reformatting. First and last name are
+     * available only when the provider returns them separately, such as Shop Pay;
+     * billing_name is never split. Request only needed billing fields. An absent or
      * empty requested billing field returns 400 field_unavailable before any browser
      * writes; it does not make other card fields unavailable.
      */
@@ -2918,6 +3109,8 @@ export namespace VaultCardFillField {
       | 'exp_year'
       | 'cvc'
       | 'billing_name'
+      | 'billing_first_name'
+      | 'billing_last_name'
       | 'billing_line1'
       | 'billing_line2'
       | 'billing_city'
@@ -3236,6 +3429,7 @@ export namespace VaultItem {
 
 export type VaultItemAction =
   | VaultItemAction.LinkOAuthAction
+  | VaultItemAction.ShopPayOAuthAction
   | OnePasswordOAuthAction
   | VaultItemAction.SpendApprovalAction
   | VaultItemAction.PushApprovalAction
@@ -3248,6 +3442,15 @@ export namespace VaultItemAction {
   export interface LinkOAuthAction {
     name: 'link_oauth';
 
+    url: string;
+  }
+
+  export interface ShopPayOAuthAction {
+    name: 'shop_pay_oauth';
+
+    /**
+     * Shop sign-in page where the shopper connects their Shop account to Kernel.
+     */
     url: string;
   }
 
@@ -3643,7 +3846,8 @@ export interface VaultWebmcpBinding {
 export type WalletVaultItemSpec =
   | WalletVaultItemSpec.LinkWalletVaultItemSpec
   | WalletVaultItemSpec.AgentCardWalletVaultItemSpec
-  | KernelWalletVaultItemSpec;
+  | KernelWalletVaultItemSpec
+  | ShopPayWalletVaultItemSpec;
 
 export namespace WalletVaultItemSpec {
   export interface LinkWalletVaultItemSpec {
@@ -3734,7 +3938,8 @@ export namespace WalletVaultItemSpec {
 export type WalletVaultItemState =
   | WalletVaultItemState.LinkWalletState
   | WalletVaultItemState.AgentCardWalletState
-  | KernelWalletState;
+  | KernelWalletState
+  | ShopPayWalletState;
 
 export namespace WalletVaultItemState {
   export interface LinkWalletState {
@@ -4067,6 +4272,26 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: 'confirm_transaction';
+
+    /**
+     * Body param: Why the purchase did not succeed, for any other outcome, such as
+     * 3ds_challenge, captcha, login_required, timeout or site_error. payment_declined
+     * goes only with DECLINED, which takes no other code. Shop Pay reports it; other
+     * providers ignore it.
+     */
+    failure_code?: string;
+
+    /**
+     * Body param: The merchant's order number, for an APPROVED outcome. Shop Pay
+     * reports it; other providers ignore it.
+     */
+    order_id?: string;
+
+    /**
+     * Body param: The merchant's https order page, for an APPROVED outcome. Shop Pay
+     * reports it; other providers ignore it.
+     */
+    order_url?: string;
   }
 
   export interface CollectVaultItemOperationRequest {
@@ -4444,7 +4669,8 @@ export declare namespace ItemUpsertParams {
     spec:
       | WalletVaultItemRequest.LinkWalletVaultItemRequestSpec
       | WalletVaultItemRequest.AgentCardWalletVaultItemSpec
-      | KernelWalletVaultItemSpec;
+      | KernelWalletVaultItemSpec
+      | ShopPayWalletVaultItemSpec;
 
     /**
      * Body param
@@ -4752,6 +4978,10 @@ export declare namespace Items {
     type RemovePaymentMethodVaultItemOperationRequest as RemovePaymentMethodVaultItemOperationRequest,
     type RemovePaymentMethodVaultItemOperationResult as RemovePaymentMethodVaultItemOperationResult,
     type RestartVerificationVaultItemOperationRequest as RestartVerificationVaultItemOperationRequest,
+    type ShopPayCardState as ShopPayCardState,
+    type ShopPayCardVaultItemSpec as ShopPayCardVaultItemSpec,
+    type ShopPayWalletState as ShopPayWalletState,
+    type ShopPayWalletVaultItemSpec as ShopPayWalletVaultItemSpec,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
     type VaultCheckoutContext as VaultCheckoutContext,
