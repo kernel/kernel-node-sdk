@@ -147,11 +147,15 @@ jobs:
             exit 0
           fi
 
+          # The report replaces the PR description, so audit every release since
+          # main's SDK version, not only the ones since the last run.
+          old_version=$(git show origin/main:package.json | jq -er '.dependencies["@onkernel/sdk"]')
           if git -C ../sdk rev-parse --verify "refs/tags/v$old_version" >/dev/null 2>&1; then
-            git -C ../sdk diff "refs/tags/v$old_version" "$SDK_SHA" -- api.md src/resources > "$RUNNER_TEMP/sdk-diff.patch"
+            git -C ../sdk diff "refs/tags/v$old_version" "$SDK_SHA" \
+              -- api.md src/client.ts src/lib src/resources > "$RUNNER_TEMP/sdk-diff.patch"
             echo "old_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "refs/tags/v$old_version")" >> "$GITHUB_OUTPUT"
           else
-            printf 'Baseline %s unavailable; audit all of api.md and src/resources.\n' "$old_version" > "$RUNNER_TEMP/sdk-diff.patch"
+            printf 'Baseline %s unavailable; audit all of api.md, src/client.ts, src/lib, and src/resources.\n' "$old_version" > "$RUNNER_TEMP/sdk-diff.patch"
           fi
           echo "new_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "$SDK_SHA")" >> "$GITHUB_OUTPUT"
           echo "update=true" >> "$GITHUB_OUTPUT"
