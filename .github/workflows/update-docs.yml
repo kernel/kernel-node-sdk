@@ -1,0 +1,416 @@
+name: Update Docs
+
+on:
+  workflow_run:
+    workflows: [Publish NPM]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      since_version:
+        description: 'Audit SDK changes after this release (for example 0.130.0) instead of the computed baseline'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-docs
+  cancel-in-progress: false
+
+jobs:
+  sdk-version:
+    if: >-
+      github.repository == 'kernel/kernel-node-sdk' &&
+      (github.event_name == 'workflow_dispatch' ||
+        (github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Resolve published SDK version
+        id: version
+        run: |
+          version=$(jq -er 'select(.name == "@onkernel/sdk") | .version' package.json)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Skipping non-stable SDK version: $version"
+            exit 0
+          fi
+          # Manual runs start from main, which can be ahead of the release.
+          git fetch -q --depth=1 origin "refs/tags/v$version:refs/tags/v$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse "refs/tags/v$version^{commit}")" >> "$GITHUB_OUTPUT"
+
+  generate:
+    needs: sdk-version
+    if: needs.sdk-version.outputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    outputs:
+      changed: ${{ steps.snapshot.outputs.changed }}
+      main_sha: ${{ steps.prepare.outputs.main_sha }}
+      update_sha: ${{ steps.prepare.outputs.update_sha }}
+      rebased: ${{ steps.prepare.outputs.rebased }}
+      agent_base_tree: ${{ steps.prepare.outputs.agent_base_tree }}
+    env:
+      SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
+      SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
+      SINCE_VERSION: ${{ inputs.since_version }}
+      UPDATE_BRANCH: sdk-docs-update
+    steps:
+      - name: Checkout updater instructions
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout published SDK
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ env.SDK_SHA }}
+          path: sdk
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout Python SDK
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/kernel-python-sdk
+          path: python-sdk
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout Go SDK
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/kernel-go-sdk
+          path: go-sdk
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select matching Python and Go SDK releases
+        run: |
+          for sdk in python-sdk go-sdk; do
+            if git -C "$sdk" rev-parse --verify --quiet "refs/tags/v$SDK_VERSION" >/dev/null; then
+              git -C "$sdk" switch -q --detach "v$SDK_VERSION"
+            else
+              echo "::warning::$sdk has no v$SDK_VERSION tag yet; using its default branch."
+            fi
+          done
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Checkout docs
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/docs
+          path: docs
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare update branch and SDK diff
+        id: prepare
+        working-directory: docs
+        run: |
+          git config user.name 'kernel-internal[bot]'
+          git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
+          echo "main_sha=$(git rev-parse origin/main)" >> "$GITHUB_OUTPUT"
+          if git show-ref --verify --quiet "refs/remotes/origin/$UPDATE_BRANCH"; then
+            echo "update_sha=$(git rev-parse "origin/$UPDATE_BRANCH")" >> "$GITHUB_OUTPUT"
+            git switch --track "origin/$UPDATE_BRANCH"
+            if ! git rebase origin/main; then
+              git rebase --abort
+              # A bot-only branch can be regenerated from main by re-auditing every
+              # release since main's last docs update. Human commits must be kept.
+              if git log --no-merges --format=%ae "origin/main..origin/$UPDATE_BRANCH" \
+                | grep -qvxF '260533166+kernel-internal[bot]@users.noreply.github.com'; then
+                echo "::error::$UPDATE_BRANCH has human commits that conflict with main. Resolve the conflicts on that branch, then rerun this workflow."
+                exit 1
+              fi
+              echo "::warning::$UPDATE_BRANCH conflicts with main; regenerating it from main."
+              git switch -C "$UPDATE_BRANCH" origin/main
+              regenerated=true
+            else
+              echo "rebased=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            git switch -c "$UPDATE_BRANCH" origin/main
+          fi
+          # The agent's changes are published on top of this head, so human
+          # commits on the update branch keep their content and authorship.
+          echo "agent_base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "agent_base_tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+
+          # Bot commits record each audited release, so a run older than one
+          # already on the branch or main is stale.
+          covered=$(git log --format=%s HEAD \
+            | sed -nE 's/^Docs: Update for Node SDK ([0-9]+\.[0-9]+\.[0-9]+)( \(#[0-9]+\))?$/\1/p' \
+            | sort -V | tail -1)
+          if [[ -n "$covered" ]] &&
+            [[ "$(printf '%s\n' "$covered" "$SDK_VERSION" | sort -V | tail -1)" == "$covered" ]]; then
+            echo "Docs already cover SDK $covered; skipping stale run."
+            exit 0
+          fi
+
+          # Each run audits one release; earlier releases were audited by
+          # earlier runs, whether or not they changed anything.
+          old_version=$SINCE_VERSION
+          if [[ -z "$old_version" && "${regenerated:-}" == true ]]; then
+            old_version=$covered
+          fi
+          if [[ -z "$old_version" ]]; then
+            old_version=$(git -C ../sdk tag --merged "$SDK_SHA^" --list 'v*' \
+              | sed -nE 's/^v([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' | sort -V | tail -1)
+          fi
+          git -C ../sdk rev-parse --verify --quiet "refs/tags/v$old_version" >/dev/null
+          git -C ../sdk diff "refs/tags/v$old_version" "$SDK_SHA" \
+            -- CHANGELOG.md api.md src/client.ts src/lib src/resources > "$RUNNER_TEMP/sdk-diff.patch"
+          old_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "refs/tags/v$old_version")
+          {
+            echo "old_date=$old_date"
+            echo "new_date=$(TZ=UTC git -C ../sdk log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd "$SDK_SHA")"
+          } >> "$GITHUB_OUTPUT"
+
+          # Docs people wrote since the baseline, so the agent does not duplicate them.
+          git log --since="$old_date" --name-only --format='%h %s' origin/main -- '*.mdx' docs.json \
+            > "$RUNNER_TEMP/recent-docs-commits.txt"
+          echo "update=true" >> "$GITHUB_OUTPUT"
+
+      - name: Collect open docs PRs
+        if: steps.prepare.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REBASED: ${{ steps.prepare.outputs.rebased }}
+        run: |
+          gh pr list --repo kernel/docs --state open --limit 100 \
+            --json number,title,headRefName,files \
+            --jq '.[] | select(.headRefName != env.UPDATE_BRANCH) | "#\(.number) \(.title)\n" + ([.files[].path | "  " + .] | join("\n"))' \
+            > "$RUNNER_TEMP/open-docs-prs.txt"
+          # The new report must still describe the changes already on the branch.
+          if [[ "$REBASED" == true ]]; then
+            gh pr list --repo kernel/docs --head "$UPDATE_BRANCH" --base main --state open \
+              --json body --jq '.[0].body // empty' > "$RUNNER_TEMP/previous-report.md"
+          fi
+
+      - name: Generate API read token
+        if: steps.prepare.outputs.update == 'true'
+        id: api-read-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: kernel
+          permission-contents: read
+
+      - name: Fetch API spec
+        if: steps.prepare.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ steps.api-read-token.outputs.token }}
+          OLD_DATE: ${{ steps.prepare.outputs.old_date }}
+          NEW_DATE: ${{ steps.prepare.outputs.new_date }}
+        run: |
+          main_at() {
+            gh api -X GET repos/kernel/kernel/commits -f sha=main -f until="$1" -f per_page=1 --jq '.[0].sha // empty'
+          }
+          file_at() {
+            gh api -H 'Accept: application/vnd.github.raw' "repos/kernel/kernel/contents/$1?ref=$2"
+          }
+          spec="$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml"
+          head=$(main_at "$NEW_DATE")
+          test -n "$head"
+          mkdir -p "$(dirname "$spec")"
+          file_at packages/api/openapi.yaml "$head" > "$spec"
+          base=""
+          if [[ -n "$OLD_DATE" ]]; then
+            base=$(main_at "$OLD_DATE")
+          fi
+          if [[ -n "$base" ]]; then
+            file_at packages/api/openapi.yaml "$base" > "$RUNNER_TEMP/openapi-base.yaml"
+            diff -u --label "openapi.yaml@$base" --label "openapi.yaml@$head" \
+              "$RUNNER_TEMP/openapi-base.yaml" "$spec" \
+              > "$RUNNER_TEMP/openapi-diff.patch" || [[ $? -eq 1 ]]
+            rm "$RUNNER_TEMP/openapi-base.yaml"
+          else
+            printf 'Spec baseline unavailable; compare all relevant descriptions in openapi.yaml.\n' > "$RUNNER_TEMP/openapi-diff.patch"
+          fi
+          gh api --method DELETE /installation/token
+
+      - name: Install Pi and Mintlify CLI
+        if: steps.prepare.outputs.update == 'true'
+        env:
+          PI_TELEMETRY: '0'
+        run: |
+          # mint matches the version pinned by the docs repo's broken-links check.
+          npm install -g --ignore-scripts @earendil-works/pi-coding-agent mint@4.2.930
+          pi --version
+
+      - name: Update docs
+        if: steps.prepare.outputs.update == 'true'
+        working-directory: docs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PI_PREFERRED_MODEL: ${{ vars.PI_PREFERRED_MODEL }}
+          PI_SKIP_VERSION_CHECK: '1'
+          PI_TELEMETRY: '0'
+        run: |
+          : "${PI_PREFERRED_MODEL:?Set the PI_PREFERRED_MODEL organization variable}"
+          pi --print --no-session --approve \
+            --model "$PI_PREFERRED_MODEL" --thinking max \
+            @../.github/prompts/update-docs.md
+
+      - name: Snapshot publishable changes
+        if: steps.prepare.outputs.update == 'true'
+        id: snapshot
+        working-directory: docs
+        env:
+          AGENT_BASE: ${{ steps.prepare.outputs.agent_base }}
+        run: |
+          git reset -q --soft "$AGENT_BASE"
+          git add -A
+          git diff --cached --name-only --no-renames -z \
+            | bash ../.github/scripts/docs-update-disallowed-paths.sh > "$RUNNER_TEMP/excluded-paths"
+          if [[ -s "$RUNNER_TEMP/excluded-paths" ]]; then
+            echo "::warning::Discarding changes outside the docs updater allowlist:"
+            tr '\0' '\n' < "$RUNNER_TEMP/excluded-paths"
+            GIT_LITERAL_PATHSPECS=1 git reset -q --pathspec-from-file="$RUNNER_TEMP/excluded-paths" --pathspec-file-nul
+          fi
+          git diff --cached --binary --no-renames --no-ext-diff --no-textconv > "$RUNNER_TEMP/changes.patch"
+          git reset -q --hard
+          git clean -fdq
+          if [[ -s "$RUNNER_TEMP/changes.patch" ]]; then
+            git apply --index "$RUNNER_TEMP/changes.patch"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify docs changes
+        if: steps.prepare.outputs.update == 'true'
+        working-directory: docs
+        run: |
+          test -s "$RUNNER_TEMP/docs-update-report.md"
+          # No-op runs open no PR, so their missing-coverage notes live here.
+          cat "$RUNNER_TEMP/docs-update-report.md" >> "$GITHUB_STEP_SUMMARY"
+          jq empty docs.json
+          mint broken-links
+          git diff --cached --check
+
+      - name: Upload validated changes
+        if: steps.snapshot.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sdk-docs-update
+          path: |
+            ${{ runner.temp }}/changes.patch
+            ${{ runner.temp }}/docs-update-report.md
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [sdk-version, generate]
+    if: needs.generate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
+      MAIN_SHA: ${{ needs.generate.outputs.main_sha }}
+      UPDATE_SHA: ${{ needs.generate.outputs.update_sha }}
+      REBASED: ${{ needs.generate.outputs.rebased }}
+      AGENT_BASE_TREE: ${{ needs.generate.outputs.agent_base_tree }}
+      UPDATE_BRANCH: sdk-docs-update
+    steps:
+      - name: Checkout updater scripts
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Download validated changes
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: sdk-docs-update
+          path: ${{ runner.temp }}/sdk-docs-update
+
+      - name: Checkout docs
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/docs
+          path: docs
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Apply validated changes
+        working-directory: docs
+        run: |
+          git config user.name 'kernel-internal[bot]'
+          git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
+          if [[ "$REBASED" == true ]]; then
+            git switch -c "$UPDATE_BRANCH" "$UPDATE_SHA"
+            git rebase -q "$MAIN_SHA"
+          else
+            git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
+          fi
+          if [[ "$(git rev-parse 'HEAD^{tree}')" != "$AGENT_BASE_TREE" ]]; then
+            echo "::error::The rebuilt update branch differs from the one the changes were validated on."
+            exit 1
+          fi
+          git apply --index "$RUNNER_TEMP/sdk-docs-update/changes.patch"
+          git diff --cached --name-only --no-renames -z \
+            | bash ../.github/scripts/docs-update-disallowed-paths.sh > "$RUNNER_TEMP/disallowed-paths"
+          if [[ -s "$RUNNER_TEMP/disallowed-paths" ]]; then
+            echo "::error::Validated changes include paths outside the docs updater allowlist:"
+            tr '\0' '\n' < "$RUNNER_TEMP/disallowed-paths"
+            exit 1
+          fi
+          if git diff --cached --raw --no-renames | awk '$2 !~ /^(100644|100755|000000)$/ { found = 1 } END { exit !found }'; then
+            echo "::error::Validated changes may only contain regular files."
+            exit 1
+          fi
+          git commit -q -m "Docs: Update for Node SDK $SDK_VERSION"
+
+      - name: Generate docs repository token
+        id: app-token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ secrets.ADMIN_APP_ID }}
+          private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
+          owner: kernel
+          repositories: docs
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Open or update docs PR
+        working-directory: docs
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          if git diff --quiet origin/main HEAD; then
+            echo "Docs are already up to date."
+            exit 0
+          fi
+          gh auth setup-git
+          git push --force-with-lease="$UPDATE_BRANCH:$UPDATE_SHA" origin "$UPDATE_BRANCH"
+
+          body="$RUNNER_TEMP/docs-update-pr.md"
+          {
+            printf '## Summary\n\n- Document `@onkernel/sdk` changes through `%s`.\n' "$SDK_VERSION"
+            printf '\n## Changes\n\n'
+            head -c 60000 "$RUNNER_TEMP/sdk-docs-update/docs-update-report.md"
+            printf '\n## Validation\n\n- `mint broken-links`\n- `docs.json` parses\n- `git diff --check`\n'
+          } > "$body"
+          pr=$(gh pr list --repo kernel/docs --head "$UPDATE_BRANCH" --base main \
+            --state open --json number --jq '.[0].number // empty')
+          title="Docs: Update for Node SDK $SDK_VERSION"
+          if [[ -n "$pr" ]]; then
+            gh pr edit "$pr" --repo kernel/docs --title "$title" --body-file "$body"
+          else
+            gh pr create --repo kernel/docs --head "$UPDATE_BRANCH" --base main \
+              --title "$title" --body-file "$body"
+          fi
