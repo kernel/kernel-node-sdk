@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.139.0](https://github.com/kernel/kernel-node-sdk/compare/v0.138.0...v0.139.0) (2026-10-30)
+
+
+### Features
+
+* Expose leased_at on browser session responses ([c01f102](https://github.com/kernel/kernel-node-sdk/commit/c01f102ca3ee5e8a0473bdbb29aaa681fc0c5e2e))
+
 ## [0.138.0](https://github.com/kernel/kernel-node-sdk/compare/v0.137.0...v0.138.0) (2026-10-30)
 
 
