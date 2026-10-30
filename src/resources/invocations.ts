@@ -528,6 +528,12 @@ export namespace InvocationListBrowsersResponse {
     kiosk_mode?: boolean;
 
     /**
+     * When the pooled browser session was last leased. Only present for leased pooled
+     * sessions.
+     */
+    leased_at?: string;
+
+    /**
      * Effective browser timezone and locale with per-field provenance.
      */
     location?: BrowsersAPI.BrowserLocation;
