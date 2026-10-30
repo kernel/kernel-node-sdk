@@ -985,6 +985,12 @@ export interface BrowserCreateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
+
+  /**
    * Effective browser timezone and locale with per-field provenance.
    */
   location?: BrowserLocation;
@@ -1164,6 +1170,12 @@ export interface BrowserRetrieveResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
 
   /**
    * Effective browser timezone and locale with per-field provenance.
@@ -1347,6 +1359,12 @@ export interface BrowserUpdateResponse {
   kiosk_mode?: boolean;
 
   /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
+
+  /**
    * Effective browser timezone and locale with per-field provenance.
    */
   location?: BrowserLocation;
@@ -1526,6 +1544,12 @@ export interface BrowserListResponse {
    * Whether the browser session is running in kiosk mode.
    */
   kiosk_mode?: boolean;
+
+  /**
+   * When the pooled browser session was last leased. Only present for leased pooled
+   * sessions.
+   */
+  leased_at?: string;
 
   /**
    * Effective browser timezone and locale with per-field provenance.
