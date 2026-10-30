@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.138.0](https://github.com/kernel/kernel-node-sdk/compare/v0.137.0...v0.138.0) (2026-10-30)
+
+
+### Features
+
+* Pause managed auth logins for human verification on unsolvable captchas ([963393f](https://github.com/kernel/kernel-node-sdk/commit/963393ff0db25e9f547ec870ba8df57b6ee21a4c))
+
 ## [0.137.0](https://github.com/kernel/kernel-node-sdk/compare/v0.136.0...v0.137.0) (2026-10-29)
 
 
