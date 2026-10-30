@@ -239,6 +239,12 @@ export interface ManagedAuth {
   domain: string;
 
   /**
+   * Whether a login blocked by a CAPTCHA the browser cannot solve pauses at
+   * AWAITING_HUMAN_INTERVENTION so a person can complete it in the live view.
+   */
+  hitl: boolean;
+
+  /**
    * Name of the profile associated with this auth connection
    */
   profile_name: string;
@@ -445,6 +451,7 @@ export interface ManagedAuth {
     | 'DISCOVERING'
     | 'AWAITING_INPUT'
     | 'AWAITING_EXTERNAL_ACTION'
+    | 'AWAITING_HUMAN_INTERVENTION'
     | 'SUBMITTING'
     | 'COMPLETED'
     | null;
@@ -680,7 +687,8 @@ export namespace ManagedAuth {
     label: string;
 
     /**
-     * Choice type.
+     * Choice type. A `human_intervention` choice confirms the person finished the
+     * challenge in the live view.
      */
     type:
       | 'mfa_method'
@@ -689,6 +697,7 @@ export namespace ManagedAuth {
       | 'auth_method'
       | 'identifier_method'
       | 'account'
+      | 'human_intervention'
       | 'other';
 
     /**
@@ -1156,6 +1165,15 @@ export interface ManagedAuthCreateRequest {
   health_checks?: boolean;
 
   /**
+   * Whether a login blocked by a CAPTCHA the browser cannot solve pauses for a
+   * person instead of failing. The flow moves to AWAITING_HUMAN_INTERVENTION with a
+   * `human_intervention` choice; the person completes the challenge in
+   * `live_view_url`, then submits that choice to resume. Reauthentication never
+   * pauses. Defaults to false.
+   */
+  hitl?: boolean;
+
+  /**
    * Optional login page URL to skip discovery
    */
   login_url?: string;
@@ -1481,6 +1499,12 @@ export interface ManagedAuthUpdateRequest {
   health_checks?: boolean;
 
   /**
+   * Whether a login blocked by a CAPTCHA the browser cannot solve pauses for a
+   * person instead of failing
+   */
+  hitl?: boolean;
+
+  /**
    * Login page URL. Set to empty string to clear.
    */
   login_url?: string;
@@ -1742,7 +1766,13 @@ export namespace ConnectionFollowResponse {
     /**
      * Current step in the flow.
      */
-    flow_step: 'DISCOVERING' | 'AWAITING_INPUT' | 'AWAITING_EXTERNAL_ACTION' | 'SUBMITTING' | 'COMPLETED';
+    flow_step:
+      | 'DISCOVERING'
+      | 'AWAITING_INPUT'
+      | 'AWAITING_EXTERNAL_ACTION'
+      | 'AWAITING_HUMAN_INTERVENTION'
+      | 'SUBMITTING'
+      | 'COMPLETED';
 
     /**
      * Time the state was reported.
@@ -1851,7 +1881,8 @@ export namespace ConnectionFollowResponse {
       label: string;
 
       /**
-       * Choice type.
+       * Choice type. A `human_intervention` choice confirms the person finished the
+       * challenge in the live view.
        */
       type:
         | 'mfa_method'
@@ -1860,6 +1891,7 @@ export namespace ConnectionFollowResponse {
         | 'auth_method'
         | 'identifier_method'
         | 'account'
+        | 'human_intervention'
         | 'other';
 
       /**
@@ -2158,6 +2190,15 @@ export interface ConnectionCreateParams {
   health_checks?: boolean;
 
   /**
+   * Whether a login blocked by a CAPTCHA the browser cannot solve pauses for a
+   * person instead of failing. The flow moves to AWAITING_HUMAN_INTERVENTION with a
+   * `human_intervention` choice; the person completes the challenge in
+   * `live_view_url`, then submits that choice to resume. Reauthentication never
+   * pauses. Defaults to false.
+   */
+  hitl?: boolean;
+
+  /**
    * Optional login page URL to skip discovery
    */
   login_url?: string;
@@ -2386,6 +2427,12 @@ export interface ConnectionUpdateParams {
    * health check).
    */
   health_checks?: boolean;
+
+  /**
+   * Whether a login blocked by a CAPTCHA the browser cannot solve pauses for a
+   * person instead of failing
+   */
+  hitl?: boolean;
 
   /**
    * Login page URL. Set to empty string to clear.
