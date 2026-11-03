@@ -2427,10 +2427,12 @@ export namespace OnePasswordCredentialVaultItemState {
 
 /**
  * Fill and submit an approved 1Password login in the selected browser page. The
- * page must share the selected entry's login origin. Supply entry_id when more
- * than one approved entry matches the page origin, and target_id when more than
- * one open page has page_url. The extension selects fields; callers cannot supply
- * selectors or secret values. Submission does not confirm website authentication.
+ * 1Password extension decides whether the approved login matches the page and
+ * refuses pages that don't. Supply entry_id when several entries are approved and
+ * the page origin does not identify exactly one of them, and target_id when more
+ * than one open page has page_url. The extension selects fields; callers cannot
+ * supply selectors or secret values. Submission does not confirm website
+ * authentication.
  */
 export interface OnePasswordFillVaultItemOperationRequest {
   /**
@@ -2447,8 +2449,8 @@ export interface OnePasswordFillVaultItemOperationRequest {
   type: '1pw_fill';
 
   /**
-   * ID of an approved request entry. Required when several approved entries have the
-   * page's origin.
+   * ID of an approved request entry. Required when several entries are approved and
+   * the page's origin does not match exactly one of them.
    */
   entry_id?: string;
 
@@ -4507,8 +4509,8 @@ export declare namespace ItemPerformOperationParams {
     type: '1pw_fill';
 
     /**
-     * Body param: ID of an approved request entry. Required when several approved
-     * entries have the page's origin.
+     * Body param: ID of an approved request entry. Required when several entries are
+     * approved and the page's origin does not match exactly one of them.
      */
     entry_id?: string;
 
