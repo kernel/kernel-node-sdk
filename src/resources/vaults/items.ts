@@ -863,6 +863,7 @@ export namespace CredentialAccountVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -1243,6 +1244,7 @@ export namespace CredentialVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -2677,6 +2679,7 @@ export namespace PaymentRequestVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -3402,6 +3405,7 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3501,6 +3505,7 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3692,6 +3697,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3791,6 +3797,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3942,6 +3949,14 @@ export namespace WalletVaultItemSpec {
       client: Authorization.KernelManagedOAuthClient | Authorization.CustomerManagedOAuthClient;
 
       method: 'oauth';
+
+      /**
+       * Who refreshes an imported Link grant. kernel (default) means Kernel holds and
+       * rotates the refresh token. customer means your backend keeps the refresh token
+       * and replaces the access token with update_access_token; Kernel never refreshes
+       * or revokes the grant. Fixed at wallet creation.
+       */
+      token_refresh?: 'kernel' | 'customer';
     }
 
     export namespace Authorization {
@@ -4268,6 +4283,7 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
+  | ItemPerformOperationParams.UpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
   | ItemPerformOperationParams.AddPaymentMethodVaultItemOperationRequest
   | ItemPerformOperationParams.RemovePaymentMethodVaultItemOperationRequest;
@@ -4641,6 +4657,23 @@ export declare namespace ItemPerformOperationParams {
     access_token_expires_at?: string;
   }
 
+  export interface UpdateAccessTokenVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    access_token: string;
+
+    /**
+     * Body param
+     */
+    type: 'update_access_token';
+  }
+
   export interface WebmcpInvokeVaultItemOperationRequest {
     /**
      * Path param
@@ -4794,26 +4827,34 @@ export declare namespace ItemUpsertParams {
        * wallet with state.status=connected. An expired, invalid, revoked, or
        * insufficiently scoped access token returns 400 and no wallet is created. Refresh
        * expired tokens in your backend before importing them. A failed import does not
-       * modify existing wallets. After successful import, Kernel owns subsequent
-       * refresh-token rotation; the customer must stop refreshing this grant. Import
-       * does not verify the refresh token: if it or the configured client credentials
-       * are rejected during a later refresh, the imported wallet becomes degraded. An
-       * unknown refresh outcome also leaves it degraded; Kernel does not retry a refresh
-       * token that may already have been consumed. There is no in-place reauthorization
-       * operation for an imported wallet. If this imported wallet's credentials become
-       * unusable, obtain a fresh Link OAuth grant in your backend and create a wallet
-       * under a NEW wallet key. Use the new wallet for NEW cards and payments, not to
-       * retry an old payment whose outcome is uncertain. This does not replace the old
-       * grant, rebind existing cards, or resolve their payment outcomes. Retain the old
-       * wallet and its cards while reconciling any uncertain payments with the provider
-       * or support. Do not repeat an uncertain payment on the new wallet, and do not
-       * treat deletion as evidence that it did not execute. Deletion of the old wallet
-       * can remain blocked by unresolved child cards. Repeating a create for the same
-       * item key and non-secret spec returns the existing wallet without replacing
-       * tokens, even if they have rotated or the wallet needs reconnection. ID and name
-       * references resolving to the same config are equivalent. A different config or
-       * non-secret spec returns 409. This create operation does not replace an existing
-       * grant.
+       * modify existing wallets. By default (token_refresh=kernel), Kernel owns
+       * subsequent refresh-token rotation after a successful import; the customer must
+       * stop refreshing this grant. With token_refresh=customer, send only the access
+       * token: your backend keeps the refresh token and rotates the grant, and Kernel
+       * never refreshes or revokes it. Replace the stored access token with the wallet's
+       * update_access_token operation before each step that reaches Link, such as
+       * creating, authorizing or filling a card. When Link rejects the stored access
+       * token, operations return 409 without contacting Link again; update the token and
+       * retry. The remainder of this description applies to token_refresh=kernel. With
+       * token_refresh=kernel, Kernel owns subsequent refresh-token rotation; the
+       * customer must stop refreshing this grant. Import does not verify the refresh
+       * token: if it or the configured client credentials are rejected during a later
+       * refresh, the imported wallet becomes degraded. An unknown refresh outcome also
+       * leaves it degraded; Kernel does not retry a refresh token that may already have
+       * been consumed. There is no in-place reauthorization operation for an imported
+       * wallet. If this imported wallet's credentials become unusable, obtain a fresh
+       * Link OAuth grant in your backend and create a wallet under a NEW wallet key. Use
+       * the new wallet for NEW cards and payments, not to retry an old payment whose
+       * outcome is uncertain. This does not replace the old grant, rebind existing
+       * cards, or resolve their payment outcomes. Retain the old wallet and its cards
+       * while reconciling any uncertain payments with the provider or support. Do not
+       * repeat an uncertain payment on the new wallet, and do not treat deletion as
+       * evidence that it did not execute. Deletion of the old wallet can remain blocked
+       * by unresolved child cards. Repeating a create for the same item key and
+       * non-secret spec returns the existing wallet without replacing tokens, even if
+       * they have rotated or the wallet needs reconnection. ID and name references
+       * resolving to the same config are equivalent. A different config or non-secret
+       * spec returns 409. This create operation does not replace an existing grant.
        */
       export interface ImportedLinkAuthorizationInput {
         client: ImportedLinkAuthorizationInput.Client;
@@ -4821,13 +4862,22 @@ export declare namespace ItemUpsertParams {
         method: 'oauth';
 
         /**
-         * Send the token pair from your backend. Both tokens must be from the same Link
-         * grant under the referenced client. Supply a currently valid access token. Kernel
-         * refreshes when needed after import and uses the expiry returned by Link for
-         * subsequent tokens. Tokens are never returned in wallet responses, events, or
+         * Send the tokens from your backend. Supply a currently valid access token. With
+         * token_refresh=kernel, also send the refresh token from the same Link grant under
+         * the referenced client; Kernel refreshes when needed after import and uses the
+         * expiry returned by Link for subsequent tokens. With token_refresh=customer, omit
+         * the refresh token. Tokens are never returned in wallet responses, events, or
          * logs.
          */
         tokens: ImportedLinkAuthorizationInput.Tokens;
+
+        /**
+         * Who refreshes an imported Link grant. kernel (default) means Kernel holds and
+         * rotates the refresh token. customer means your backend keeps the refresh token
+         * and replaces the access token with update_access_token; Kernel never refreshes
+         * or revokes the grant. Fixed at wallet creation.
+         */
+        token_refresh?: 'kernel' | 'customer';
       }
 
       export namespace ImportedLinkAuthorizationInput {
@@ -4856,16 +4906,20 @@ export declare namespace ItemUpsertParams {
         }
 
         /**
-         * Send the token pair from your backend. Both tokens must be from the same Link
-         * grant under the referenced client. Supply a currently valid access token. Kernel
-         * refreshes when needed after import and uses the expiry returned by Link for
-         * subsequent tokens. Tokens are never returned in wallet responses, events, or
+         * Send the tokens from your backend. Supply a currently valid access token. With
+         * token_refresh=kernel, also send the refresh token from the same Link grant under
+         * the referenced client; Kernel refreshes when needed after import and uses the
+         * expiry returned by Link for subsequent tokens. With token_refresh=customer, omit
+         * the refresh token. Tokens are never returned in wallet responses, events, or
          * logs.
          */
         export interface Tokens {
           access_token: string;
 
-          refresh_token: string;
+          /**
+           * Required with token_refresh=kernel; rejected with token_refresh=customer.
+           */
+          refresh_token?: string;
         }
       }
     }
