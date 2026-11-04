@@ -551,6 +551,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemSpecInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelCredentialVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelPaymentRequestVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">KernelSingleUseCard</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">LinkShippingAddress</a></code>
@@ -582,6 +583,7 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">ShopPayCardVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ShopPayWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ShopPayWalletVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">SingleUseCardBillingAddress</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardAliases</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCardFillField</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultCheckoutContext</a></code>

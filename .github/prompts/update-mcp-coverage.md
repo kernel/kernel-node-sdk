@@ -8,7 +8,9 @@ Do not downgrade or change that version.
 ## Audit and implement
 
 1. Read `$RUNNER_TEMP/sdk-diff.patch`, `../sdk/api.md`, and the parameter types in
-   `../sdk/src/resources`. Enumerate SDK methods and their parameters, including
+   `../sdk/src/resources`. The diff covers every release since the SDK version on
+   origin/main, so earlier runs may already have covered part of it on this branch.
+   Enumerate SDK methods and their parameters, including
    nested options, new enum values, pagination, streaming, and changed signatures.
 2. Read `src/lib/mcp/register.ts`, `src/lib/mcp/tools/`, and shared MCP schemas.
    Map SDK methods/parameters to registered MCP tools, actions, and input fields.
@@ -31,9 +33,14 @@ Do not downgrade or change that version.
 
 The Kernel API spec as of this SDK release is at
 `$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml`, and `$RUNNER_TEMP/openapi-diff.patch`
-shows spec changes between the previous SDK release and this one. The SDK is generated
+shows spec changes between origin/main's SDK release and this one. The SDK is generated
 from this spec, so its endpoint, parameter, and schema descriptions are the source of
 truth for what the API does.
+
+The spec is taken from the API's main branch at release time and can be ahead of the
+released SDK. The SDK defines what exists: never add tools, actions, or inputs for
+operations or fields `../sdk` does not have. Use the spec only for the meaning of
+things the SDK has.
 
 1. For every changed `summary` or `description` in the spec diff that belongs to an
    endpoint, parameter, or field the MCP server exposes, update the matching tool
@@ -68,7 +75,9 @@ unrelated code, workflows, generated App bundles, or authentication configuratio
 Read the complete diff against origin/main before finishing. Remove unnecessary
 comments, type casts, defensive wrappers, and unrelated changes.
 
-Write `$RUNNER_TEMP/mcp-coverage-report.md` with concise sections describing:
+Write `$RUNNER_TEMP/mcp-coverage-report.md`. It replaces the PR description, so it
+must describe every change in the diff against origin/main, including changes earlier
+runs left on this branch, not only this run's. Use concise sections describing:
 
 - Added or updated MCP tools, actions, and fields, with their SDK counterparts.
 - Descriptions updated to match spec changes, with the spec operation or field each

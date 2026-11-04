@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.140.0](https://github.com/kernel/kernel-node-sdk/compare/v0.139.0...v0.140.0) (2026-11-04)
+
+
+### Features
+
+* Add single-use Kernel cards to vaults ([05a01e6](https://github.com/kernel/kernel-node-sdk/commit/05a01e6dd33052d7fd8efa188111ad0b3ee9c5a8))
+* Drop Kernel's origin gate from 1Password fill ([7d574cd](https://github.com/kernel/kernel-node-sdk/commit/7d574cd28c308cb6e13d16f3a86a88930feb6bf7))
+* Let customers keep refreshing imported Link wallet grants ([49af4e9](https://github.com/kernel/kernel-node-sdk/commit/49af4e96ee6b3b0b86cfcf43ee3fafa47ffac590))
+* Pass through tool_page_unloaded and disable SDK retries for WebMCP invoke failures ([15c227b](https://github.com/kernel/kernel-node-sdk/commit/15c227b28055c40c82087e23cddba3bdcad836f0))
+
 ## [0.139.0](https://github.com/kernel/kernel-node-sdk/compare/v0.138.0...v0.139.0) (2026-10-30)
 
 

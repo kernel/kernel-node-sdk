@@ -863,6 +863,7 @@ export namespace CredentialAccountVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -1243,6 +1244,7 @@ export namespace CredentialVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -1471,16 +1473,25 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * A ready Kernel card supports authorize, fill, then submit checkout. Card details
- * are delivered for a few minutes after fill; submit promptly. Repeated fill is
- * safe and never submits checkout. Visa purchases require a spend_approval action
- * before details are issued; Mastercard purchases need no hosted approval.
- * masks.last4 is the enrolled card's last four digits; masks.token_last4, when
- * present, is the token's last four digits shown to the merchant. Kernel does not
- * observe whether the merchant charged the card.
+ * A ready Kernel card funded by a payment method supports authorize, fill, then
+ * submit checkout. A single-use card (source single_use_card) is ready on
+ * creation, supports only fill, and is expired from expires_at; Kernel deletes its
+ * stored details shortly after expires_at. It has no payment_method_id or
+ * funding_status. Card details are delivered for a few minutes after fill; submit
+ * promptly. Repeated fill is safe and never submits checkout. Visa purchases
+ * require a spend_approval action before details are issued; Mastercard purchases
+ * need no hosted approval. masks.last4 is the enrolled card's last four digits;
+ * masks.token_last4, when present, is the token's last four digits shown to the
+ * merchant. Kernel does not observe whether the merchant charged the card.
  */
 export interface KernelCardState {
   provider: 'kernel';
+
+  /**
+   * payment_method for a purchase funded by a wallet payment method; single_use_card
+   * for a card whose details were supplied with single_use_card.
+   */
+  source: 'payment_method' | 'single_use_card';
 
   /**
    * pending_authorization waits for cardholder approval on Visa purchases or fresh
@@ -1511,7 +1522,9 @@ export interface KernelCardState {
     | 'recovery_required';
 
   /**
-   * Informational registrable domain. Fill is locked to merchant_url's exact origin.
+   * Informational registrable domain. Fill is locked to merchant_url's exact origin,
+   * except that a single-use card fills on any https page of this registrable
+   * domain.
    */
   domains?: Array<string>;
 
@@ -1568,7 +1581,18 @@ export namespace KernelCardState {
  * after collection. An expired card requires a new purchase. Fill types those
  * details on merchant_url's origin. The amount, merchant_url and merchant_country
  * are recorded but do not restrict payment requests sent by the browser. Card
- * updates are not supported; delete and create a new item instead.
+ * updates are not supported; delete and create a new item instead. With
+ * single_use_card the item is instead a single-use card whose details the caller
+ * supplies, such as a virtual card from its issuer. It is not funded by a payment
+ * method, is ready on creation, and supports only fill: Kernel stores the details
+ * encrypted, never returns them, and fills them on any https page whose
+ * registrable domain (state.domains) is merchant_url's, including its subdomains.
+ * Fill does not consume it. From expires_at it is expired and can no longer be
+ * filled; Kernel deletes its stored details shortly after expires_at. Deleting the
+ * card, its wallet or its vault deletes them immediately. amount, currency and the
+ * merchant fields are recorded but not enforced. Repeating the identical request
+ * returns the existing card; any other request with the same key returns 409, as
+ * does repeating it once the expired card's details have been deleted.
  */
 export interface KernelCardVaultItemSpec {
   /**
@@ -1598,6 +1622,16 @@ export interface KernelCardVaultItemSpec {
   wallet: string;
 
   /**
+   * Single-use cards only. From this time the card is expired and can no longer be
+   * filled; Kernel deletes its stored details shortly after. Deleting the card, its
+   * wallet or its vault deletes them immediately. Defaults to 2 hours after
+   * creation, capped at the end of the card's expiry month; a requested time must be
+   * in the future, at most 24 hours after creation, and not after the end of the
+   * card's expiry month. Returned in UTC.
+   */
+  expires_at?: string;
+
+  /**
    * Actual merchant category when known. Omit rather than invent a category.
    */
   merchant_category?: string;
@@ -1619,9 +1653,20 @@ export interface KernelCardVaultItemSpec {
    * Omission selects the wallet's default card, ID card, for compatibility with
    * existing requests; it never falls back to another method, and a wallet without a
    * default card requires the ID. The purchase is bound to the method's enrolled
-   * card and network token, so later operations cannot switch funding.
+   * card and network token, so later operations cannot switch funding. Not allowed
+   * with single_use_card.
    */
   payment_method_id?: string;
+
+  /**
+   * Details of a card the caller supplies, such as a single-use virtual card from
+   * its issuer. Mutually exclusive with payment_method_id. The card details are
+   * stored encrypted for fill and never returned; reads return only reference.
+   * Kernel deletes them shortly after the card's expires_at; deleting the card, its
+   * wallet or its vault deletes them immediately. A card whose expiry month has
+   * ended is rejected.
+   */
+  single_use_card?: KernelSingleUseCard;
 }
 
 export interface KernelCredentialVaultItemSpec {
@@ -1736,6 +1781,22 @@ export interface KernelPaymentRequestVaultItemSpec {
    * one-time code is issued for the merchant's country.
    */
   merchant_country?: string;
+}
+
+/**
+ * Details of a card the caller supplies, such as a single-use virtual card from
+ * its issuer. Mutually exclusive with payment_method_id. The card details are
+ * stored encrypted for fill and never returned; reads return only reference.
+ * Kernel deletes them shortly after the card's expires_at; deleting the card, its
+ * wallet or its vault deletes them immediately. A card whose expiry month has
+ * ended is rejected.
+ */
+export interface KernelSingleUseCard {
+  /**
+   * The caller's identifier for the card, such as the issuer's card ID. Returned
+   * unchanged on reads.
+   */
+  reference?: string;
 }
 
 export interface KernelWalletState {
@@ -2427,10 +2488,12 @@ export namespace OnePasswordCredentialVaultItemState {
 
 /**
  * Fill and submit an approved 1Password login in the selected browser page. The
- * page must share the selected entry's login origin. Supply entry_id when more
- * than one approved entry matches the page origin, and target_id when more than
- * one open page has page_url. The extension selects fields; callers cannot supply
- * selectors or secret values. Submission does not confirm website authentication.
+ * 1Password extension decides whether the approved login matches the page and
+ * refuses pages that don't. Supply entry_id when several entries are approved and
+ * the page origin does not identify exactly one of them, and target_id when more
+ * than one open page has page_url. The extension selects fields; callers cannot
+ * supply selectors or secret values. Submission does not confirm website
+ * authentication.
  */
 export interface OnePasswordFillVaultItemOperationRequest {
   /**
@@ -2447,8 +2510,8 @@ export interface OnePasswordFillVaultItemOperationRequest {
   type: '1pw_fill';
 
   /**
-   * ID of an approved request entry. Required when several approved entries have the
-   * page's origin.
+   * ID of an approved request entry. Required when several entries are approved and
+   * the page's origin does not match exactly one of them.
    */
   entry_id?: string;
 
@@ -2616,6 +2679,7 @@ export namespace PaymentRequestVaultItem {
       | '1pw_fill'
       | '1pw_recover'
       | '1pw_update_access_token'
+      | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
       | 'remove_payment_method';
@@ -3073,6 +3137,26 @@ export namespace ShopPayWalletVaultItemSpec {
   }
 }
 
+/**
+ * Billing address filled with the billing\_\* fill fields. Never returned.
+ */
+export interface SingleUseCardBillingAddress {
+  city?: string;
+
+  /**
+   * ISO 3166-1 alpha-2 code.
+   */
+  country?: string;
+
+  line1?: string;
+
+  line2?: string;
+
+  postal_code?: string;
+
+  state?: string;
+}
+
 export interface VaultCardAliases {
   cvc: string;
 
@@ -3321,6 +3405,7 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3420,6 +3505,7 @@ export namespace VaultItem {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3611,6 +3697,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3710,6 +3797,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_fill'
         | '1pw_recover'
         | '1pw_update_access_token'
+        | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
         | 'remove_payment_method';
@@ -3861,6 +3949,14 @@ export namespace WalletVaultItemSpec {
       client: Authorization.KernelManagedOAuthClient | Authorization.CustomerManagedOAuthClient;
 
       method: 'oauth';
+
+      /**
+       * Who refreshes an imported Link grant. kernel (default) means Kernel holds and
+       * rotates the refresh token. customer means your backend keeps the refresh token
+       * and replaces the access token with update_access_token; Kernel never refreshes
+       * or revokes the grant. Fixed at wallet creation.
+       */
+      token_refresh?: 'kernel' | 'customer';
     }
 
     export namespace Authorization {
@@ -4187,6 +4283,7 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
+  | ItemPerformOperationParams.UpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
   | ItemPerformOperationParams.AddPaymentMethodVaultItemOperationRequest
   | ItemPerformOperationParams.RemovePaymentMethodVaultItemOperationRequest;
@@ -4507,8 +4604,8 @@ export declare namespace ItemPerformOperationParams {
     type: '1pw_fill';
 
     /**
-     * Body param: ID of an approved request entry. Required when several approved
-     * entries have the page's origin.
+     * Body param: ID of an approved request entry. Required when several entries are
+     * approved and the page's origin does not match exactly one of them.
      */
     entry_id?: string;
 
@@ -4558,6 +4655,23 @@ export declare namespace ItemPerformOperationParams {
      * Body param: Optional supplied expiry. Omit to clear the old expiry.
      */
     access_token_expires_at?: string;
+  }
+
+  export interface UpdateAccessTokenVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    access_token: string;
+
+    /**
+     * Body param
+     */
+    type: 'update_access_token';
   }
 
   export interface WebmcpInvokeVaultItemOperationRequest {
@@ -4713,26 +4827,34 @@ export declare namespace ItemUpsertParams {
        * wallet with state.status=connected. An expired, invalid, revoked, or
        * insufficiently scoped access token returns 400 and no wallet is created. Refresh
        * expired tokens in your backend before importing them. A failed import does not
-       * modify existing wallets. After successful import, Kernel owns subsequent
-       * refresh-token rotation; the customer must stop refreshing this grant. Import
-       * does not verify the refresh token: if it or the configured client credentials
-       * are rejected during a later refresh, the imported wallet becomes degraded. An
-       * unknown refresh outcome also leaves it degraded; Kernel does not retry a refresh
-       * token that may already have been consumed. There is no in-place reauthorization
-       * operation for an imported wallet. If this imported wallet's credentials become
-       * unusable, obtain a fresh Link OAuth grant in your backend and create a wallet
-       * under a NEW wallet key. Use the new wallet for NEW cards and payments, not to
-       * retry an old payment whose outcome is uncertain. This does not replace the old
-       * grant, rebind existing cards, or resolve their payment outcomes. Retain the old
-       * wallet and its cards while reconciling any uncertain payments with the provider
-       * or support. Do not repeat an uncertain payment on the new wallet, and do not
-       * treat deletion as evidence that it did not execute. Deletion of the old wallet
-       * can remain blocked by unresolved child cards. Repeating a create for the same
-       * item key and non-secret spec returns the existing wallet without replacing
-       * tokens, even if they have rotated or the wallet needs reconnection. ID and name
-       * references resolving to the same config are equivalent. A different config or
-       * non-secret spec returns 409. This create operation does not replace an existing
-       * grant.
+       * modify existing wallets. By default (token_refresh=kernel), Kernel owns
+       * subsequent refresh-token rotation after a successful import; the customer must
+       * stop refreshing this grant. With token_refresh=customer, send only the access
+       * token: your backend keeps the refresh token and rotates the grant, and Kernel
+       * never refreshes or revokes it. Replace the stored access token with the wallet's
+       * update_access_token operation before each step that reaches Link, such as
+       * creating, authorizing or filling a card. When Link rejects the stored access
+       * token, operations return 409 without contacting Link again; update the token and
+       * retry. The remainder of this description applies to token_refresh=kernel. With
+       * token_refresh=kernel, Kernel owns subsequent refresh-token rotation; the
+       * customer must stop refreshing this grant. Import does not verify the refresh
+       * token: if it or the configured client credentials are rejected during a later
+       * refresh, the imported wallet becomes degraded. An unknown refresh outcome also
+       * leaves it degraded; Kernel does not retry a refresh token that may already have
+       * been consumed. There is no in-place reauthorization operation for an imported
+       * wallet. If this imported wallet's credentials become unusable, obtain a fresh
+       * Link OAuth grant in your backend and create a wallet under a NEW wallet key. Use
+       * the new wallet for NEW cards and payments, not to retry an old payment whose
+       * outcome is uncertain. This does not replace the old grant, rebind existing
+       * cards, or resolve their payment outcomes. Retain the old wallet and its cards
+       * while reconciling any uncertain payments with the provider or support. Do not
+       * repeat an uncertain payment on the new wallet, and do not treat deletion as
+       * evidence that it did not execute. Deletion of the old wallet can remain blocked
+       * by unresolved child cards. Repeating a create for the same item key and
+       * non-secret spec returns the existing wallet without replacing tokens, even if
+       * they have rotated or the wallet needs reconnection. ID and name references
+       * resolving to the same config are equivalent. A different config or non-secret
+       * spec returns 409. This create operation does not replace an existing grant.
        */
       export interface ImportedLinkAuthorizationInput {
         client: ImportedLinkAuthorizationInput.Client;
@@ -4740,13 +4862,22 @@ export declare namespace ItemUpsertParams {
         method: 'oauth';
 
         /**
-         * Send the token pair from your backend. Both tokens must be from the same Link
-         * grant under the referenced client. Supply a currently valid access token. Kernel
-         * refreshes when needed after import and uses the expiry returned by Link for
-         * subsequent tokens. Tokens are never returned in wallet responses, events, or
+         * Send the tokens from your backend. Supply a currently valid access token. With
+         * token_refresh=kernel, also send the refresh token from the same Link grant under
+         * the referenced client; Kernel refreshes when needed after import and uses the
+         * expiry returned by Link for subsequent tokens. With token_refresh=customer, omit
+         * the refresh token. Tokens are never returned in wallet responses, events, or
          * logs.
          */
         tokens: ImportedLinkAuthorizationInput.Tokens;
+
+        /**
+         * Who refreshes an imported Link grant. kernel (default) means Kernel holds and
+         * rotates the refresh token. customer means your backend keeps the refresh token
+         * and replaces the access token with update_access_token; Kernel never refreshes
+         * or revokes the grant. Fixed at wallet creation.
+         */
+        token_refresh?: 'kernel' | 'customer';
       }
 
       export namespace ImportedLinkAuthorizationInput {
@@ -4775,16 +4906,20 @@ export declare namespace ItemUpsertParams {
         }
 
         /**
-         * Send the token pair from your backend. Both tokens must be from the same Link
-         * grant under the referenced client. Supply a currently valid access token. Kernel
-         * refreshes when needed after import and uses the expiry returned by Link for
-         * subsequent tokens. Tokens are never returned in wallet responses, events, or
+         * Send the tokens from your backend. Supply a currently valid access token. With
+         * token_refresh=kernel, also send the refresh token from the same Link grant under
+         * the referenced client; Kernel refreshes when needed after import and uses the
+         * expiry returned by Link for subsequent tokens. With token_refresh=customer, omit
+         * the refresh token. Tokens are never returned in wallet responses, events, or
          * logs.
          */
         export interface Tokens {
           access_token: string;
 
-          refresh_token: string;
+          /**
+           * Required with token_refresh=kernel; rejected with token_refresh=customer.
+           */
+          refresh_token?: string;
         }
       }
     }
@@ -4951,6 +5086,7 @@ export declare namespace Items {
     type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
     type KernelPaymentRequestVaultItemSpec as KernelPaymentRequestVaultItemSpec,
+    type KernelSingleUseCard as KernelSingleUseCard,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
     type LinkShippingAddress as LinkShippingAddress,
@@ -4982,6 +5118,7 @@ export declare namespace Items {
     type ShopPayCardVaultItemSpec as ShopPayCardVaultItemSpec,
     type ShopPayWalletState as ShopPayWalletState,
     type ShopPayWalletVaultItemSpec as ShopPayWalletVaultItemSpec,
+    type SingleUseCardBillingAddress as SingleUseCardBillingAddress,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
     type VaultCheckoutContext as VaultCheckoutContext,
