@@ -1471,16 +1471,25 @@ export interface FillVaultItemOperationResult {
 }
 
 /**
- * A ready Kernel card supports authorize, fill, then submit checkout. Card details
- * are delivered for a few minutes after fill; submit promptly. Repeated fill is
- * safe and never submits checkout. Visa purchases require a spend_approval action
- * before details are issued; Mastercard purchases need no hosted approval.
- * masks.last4 is the enrolled card's last four digits; masks.token_last4, when
- * present, is the token's last four digits shown to the merchant. Kernel does not
- * observe whether the merchant charged the card.
+ * A ready Kernel card funded by a payment method supports authorize, fill, then
+ * submit checkout. A single-use card (source single_use_card) is ready on
+ * creation, supports only fill, and is expired from expires_at; Kernel deletes its
+ * stored details shortly after expires_at. It has no payment_method_id or
+ * funding_status. Card details are delivered for a few minutes after fill; submit
+ * promptly. Repeated fill is safe and never submits checkout. Visa purchases
+ * require a spend_approval action before details are issued; Mastercard purchases
+ * need no hosted approval. masks.last4 is the enrolled card's last four digits;
+ * masks.token_last4, when present, is the token's last four digits shown to the
+ * merchant. Kernel does not observe whether the merchant charged the card.
  */
 export interface KernelCardState {
   provider: 'kernel';
+
+  /**
+   * payment_method for a purchase funded by a wallet payment method; single_use_card
+   * for a card whose details were supplied with single_use_card.
+   */
+  source: 'payment_method' | 'single_use_card';
 
   /**
    * pending_authorization waits for cardholder approval on Visa purchases or fresh
@@ -1511,7 +1520,9 @@ export interface KernelCardState {
     | 'recovery_required';
 
   /**
-   * Informational registrable domain. Fill is locked to merchant_url's exact origin.
+   * Informational registrable domain. Fill is locked to merchant_url's exact origin,
+   * except that a single-use card fills on any https page of this registrable
+   * domain.
    */
   domains?: Array<string>;
 
@@ -1568,7 +1579,18 @@ export namespace KernelCardState {
  * after collection. An expired card requires a new purchase. Fill types those
  * details on merchant_url's origin. The amount, merchant_url and merchant_country
  * are recorded but do not restrict payment requests sent by the browser. Card
- * updates are not supported; delete and create a new item instead.
+ * updates are not supported; delete and create a new item instead. With
+ * single_use_card the item is instead a single-use card whose details the caller
+ * supplies, such as a virtual card from its issuer. It is not funded by a payment
+ * method, is ready on creation, and supports only fill: Kernel stores the details
+ * encrypted, never returns them, and fills them on any https page whose
+ * registrable domain (state.domains) is merchant_url's, including its subdomains.
+ * Fill does not consume it. From expires_at it is expired and can no longer be
+ * filled; Kernel deletes its stored details shortly after expires_at. Deleting the
+ * card, its wallet or its vault deletes them immediately. amount, currency and the
+ * merchant fields are recorded but not enforced. Repeating the identical request
+ * returns the existing card; any other request with the same key returns 409, as
+ * does repeating it once the expired card's details have been deleted.
  */
 export interface KernelCardVaultItemSpec {
   /**
@@ -1598,6 +1620,16 @@ export interface KernelCardVaultItemSpec {
   wallet: string;
 
   /**
+   * Single-use cards only. From this time the card is expired and can no longer be
+   * filled; Kernel deletes its stored details shortly after. Deleting the card, its
+   * wallet or its vault deletes them immediately. Defaults to 2 hours after
+   * creation, capped at the end of the card's expiry month; a requested time must be
+   * in the future, at most 24 hours after creation, and not after the end of the
+   * card's expiry month. Returned in UTC.
+   */
+  expires_at?: string;
+
+  /**
    * Actual merchant category when known. Omit rather than invent a category.
    */
   merchant_category?: string;
@@ -1619,9 +1651,20 @@ export interface KernelCardVaultItemSpec {
    * Omission selects the wallet's default card, ID card, for compatibility with
    * existing requests; it never falls back to another method, and a wallet without a
    * default card requires the ID. The purchase is bound to the method's enrolled
-   * card and network token, so later operations cannot switch funding.
+   * card and network token, so later operations cannot switch funding. Not allowed
+   * with single_use_card.
    */
   payment_method_id?: string;
+
+  /**
+   * Details of a card the caller supplies, such as a single-use virtual card from
+   * its issuer. Mutually exclusive with payment_method_id. The card details are
+   * stored encrypted for fill and never returned; reads return only reference.
+   * Kernel deletes them shortly after the card's expires_at; deleting the card, its
+   * wallet or its vault deletes them immediately. A card whose expiry month has
+   * ended is rejected.
+   */
+  single_use_card?: KernelSingleUseCard;
 }
 
 export interface KernelCredentialVaultItemSpec {
@@ -1736,6 +1779,22 @@ export interface KernelPaymentRequestVaultItemSpec {
    * one-time code is issued for the merchant's country.
    */
   merchant_country?: string;
+}
+
+/**
+ * Details of a card the caller supplies, such as a single-use virtual card from
+ * its issuer. Mutually exclusive with payment_method_id. The card details are
+ * stored encrypted for fill and never returned; reads return only reference.
+ * Kernel deletes them shortly after the card's expires_at; deleting the card, its
+ * wallet or its vault deletes them immediately. A card whose expiry month has
+ * ended is rejected.
+ */
+export interface KernelSingleUseCard {
+  /**
+   * The caller's identifier for the card, such as the issuer's card ID. Returned
+   * unchanged on reads.
+   */
+  reference?: string;
 }
 
 export interface KernelWalletState {
@@ -3073,6 +3132,26 @@ export namespace ShopPayWalletVaultItemSpec {
       type: 'kernel_managed';
     }
   }
+}
+
+/**
+ * Billing address filled with the billing\_\* fill fields. Never returned.
+ */
+export interface SingleUseCardBillingAddress {
+  city?: string;
+
+  /**
+   * ISO 3166-1 alpha-2 code.
+   */
+  country?: string;
+
+  line1?: string;
+
+  line2?: string;
+
+  postal_code?: string;
+
+  state?: string;
 }
 
 export interface VaultCardAliases {
@@ -4953,6 +5032,7 @@ export declare namespace Items {
     type KernelCredentialVaultItemSpecInput as KernelCredentialVaultItemSpecInput,
     type KernelCredentialVaultItemState as KernelCredentialVaultItemState,
     type KernelPaymentRequestVaultItemSpec as KernelPaymentRequestVaultItemSpec,
+    type KernelSingleUseCard as KernelSingleUseCard,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
     type LinkShippingAddress as LinkShippingAddress,
@@ -4984,6 +5064,7 @@ export declare namespace Items {
     type ShopPayCardVaultItemSpec as ShopPayCardVaultItemSpec,
     type ShopPayWalletState as ShopPayWalletState,
     type ShopPayWalletVaultItemSpec as ShopPayWalletVaultItemSpec,
+    type SingleUseCardBillingAddress as SingleUseCardBillingAddress,
     type VaultCardAliases as VaultCardAliases,
     type VaultCardFillField as VaultCardFillField,
     type VaultCheckoutContext as VaultCheckoutContext,
