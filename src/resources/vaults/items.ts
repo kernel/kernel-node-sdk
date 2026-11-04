@@ -4831,30 +4831,31 @@ export declare namespace ItemUpsertParams {
        * subsequent refresh-token rotation after a successful import; the customer must
        * stop refreshing this grant. With token_refresh=customer, send only the access
        * token: your backend keeps the refresh token and rotates the grant, and Kernel
-       * never refreshes or revokes it. Replace the stored access token with the wallet's
-       * update_access_token operation before each step that reaches Link, such as
-       * creating, authorizing or filling a card. When Link rejects the stored access
-       * token, operations return 409 without contacting Link again; update the token and
-       * retry. The remainder of this description applies to token_refresh=kernel. With
-       * token_refresh=kernel, Kernel owns subsequent refresh-token rotation; the
-       * customer must stop refreshing this grant. Import does not verify the refresh
-       * token: if it or the configured client credentials are rejected during a later
-       * refresh, the imported wallet becomes degraded. An unknown refresh outcome also
-       * leaves it degraded; Kernel does not retry a refresh token that may already have
-       * been consumed. There is no in-place reauthorization operation for an imported
-       * wallet. If this imported wallet's credentials become unusable, obtain a fresh
-       * Link OAuth grant in your backend and create a wallet under a NEW wallet key. Use
-       * the new wallet for NEW cards and payments, not to retry an old payment whose
-       * outcome is uncertain. This does not replace the old grant, rebind existing
-       * cards, or resolve their payment outcomes. Retain the old wallet and its cards
-       * while reconciling any uncertain payments with the provider or support. Do not
-       * repeat an uncertain payment on the new wallet, and do not treat deletion as
-       * evidence that it did not execute. Deletion of the old wallet can remain blocked
-       * by unresolved child cards. Repeating a create for the same item key and
-       * non-secret spec returns the existing wallet without replacing tokens, even if
-       * they have rotated or the wallet needs reconnection. ID and name references
-       * resolving to the same config are equivalent. A different config or non-secret
-       * spec returns 409. This create operation does not replace an existing grant.
+       * never refreshes or revokes it. When Link rejects the stored access token, any
+       * operation that reaches Link, such as creating, authorizing or filling a card,
+       * returns 409 with code access_token_rejected without contacting Link again. Push
+       * a fresh access token with the wallet's update_access_token operation, then retry
+       * the operation. The remainder of this description applies to
+       * token_refresh=kernel. With token_refresh=kernel, Kernel owns subsequent
+       * refresh-token rotation; the customer must stop refreshing this grant. Import
+       * does not verify the refresh token: if it or the configured client credentials
+       * are rejected during a later refresh, the imported wallet becomes degraded. An
+       * unknown refresh outcome also leaves it degraded; Kernel does not retry a refresh
+       * token that may already have been consumed. There is no in-place reauthorization
+       * operation for an imported wallet. If this imported wallet's credentials become
+       * unusable, obtain a fresh Link OAuth grant in your backend and create a wallet
+       * under a NEW wallet key. Use the new wallet for NEW cards and payments, not to
+       * retry an old payment whose outcome is uncertain. This does not replace the old
+       * grant, rebind existing cards, or resolve their payment outcomes. Retain the old
+       * wallet and its cards while reconciling any uncertain payments with the provider
+       * or support. Do not repeat an uncertain payment on the new wallet, and do not
+       * treat deletion as evidence that it did not execute. Deletion of the old wallet
+       * can remain blocked by unresolved child cards. Repeating a create for the same
+       * item key and non-secret spec returns the existing wallet without replacing
+       * tokens, even if they have rotated or the wallet needs reconnection. ID and name
+       * references resolving to the same config are equivalent. A different config or
+       * non-secret spec returns 409. This create operation does not replace an existing
+       * grant.
        */
       export interface ImportedLinkAuthorizationInput {
         client: ImportedLinkAuthorizationInput.Client;
