@@ -118,7 +118,8 @@ export type VaultProviderConfigsOffsetPagination = OffsetPagination<VaultProvide
  */
 export type VaultProviderConfig =
   | VaultProviderConfig.VaultLinkProviderConfig
-  | VaultProviderConfig.VaultAgentCardProviderConfig;
+  | VaultProviderConfig.VaultAgentCardProviderConfig
+  | VaultProviderConfig.VaultVgsProviderConfig;
 
 export namespace VaultProviderConfig {
   /**
@@ -175,11 +176,47 @@ export namespace VaultProviderConfig {
 
     updated_at: string;
   }
+
+  /**
+   * Response schema for a customer-managed VGS vault configuration, without the
+   * client secret. Kernel generates the ID and timestamps. Configuration creation
+   * uses VaultVgsProviderConfigRequest.
+   */
+  export interface VaultVgsProviderConfig {
+    id: string;
+
+    /**
+     * Service account identity; immutable. The client secret is never returned.
+     */
+    client_id: string;
+
+    created_at: string;
+
+    /**
+     * The vault's VGS environment; immutable.
+     */
+    environment: 'sandbox' | 'live';
+
+    /**
+     * Unique within the organization.
+     */
+    name: string;
+
+    provider: 'vgs';
+
+    updated_at: string;
+
+    /**
+     * The customer's VGS vault ID; immutable.
+     */
+    vault_id: string;
+  }
 }
 
 export type VaultProviderConfigCreateParams =
   | VaultProviderConfigCreateParams.VaultLinkProviderConfigRequest
-  | VaultProviderConfigCreateParams.VaultAgentCardProviderConfigRequest;
+  | VaultProviderConfigCreateParams.VaultAgentCardProviderConfigRequest
+  | VaultProviderConfigCreateParams.VaultVgsProviderConfigRequest;
 
 export declare namespace VaultProviderConfigCreateParams {
   export interface VaultLinkProviderConfigRequest {
@@ -225,6 +262,43 @@ export declare namespace VaultProviderConfigCreateParams {
       client_id: string;
 
       client_secret: string;
+    }
+  }
+
+  export interface VaultVgsProviderConfigRequest {
+    /**
+     * A VGS service account with the aliases:read scope on the customer's vault, which
+     * Kernel uses to reveal the aliases each purchase sends.
+     */
+    credentials: VaultVgsProviderConfigRequest.Credentials;
+
+    /**
+     * Unique within the organization.
+     */
+    name: string;
+
+    provider: 'vgs';
+  }
+
+  export namespace VaultVgsProviderConfigRequest {
+    /**
+     * A VGS service account with the aliases:read scope on the customer's vault, which
+     * Kernel uses to reveal the aliases each purchase sends.
+     */
+    export interface Credentials {
+      client_id: string;
+
+      client_secret: string;
+
+      /**
+       * The vault's VGS environment.
+       */
+      environment: 'sandbox' | 'live';
+
+      /**
+       * The customer's VGS vault ID.
+       */
+      vault_id: string;
     }
   }
 }

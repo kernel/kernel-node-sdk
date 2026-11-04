@@ -595,6 +595,11 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">VaultItemOperationResponse</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethod</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultWebmcpBinding</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VgsCardInput</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VgsCardState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VgsCardVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VgsWalletState</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VgsWalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemSpec</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WalletVaultItemState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">WebmcpInvokeVaultItemOperationRequest</a></code>
