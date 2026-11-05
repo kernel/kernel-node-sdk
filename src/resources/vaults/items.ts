@@ -3922,7 +3922,27 @@ export interface VaultWebmcpBinding {
  * Write-only: stored encrypted and never returned in the item, its events or logs.
  * A repeated PUT with the same key must send the same card.
  */
-export interface VgsCardInput {}
+export interface VgsCardInput {
+  /**
+   * A volatile alias of a freshly collected security code in the customer's vault.
+   * It must still exist when authorize runs.
+   */
+  cvc_alias: string;
+
+  exp_month: number;
+
+  exp_year: number;
+
+  /**
+   * The card number's last four digits, checked against the revealed alias.
+   */
+  last4: string;
+
+  /**
+   * A persistent alias of the card number in the customer's vault.
+   */
+  pan_alias: string;
+}
 
 /**
  * A ready VGS card supports fill, then submit checkout, until expires_at. Kernel
@@ -4008,6 +4028,11 @@ export interface VgsCardVaultItemSpec {
    * Key of the VGS wallet item whose configuration reads the aliases.
    */
   wallet: string;
+
+  /**
+   * Required when creating the card. Never returned.
+   */
+  card?: VgsCardInput;
 }
 
 export interface VgsWalletState {
