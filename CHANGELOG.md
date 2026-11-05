@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.141.0](https://github.com/kernel/kernel-node-sdk/compare/v0.140.0...v0.141.0) (2026-11-05)
+
+
+### Features
+
+* Add customer-managed VGS vault card payments ([0caa5b0](https://github.com/kernel/kernel-node-sdk/commit/0caa5b0c57b0c4c278f138b41f1504074972f802))
+* Move GPU browsers to L40S-3Q and 6Q vGPU profiles ([83e0781](https://github.com/kernel/kernel-node-sdk/commit/83e0781aa667b0cd238acc19b52aa99ce5fed328))
+* Remove SerpApi and Valyu search providers ([80829c7](https://github.com/kernel/kernel-node-sdk/commit/80829c75c62f1c0002e349a3501e3ca866b299f6))
+* Return access_token_rejected code when Link rejects a customer-supplied token ([d8c7df1](https://github.com/kernel/kernel-node-sdk/commit/d8c7df1730838dd4bcdf48b50eda833a77513951))
+
+
+### Bug Fixes
+
+* generate VGS card aliases in the TypeScript SDK ([f59f588](https://github.com/kernel/kernel-node-sdk/commit/f59f588595cba39391dbf91db44002cf6547bcbb))
+
 ## [0.140.0](https://github.com/kernel/kernel-node-sdk/compare/v0.139.0...v0.140.0) (2026-11-04)
 
 

@@ -424,7 +424,8 @@ export type CardVaultItemSpec =
   | CardVaultItemSpec.LinkCardVaultItemSpec
   | CardVaultItemSpec.AgentCardCardVaultItemSpec
   | KernelCardVaultItemSpec
-  | ShopPayCardVaultItemSpec;
+  | ShopPayCardVaultItemSpec
+  | VgsCardVaultItemSpec;
 
 export namespace CardVaultItemSpec {
   /**
@@ -608,7 +609,8 @@ export type CardVaultItemState =
   | CardVaultItemState.LinkCardState
   | CardVaultItemState.AgentCardCardState
   | KernelCardState
-  | ShopPayCardState;
+  | ShopPayCardState
+  | VgsCardState;
 
 export namespace CardVaultItemState {
   /**
@@ -3916,6 +3918,166 @@ export interface VaultWebmcpBinding {
 }
 
 /**
+ * The card's aliases in the customer's VGS vault, its expiry and last four digits.
+ * Write-only: stored encrypted and never returned in the item, its events or logs.
+ * A repeated PUT with the same key must send the same card.
+ */
+export interface VgsCardInput {
+  /**
+   * A volatile alias of a freshly collected security code in the customer's vault.
+   * It must still exist when authorize runs.
+   */
+  cvc_alias: string;
+
+  exp_month: number;
+
+  exp_year: number;
+
+  /**
+   * The card number's last four digits, checked against the revealed alias.
+   */
+  last4: string;
+
+  /**
+   * A persistent alias of the card number in the customer's vault.
+   */
+  pan_alias: string;
+}
+
+/**
+ * A ready VGS card supports fill, then submit checkout, until expires_at. Kernel
+ * does not observe whether the merchant charged the card. masks.last4 is the
+ * card's last four digits.
+ */
+export interface VgsCardState {
+  provider: 'vgs';
+
+  /**
+   * requested until authorize reveals the aliases; if the reveal fails before
+   * anything is stored, authorize returns 503 provider_unavailable and the card
+   * stays requested. declined means authorize was refused: invalid_card for aliases
+   * that do not match the card or a card that has expired (fix the input and create
+   * a new card), alias_not_found when the customer's vault has no such alias,
+   * usually an expired CVC alias (collect the CVC again and create a new card), or
+   * provider_credentials_rejected when VGS refused the configuration's service
+   * account (update the provider configuration and create a new card). ready lasts
+   * until the CVC alias expires, then expired.
+   */
+  status: 'requested' | 'pending_authorization' | 'ready' | 'expired' | 'declined' | 'recovery_required';
+
+  /**
+   * Informational registrable domain. Fill is locked to merchant_url's exact origin.
+   */
+  domains?: Array<string>;
+
+  masks?: VgsCardState.Masks;
+
+  status_reason?: string;
+}
+
+export namespace VgsCardState {
+  export interface Masks {
+    brand?: string;
+
+    last4?: string;
+
+    /**
+     * Last four digits of the network token presented to the merchant.
+     */
+    token_last4?: string;
+
+    [k: string]: string | undefined;
+  }
+}
+
+/**
+ * One live purchase with a card in the customer's VGS vault. authorize reveals
+ * card.pan_alias and card.cvc_alias through Kernel's VGS outbound proxy, which
+ * replaces both with aliases in Kernel's vault before they reach Kernel; Kernel
+ * never receives the card number or security code. The card is then ready with no
+ * further approval, until expires_at, by default five minutes after authorize.
+ * fill types Kernel's aliases on merchant_url's origin, and Kernel's VGS proxy
+ * replaces them with the card's details when the browser submits checkout. An
+ * expired card requires a new purchase with a freshly collected CVC alias. The
+ * amount and merchant are recorded but do not restrict payment requests sent by
+ * the browser. Card updates are not supported; delete and create a new item
+ * instead.
+ */
+export interface VgsCardVaultItemSpec {
+  /**
+   * Integer amount in minor currency units (at most 1000000).
+   */
+  amount: number;
+
+  /**
+   * ISO 4217 code. Supported: aud, brl, cad, chf, czk, dkk, eur, gbp, hkd, inr, jpy,
+   * krw, mxn, nok, nzd, pln, sek, sgd, usd, zar.
+   */
+  currency: string;
+
+  merchant_name: string;
+
+  /**
+   * Merchant checkout URL. Fill is allowed only on this URL's origin.
+   */
+  merchant_url: string;
+
+  provider: 'vgs';
+
+  /**
+   * Key of the VGS wallet item whose configuration reads the aliases.
+   */
+  wallet: string;
+
+  /**
+   * Required when creating the card. Never returned.
+   */
+  card?: VgsCardInput;
+}
+
+export interface VgsWalletState {
+  provider: 'vgs';
+
+  /**
+   * A VGS wallet is connected on creation. pending_authorization or degraded means
+   * its creation did not finish; reading the wallet retries it, and a wallet that
+   * stays degraded can be deleted and created again. Whether its configuration's
+   * credentials still work is checked when a card is authorized.
+   */
+  status: 'pending_authorization' | 'connected' | 'degraded';
+
+  status_reason?: string;
+}
+
+/**
+ * Cards kept in the customer's own VGS vault. The wallet binds a VGS provider
+ * configuration and is connected on creation; it holds no cards and has no payment
+ * methods. Each purchase is a card item that carries the card's aliases from the
+ * customer's vault. The configuration binding cannot be changed after creation.
+ */
+export interface VgsWalletVaultItemSpec {
+  provider: 'vgs';
+
+  /**
+   * Select a VGS configuration. Required, because there are no Kernel-managed VGS
+   * credentials for this provider.
+   */
+  provider_config: VgsWalletVaultItemSpec.ProviderConfig;
+}
+
+export namespace VgsWalletVaultItemSpec {
+  /**
+   * Select a VGS configuration. Required, because there are no Kernel-managed VGS
+   * credentials for this provider.
+   */
+  export interface ProviderConfig {
+    id?: string;
+
+    name?: string;
+  }
+}
+
+/**
  * AgentCard wallet. Omit provider_config to use Kernel-managed credentials, or
  * select a customer-owned configuration. Mode (sandbox vs live) is determined by
  * the selected credential; there is no per-item test flag. Without user_id,
@@ -3935,7 +4097,8 @@ export type WalletVaultItemSpec =
   | WalletVaultItemSpec.LinkWalletVaultItemSpec
   | WalletVaultItemSpec.AgentCardWalletVaultItemSpec
   | KernelWalletVaultItemSpec
-  | ShopPayWalletVaultItemSpec;
+  | ShopPayWalletVaultItemSpec
+  | VgsWalletVaultItemSpec;
 
 export namespace WalletVaultItemSpec {
   export interface LinkWalletVaultItemSpec {
@@ -4035,7 +4198,8 @@ export type WalletVaultItemState =
   | WalletVaultItemState.LinkWalletState
   | WalletVaultItemState.AgentCardWalletState
   | KernelWalletState
-  | ShopPayWalletState;
+  | ShopPayWalletState
+  | VgsWalletState;
 
 export namespace WalletVaultItemState {
   export interface LinkWalletState {
@@ -4784,7 +4948,8 @@ export declare namespace ItemUpsertParams {
       | WalletVaultItemRequest.LinkWalletVaultItemRequestSpec
       | WalletVaultItemRequest.AgentCardWalletVaultItemSpec
       | KernelWalletVaultItemSpec
-      | ShopPayWalletVaultItemSpec;
+      | ShopPayWalletVaultItemSpec
+      | VgsWalletVaultItemSpec;
 
     /**
      * Body param
@@ -4831,30 +4996,31 @@ export declare namespace ItemUpsertParams {
        * subsequent refresh-token rotation after a successful import; the customer must
        * stop refreshing this grant. With token_refresh=customer, send only the access
        * token: your backend keeps the refresh token and rotates the grant, and Kernel
-       * never refreshes or revokes it. Replace the stored access token with the wallet's
-       * update_access_token operation before each step that reaches Link, such as
-       * creating, authorizing or filling a card. When Link rejects the stored access
-       * token, operations return 409 without contacting Link again; update the token and
-       * retry. The remainder of this description applies to token_refresh=kernel. With
-       * token_refresh=kernel, Kernel owns subsequent refresh-token rotation; the
-       * customer must stop refreshing this grant. Import does not verify the refresh
-       * token: if it or the configured client credentials are rejected during a later
-       * refresh, the imported wallet becomes degraded. An unknown refresh outcome also
-       * leaves it degraded; Kernel does not retry a refresh token that may already have
-       * been consumed. There is no in-place reauthorization operation for an imported
-       * wallet. If this imported wallet's credentials become unusable, obtain a fresh
-       * Link OAuth grant in your backend and create a wallet under a NEW wallet key. Use
-       * the new wallet for NEW cards and payments, not to retry an old payment whose
-       * outcome is uncertain. This does not replace the old grant, rebind existing
-       * cards, or resolve their payment outcomes. Retain the old wallet and its cards
-       * while reconciling any uncertain payments with the provider or support. Do not
-       * repeat an uncertain payment on the new wallet, and do not treat deletion as
-       * evidence that it did not execute. Deletion of the old wallet can remain blocked
-       * by unresolved child cards. Repeating a create for the same item key and
-       * non-secret spec returns the existing wallet without replacing tokens, even if
-       * they have rotated or the wallet needs reconnection. ID and name references
-       * resolving to the same config are equivalent. A different config or non-secret
-       * spec returns 409. This create operation does not replace an existing grant.
+       * never refreshes or revokes it. When Link rejects the stored access token, any
+       * operation that reaches Link, such as creating, authorizing or filling a card,
+       * returns 409 with code access_token_rejected without contacting Link again. Push
+       * a fresh access token with the wallet's update_access_token operation, then retry
+       * the operation. The remainder of this description applies to
+       * token_refresh=kernel. With token_refresh=kernel, Kernel owns subsequent
+       * refresh-token rotation; the customer must stop refreshing this grant. Import
+       * does not verify the refresh token: if it or the configured client credentials
+       * are rejected during a later refresh, the imported wallet becomes degraded. An
+       * unknown refresh outcome also leaves it degraded; Kernel does not retry a refresh
+       * token that may already have been consumed. There is no in-place reauthorization
+       * operation for an imported wallet. If this imported wallet's credentials become
+       * unusable, obtain a fresh Link OAuth grant in your backend and create a wallet
+       * under a NEW wallet key. Use the new wallet for NEW cards and payments, not to
+       * retry an old payment whose outcome is uncertain. This does not replace the old
+       * grant, rebind existing cards, or resolve their payment outcomes. Retain the old
+       * wallet and its cards while reconciling any uncertain payments with the provider
+       * or support. Do not repeat an uncertain payment on the new wallet, and do not
+       * treat deletion as evidence that it did not execute. Deletion of the old wallet
+       * can remain blocked by unresolved child cards. Repeating a create for the same
+       * item key and non-secret spec returns the existing wallet without replacing
+       * tokens, even if they have rotated or the wallet needs reconnection. ID and name
+       * references resolving to the same config are equivalent. A different config or
+       * non-secret spec returns 409. This create operation does not replace an existing
+       * grant.
        */
       export interface ImportedLinkAuthorizationInput {
         client: ImportedLinkAuthorizationInput.Client;
@@ -5130,6 +5296,11 @@ export declare namespace Items {
     type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
     type VaultWebmcpBinding as VaultWebmcpBinding,
+    type VgsCardInput as VgsCardInput,
+    type VgsCardState as VgsCardState,
+    type VgsCardVaultItemSpec as VgsCardVaultItemSpec,
+    type VgsWalletState as VgsWalletState,
+    type VgsWalletVaultItemSpec as VgsWalletVaultItemSpec,
     type WalletVaultItemSpec as WalletVaultItemSpec,
     type WalletVaultItemState as WalletVaultItemState,
     type WebmcpInvokeVaultItemOperationRequest as WebmcpInvokeVaultItemOperationRequest,

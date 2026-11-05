@@ -838,10 +838,11 @@ export interface BrowserUsage {
 }
 
 /**
- * Video memory (VRAM) of a GPU browser session. 2GiB sessions have 4 vCPU and 6GiB
- * memory. 4GiB sessions have 8 vCPU and 12GiB memory.
+ * Video memory (VRAM) of a GPU browser session. 3GiB sessions have 4 vCPU and 6GiB
+ * memory. 6GiB sessions have 8 vCPU and 12GiB memory. 2GiB and 4GiB are deprecated
+ * aliases for 3GiB and 6GiB: they are accepted on create and never returned.
  */
-export type BrowserVideoMemory = '2GiB' | '4GiB';
+export type BrowserVideoMemory = '3GiB' | '6GiB' | '2GiB' | '4GiB';
 
 /**
  * Browser profile metadata.
@@ -1827,8 +1828,8 @@ export interface BrowserCreateParams {
 
   /**
    * Video memory (VRAM) for a GPU browser session. Requires gpu=true. Defaults to
-   * 2GiB, which comes with 4 vCPU and 6GiB memory. 4GiB comes with 8 vCPU and 12GiB
-   * memory.
+   * 3GiB, which comes with 4 vCPU and 6GiB memory. 6GiB comes with 8 vCPU and 12GiB
+   * memory. 2GiB and 4GiB are deprecated aliases for 3GiB and 6GiB.
    */
   video_memory?: BrowserVideoMemory;
 

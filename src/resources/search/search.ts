@@ -74,11 +74,9 @@ export type ProviderTarget =
   | ProviderTarget.SearchPerplexityTarget
   | ProviderTarget.SearchContextTarget
   | ProviderTarget.SearchParallelTarget
-  | ProviderTarget.SearchValyuTarget
   | ProviderTarget.SearchOctenTarget
   | ProviderTarget.SearchYouTarget
-  | ProviderTarget.SearchTavilyTarget
-  | ProviderTarget.SearchSerpAPITarget;
+  | ProviderTarget.SearchTavilyTarget;
 
 export namespace ProviderTarget {
   export interface SearchBraveTarget {
@@ -464,78 +462,6 @@ export namespace ProviderTarget {
     }
   }
 
-  export interface SearchValyuTarget {
-    provider: 'valyu';
-
-    options?: SearchValyuTarget.Options;
-  }
-
-  export namespace SearchValyuTarget {
-    export interface Options {
-      /**
-       * Trade depth for latency.
-       */
-      fast_mode?: boolean;
-
-      /**
-       * Allow historical cached results.
-       */
-      historical_cache?: boolean;
-
-      /**
-       * Include abstracts for academic sources.
-       */
-      include_abstracts?: boolean;
-
-      /**
-       * Natural-language retrieval guidance.
-       */
-      instructions?: string;
-
-      /**
-       * Mark the search as an agent tool call.
-       */
-      is_tool_call?: boolean;
-
-      /**
-       * Provider-native count. Lower-only alias for max_results.
-       */
-      max_num_results?: number;
-
-      /**
-       * Provider-native USD-per-thousand-results price ceiling. Forwarded to Valyu.
-       */
-      max_price?: number;
-
-      /**
-       * Provider-native minimum relevance threshold. Not a normalized cross-provider
-       * score.
-       */
-      relevance_threshold?: number;
-
-      /**
-       * Provider result-content length preset.
-       */
-      response_length?: 'short' | 'medium' | 'large' | 'max';
-
-      /**
-       * Corpus selector, including all, web, proprietary, and news. Provider corpus
-       * choice may change billing; Kernel does not force web-only searches.
-       */
-      search_type?: string;
-
-      /**
-       * Bias retrieval toward these sources.
-       */
-      source_biases?: Array<string>;
-
-      /**
-       * Return URLs without content.
-       */
-      url_only?: boolean;
-    }
-  }
-
   export interface SearchOctenTarget {
     provider: 'octen';
 
@@ -745,87 +671,6 @@ export namespace ProviderTarget {
        * Provider corpus selector. Publication metadata depends on the selected topic.
        */
       topic?: 'general' | 'news' | 'finance';
-    }
-  }
-
-  export interface SearchSerpAPITarget {
-    provider: 'serpapi';
-
-    options?: SearchSerpAPITarget.Options;
-  }
-
-  export namespace SearchSerpAPITarget {
-    export interface Options {
-      /**
-       * SerpApi engine identifier. The Kernel integration currently supports google
-       * only.
-       */
-      engine: string;
-
-      /**
-       * Device profile used for the search.
-       */
-      device?: 'desktop' | 'mobile' | 'tablet';
-
-      /**
-       * Google duplicate-content filter.
-       */
-      filter?: 0 | 1;
-
-      /**
-       * Two-letter Google country code.
-       */
-      gl?: string;
-
-      /**
-       * Google domain to search when using the google engine.
-       */
-      google_domain?: string;
-
-      /**
-       * Interface language code.
-       */
-      hl?: string;
-
-      /**
-       * Free-form geographic location used for localized results.
-       */
-      location?: string;
-
-      /**
-       * Google auto-correction filter.
-       */
-      nfpr?: 0 | 1;
-
-      /**
-       * When true, bypass SerpApi cached results when supported.
-       */
-      no_cache?: boolean;
-
-      /**
-       * Number of results requested from the search engine.
-       */
-      num?: number;
-
-      /**
-       * Safe-search setting for engines that support it.
-       */
-      safe?: 'active' | 'off';
-
-      /**
-       * Zero-based result offset for pagination.
-       */
-      start?: number;
-
-      /**
-       * Google vertical search selector, such as images, video, news, or shopping.
-       */
-      tbm?: string;
-
-      /**
-       * Google time and search modifiers, including freshness filters.
-       */
-      tbs?: string;
     }
   }
 }
