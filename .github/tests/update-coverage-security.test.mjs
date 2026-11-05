@@ -92,13 +92,22 @@ for (const { file, agentStep, context } of updaters) {
     assert.match(step('context', 'Upload update context'), new RegExp(`name: ${context}\\n`));
     assert.match(step('context', 'Upload update context'), /retention-days: 1/);
     assert.match(step('generate', 'Download update context'), new RegExp(`name: ${context}\\n`));
-    assert.match(jobText.generate, /needs: \[sdk-version, context\]\n\s+if: needs\.context\.outputs\.update == 'true'/);
+    assert.match(
+      jobText.generate,
+      /needs: \[sdk-version, context\]\n\s+if: needs\.context\.outputs\.update == 'true'/,
+    );
     for (const output of ['main_sha', 'update_sha', 'rebased', 'agent_base_tree']) {
-      assert.match(jobText.generate, new RegExp(`${output}: \\$\\{\\{ needs\\.context\\.outputs\\.${output} \\}\\}`));
+      assert.match(
+        jobText.generate,
+        new RegExp(`${output}: \\$\\{\\{ needs\\.context\\.outputs\\.${output} \\}\\}`),
+      );
     }
     const rebuild = step('generate', 'Rebuild update branch');
     assert.ok(jobs.generate.indexOf(rebuild) < jobs.generate.indexOf(step('generate', agentStep)));
-    assert.match(step('generate', 'Snapshot publishable changes'), /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/);
+    assert.match(
+      step('generate', 'Snapshot publishable changes'),
+      /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/,
+    );
   });
 
   test(`${file}: generate rebuilds exactly the branch the context job prepared`, () => {
@@ -137,16 +146,31 @@ for (const { file, agentStep, context } of updaters) {
         return { ...result, output: readFileSync(output, 'utf8') };
       };
 
-      const rebased = run({ REBASED: 'true', UPDATE_SHA: update, MAIN_SHA: main, AGENT_BASE_TREE: rebasedTree });
+      const rebased = run({
+        REBASED: 'true',
+        UPDATE_SHA: update,
+        MAIN_SHA: main,
+        AGENT_BASE_TREE: rebasedTree,
+      });
       assert.equal(rebased.status, 0, rebased.stderr);
       assert.equal(git('rev-parse', 'HEAD^{tree}'), rebasedTree);
       assert.equal(rebased.output, `agent_base=${git('rev-parse', 'HEAD')}\n`);
 
-      const fromMain = run({ REBASED: '', UPDATE_SHA: update, MAIN_SHA: main, AGENT_BASE_TREE: git('rev-parse', `${main}^{tree}`) });
+      const fromMain = run({
+        REBASED: '',
+        UPDATE_SHA: update,
+        MAIN_SHA: main,
+        AGENT_BASE_TREE: git('rev-parse', `${main}^{tree}`),
+      });
       assert.equal(fromMain.status, 0, fromMain.stderr);
       assert.equal(git('rev-parse', 'HEAD'), main);
 
-      const moved = run({ REBASED: 'true', UPDATE_SHA: update, MAIN_SHA: base, AGENT_BASE_TREE: rebasedTree });
+      const moved = run({
+        REBASED: 'true',
+        UPDATE_SHA: update,
+        MAIN_SHA: base,
+        AGENT_BASE_TREE: rebasedTree,
+      });
       assert.notEqual(moved.status, 0);
       assert.match(moved.stdout, /differs from the one the context job prepared/);
       assert.equal(moved.output, '');
