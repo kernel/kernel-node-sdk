@@ -52,13 +52,15 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-  generate:
+  # Every secret a job references stays readable in runner memory for the whole
+  # job, so the API read token is minted here and generate only gets model keys.
+  context:
     needs: sdk-version
     if: needs.sdk-version.outputs.version != ''
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 10
     outputs:
-      changed: ${{ steps.snapshot.outputs.changed }}
+      update: ${{ steps.prepare.outputs.update }}
       main_sha: ${{ steps.prepare.outputs.main_sha }}
       update_sha: ${{ steps.prepare.outputs.update_sha }}
       rebased: ${{ steps.prepare.outputs.rebased }}
@@ -67,22 +69,7 @@ jobs:
       SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
       SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
       UPDATE_BRANCH: mcp-coverage-update
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 20
     steps:
-      - name: Checkout updater instructions
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          persist-credentials: false
-
       - name: Checkout published SDK
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -90,14 +77,6 @@ jobs:
           path: sdk
           fetch-depth: 0
           persist-credentials: false
-
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version: '1.3.3'
 
       - name: Checkout MCP server
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -204,8 +183,102 @@ jobs:
           fi
           gh api --method DELETE /installation/token
 
-      - name: Install Pi
+      - name: Upload update context
         if: steps.prepare.outputs.update == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mcp-coverage-context
+          path: |
+            ${{ runner.temp }}/sdk-diff.patch
+            ${{ runner.temp }}/openapi-diff.patch
+            ${{ runner.temp }}/kernel-api
+          if-no-files-found: error
+          retention-days: 1
+
+  generate:
+    needs: [sdk-version, context]
+    if: needs.context.outputs.update == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    outputs:
+      changed: ${{ steps.snapshot.outputs.changed }}
+      main_sha: ${{ needs.context.outputs.main_sha }}
+      update_sha: ${{ needs.context.outputs.update_sha }}
+      rebased: ${{ needs.context.outputs.rebased }}
+      agent_base_tree: ${{ needs.context.outputs.agent_base_tree }}
+    env:
+      SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
+      SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
+      UPDATE_BRANCH: mcp-coverage-update
+      MAIN_SHA: ${{ needs.context.outputs.main_sha }}
+      UPDATE_SHA: ${{ needs.context.outputs.update_sha }}
+      REBASED: ${{ needs.context.outputs.rebased }}
+      AGENT_BASE_TREE: ${{ needs.context.outputs.agent_base_tree }}
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - name: Checkout updater instructions
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout published SDK
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ env.SDK_SHA }}
+          path: sdk
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: '1.3.3'
+
+      - name: Checkout MCP server
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          repository: kernel/kernel-mcp-server
+          path: mcp
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download update context
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: mcp-coverage-context
+          path: ${{ runner.temp }}
+
+      - name: Rebuild update branch
+        id: prepare
+        working-directory: mcp
+        run: |
+          git config user.name 'kernel-internal[bot]'
+          git config user.email '260533166+kernel-internal[bot]@users.noreply.github.com'
+          if [[ "$REBASED" == true ]]; then
+            git switch -c "$UPDATE_BRANCH" "$UPDATE_SHA"
+            git rebase -q "$MAIN_SHA"
+          else
+            git switch -c "$UPDATE_BRANCH" "$MAIN_SHA"
+          fi
+          if [[ "$(git rev-parse 'HEAD^{tree}')" != "$AGENT_BASE_TREE" ]]; then
+            echo "::error::The rebuilt update branch differs from the one the context job prepared."
+            exit 1
+          fi
+          echo "agent_base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Install Pi
         env:
           PI_TELEMETRY: '0'
         run: |
@@ -213,7 +286,6 @@ jobs:
           pi --version
 
       - name: Update SDK dependency and MCP coverage
-        if: steps.prepare.outputs.update == 'true'
         working-directory: mcp
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -229,7 +301,6 @@ jobs:
             @../.github/prompts/update-mcp-coverage.md
 
       - name: Snapshot publishable changes
-        if: steps.prepare.outputs.update == 'true'
         id: snapshot
         working-directory: mcp
         env:
@@ -253,7 +324,6 @@ jobs:
           fi
 
       - name: Verify MCP changes
-        if: steps.prepare.outputs.update == 'true'
         working-directory: mcp
         run: |
           test -s "$RUNNER_TEMP/mcp-coverage-report.md"
