@@ -137,6 +137,13 @@ import {
   ProxyUpdateResponse,
 } from './resources/proxies';
 import {
+  ProxyIP,
+  ProxyIPDetail,
+  ProxyIPListParams,
+  ProxyIPs,
+  ProxyIPsOffsetPagination,
+} from './resources/proxy-ips';
+import {
   VaultProviderConfig,
   VaultProviderConfigCreateParams,
   VaultProviderConfigListParams,
@@ -1095,6 +1102,10 @@ export class Kernel {
    */
   proxies: API.Proxies = new API.Proxies(this);
   /**
+   * Create and manage proxy configurations for routing browser traffic.
+   */
+  proxyIPs: API.ProxyIPs = new API.ProxyIPs(this);
+  /**
    * Create, list, retrieve, and delete browser extensions.
    */
   extensions: API.Extensions = new API.Extensions(this);
@@ -1140,6 +1151,7 @@ Kernel.Profiles = Profiles;
 Kernel.Auth = Auth;
 Kernel.Telemetry = Telemetry;
 Kernel.Proxies = Proxies;
+Kernel.ProxyIPs = ProxyIPs;
 Kernel.Extensions = Extensions;
 Kernel.BrowserPools = BrowserPools;
 Kernel.VaultProviderConfigs = VaultProviderConfigs;
@@ -1292,6 +1304,14 @@ export declare namespace Kernel {
     type ProxyUpdateParams as ProxyUpdateParams,
     type ProxyListParams as ProxyListParams,
     type ProxyCheckParams as ProxyCheckParams,
+  };
+
+  export {
+    ProxyIPs as ProxyIPs,
+    type ProxyIP as ProxyIP,
+    type ProxyIPDetail as ProxyIPDetail,
+    type ProxyIPsOffsetPagination as ProxyIPsOffsetPagination,
+    type ProxyIPListParams as ProxyIPListParams,
   };
 
   export {

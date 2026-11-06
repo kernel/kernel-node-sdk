@@ -447,6 +447,18 @@ Methods:
 - <code title="delete /proxies/{id_or_name}">client.proxies.<a href="./src/resources/proxies.ts">delete</a>(idOrName) -> void</code>
 - <code title="post /proxies/{id_or_name}/check">client.proxies.<a href="./src/resources/proxies.ts">check</a>(idOrName, { ...params }) -> ProxyCheckResponse</code>
 
+# ProxyIPs
+
+Types:
+
+- <code><a href="./src/resources/proxy-ips.ts">ProxyIP</a></code>
+- <code><a href="./src/resources/proxy-ips.ts">ProxyIPDetail</a></code>
+
+Methods:
+
+- <code title="get /proxy_ips/{ip_address}">client.proxyIPs.<a href="./src/resources/proxy-ips.ts">retrieve</a>(ipAddress) -> ProxyIPDetail</code>
+- <code title="get /proxy_ips">client.proxyIPs.<a href="./src/resources/proxy-ips.ts">list</a>({ ...params }) -> ProxyIPsOffsetPagination</code>
+
 # Extensions
 
 Types:
