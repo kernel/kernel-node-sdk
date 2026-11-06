@@ -82,12 +82,13 @@ If you changed anything, run `mint broken-links` from the docs checkout and fix 
 broken links your changes introduce, and run `jq empty docs.json` if you edited it.
 Do not run `mint dev`.
 
-Read the complete diff against origin/main before finishing. It includes changes from
-earlier releases still on this branch. Remove filler, unrelated changes, and anything
-that does not follow AGENTS.md.
+Read the complete diff against `$MAIN_SHA` before finishing. That is the main commit this
+branch was rebuilt on; `origin/main` may have moved since, so do not compare against it.
+The diff includes changes from earlier releases still on this branch. Remove filler,
+unrelated changes, and anything that does not follow AGENTS.md.
 
 Write `$RUNNER_TEMP/docs-update-report.md`. It replaces the PR description, so it
-must describe every change in the diff against origin/main, not only this run's.
+must describe every change in the diff against `$MAIN_SHA`, not only this run's.
 Carry forward entries from `$RUNNER_TEMP/previous-report.md` that still match the
 diff. Use concise sections:
 

@@ -9,7 +9,7 @@ Do not downgrade or change that version.
 
 1. Read `$RUNNER_TEMP/sdk-diff.patch`, `../sdk/api.md`, and the parameter types in
    `../sdk/src/resources`. The diff covers every release since the SDK version on
-   origin/main, so earlier runs may already have covered part of it on this branch.
+   `$MAIN_SHA`, so earlier runs may already have covered part of it on this branch.
    Enumerate SDK methods and their parameters, including
    nested options, new enum values, pagination, streaming, and changed signatures.
 2. Read `src/lib/mcp/register.ts`, `src/lib/mcp/tools/`, and shared MCP schemas.
@@ -33,7 +33,7 @@ Do not downgrade or change that version.
 
 The Kernel API spec as of this SDK release is at
 `$RUNNER_TEMP/kernel-api/packages/api/openapi.yaml`, and `$RUNNER_TEMP/openapi-diff.patch`
-shows spec changes between origin/main's SDK release and this one. The SDK is generated
+shows spec changes between `$MAIN_SHA`'s SDK release and this one. The SDK is generated
 from this spec, so its endpoint, parameter, and schema descriptions are the source of
 truth for what the API does.
 
@@ -72,11 +72,13 @@ Redis is available on localhost:6379, matching MCP CI. Do not disable tests or w
 checks to make this update pass. Fix failures caused by your changes. Do not edit
 unrelated code, workflows, generated App bundles, or authentication configuration.
 
-Read the complete diff against origin/main before finishing. Remove unnecessary
+Read the complete diff against `$MAIN_SHA` before finishing. That is the main commit this
+branch was rebuilt on; `origin/main` may have moved since, so do not compare against it.
+Remove unnecessary
 comments, type casts, defensive wrappers, and unrelated changes.
 
 Write `$RUNNER_TEMP/mcp-coverage-report.md`. It replaces the PR description, so it
-must describe every change in the diff against origin/main, including changes earlier
+must describe every change in the diff against `$MAIN_SHA`, including changes earlier
 runs left on this branch, not only this run's. Use concise sections describing:
 
 - Added or updated MCP tools, actions, and fields, with their SDK counterparts.
