@@ -196,6 +196,13 @@ export {
   type ProxyListResponsesOffsetPagination,
 } from './proxies';
 export {
+  ProxyIPs,
+  type ProxyIP,
+  type ProxyIPDetail,
+  type ProxyIPListParams,
+  type ProxyIPsOffsetPagination,
+} from './proxy-ips';
+export {
   SearchResource,
   type Attempt,
   type ProviderTarget,

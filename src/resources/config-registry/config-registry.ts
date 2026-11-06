@@ -337,9 +337,21 @@ export namespace Proxy {
       export interface IspProxyConfig {
         /**
          * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-         * Defaults to US if not provided.
+         * Defaults to US if not provided, or to the country of ip_address when that is
+         * set.
          */
         country?: string;
+
+        /**
+         * Reserved exit IP to pin the proxy to. Available only to organizations with a
+         * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+         * when country is also set, in that country. Omit to let Kernel choose an IP. A
+         * proxy read includes it only when the proxy's primary exit IP is one of the
+         * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+         * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+         * one that cannot currently be assigned, with 409 ip_unavailable.
+         */
+        ip_address?: string;
       }
 
       /**

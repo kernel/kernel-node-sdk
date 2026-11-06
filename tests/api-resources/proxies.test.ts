@@ -25,7 +25,7 @@ describe('resource proxies', () => {
     const response = await client.proxies.create({
       type: 'isp',
       bypass_hosts: ['string'],
-      config: { country: 'US' },
+      config: { country: 'US', ip_address: '203.0.113.10' },
       name: 'name',
       protocol: 'http',
     });
@@ -44,8 +44,8 @@ describe('resource proxies', () => {
   });
 
   // Mock server tests are disabled
-  test.skip('update: only required params', async () => {
-    const responsePromise = client.proxies.update('id_or_name', { name: 'my-renamed-proxy' });
+  test.skip('update', async () => {
+    const responsePromise = client.proxies.update('id_or_name', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -53,11 +53,6 @@ describe('resource proxies', () => {
     const dataAndResponse = await responsePromise.withResponse();
     expect(dataAndResponse.data).toBe(response);
     expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Mock server tests are disabled
-  test.skip('update: required and optional params', async () => {
-    const response = await client.proxies.update('id_or_name', { name: 'my-renamed-proxy' });
   });
 
   // Mock server tests are disabled
@@ -78,6 +73,7 @@ describe('resource proxies', () => {
     await expect(
       client.proxies.list(
         {
+          ip_address: 'ip_address',
           limit: 1,
           name: 'name',
           offset: 0,

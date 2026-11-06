@@ -39,14 +39,17 @@ export class Proxies extends APIResource {
   }
 
   /**
-   * Update a proxy's name. Proxy names are not unique and duplicate names are
-   * allowed.
+   * Update a proxy's name, or move an ISP proxy to another reserved exit IP. Proxy
+   * names are not unique and duplicate names are allowed. Moving requires a reserved
+   * ISP allocation and is accepted only for proxies of type isp: the new endpoint is
+   * probed first and nothing changes if the probe fails. An IP outside the
+   * allocation is a 400 with code ip_not_reserved. A 409 means the IP cannot
+   * currently be assigned or the proxy was changed concurrently; read it back and
+   * retry.
    *
    * @example
    * ```ts
-   * const proxy = await client.proxies.update('id_or_name', {
-   *   name: 'my-renamed-proxy',
-   * });
+   * const proxy = await client.proxies.update('id_or_name');
    * ```
    */
   update(
@@ -172,9 +175,21 @@ export namespace ProxyCreateResponse {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -321,9 +336,21 @@ export namespace ProxyRetrieveResponse {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -470,9 +497,21 @@ export namespace ProxyUpdateResponse {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -619,9 +658,21 @@ export namespace ProxyListResponse {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -768,9 +819,21 @@ export namespace ProxyCheckResponse {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -897,9 +960,21 @@ export namespace ProxyCreateParams {
   export interface IspProxyConfig {
     /**
      * ISO 3166 country code. Supported countries are US, GB, FR, DE, SG, and KR.
-     * Defaults to US if not provided.
+     * Defaults to US if not provided, or to the country of ip_address when that is
+     * set.
      */
     country?: string;
+
+    /**
+     * Reserved exit IP to pin the proxy to. Available only to organizations with a
+     * reserved ISP allocation; the IP must be active in it (see GET /proxy_ips) and,
+     * when country is also set, in that country. Omit to let Kernel choose an IP. A
+     * proxy read includes it only when the proxy's primary exit IP is one of the
+     * organization's reserved IPs; every ISP proxy's exit IP is on the top-level
+     * ip_address. An IP outside the allocation is rejected with code ip_not_reserved;
+     * one that cannot currently be assigned, with 409 ip_unavailable.
+     */
+    ip_address?: string;
   }
 
   /**
@@ -995,13 +1070,41 @@ export namespace ProxyCreateParams {
 
 export interface ProxyUpdateParams {
   /**
+   * Changes to an ISP proxy's exit IP. Accepted only for proxies of type `isp`.
+   */
+  config?: ProxyUpdateParams.Config;
+
+  /**
    * New proxy name. Proxy names are trimmed and length-checked only; duplicates are
    * allowed because proxies are updated by ID, not by name.
    */
-  name: string;
+  name?: string;
+}
+
+export namespace ProxyUpdateParams {
+  /**
+   * Changes to an ISP proxy's exit IP. Accepted only for proxies of type `isp`.
+   */
+  export interface Config {
+    /**
+     * Reserved exit IP to move the proxy to. The IP must be active in the
+     * organization's allocation and in the proxy's country. The proxy keeps its ID.
+     * The new endpoint is probed before anything changes; a failed probe leaves the
+     * proxy as it was. Live browsers open new connections on the new IP within a few
+     * seconds; established connections drain on the old one.
+     */
+    ip_address: string;
+  }
 }
 
 export interface ProxyListParams extends OffsetPaginationParams {
+  /**
+   * Exact match on the primary exit IP of ISP proxies. Must be an IPv4 address. Only
+   * ISP proxies are matched: the ip_address shown on other proxy types is a one-time
+   * observation, not a stable identity.
+   */
+  ip_address?: string;
+
   /**
    * Exact-match filter on proxy name using the database collation. In production,
    * matching is case- and accent-insensitive. Names are not required to be unique,

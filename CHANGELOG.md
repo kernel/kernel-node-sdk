@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.142.0](https://github.com/kernel/kernel-node-sdk/compare/v0.141.0...v0.142.0) (2026-11-06)
+
+
+### Features
+
+* Let reserved orgs list, pin and move ISP proxy IPs ([4813633](https://github.com/kernel/kernel-node-sdk/commit/4813633d168204e991058d53f6f486dcd5c08e7a))
+
 ## [0.141.0](https://github.com/kernel/kernel-node-sdk/compare/v0.140.0...v0.141.0) (2026-11-05)
 
 
