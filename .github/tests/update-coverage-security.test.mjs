@@ -28,8 +28,14 @@ const updaters = [
     file: 'update-mcp-coverage.yml',
     agentStep: 'Update SDK dependency and MCP coverage',
     context: 'mcp-coverage-context',
+    prompt: 'update-mcp-coverage.md',
   },
-  { file: 'update-docs.yml', agentStep: 'Update docs', context: 'sdk-docs-context' },
+  {
+    file: 'update-docs.yml',
+    agentStep: 'Update docs',
+    context: 'sdk-docs-context',
+    prompt: 'update-docs.md',
+  },
 ];
 
 const mcp = load('update-mcp-coverage.yml');
@@ -52,7 +58,22 @@ const runScript = (entry) => {
     .join('\n');
 };
 
-for (const { file, agentStep, context } of updaters) {
+// Evaluates the job `if:` expressions these workflows use: always(), needs results
+// and outputs, string literals, ==, != and &&.
+const evaluate = (expression, needs) => {
+  const js = expression
+    .replace(/\balways\(\)/g, 'true')
+    .replace(/needs\.([\w-]+)\.result/g, (_, job) => JSON.stringify(needs[job].result))
+    .replace(/needs\.([\w-]+)\.outputs\.([\w-]+)/g, (_, job, name) =>
+      JSON.stringify(needs[job].outputs?.[name] ?? ''),
+    )
+    .replace(/'([^']*)'/g, (_, value) => JSON.stringify(value))
+    .replace(/([!=])=/g, '$1==');
+  assert.match(js, /^(?:\s|"[^"]*"|true|===|!==|&&)+$/, `unsupported expression: ${expression}`);
+  return Function(`return (${js});`)();
+};
+
+for (const { file, agentStep, context, prompt } of updaters) {
   const { jobText, jobs, steps, step } = load(file);
 
   test(`${file}: actions are pinned and checkouts do not persist credentials`, () => {
@@ -135,14 +156,11 @@ for (const { file, agentStep, context } of updaters) {
       jobText.context,
       /context_artifact_id: \$\{\{ steps\.upload-context\.outputs\.artifact-id \}\}/,
     );
-    assert.match(
-      jobText.cleanup,
-      /needs: \[context, generate, publish\]\n\s+if: always\(\) && needs\.context\.outputs\.context_artifact_id != ''/,
-    );
+    assert.match(jobText.cleanup, /needs: \[context, generate, publish\]\n/);
     assert.match(jobText.cleanup, /permissions:\n\s+actions: write\n\s+steps:/);
     assert.match(
       step('cleanup', 'Delete update context'),
-      /ARTIFACT_ID: \$\{\{ needs\.context\.outputs\.context_artifact_id \}\}\n\s+run: gh api --method DELETE "repos\/\$GITHUB_REPOSITORY\/actions\/artifacts\/\$ARTIFACT_ID"/,
+      /ARTIFACT_ID: \$\{\{ needs\.context\.outputs\.context_artifact_id \}\}\n[\s\S]*gh api --method DELETE "repos\/\$GITHUB_REPOSITORY\/actions\/artifacts\/\$ARTIFACT_ID"/,
     );
     assert.doesNotMatch(jobText.cleanup, /secrets\./);
 
@@ -213,6 +231,95 @@ for (const { file, agentStep, context } of updaters) {
     }
   });
 
+  test(`${file}: retries keep the context until generate succeeds and tolerate a deleted context`, () => {
+    // "Re-run failed jobs" does not rerun a successful context job, so generate
+    // needs the context from the first attempt. Publish never downloads it.
+    assert.doesNotMatch(jobText.publish, new RegExp(context));
+    const condition = jobText.cleanup.match(/^    if: (.*)$/m)[1];
+    const script = runScript(step('cleanup', 'Delete update context'));
+    const dir = mkdtempSync(join(tmpdir(), 'cleanup-'));
+    try {
+      const store = join(dir, 'artifacts');
+      mkdirSync(join(dir, 'bin'));
+      writeFileSync(
+        join(dir, 'bin/gh'),
+        `#!/usr/bin/env bash
+id="\${@: -1}"
+id="\${id##*/}"
+if grep -qx "$id" "$STORE"; then
+  grep -vx "$id" "$STORE" > "$STORE.new" || true
+  mv "$STORE.new" "$STORE"
+  exit 0
+fi
+if [[ -n "$SERVER_ERROR" ]]; then
+  echo "gh: Server Error (HTTP 500)" >&2
+  exit 1
+fi
+echo '{"message":"Not Found","status":"404"}'
+echo "gh: Not Found (HTTP 404)" >&2
+exit 1
+`,
+        { mode: 0o755 },
+      );
+      const stored = () => readFileSync(store, 'utf8').split('\n').includes('42');
+      const attempt = (generate, publish, env = {}, artifactId = '42') => {
+        const needs = {
+          context: { result: 'success', outputs: { context_artifact_id: artifactId } },
+          generate: { result: generate },
+          publish: { result: publish },
+        };
+        if (!evaluate(condition, needs)) return null;
+        return spawnSync('bash', ['-e', '-c', script], {
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            PATH: `${join(dir, 'bin')}:${process.env.PATH}`,
+            STORE: store,
+            ARTIFACT_ID: artifactId,
+            GITHUB_REPOSITORY: 'kernel/example',
+            ...env,
+          },
+        });
+      };
+
+      // Generation fails or is cancelled: the context stays for the retry, which then deletes it.
+      writeFileSync(store, '42\n');
+      assert.equal(attempt('failure', 'skipped'), null);
+      assert.equal(attempt('cancelled', 'skipped'), null);
+      assert.ok(stored());
+      let run = attempt('success', 'success');
+      assert.equal(run.status, 0, run.stderr);
+      assert.ok(!stored());
+
+      // Publish fails after generate used the context: it is deleted, and the retry tolerates that.
+      writeFileSync(store, '42\n');
+      run = attempt('success', 'failure');
+      assert.equal(run.status, 0, run.stderr);
+      assert.ok(!stored());
+      run = attempt('success', 'success');
+      assert.equal(run.status, 0, run.stderr);
+      assert.match(run.stdout, /already deleted/);
+
+      run = attempt('success', 'success', { SERVER_ERROR: '1' });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /HTTP 500/);
+      assert.equal(attempt('success', 'skipped', {}, ''), null);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test(`${file}: the agent compares against the main commit the branch was rebuilt on`, () => {
+    const text = readFileSync(new URL(`../prompts/${prompt}`, import.meta.url), 'utf8');
+    assert.match(
+      step('generate', agentStep),
+      new RegExp(`@\\.\\./\\.github/prompts/${prompt.replace('.', '\\.')}`),
+    );
+    assert.match(text, /diff against `\$MAIN_SHA`/);
+    assert.doesNotMatch(text.replaceAll('`origin/main` may have moved since', ''), /origin\/main/);
+    assert.match(jobText.generate, /\n      MAIN_SHA: \$\{\{ needs\.context\.outputs\.main_sha \}\}\n/);
+  });
+
   test(`${file}: generate rebuilds exactly the branch the context job prepared`, () => {
     const script = runScript(step('generate', 'Rebuild update branch'));
     const dir = mkdtempSync(join(tmpdir(), 'rebuild-'));
@@ -259,6 +366,9 @@ for (const { file, agentStep, context } of updaters) {
       assert.equal(git('rev-parse', 'HEAD^{tree}'), rebasedTree);
       assert.equal(rebased.output, `agent_base=${git('rev-parse', 'HEAD')}\n`);
 
+      // origin/main can move after the context job; the agent diffs against MAIN_SHA.
+      git('switch', '-q', '--detach', main);
+      git('update-ref', 'refs/remotes/origin/main', commit('d.mdx', 'd\n', 'main moved again'));
       const fromMain = run({
         REBASED: '',
         UPDATE_SHA: update,
@@ -267,6 +377,8 @@ for (const { file, agentStep, context } of updaters) {
       });
       assert.equal(fromMain.status, 0, fromMain.stderr);
       assert.equal(git('rev-parse', 'HEAD'), main);
+      assert.equal(git('diff', '--name-only', main), '');
+      assert.equal(git('diff', '--name-only', 'origin/main'), 'd.mdx');
 
       const moved = run({
         REBASED: 'true',

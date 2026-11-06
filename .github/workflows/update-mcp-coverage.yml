@@ -483,10 +483,12 @@ jobs:
               --title "$title" --body-file "$body"
           fi
 
-  # Runs whether or not publish does, so the context never outlives the run.
+  # Deletes the context once generate has used it, whether or not publish runs.
+  # After a failed or cancelled generate the context is kept until it expires, so
+  # re-running failed jobs can still download it.
   cleanup:
     needs: [context, generate, publish]
-    if: always() && needs.context.outputs.context_artifact_id != ''
+    if: always() && needs.generate.result == 'success' && needs.context.outputs.context_artifact_id != ''
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -496,4 +498,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ needs.context.outputs.context_artifact_id }}
-        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
+        run: |
+          # A re-run after a failed publish finds the context already deleted.
+          if ! error=$(gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" 2>&1); then
+            if [[ "$error" != *"(HTTP 404)"* ]]; then
+              echo "$error" >&2
+              exit 1
+            fi
+            echo "The update context was already deleted."
+          fi
