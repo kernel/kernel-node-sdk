@@ -79,12 +79,14 @@ export interface BrowserProfile {
  */
 export interface BrowserViewport {
   /**
-   * Browser window height in pixels. Any positive integer is accepted.
+   * Browser window height in pixels. Any positive integer is accepted; headful
+   * browsers require at least 64.
    */
   height: number;
 
   /**
-   * Browser window width in pixels. Any positive integer is accepted.
+   * Browser window width in pixels. Any positive integer is accepted; headful
+   * browsers require at least 64.
    */
   width: number;
 
