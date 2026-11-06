@@ -216,6 +216,8 @@ jobs:
           path: ${{ runner.temp }}/context.tar.gz.cms
           if-no-files-found: error
           retention-days: 1
+          # "Re-run all jobs" uploads again in the same run, where a failed generate left the context.
+          overwrite: true
 
   generate:
     needs: [sdk-version, context]

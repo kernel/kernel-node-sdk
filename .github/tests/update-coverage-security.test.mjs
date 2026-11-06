@@ -150,6 +150,8 @@ for (const { file, agentStep, context, prompt } of updaters) {
     const upload = step('context', 'Upload update context');
     assert.match(upload, /path: \$\{\{ runner\.temp \}\}\/context\.tar\.gz\.cms\n/);
     assert.match(upload, /retention-days: 1\n/);
+    // Kept after a failed generate, so "Re-run all jobs" must replace it.
+    assert.match(upload, /overwrite: true\n/);
     const encrypt = step('context', 'Encrypt update context');
     assert.ok(jobs.context.indexOf(encrypt) < jobs.context.indexOf(upload));
     assert.match(
