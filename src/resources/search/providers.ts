@@ -176,17 +176,7 @@ export interface ProviderListParams {
    * Optional concrete provider slug filter. Omit to list every provider. A slug that
    * is not listed returns an empty array.
    */
-  slug?:
-    | 'brave'
-    | 'exa'
-    | 'perplexity'
-    | 'context'
-    | 'parallel'
-    | 'valyu'
-    | 'octen'
-    | 'you'
-    | 'tavily'
-    | 'serpapi';
+  slug?: 'brave' | 'exa' | 'perplexity' | 'context' | 'parallel' | 'octen' | 'you' | 'tavily';
 }
 
 export declare namespace Providers {
