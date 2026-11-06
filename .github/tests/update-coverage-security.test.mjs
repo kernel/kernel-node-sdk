@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -72,8 +72,19 @@ for (const { file, agentStep, context } of updaters) {
       jobs[name].some((entry) => entry.includes('pi --print')),
     );
     assert.deepEqual(agentJobs, ['generate']);
+    // UPDATER_CONTEXT_KEY only decrypts the context this job is meant to read.
     const secrets = [...jobText.generate.matchAll(/\bsecrets\b(?:\.(\w+))?/g)].map((match) => match[1]);
-    assert.deepEqual([...new Set(secrets)].sort(), ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY']);
+    assert.deepEqual([...new Set(secrets)].sort(), [
+      'ANTHROPIC_API_KEY',
+      'OPENAI_API_KEY',
+      'UPDATER_CONTEXT_KEY',
+    ]);
+    const keyUses = jobs.generate.filter((entry) => entry.includes('secrets.UPDATER_CONTEXT_KEY'));
+    assert.deepEqual(keyUses, [step('generate', 'Decrypt update context')]);
+    assert.doesNotMatch(
+      jobText.generate.slice(0, jobText.generate.indexOf('    steps:\n')),
+      /UPDATER_CONTEXT_KEY/,
+    );
     assert.doesNotMatch(jobText.generate, /GH_TOKEN|github\.token|create-github-app-token|outputs\.token/);
     assert.match(step('generate', agentStep), /pi --print --no-session --approve/);
   });
@@ -85,7 +96,7 @@ for (const { file, agentStep, context } of updaters) {
     assert.doesNotMatch(readToken, /permission-[\w-]+: write/);
     const fetch = step('context', 'Fetch API spec');
     assert.match(fetch, /GH_TOKEN: \$\{\{ steps\.api-read-token\.outputs\.token \}\}/);
-    assert.match(fetch, /gh api --method DELETE \/installation\/token\s*$/);
+    assert.match(fetch, /gh api --method DELETE \/installation\/token\n(?:\s*#.*\n)*\s*$/);
     assert.match(fetch, /-f until="\$1"/);
     assert.doesNotMatch(fetch, /gh repo clone/);
     assert.doesNotMatch(jobText.context, /pi --print|secrets\.(ANTHROPIC|OPENAI)_API_KEY/);
@@ -108,6 +119,98 @@ for (const { file, agentStep, context } of updaters) {
       step('generate', 'Snapshot publishable changes'),
       /AGENT_BASE: \$\{\{ steps\.prepare\.outputs\.agent_base \}\}/,
     );
+  });
+
+  test(`${file}: private spec content is only uploaded encrypted and deleted after the run`, () => {
+    // This repository is public, so anyone signed in can download its artifacts.
+    for (const entry of steps.filter((entry) => entry.includes('actions/upload-artifact@'))) {
+      assert.doesNotMatch(entry, /kernel-api|openapi|stainless/);
+    }
+    const upload = step('context', 'Upload update context');
+    assert.match(upload, /path: \$\{\{ runner\.temp \}\}\/context\.tar\.gz\.cms\n/);
+    assert.match(upload, /retention-days: 1\n/);
+    const encrypt = step('context', 'Encrypt update context');
+    assert.ok(jobs.context.indexOf(encrypt) < jobs.context.indexOf(upload));
+    assert.match(
+      jobText.context,
+      /context_artifact_id: \$\{\{ steps\.upload-context\.outputs\.artifact-id \}\}/,
+    );
+    assert.match(
+      jobText.cleanup,
+      /needs: \[context, generate, publish\]\n\s+if: always\(\) && needs\.context\.outputs\.context_artifact_id != ''/,
+    );
+    assert.match(jobText.cleanup, /permissions:\n\s+actions: write\n\s+steps:/);
+    assert.match(
+      step('cleanup', 'Delete update context'),
+      /ARTIFACT_ID: \$\{\{ needs\.context\.outputs\.context_artifact_id \}\}\n\s+run: gh api --method DELETE "repos\/\$GITHUB_REPOSITORY\/actions\/artifacts\/\$ARTIFACT_ID"/,
+    );
+    assert.doesNotMatch(jobText.cleanup, /secrets\./);
+
+    const dir = mkdtempSync(join(tmpdir(), 'context-'));
+    try {
+      const workspace = join(dir, 'workspace');
+      const temp = join(dir, 'temp');
+      mkdirSync(join(workspace, '.github'), { recursive: true });
+      mkdirSync(join(temp, 'kernel-api/packages/api'), { recursive: true });
+      const marker = 'PRIVATE-SPEC-MARKER';
+      for (const name of [
+        'sdk-diff.patch',
+        'openapi-diff.patch',
+        'recent-docs-commits.txt',
+        'open-docs-prs.txt',
+      ]) {
+        writeFileSync(join(temp, name), `${marker} ${name}\n`);
+      }
+      writeFileSync(join(temp, 'kernel-api/packages/api/openapi.yaml'), `${marker} spec\n`);
+      const run = (script, env) =>
+        spawnSync('bash', ['-e', '-c', script], {
+          cwd: dir,
+          encoding: 'utf8',
+          env: { ...process.env, GITHUB_WORKSPACE: workspace, RUNNER_TEMP: temp, ...env },
+        });
+
+      const missing = run(runScript(encrypt));
+      assert.notEqual(missing.status, 0);
+      assert.match(missing.stdout, /::error::Missing .*updater-context\.pem/);
+      assert.ok(!existsSync(join(temp, 'context.tar.gz.cms')));
+
+      execFileSync(
+        'openssl',
+        [
+          'req',
+          '-x509',
+          '-newkey',
+          'rsa:2048',
+          '-nodes',
+          '-days',
+          '1',
+          '-subj',
+          '/CN=test',
+          '-keyout',
+          join(dir, 'key.pem'),
+          '-out',
+          join(workspace, '.github/updater-context.pem'),
+        ],
+        { stdio: 'ignore' },
+      );
+      const encrypted = run(runScript(encrypt));
+      assert.equal(encrypted.status, 0, encrypted.stderr);
+      const ciphertext = readFileSync(join(temp, 'context.tar.gz.cms'));
+      assert.ok(!ciphertext.includes(marker));
+      assert.ok(!existsSync(join(temp, 'context.tar.gz')));
+
+      rmSync(join(temp, 'kernel-api'), { recursive: true });
+      const key = readFileSync(join(dir, 'key.pem')).toString('base64');
+      const decrypted = run(runScript(step('generate', 'Decrypt update context')), { CONTEXT_KEY: key });
+      assert.equal(decrypted.status, 0, decrypted.stderr);
+      assert.equal(
+        readFileSync(join(temp, 'kernel-api/packages/api/openapi.yaml'), 'utf8'),
+        `${marker} spec\n`,
+      );
+      assert.ok(!existsSync(join(temp, 'context.tar.gz.cms')));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   test(`${file}: generate rebuilds exactly the branch the context job prepared`, () => {

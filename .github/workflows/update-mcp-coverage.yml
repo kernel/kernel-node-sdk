@@ -65,11 +65,18 @@ jobs:
       update_sha: ${{ steps.prepare.outputs.update_sha }}
       rebased: ${{ steps.prepare.outputs.rebased }}
       agent_base_tree: ${{ steps.prepare.outputs.agent_base_tree }}
+      context_artifact_id: ${{ steps.upload-context.outputs.artifact-id }}
     env:
       SDK_VERSION: ${{ needs.sdk-version.outputs.version }}
       SDK_SHA: ${{ needs.sdk-version.outputs.sha }}
       UPDATE_BRANCH: mcp-coverage-update
     steps:
+      - name: Checkout updater instructions
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+
       - name: Checkout published SDK
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -183,15 +190,30 @@ jobs:
           fi
           gh api --method DELETE /installation/token
 
+      # The spec comes from a private repository and this repository's artifacts are
+      # public, so the context is only uploaded encrypted to the committed certificate.
+      - name: Encrypt update context
+        if: steps.prepare.outputs.update == 'true'
+        run: |
+          cert="$GITHUB_WORKSPACE/.github/updater-context.pem"
+          if [[ ! -s "$cert" ]]; then
+            echo "::error::Missing $cert, the certificate for the UPDATER_CONTEXT_KEY secret."
+            exit 1
+          fi
+          cd "$RUNNER_TEMP"
+          files=(sdk-diff.patch openapi-diff.patch kernel-api)
+          tar -czf context.tar.gz "${files[@]}"
+          openssl cms -encrypt -binary -aes-256-gcm -outform DER \
+            -in context.tar.gz -out context.tar.gz.cms "$cert"
+          rm context.tar.gz
+
       - name: Upload update context
+        id: upload-context
         if: steps.prepare.outputs.update == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mcp-coverage-context
-          path: |
-            ${{ runner.temp }}/sdk-diff.patch
-            ${{ runner.temp }}/openapi-diff.patch
-            ${{ runner.temp }}/kernel-api
+          path: ${{ runner.temp }}/context.tar.gz.cms
           if-no-files-found: error
           retention-days: 1
 
@@ -259,6 +281,17 @@ jobs:
         with:
           name: mcp-coverage-context
           path: ${{ runner.temp }}
+
+      # The key is stored base64-encoded on one line so log masking covers all of it.
+      - name: Decrypt update context
+        env:
+          CONTEXT_KEY: ${{ secrets.UPDATER_CONTEXT_KEY }}
+        run: |
+          set -o pipefail
+          cd "$RUNNER_TEMP"
+          openssl cms -decrypt -binary -inform DER -in context.tar.gz.cms \
+            -inkey <(base64 -d <<< "$CONTEXT_KEY") | tar -xzf -
+          rm context.tar.gz.cms
 
       - name: Rebuild update branch
         id: prepare
@@ -449,3 +482,18 @@ jobs:
             gh pr create --repo kernel/kernel-mcp-server --head "$UPDATE_BRANCH" --base main \
               --title "$title" --body-file "$body"
           fi
+
+  # Runs whether or not publish does, so the context never outlives the run.
+  cleanup:
+    needs: [context, generate, publish]
+    if: always() && needs.context.outputs.context_artifact_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Delete update context
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.context.outputs.context_artifact_id }}
+        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
