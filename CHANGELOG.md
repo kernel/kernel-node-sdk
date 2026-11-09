@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.144.0](https://github.com/kernel/kernel-node-sdk/compare/v0.143.0...v0.144.0) (2026-11-09)
+
+
+### Features
+
+* Add server-to-server card ingest for Kernel wallets ([a00925b](https://github.com/kernel/kernel-node-sdk/commit/a00925b9bbc49a85d1e3589cd5500774e58ab3c5))
+
 ## [0.143.0](https://github.com/kernel/kernel-node-sdk/compare/v0.142.0...v0.143.0) (2026-11-07)
 
 
