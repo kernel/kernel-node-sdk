@@ -255,6 +255,9 @@ jobs:
     if: needs.context.outputs.update == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 55
+    permissions:
+      contents: read
+      id-token: write
     outputs:
       changed: ${{ steps.snapshot.outputs.changed }}
       main_sha: ${{ needs.context.outputs.main_sha }}
@@ -364,11 +367,20 @@ jobs:
           npm install -g --ignore-scripts @earendil-works/pi-coding-agent mint@4.2.930
           pi --version
 
+      - name: Model credentials
+        uses: kernel/security-workflows/.github/actions/llm-credentials@4144994f1d6977e07ef5a5832599ee4faaae9550 # main
+        with:
+          model: ${{ vars.PI_PREFERRED_MODEL }}
+          anthropic-federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          anthropic-organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          anthropic-service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          openai-identity-provider-id: ${{ vars.OPENAI_IDENTITY_PROVIDER_ID }}
+          openai-service-account-id: ${{ vars.OPENAI_SERVICE_ACCOUNT_ID }}
+          openai-audience: ${{ vars.OPENAI_WIF_AUDIENCE }}
+
       - name: Update docs
         working-directory: docs
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PI_PREFERRED_MODEL: ${{ vars.PI_PREFERRED_MODEL }}
           PI_SKIP_VERSION_CHECK: '1'
           PI_TELEMETRY: '0'
@@ -377,6 +389,12 @@ jobs:
           pi --print --no-session --approve \
             --model "$PI_PREFERRED_MODEL" --thinking max \
             @../.github/prompts/update-docs.md
+
+      - name: Stop model credentials
+        if: always()
+        uses: kernel/security-workflows/.github/actions/llm-credentials@4144994f1d6977e07ef5a5832599ee4faaae9550 # main
+        with:
+          stop: true
 
       - name: Snapshot publishable changes
         id: snapshot
