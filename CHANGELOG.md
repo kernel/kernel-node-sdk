@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.146.0](https://github.com/kernel/kernel-node-sdk/compare/v0.145.0...v0.146.0) (2026-11-10)
+
+
+### Features
+
+* Allow auto-starting replays during browser creation and pool acquire ([f7caf3e](https://github.com/kernel/kernel-node-sdk/commit/f7caf3e0631ccce66694709001a9639bc3d1c144))
+
 ## [0.145.0](https://github.com/kernel/kernel-node-sdk/compare/v0.144.0...v0.145.0) (2026-11-10)
 
 

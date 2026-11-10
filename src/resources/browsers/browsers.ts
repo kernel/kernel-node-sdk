@@ -1780,6 +1780,11 @@ export interface BrowserCreateParams {
   region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
+   * Start replay recording as part of creating this browser session.
+   */
+  start_replay?: boolean;
+
+  /**
    * Optional URL to open when the browser session is created. Navigation is
    * best-effort, so navigation failures do not prevent the session from being
    * created.

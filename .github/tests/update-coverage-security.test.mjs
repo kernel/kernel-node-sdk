@@ -23,6 +23,9 @@ const load = (file) => {
   return { text, jobText, jobs, steps: Object.values(jobs).flat(), step };
 };
 
+const llmCredentials =
+  'uses: kernel/security-workflows/.github/actions/llm-credentials@4144994f1d6977e07ef5a5832599ee4faaae9550 # main\n';
+
 const updaters = [
   {
     file: 'update-mcp-coverage.yml',
@@ -78,7 +81,7 @@ for (const { file, agentStep, context, prompt } of updaters) {
 
   test(`${file}: actions are pinned and checkouts do not persist credentials`, () => {
     for (const entry of steps.filter((entry) => entry.includes('uses: '))) {
-      assert.match(entry, /uses: [\w/-]+@[a-f0-9]{40}(?:\s|$)/);
+      assert.match(entry, /uses: [\w./-]+@[a-f0-9]{40}(?:\s|$)/);
       if (entry.includes('uses: actions/checkout@')) {
         assert.match(entry, /persist-credentials: false/);
         assert.doesNotMatch(entry, /token:/);
@@ -86,7 +89,7 @@ for (const { file, agentStep, context, prompt } of updaters) {
     }
   });
 
-  test(`${file}: the job that runs Pi references only the model API keys`, () => {
+  test(`${file}: the job that runs Pi references only the context key`, () => {
     // A job's secrets stay in runner memory for the whole job, where an agent with
     // sudo can read them, so revoking a minted token before Pi starts is not enough.
     const agentJobs = Object.keys(jobs).filter((name) =>
@@ -95,11 +98,7 @@ for (const { file, agentStep, context, prompt } of updaters) {
     assert.deepEqual(agentJobs, ['generate']);
     // UPDATER_CONTEXT_KEY only decrypts the context this job is meant to read.
     const secrets = [...jobText.generate.matchAll(/\bsecrets\b(?:\.(\w+))?/g)].map((match) => match[1]);
-    assert.deepEqual([...new Set(secrets)].sort(), [
-      'ANTHROPIC_API_KEY',
-      'OPENAI_API_KEY',
-      'UPDATER_CONTEXT_KEY',
-    ]);
+    assert.deepEqual([...new Set(secrets)], ['UPDATER_CONTEXT_KEY']);
     const keyUses = jobs.generate.filter((entry) => entry.includes('secrets.UPDATER_CONTEXT_KEY'));
     assert.deepEqual(keyUses, [step('generate', 'Decrypt update context')]);
     assert.doesNotMatch(
@@ -108,6 +107,20 @@ for (const { file, agentStep, context, prompt } of updaters) {
     );
     assert.doesNotMatch(jobText.generate, /GH_TOKEN|github\.token|create-github-app-token|outputs\.token/);
     assert.match(step('generate', agentStep), /pi --print --no-session --approve/);
+  });
+
+  test(`${file}: model credentials exist only while Pi runs`, () => {
+    const agent = jobs.generate.indexOf(step('generate', agentStep));
+    const start = step('generate', 'Model credentials');
+    const stop = step('generate', 'Stop model credentials');
+    assert.equal(jobs.generate.indexOf(start), agent - 1);
+    assert.equal(jobs.generate.indexOf(stop), agent + 1);
+    assert.ok(start.includes(llmCredentials));
+    assert.match(start, /model: \$\{\{ vars\.PI_PREFERRED_MODEL \}\}\n/);
+    assert.match(stop, /if: always\(\)\n/);
+    assert.ok(stop.includes(llmCredentials));
+    assert.match(stop, /stop: true\n/);
+    assert.match(jobText.generate, /\n    permissions:\n      contents: read\n      id-token: write\n/);
   });
 
   test(`${file}: GitHub reads happen in an earlier job that hands over only data`, () => {
