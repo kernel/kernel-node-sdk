@@ -45,6 +45,7 @@ describe('resource browserPools', () => {
       proxy_id: 'proxy_id',
       refresh_on_profile_update: true,
       region: 'us-east',
+      start_replay: true,
       start_url: 'https://example.com',
       stealth: true,
       telemetry: {

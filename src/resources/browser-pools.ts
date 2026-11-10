@@ -297,6 +297,11 @@ export namespace BrowserPool {
     refresh_on_profile_update?: boolean;
 
     /**
+     * Start replay recording automatically when a browser is acquired from this pool.
+     */
+    start_replay?: boolean;
+
+    /**
      * Optional URL to navigate to when a new browser is warmed into the pool.
      * Best-effort: failures to navigate do not fail pool fill. Only applied to
      * newly-warmed browsers; browsers reused via release/acquire keep whatever URL the
@@ -638,6 +643,11 @@ export interface BrowserPoolCreateParams {
   region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
+   * Start replay recording automatically when a browser is acquired from this pool.
+   */
+  start_replay?: boolean;
+
+  /**
    * Optional URL to navigate to when a new browser is warmed into the pool.
    * Best-effort: failures to navigate do not fail pool fill. Only applied to
    * newly-warmed browsers; browsers reused via release/acquire keep whatever URL the
@@ -932,6 +942,12 @@ export interface BrowserPoolUpdateParams {
   size?: number;
 
   /**
+   * If provided, replaces whether replay recording starts automatically for future
+   * acquired browsers.
+   */
+  start_replay?: boolean;
+
+  /**
    * If provided, replaces the URL to navigate to when a new browser is warmed into
    * the pool. Empty string clears the previously-set URL. Omit this field to leave
    * it unchanged.
@@ -1160,6 +1176,12 @@ export interface BrowserPoolAcquireParams {
    * Profiles must be created beforehand.
    */
   profile?: Shared.BrowserProfile;
+
+  /**
+   * Start replay recording immediately for the acquired browser. Omit to use the
+   * pool's configured default.
+   */
+  start_replay?: boolean;
 
   /**
    * Optional URL to navigate the acquired browser to. Overrides the pool's start_url
