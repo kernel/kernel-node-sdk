@@ -428,8 +428,8 @@ export interface AuthorizeVaultItemOperationRequest {
  * be changed with PATCH until the card is authorized at a checkout. Authorize it
  * with the browser at final checkout: Kernel inspects the checkout through WebMCP
  * and internally chooses a merchant-bound Link Pay Token when supported or a
- * virtual card otherwise. Callers never receive or choose how the credential is
- * delivered.
+ * virtual card otherwise. Callers do not choose how the credential is delivered;
+ * after authorize, state.credential_type reports it.
  */
 export type CardVaultItemSpec =
   | CardVaultItemSpec.LinkCardVaultItemSpec
@@ -444,8 +444,8 @@ export namespace CardVaultItemSpec {
    * be changed with PATCH until the card is authorized at a checkout. Authorize it
    * with the browser at final checkout: Kernel inspects the checkout through WebMCP
    * and internally chooses a merchant-bound Link Pay Token when supported or a
-   * virtual card otherwise. Callers never receive or choose how the credential is
-   * delivered.
+   * virtual card otherwise. Callers do not choose how the credential is delivered;
+   * after authorize, state.credential_type reports it.
    */
   export interface LinkCardVaultItemSpec {
     /**
@@ -647,6 +647,15 @@ export namespace CardVaultItemState {
       | 'expired'
       | 'declined'
       | 'recovery_required';
+
+    /**
+     * The Link spend request's credential_type, set when authorize sends the request
+     * to Link. Absent before authorize and after Link rejects the request; a ready
+     * card without it fills like card. card is a Link virtual card; fill it with field
+     * bindings. link_pay_token is a Link Pay Token that Kernel supplies through the
+     * checkout's Link WebMCP tool; fill it without fields.
+     */
+    credential_type?: 'card' | 'link_pay_token';
 
     domains?: Array<string>;
 
@@ -2639,8 +2648,8 @@ export interface PaymentRequestVaultItem {
    * be changed with PATCH until the card is authorized at a checkout. Authorize it
    * with the browser at final checkout: Kernel inspects the checkout through WebMCP
    * and internally chooses a merchant-bound Link Pay Token when supported or a
-   * virtual card otherwise. Callers never receive or choose how the credential is
-   * delivered.
+   * virtual card otherwise. Callers do not choose how the credential is delivered;
+   * after authorize, state.credential_type reports it.
    */
   spec: PaymentRequestVaultItemSpec;
 
@@ -2704,8 +2713,8 @@ export namespace PaymentRequestVaultItem {
  * be changed with PATCH until the card is authorized at a checkout. Authorize it
  * with the browser at final checkout: Kernel inspects the checkout through WebMCP
  * and internally chooses a merchant-bound Link Pay Token when supported or a
- * virtual card otherwise. Callers never receive or choose how the credential is
- * delivered.
+ * virtual card otherwise. Callers do not choose how the credential is delivered;
+ * after authorize, state.credential_type reports it.
  */
 export type PaymentRequestVaultItemSpec =
   | PaymentRequestVaultItemSpec.LinkCardVaultItemSpec
@@ -2717,8 +2726,8 @@ export namespace PaymentRequestVaultItemSpec {
    * be changed with PATCH until the card is authorized at a checkout. Authorize it
    * with the browser at final checkout: Kernel inspects the checkout through WebMCP
    * and internally chooses a merchant-bound Link Pay Token when supported or a
-   * virtual card otherwise. Callers never receive or choose how the credential is
-   * delivered.
+   * virtual card otherwise. Callers do not choose how the credential is delivered;
+   * after authorize, state.credential_type reports it.
    */
   export interface LinkCardVaultItemSpec {
     /**
@@ -2869,6 +2878,15 @@ export namespace PaymentRequestVaultItemState {
       | 'expired'
       | 'declined'
       | 'recovery_required';
+
+    /**
+     * The Link spend request's credential_type, set when authorize sends the request
+     * to Link. Absent before authorize and after Link rejects the request; a ready
+     * card without it fills like card. card is a Link virtual card; fill it with field
+     * bindings. link_pay_token is a Link Pay Token that Kernel supplies through the
+     * checkout's Link WebMCP tool; fill it without fields.
+     */
+    credential_type?: 'card' | 'link_pay_token';
 
     domains?: Array<string>;
 
@@ -3465,8 +3483,8 @@ export namespace VaultItem {
      * be changed with PATCH until the card is authorized at a checkout. Authorize it
      * with the browser at final checkout: Kernel inspects the checkout through WebMCP
      * and internally chooses a merchant-bound Link Pay Token when supported or a
-     * virtual card otherwise. Callers never receive or choose how the credential is
-     * delivered.
+     * virtual card otherwise. Callers do not choose how the credential is delivered;
+     * after authorize, state.credential_type reports it.
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
@@ -3757,8 +3775,8 @@ export namespace VaultItemOperationResponse {
      * be changed with PATCH until the card is authorized at a checkout. Authorize it
      * with the browser at final checkout: Kernel inspects the checkout through WebMCP
      * and internally chooses a merchant-bound Link Pay Token when supported or a
-     * virtual card otherwise. Callers never receive or choose how the credential is
-     * delivered.
+     * virtual card otherwise. Callers do not choose how the credential is delivered;
+     * after authorize, state.credential_type reports it.
      */
     spec: ItemsAPI.CardVaultItemSpec;
 
@@ -4411,8 +4429,8 @@ export declare namespace ItemUpdateParams {
      * The spec can be changed with PATCH until the card is authorized at a checkout.
      * Authorize it with the browser at final checkout: Kernel inspects the checkout
      * through WebMCP and internally chooses a merchant-bound Link Pay Token when
-     * supported or a virtual card otherwise. Callers never receive or choose how the
-     * credential is delivered.
+     * supported or a virtual card otherwise. Callers do not choose how the credential
+     * is delivered; after authorize, state.credential_type reports it.
      */
     spec: CardVaultItemSpec;
 
@@ -4433,8 +4451,8 @@ export declare namespace ItemUpdateParams {
      * The spec can be changed with PATCH until the card is authorized at a checkout.
      * Authorize it with the browser at final checkout: Kernel inspects the checkout
      * through WebMCP and internally chooses a merchant-bound Link Pay Token when
-     * supported or a virtual card otherwise. Callers never receive or choose how the
-     * credential is delivered.
+     * supported or a virtual card otherwise. Callers do not choose how the credential
+     * is delivered; after authorize, state.credential_type reports it.
      */
     spec: PaymentRequestVaultItemSpec;
 
@@ -5213,8 +5231,8 @@ export declare namespace ItemUpsertParams {
      * The spec can be changed with PATCH until the card is authorized at a checkout.
      * Authorize it with the browser at final checkout: Kernel inspects the checkout
      * through WebMCP and internally chooses a merchant-bound Link Pay Token when
-     * supported or a virtual card otherwise. Callers never receive or choose how the
-     * credential is delivered.
+     * supported or a virtual card otherwise. Callers do not choose how the credential
+     * is delivered; after authorize, state.credential_type reports it.
      */
     spec: CardVaultItemSpec;
 
@@ -5235,8 +5253,8 @@ export declare namespace ItemUpsertParams {
      * The spec can be changed with PATCH until the card is authorized at a checkout.
      * Authorize it with the browser at final checkout: Kernel inspects the checkout
      * through WebMCP and internally chooses a merchant-bound Link Pay Token when
-     * supported or a virtual card otherwise. Callers never receive or choose how the
-     * credential is delivered.
+     * supported or a virtual card otherwise. Callers do not choose how the credential
+     * is delivered; after authorize, state.credential_type reports it.
      */
     spec: PaymentRequestVaultItemSpec;
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.145.0](https://github.com/kernel/kernel-node-sdk/compare/v0.144.0...v0.145.0) (2026-11-10)
+
+
+### Features
+
+* Discard browser sessions on immediate API key revocation ([#5272](https://github.com/kernel/kernel-node-sdk/issues/5272)) ([b6a069d](https://github.com/kernel/kernel-node-sdk/commit/b6a069d808687661dce0ddd2f3cf7d5bc502d3ee))
+* Expose Link card credential_type and explain pay token fill rejections ([37fe4d3](https://github.com/kernel/kernel-node-sdk/commit/37fe4d35c0d9fe1d002dcd31b36af2fdf3c85e20))
+
 ## [0.144.0](https://github.com/kernel/kernel-node-sdk/compare/v0.143.0...v0.144.0) (2026-11-09)
 
 
