@@ -577,6 +577,13 @@ export namespace InvocationListBrowsersResponse {
     proxy_id?: string;
 
     /**
+     * Replay recording started by `start_replay` when this browser was created or
+     * acquired. Omitted otherwise; list replays with
+     * `GET /browsers/{id_or_name}/replays`.
+     */
+    replay?: Browser.Replay;
+
+    /**
      * URL the session was most recently asked to navigate to, if any. Recorded for
      * debugging. Navigation is fire-and-forget — the URL is dispatched to the browser
      * without waiting for it to load, and any errors (DNS failure, bad status,
@@ -632,6 +639,35 @@ export namespace InvocationListBrowsersResponse {
      * to keep bandwidth reasonable).
      */
     viewport?: Shared.BrowserViewport;
+  }
+
+  export namespace Browser {
+    /**
+     * Replay recording started by `start_replay` when this browser was created or
+     * acquired. Omitted otherwise; list replays with
+     * `GET /browsers/{id_or_name}/replays`.
+     */
+    export interface Replay {
+      /**
+       * Unique identifier for the replay recording.
+       */
+      replay_id: string;
+
+      /**
+       * Timestamp when replay finished
+       */
+      finished_at?: string | null;
+
+      /**
+       * URL for viewing the replay recording.
+       */
+      replay_view_url?: string;
+
+      /**
+       * Timestamp when replay started
+       */
+      started_at?: string | null;
+    }
   }
 }
 

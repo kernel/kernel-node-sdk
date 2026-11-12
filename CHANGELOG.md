@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.147.0](https://github.com/kernel/kernel-node-sdk/compare/v0.146.0...v0.147.0) (2026-11-12)
+
+
+### Features
+
+* Prepare native OAuth for MCP: path resource, exchange targets, static exchange client, retention, Clerk OAuth cutoff ([2034a51](https://github.com/kernel/kernel-node-sdk/commit/2034a51193390d4f1cc4aab298460dfd3fd92ce4))
+
 ## [0.146.0](https://github.com/kernel/kernel-node-sdk/compare/v0.145.0...v0.146.0) (2026-11-10)
 
 

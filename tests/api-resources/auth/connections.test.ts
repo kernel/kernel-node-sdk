@@ -31,6 +31,7 @@ describe('resource connections', () => {
       allowed_domains: ['login.netflix.com', 'auth.netflix.com'],
       auto_reauth: true,
       browser: {
+        location: { locale: 'sv-SE' },
         proxy: {
           id: 'x',
           mode: 'direct',
@@ -202,6 +203,7 @@ describe('resource connections', () => {
         'id',
         {
           browser: {
+            location: { locale: 'sv-SE' },
             proxy: {
               id: 'x',
               mode: 'direct',
