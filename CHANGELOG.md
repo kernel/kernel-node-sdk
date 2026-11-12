@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.148.0](https://github.com/kernel/kernel-node-sdk/compare/v0.147.0...v0.148.0) (2026-11-12)
+
+
+### Features
+
+* Say how many certificates the refresh PR body leaves out ([a2b9c8f](https://github.com/kernel/kernel-node-sdk/commit/a2b9c8f6e8a42427c92ea239d61c6bb30b00be73))
+
 ## [0.147.0](https://github.com/kernel/kernel-node-sdk/compare/v0.146.0...v0.147.0) (2026-11-12)
 
 
