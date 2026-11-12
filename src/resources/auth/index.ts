@@ -6,6 +6,7 @@ export {
   type LoginResponse,
   type ManagedAuth,
   type ManagedAuthBrowserConfig,
+  type ManagedAuthBrowserLocation,
   type ManagedAuthCreateRequest,
   type ManagedAuthTimelineEvent,
   type ManagedAuthUpdateRequest,

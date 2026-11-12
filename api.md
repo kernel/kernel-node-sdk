@@ -393,6 +393,7 @@ Types:
 - <code><a href="./src/resources/auth/connections.ts">LoginResponse</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuth</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthBrowserConfig</a></code>
+- <code><a href="./src/resources/auth/connections.ts">ManagedAuthBrowserLocation</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthCreateRequest</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthTimelineEvent</a></code>
 - <code><a href="./src/resources/auth/connections.ts">ManagedAuthUpdateRequest</a></code>

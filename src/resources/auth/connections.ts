@@ -944,6 +944,12 @@ export namespace ManagedAuth {
  */
 export interface ManagedAuthBrowserConfig {
   /**
+   * Browser locale for the connection's login, reauthentication, and health-check
+   * sessions. Set on create or update; not supported on login.
+   */
+  location?: ManagedAuthBrowserLocation;
+
+  /**
    * Proxy configuration for managed auth browser sessions. Omit on create to derive
    * the default from stealth, or on update and login to preserve or inherit the
    * connection default.
@@ -1073,6 +1079,19 @@ export namespace ManagedAuthBrowserConfig {
       enabled?: boolean;
     }
   }
+}
+
+/**
+ * Browser locale applied to browser sessions created for a managed auth
+ * connection.
+ */
+export interface ManagedAuthBrowserLocation {
+  /**
+   * Supported canonical BCP 47 locale for the browser's language and Accept-Language
+   * header. Omit to use the default for the browser's region, or omit on update to
+   * keep the current locale. Null clears it on update.
+   */
+  locale?: string | null;
 }
 
 /**
@@ -2838,6 +2857,7 @@ export declare namespace Connections {
     type LoginResponse as LoginResponse,
     type ManagedAuth as ManagedAuth,
     type ManagedAuthBrowserConfig as ManagedAuthBrowserConfig,
+    type ManagedAuthBrowserLocation as ManagedAuthBrowserLocation,
     type ManagedAuthCreateRequest as ManagedAuthCreateRequest,
     type ManagedAuthTimelineEvent as ManagedAuthTimelineEvent,
     type ManagedAuthUpdateRequest as ManagedAuthUpdateRequest,
