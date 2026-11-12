@@ -5,7 +5,9 @@
 
 ### Features
 
-* Say how many certificates the refresh PR body leaves out ([a2b9c8f](https://github.com/kernel/kernel-node-sdk/commit/a2b9c8f6e8a42427c92ea239d61c6bb30b00be73))
+* Add scoped live view URLs ([a2b9c8f](https://github.com/kernel/kernel-node-sdk/commit/a2b9c8f6e8a42427c92ea239d61c6bb30b00be73))
+* Pace 1Password status checks on the partner schedule ([a2b9c8f](https://github.com/kernel/kernel-node-sdk/commit/a2b9c8f6e8a42427c92ea239d61c6bb30b00be73))
+* Return the 1Password access request reference on the approval action ([a2b9c8f](https://github.com/kernel/kernel-node-sdk/commit/a2b9c8f6e8a42427c92ea239d61c6bb30b00be73))
 
 ## [0.147.0](https://github.com/kernel/kernel-node-sdk/compare/v0.146.0...v0.147.0) (2026-11-12)
 
