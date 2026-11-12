@@ -109,11 +109,11 @@ jobs:
               conflicts=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
               git rebase --abort
               # A bot-only branch can be regenerated from main. Human commits must be kept.
-              human=$(git log --no-merges --format='%h %ae %s' "origin/main..origin/$UPDATE_BRANCH" \
-                | awk '$2 != "260533166+kernel-internal[bot]@users.noreply.github.com"')
-              if [[ -n "$human" ]]; then
+              if git log --no-merges --format=%ae "origin/main..origin/$UPDATE_BRANCH" \
+                | grep -qvxF '260533166+kernel-internal[bot]@users.noreply.github.com'; then
                 echo "::error::$UPDATE_BRANCH conflicts with main at $stopped_at ($conflicts) and has human commits, so it cannot be regenerated. Rebase it onto main by hand, keeping these commits, then rerun this workflow:"
-                printf '%s\n' "$human"
+                git log --no-merges --format='%h %ae %s' "origin/main..origin/$UPDATE_BRANCH" \
+                  | grep -vF ' 260533166+kernel-internal[bot]@users.noreply.github.com '
                 exit 1
               fi
               echo "::warning::$UPDATE_BRANCH conflicts with main at $stopped_at ($conflicts); regenerating it from main."
