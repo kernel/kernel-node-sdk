@@ -76,6 +76,13 @@ export {
   type FUploadZipParams,
   type FWriteFileParams,
 } from './fs/index';
+export {
+  LiveView,
+  type BrowserLiveView,
+  type BrowserLiveViewRequest,
+  type BrowserLiveViewScope,
+  type LiveViewCreateParams,
+} from './live-view';
 export { Logs, type LogStreamParams } from './logs';
 export {
   Playwright,

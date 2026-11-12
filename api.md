@@ -204,6 +204,18 @@ Methods:
 - <code title="get /browsers/{id_or_name}/telemetry/events">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">events</a>(idOrName, { ...params }) -> TelemetryEventsResponsesOffsetPagination</code>
 - <code title="get /browsers/{id_or_name}/telemetry/stream">client.browsers.telemetry.<a href="./src/resources/browsers/telemetry.ts">stream</a>(idOrName, { ...params }) -> TelemetryStreamResponse</code>
 
+## LiveView
+
+Types:
+
+- <code><a href="./src/resources/browsers/live-view.ts">BrowserLiveView</a></code>
+- <code><a href="./src/resources/browsers/live-view.ts">BrowserLiveViewRequest</a></code>
+- <code><a href="./src/resources/browsers/live-view.ts">BrowserLiveViewScope</a></code>
+
+Methods:
+
+- <code title="post /browsers/{id_or_name}/live_view">client.browsers.liveView.<a href="./src/resources/browsers/live-view.ts">create</a>(idOrName, { ...params }) -> BrowserLiveView</code>
+
 ## Replays
 
 Types:
