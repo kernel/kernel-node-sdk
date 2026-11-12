@@ -1170,9 +1170,10 @@ export interface CredentialVaultItem {
   /**
    * Kernel credentials advertise collect and fill when eligible. 1Password
    * credentials advertise 1pw_create_access_request until a request is made,
-   * 1pw_access_request_status while its approval is pending, and 1pw_fill after
-   * access is granted. Managed auth credentials advertise fill while ready and
-   * nothing otherwise.
+   * 1pw_access_request_status while its approval is pending (and
+   * 1pw_create_access_request again once the 3-minute status-check window has
+   * passed), and 1pw_fill after access is granted. Managed auth credentials
+   * advertise fill while ready and nothing otherwise.
    */
   available_operations: Array<CredentialVaultItem.AvailableOperation>;
 
@@ -1274,6 +1275,15 @@ export namespace CredentialVaultItem {
 
   export interface OnePasswordAccessApprovalAction {
     /**
+     * The access_request_reference value from url, for approving inside your own iOS
+     * or Android app with 1Password's action extension or authorization activity. Pass
+     * it unchanged; the grant comes back to your app, and 1pw_access_request_status
+     * records it in Kernel. Treat it like url, which carries the same request text,
+     * and keep it out of logs.
+     */
+    access_request_reference: string;
+
+    /**
      * Steps for the agent to hand approval to the human and poll the resulting
      * decision.
      */
@@ -1282,8 +1292,10 @@ export namespace CredentialVaultItem {
     name: '1password_access_approval';
 
     /**
-     * Native 1Password approval link. Present it to the account owner without
-     * modifying it; it does not grant access until they approve in their app.
+     * Native 1Password approval link. Present it to the account owner unchanged,
+     * except that you may append `&return_url=<URL-encoded URL>` so 1Password sends
+     * them back to your app after they decide (1Password 8.12.46 or later on iOS,
+     * Android and desktop). It does not grant access until they approve in their app.
      */
     url: string;
   }
@@ -2395,7 +2407,9 @@ export namespace OnePasswordCredentialVaultItemState {
     has_autofill_token: boolean;
 
     /**
-     * One of pending, resolved, denied, or failed.
+     * One of pending, resolved, denied, failed, expired, or unknown. expired returns
+     * the item to pending_authorization so access can be requested again; unknown is a
+     * state 1Password added later and is treated as failed.
      */
     state: string;
 
@@ -4822,7 +4836,8 @@ export declare namespace ItemPerformOperationParams {
     type: '1pw_access_request_status';
 
     /**
-     * Body param
+     * Body param: How long to keep checking on the schedule. The call still waits for
+     * its first scheduled check, at most 20 seconds, when that comes later.
      */
     timeout_seconds?: number;
   }

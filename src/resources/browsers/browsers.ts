@@ -20,6 +20,14 @@ import {
   ComputerTypeTextParams,
   ComputerWriteClipboardParams,
 } from './computer';
+import * as LiveViewAPI from './live-view';
+import {
+  BrowserLiveView,
+  BrowserLiveViewRequest,
+  BrowserLiveViewScope,
+  LiveView,
+  LiveViewCreateParams,
+} from './live-view';
 import * as LogsAPI from './logs';
 import { LogStreamParams, Logs } from './logs';
 import * as ProcessAPI from './process';
@@ -161,6 +169,7 @@ import { browserFetch, type BrowserFetchInit } from '../../lib/browser-fetch';
 
 export class Browsers extends APIResource {
   telemetry: TelemetryAPI.Telemetry = new TelemetryAPI.Telemetry(this._client);
+  liveView: LiveViewAPI.LiveView = new LiveViewAPI.LiveView(this._client);
   replays: ReplaysAPI.Replays = new ReplaysAPI.Replays(this._client);
   fs: FsAPI.Fs = new FsAPI.Fs(this._client);
   process: ProcessAPI.Process = new ProcessAPI.Process(this._client);
@@ -2441,6 +2450,7 @@ export interface BrowserSaveProfileParams {
 }
 
 Browsers.Telemetry = TelemetryAPITelemetry;
+Browsers.LiveView = LiveView;
 Browsers.Replays = Replays;
 Browsers.Fs = Fs;
 Browsers.Process = Process;
@@ -2549,6 +2559,14 @@ export declare namespace Browsers {
     type TelemetryEventsResponsesOffsetPagination as TelemetryEventsResponsesOffsetPagination,
     type TelemetryEventsParams as TelemetryEventsParams,
     type TelemetryStreamParams as TelemetryStreamParams,
+  };
+
+  export {
+    LiveView as LiveView,
+    type BrowserLiveView as BrowserLiveView,
+    type BrowserLiveViewRequest as BrowserLiveViewRequest,
+    type BrowserLiveViewScope as BrowserLiveViewScope,
+    type LiveViewCreateParams as LiveViewCreateParams,
   };
 
   export {
