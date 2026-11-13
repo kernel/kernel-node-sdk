@@ -4,14 +4,21 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/ci.yml':
+        - 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5'
+        - 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         - 'actions/checkout@v4.3.1'
         - 'actions/checkout@v6.0.2'
+        - 'actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd'
         - 'actions/github-script@v8.0.0'
+        - 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020'
         - 'actions/setup-node@v4.4.0'
     '.github/workflows/publish-npm.yml':
+        - 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         - 'actions/checkout@v6.0.2'
+        - 'actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610'
         - 'actions/setup-node@v3.9.1'
     '.github/workflows/release-doctor.yml':
+        - 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         - 'actions/checkout@v6.0.2'
     '.github/workflows/release-please.yml':
         - 'actions/create-github-app-token@v1.12.0'
@@ -19,27 +26,51 @@ workflows:
         - 'pnpm/action-setup@v4.3.0'
     '.github/workflows/semgrep.yml': []
     '.github/workflows/stlc-promote.yml':
+        - 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         - 'actions/checkout@v6.0.2'
+        - 'actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547'
         - 'actions/create-github-app-token@v1.12.0'
     '.github/workflows/stlc-sync.yml':
+        - 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         - 'actions/checkout@v6.0.2'
     '.github/workflows/update-docs.yml':
+        - 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5'
         - 'actions/checkout@v4.3.1'
+        - 'actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547'
         - 'actions/create-github-app-token@v1.12.0'
+        - 'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093'
         - 'actions/download-artifact@v4.3.0'
+        - 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020'
         - 'actions/setup-node@v4.4.0'
+        - 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02'
         - 'actions/upload-artifact@v4.6.2'
         - 'kernel/security-workflows@4144994f1d6977e07ef5a5832599ee4faaae9550'
     '.github/workflows/update-mcp-coverage.yml':
+        - 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5'
         - 'actions/checkout@v4.3.1'
+        - 'actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547'
         - 'actions/create-github-app-token@v1.12.0'
+        - 'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093'
         - 'actions/download-artifact@v4.3.0'
+        - 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020'
         - 'actions/setup-node@v4.4.0'
+        - 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02'
         - 'actions/upload-artifact@v4.6.2'
         - 'kernel/security-workflows@4144994f1d6977e07ef5a5832599ee4faaae9550'
+        - 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6'
         - 'oven-sh/setup-bun@v2.2.0'
     '.github/workflows/vuln-remediation.yml': []
 dependencies:
+    'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5':
+        ref: 'v4.3.1'
+        commit: 'sha1-34e114876b0b11c390a56381ad16ebd13914f8d5'
+        owner_id: 44036562
+        repo_id: 197814629
+    'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd':
+        ref: 'v6.0.2'
+        commit: 'sha1-de0fac2e4500dabe0009e67214ff5f5447ce83dd'
+        owner_id: 44036562
+        repo_id: 197814629
     'actions/checkout@v4.3.1':
         ref: 'v4.3.1'
         commit: 'sha1-34e114876b0b11c390a56381ad16ebd13914f8d5'
@@ -50,21 +81,46 @@ dependencies:
         commit: 'sha1-de0fac2e4500dabe0009e67214ff5f5447ce83dd'
         owner_id: 44036562
         repo_id: 197814629
+    'actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547':
+        ref: 'v1.12.0'
+        commit: 'sha1-d72941d797fd3113feb6b93fd0dec494b13a2547'
+        owner_id: 44036562
+        repo_id: 642580244
     'actions/create-github-app-token@v1.12.0':
         ref: 'v1.12.0'
         commit: 'sha1-d72941d797fd3113feb6b93fd0dec494b13a2547'
         owner_id: 44036562
         repo_id: 642580244
+    'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093':
+        ref: 'v4.3.0'
+        commit: 'sha1-d3f86a106a0bac45b974a628896c90dbdf5c8093'
+        owner_id: 44036562
+        repo_id: 192626254
     'actions/download-artifact@v4.3.0':
         ref: 'v4.3.0'
         commit: 'sha1-d3f86a106a0bac45b974a628896c90dbdf5c8093'
         owner_id: 44036562
         repo_id: 192626254
+    'actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd':
+        ref: 'v8.0.0'
+        commit: 'sha1-ed597411d8f924073f98dfc5c65a23a2325f34cd'
+        owner_id: 44036562
+        repo_id: 205262760
     'actions/github-script@v8.0.0':
         ref: 'v8.0.0'
         commit: 'sha1-ed597411d8f924073f98dfc5c65a23a2325f34cd'
         owner_id: 44036562
         repo_id: 205262760
+    'actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610':
+        ref: 'v3.9.1'
+        commit: 'sha1-3235b876344d2a9aa001b8d1453c930bba69e610'
+        owner_id: 44036562
+        repo_id: 189476904
+    'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020':
+        ref: 'v4.4.0'
+        commit: 'sha1-49933ea5288caeca8642d1e84afbd3f7d6820020'
+        owner_id: 44036562
+        repo_id: 189476904
     'actions/setup-node@v3.9.1':
         ref: 'v3.9.1'
         commit: 'sha1-3235b876344d2a9aa001b8d1453c930bba69e610'
@@ -75,6 +131,11 @@ dependencies:
         commit: 'sha1-49933ea5288caeca8642d1e84afbd3f7d6820020'
         owner_id: 44036562
         repo_id: 189476904
+    'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02':
+        ref: 'v4.6.2'
+        commit: 'sha1-ea165f8d65b6e75b540449e92b4886f43607fa02'
+        owner_id: 44036562
+        repo_id: 192625955
     'actions/upload-artifact@v4.6.2':
         ref: 'v4.6.2'
         commit: 'sha1-ea165f8d65b6e75b540449e92b4886f43607fa02'
@@ -85,6 +146,11 @@ dependencies:
         commit: 'sha1-4144994f1d6977e07ef5a5832599ee4faaae9550'
         owner_id: 194616459
         repo_id: 1207196574
+    'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6':
+        ref: 'v2.2.0'
+        commit: 'sha1-0c5077e51419868618aeaa5fe8019c62421857d6'
+        owner_id: 108928776
+        repo_id: 512644635
     'oven-sh/setup-bun@v2.2.0':
         ref: 'v2.2.0'
         commit: 'sha1-0c5077e51419868618aeaa5fe8019c62421857d6'

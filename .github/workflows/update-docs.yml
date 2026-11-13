@@ -30,7 +30,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       sha: ${{ steps.version.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4.3.1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
@@ -69,13 +69,13 @@ jobs:
       UPDATE_BRANCH: sdk-docs-update
     steps:
       - name: Checkout updater instructions
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           sparse-checkout: .github
           persist-credentials: false
 
       - name: Checkout published SDK
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ env.SDK_SHA }}
           path: sdk
@@ -83,7 +83,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout docs
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: kernel/docs
           path: docs
@@ -177,7 +177,7 @@ jobs:
       - name: Generate API read token
         if: steps.prepare.outputs.update == 'true'
         id: api-read-token
-        uses: actions/create-github-app-token@v1.12.0
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         with:
           app-id: ${{ secrets.ADMIN_APP_ID }}
           private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
@@ -241,7 +241,7 @@ jobs:
       - name: Upload update context
         id: upload-context
         if: steps.prepare.outputs.update == 'true'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sdk-docs-context
           path: ${{ runner.temp }}/context.tar.gz.cms
@@ -274,12 +274,12 @@ jobs:
       AGENT_BASE_TREE: ${{ needs.context.outputs.agent_base_tree }}
     steps:
       - name: Checkout updater instructions
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           persist-credentials: false
 
       - name: Checkout published SDK
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ env.SDK_SHA }}
           path: sdk
@@ -287,7 +287,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout Python SDK
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: kernel/kernel-python-sdk
           path: python-sdk
@@ -295,7 +295,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout Go SDK
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: kernel/kernel-go-sdk
           path: go-sdk
@@ -312,12 +312,12 @@ jobs:
             fi
           done
 
-      - uses: actions/setup-node@v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
 
       - name: Checkout docs
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: kernel/docs
           path: docs
@@ -325,7 +325,7 @@ jobs:
           persist-credentials: false
 
       - name: Download update context
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: sdk-docs-context
           path: ${{ runner.temp }}
@@ -431,7 +431,7 @@ jobs:
 
       - name: Upload validated changes
         if: steps.snapshot.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sdk-docs-update
           path: |
@@ -454,18 +454,18 @@ jobs:
       UPDATE_BRANCH: sdk-docs-update
     steps:
       - name: Checkout updater scripts
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           persist-credentials: false
 
       - name: Download validated changes
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: sdk-docs-update
           path: ${{ runner.temp }}/sdk-docs-update
 
       - name: Checkout docs
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: kernel/docs
           path: docs
@@ -503,7 +503,7 @@ jobs:
 
       - name: Generate docs repository token
         id: app-token
-        uses: actions/create-github-app-token@v1.12.0
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         with:
           app-id: ${{ secrets.ADMIN_APP_ID }}
           private-key: ${{ secrets.ADMIN_APP_PRIVATE_KEY }}
