@@ -60,6 +60,31 @@ things the SDK has.
 4. Change only text whose meaning the spec change affects, or existing text the
    spec now shows to be wrong. Do not restyle unrelated descriptions.
 
+## Where text goes
+
+- A tool description says what the tool is for and gives one short clause per action:
+  enough to choose the right action. Do not put per-action detail there.
+- Rules for one action's inputs (formats, limits, defaults, which fields apply) go in
+  that parameter's `.describe()`.
+- What happens after a call (next steps, retry rules, what a result means, recovery)
+  goes in the response: an existing response `note`, response guidance, or error note,
+  following nearby patterns.
+- Keep each piece of text in one place, where the model reads it when it needs it; do
+  not repeat it across the tool description, parameters, and response guidance.
+- `src/lib/mcp/tool-contract.test.ts` caps each tool description and the total
+  `tools/list` size. If an addition exceeds a cap, move detail out as above. Never raise
+  a cap, add an exception, or loosen that test.
+- In the report, list every tool description you changed with its size in characters
+  before and after.
+
+## Annotations
+
+- `destructiveHint` is `false` only when every action is read-only or additive (create,
+  create-or-retrieve, list, get). A delete, remove, overwrite, revoke, or replace action
+  requires `true`.
+- Change an existing tool's annotations only when this run changes its actions, and
+  explain the change in the report.
+
 ## Validate and report
 
 Use Bun 1.3.3 for all MCP dependency and test commands. Run:
