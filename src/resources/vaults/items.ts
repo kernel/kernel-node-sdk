@@ -276,8 +276,19 @@ export interface AgentcardCheckoutAuthorization {
    */
   amount?: string;
 
-  amount_authority?: 'display_only' | 'stripe_payment_intent';
+  /**
+   * Source of the approved amount. `processor` is read from the processor request or
+   * payment; `agent` is the item's declared amount; `page` is the checkout page
+   * total; `none` means no amount was named. `display_only` appears only on
+   * authorizations recovered without a provider read. `agent` and `display_only`
+   * don't prove what the processor charged.
+   */
+  amount_authority?: 'processor' | 'agent' | 'page' | 'none' | 'display_only';
 
+  /**
+   * Whether the processor charged the approved amount. Absent when there was no
+   * charge to compare, including tokenization checkouts.
+   */
   amount_verified?: boolean;
 
   approval_url?: string;
@@ -287,10 +298,24 @@ export interface AgentcardCheckoutAuthorization {
    */
   browser_id?: string;
 
+  /**
+   * Amount the processor reported collecting. Absent when the provider didn't
+   * observe a charge.
+   */
   charged_amount_cents?: number;
 
+  /**
+   * Currency of `charged_amount_cents`. Absent when the provider didn't observe a
+   * charge.
+   */
   charged_currency?: string;
 
+  /**
+   * What the processor collected. `none` means the checkout produced a token or
+   * payment method that the merchant charges later. Absent when the provider
+   * reported nothing, which is common for tokenization checkouts; use item events
+   * and the merchant's order record instead.
+   */
   charged_kind?: 'captured' | 'authorized' | 'none';
 
   expected_cents?: number;
