@@ -147,6 +147,7 @@ describe('resource items', () => {
     const response = await client.vaults.items.events('key', {
       id_or_name: 'id_or_name',
       after: 'after',
+      include_deleted: true,
       wait: 0,
     });
   });
