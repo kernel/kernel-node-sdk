@@ -144,6 +144,13 @@ import {
   ProxyIPsOffsetPagination,
 } from './resources/proxy-ips';
 import {
+  Report,
+  ReportCreateParams,
+  ReportListParams,
+  Reports,
+  ReportsOffsetPagination,
+} from './resources/reports';
+import {
   Task,
   TaskCreateParams,
   TaskLinkBrowsersParams,
@@ -242,6 +249,14 @@ import {
   ProjectsOffsetPagination,
   UpdateProjectRequest,
 } from './resources/projects/projects';
+import {
+  ReportType,
+  ReportTypeListParams,
+  ReportTypeSummariesOffsetPagination,
+  ReportTypeSummary,
+  ReportTypeVersionSummary,
+  ReportTypes,
+} from './resources/report-types/report-types';
 import {
   Attempt,
   ProviderTarget,
@@ -1108,6 +1123,14 @@ export class Kernel {
    * Define tasks that agents work toward and link the browsers they use.
    */
   tasks: API.Tasks = new API.Tasks(this);
+  /**
+   * Discover report types and submit typed reports against tasks.
+   */
+  reports: API.Reports = new API.Reports(this);
+  /**
+   * Discover report types and submit typed reports against tasks.
+   */
+  reportTypes: API.ReportTypes = new API.ReportTypes(this);
   auth: API.Auth = new API.Auth(this);
   telemetry: API.Telemetry = new API.Telemetry(this);
   /**
@@ -1162,6 +1185,8 @@ Kernel.ConfigRegistry = ConfigRegistry;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
 Kernel.Tasks = Tasks;
+Kernel.Reports = Reports;
+Kernel.ReportTypes = ReportTypes;
 Kernel.Auth = Auth;
 Kernel.Telemetry = Telemetry;
 Kernel.Proxies = Proxies;
@@ -1310,6 +1335,23 @@ export declare namespace Kernel {
     type TaskCreateParams as TaskCreateParams,
     type TaskListParams as TaskListParams,
     type TaskLinkBrowsersParams as TaskLinkBrowsersParams,
+  };
+
+  export {
+    Reports as Reports,
+    type Report as Report,
+    type ReportsOffsetPagination as ReportsOffsetPagination,
+    type ReportCreateParams as ReportCreateParams,
+    type ReportListParams as ReportListParams,
+  };
+
+  export {
+    ReportTypes as ReportTypes,
+    type ReportType as ReportType,
+    type ReportTypeSummary as ReportTypeSummary,
+    type ReportTypeVersionSummary as ReportTypeVersionSummary,
+    type ReportTypeSummariesOffsetPagination as ReportTypeSummariesOffsetPagination,
+    type ReportTypeListParams as ReportTypeListParams,
   };
 
   export { Auth as Auth };

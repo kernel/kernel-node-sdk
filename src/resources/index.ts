@@ -203,6 +203,21 @@ export {
   type ProxyIPsOffsetPagination,
 } from './proxy-ips';
 export {
+  ReportTypes,
+  type ReportType,
+  type ReportTypeSummary,
+  type ReportTypeVersionSummary,
+  type ReportTypeListParams,
+  type ReportTypeSummariesOffsetPagination,
+} from './report-types/report-types';
+export {
+  Reports,
+  type Report,
+  type ReportCreateParams,
+  type ReportListParams,
+  type ReportsOffsetPagination,
+} from './reports';
+export {
   SearchResource,
   type Attempt,
   type ProviderTarget,
