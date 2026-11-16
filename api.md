@@ -386,6 +386,20 @@ Methods:
 - <code title="delete /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /profiles/{id_or_name}/download">client.profiles.<a href="./src/resources/profiles.ts">download</a>(idOrName, { ...params }) -> Response</code>
 
+# Tasks
+
+Types:
+
+- <code><a href="./src/resources/tasks.ts">Task</a></code>
+- <code><a href="./src/resources/tasks.ts">TaskMetadata</a></code>
+
+Methods:
+
+- <code title="post /tasks">client.tasks.<a href="./src/resources/tasks.ts">create</a>({ ...params }) -> Task</code>
+- <code title="get /tasks/{id}">client.tasks.<a href="./src/resources/tasks.ts">retrieve</a>(id) -> Task</code>
+- <code title="get /tasks">client.tasks.<a href="./src/resources/tasks.ts">list</a>({ ...params }) -> TasksOffsetPagination</code>
+- <code title="post /tasks/{id}/browsers">client.tasks.<a href="./src/resources/tasks.ts">linkBrowsers</a>(id, { ...params }) -> Task</code>
+
 # Auth
 
 ## Context

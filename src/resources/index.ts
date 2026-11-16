@@ -214,6 +214,15 @@ export {
   type Warning,
   type SearchCreateParams,
 } from './search/search';
+export {
+  Tasks,
+  type Task,
+  type TaskMetadata,
+  type TaskCreateParams,
+  type TaskListParams,
+  type TaskLinkBrowsersParams,
+  type TasksOffsetPagination,
+} from './tasks';
 export { Telemetry } from './telemetry/telemetry';
 export {
   VaultProviderConfigs,

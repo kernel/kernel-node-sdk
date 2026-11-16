@@ -144,6 +144,15 @@ import {
   ProxyIPsOffsetPagination,
 } from './resources/proxy-ips';
 import {
+  Task,
+  TaskCreateParams,
+  TaskLinkBrowsersParams,
+  TaskListParams,
+  TaskMetadata,
+  Tasks,
+  TasksOffsetPagination,
+} from './resources/tasks';
+import {
   VaultProviderConfig,
   VaultProviderConfigCreateParams,
   VaultProviderConfigListParams,
@@ -1095,6 +1104,10 @@ export class Kernel {
    * Create, list, retrieve, and delete browser profiles.
    */
   profiles: API.Profiles = new API.Profiles(this);
+  /**
+   * Define tasks that agents work toward and link the browsers they use.
+   */
+  tasks: API.Tasks = new API.Tasks(this);
   auth: API.Auth = new API.Auth(this);
   telemetry: API.Telemetry = new API.Telemetry(this);
   /**
@@ -1148,6 +1161,7 @@ Kernel.Invocations = Invocations;
 Kernel.ConfigRegistry = ConfigRegistry;
 Kernel.Browsers = Browsers;
 Kernel.Profiles = Profiles;
+Kernel.Tasks = Tasks;
 Kernel.Auth = Auth;
 Kernel.Telemetry = Telemetry;
 Kernel.Proxies = Proxies;
@@ -1286,6 +1300,16 @@ export declare namespace Kernel {
     type ProfileUpdateParams as ProfileUpdateParams,
     type ProfileListParams as ProfileListParams,
     type ProfileDownloadParams as ProfileDownloadParams,
+  };
+
+  export {
+    Tasks as Tasks,
+    type Task as Task,
+    type TaskMetadata as TaskMetadata,
+    type TasksOffsetPagination as TasksOffsetPagination,
+    type TaskCreateParams as TaskCreateParams,
+    type TaskListParams as TaskListParams,
+    type TaskLinkBrowsersParams as TaskLinkBrowsersParams,
   };
 
   export { Auth as Auth };
