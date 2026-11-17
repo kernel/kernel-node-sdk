@@ -146,7 +146,10 @@ export class Vaults extends APIResource {
    * first blocks new payments on it, then removes its enrolled card. If that fails,
    * the wallet is kept and keeps refusing payments; retry the deletion. Reconcile
    * the original attempt with the provider or support first; deleting or recreating
-   * an item is not proof that a payment did not occur.
+   * an item is not proof that a payment did not occur. Each 1Password
+   * credential_account in the vault is ended the same way as deleting it; the vault
+   * is kept and this returns 409 provider_revocation_pending while 1Password has not
+   * confirmed a revoke.
    *
    * @example
    * ```ts

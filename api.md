@@ -386,6 +386,55 @@ Methods:
 - <code title="delete /profiles/{id_or_name}">client.profiles.<a href="./src/resources/profiles.ts">delete</a>(idOrName) -> void</code>
 - <code title="get /profiles/{id_or_name}/download">client.profiles.<a href="./src/resources/profiles.ts">download</a>(idOrName, { ...params }) -> Response</code>
 
+# Tasks
+
+Types:
+
+- <code><a href="./src/resources/tasks.ts">Task</a></code>
+- <code><a href="./src/resources/tasks.ts">TaskMetadata</a></code>
+
+Methods:
+
+- <code title="post /tasks">client.tasks.<a href="./src/resources/tasks.ts">create</a>({ ...params }) -> Task</code>
+- <code title="get /tasks/{id}">client.tasks.<a href="./src/resources/tasks.ts">retrieve</a>(id) -> Task</code>
+- <code title="get /tasks">client.tasks.<a href="./src/resources/tasks.ts">list</a>({ ...params }) -> TasksOffsetPagination</code>
+- <code title="post /tasks/{id}/browsers">client.tasks.<a href="./src/resources/tasks.ts">linkBrowsers</a>(id, { ...params }) -> Task</code>
+
+# Reports
+
+Types:
+
+- <code><a href="./src/resources/reports.ts">Report</a></code>
+
+Methods:
+
+- <code title="post /reports">client.reports.<a href="./src/resources/reports.ts">create</a>({ ...params }) -> Report</code>
+- <code title="get /reports/{id}">client.reports.<a href="./src/resources/reports.ts">retrieve</a>(id) -> Report</code>
+- <code title="get /reports">client.reports.<a href="./src/resources/reports.ts">list</a>({ ...params }) -> ReportsOffsetPagination</code>
+
+# ReportTypes
+
+Types:
+
+- <code><a href="./src/resources/report-types/report-types.ts">ReportType</a></code>
+- <code><a href="./src/resources/report-types/report-types.ts">ReportTypeSummary</a></code>
+- <code><a href="./src/resources/report-types/report-types.ts">ReportTypeVersionSummary</a></code>
+
+Methods:
+
+- <code title="get /report_types/{type}">client.reportTypes.<a href="./src/resources/report-types/report-types.ts">retrieve</a>(type) -> ReportType</code>
+- <code title="get /report_types">client.reportTypes.<a href="./src/resources/report-types/report-types.ts">list</a>({ ...params }) -> ReportTypeSummariesOffsetPagination</code>
+
+## Versions
+
+Types:
+
+- <code><a href="./src/resources/report-types/versions.ts">ReportTypeVersion</a></code>
+
+Methods:
+
+- <code title="get /report_types/{type}/versions/{version}">client.reportTypes.versions.<a href="./src/resources/report-types/versions.ts">retrieve</a>(version, { ...params }) -> ReportTypeVersion</code>
+
 # Auth
 
 ## Context

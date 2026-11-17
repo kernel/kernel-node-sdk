@@ -98,6 +98,10 @@ export class Items extends APIResource {
    * or vault remains blocked until the card is deleted. Deleting or recreating an
    * item is not proof that a payment did not occur. Deleting a managed auth
    * credential item leaves the connection and its saved credential unchanged.
+   * Deleting a 1Password credential_account stops its fills at once and, when no
+   * other vault uses the person's connection, revokes it at 1Password; until
+   * 1Password confirms, this returns 409 provider_revocation_pending and Kernel
+   * keeps retrying.
    *
    * @example
    * ```ts
@@ -276,8 +280,19 @@ export interface AgentcardCheckoutAuthorization {
    */
   amount?: string;
 
-  amount_authority?: 'display_only' | 'stripe_payment_intent';
+  /**
+   * Source of the approved amount. `processor` is read from the processor request or
+   * payment; `agent` is the item's declared amount; `page` is the checkout page
+   * total; `none` means no amount was named. `display_only` appears only on
+   * authorizations recovered without a provider read. `agent` and `display_only`
+   * don't prove what the processor charged.
+   */
+  amount_authority?: 'processor' | 'agent' | 'page' | 'none' | 'display_only';
 
+  /**
+   * Whether the processor charged the approved amount. Absent when there was no
+   * charge to compare, including tokenization checkouts.
+   */
   amount_verified?: boolean;
 
   approval_url?: string;
@@ -287,10 +302,24 @@ export interface AgentcardCheckoutAuthorization {
    */
   browser_id?: string;
 
+  /**
+   * Amount the processor reported collecting. Absent when the provider didn't
+   * observe a charge.
+   */
   charged_amount_cents?: number;
 
+  /**
+   * Currency of `charged_amount_cents`. Absent when the provider didn't observe a
+   * charge.
+   */
   charged_currency?: string;
 
+  /**
+   * What the processor collected. `none` means the checkout produced a token or
+   * payment method that the merchant charges later. Absent when the provider
+   * reported nothing, which is common for tokenization checkouts; use item events
+   * and the merchant's order record instead.
+   */
   charged_kind?: 'captured' | 'authorized' | 'none';
 
   expected_cents?: number;
@@ -884,6 +913,7 @@ export namespace CredentialAccountVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -1266,6 +1296,7 @@ export namespace CredentialVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -2182,7 +2213,11 @@ export namespace OnePasswordCredentialAccountSpec {
 export interface OnePasswordCredentialAccountState {
   provider: '1password';
 
-  status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'declined';
+  /**
+   * revoking means the account was deleted or disconnected and Kernel is waiting for
+   * 1Password to confirm the revoke; it cannot be used and Kernel keeps retrying.
+   */
+  status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'declined' | 'revoking';
 
   status_reason?: string;
 }
@@ -2714,6 +2749,7 @@ export namespace PaymentRequestVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -3449,6 +3485,7 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3549,6 +3586,7 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3741,6 +3779,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3841,6 +3880,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -4523,6 +4563,15 @@ export interface ItemEventsParams {
   after?: string;
 
   /**
+   * Query param: When true, also finds deleted items, and deleted vaults by ID only.
+   * `key` then also accepts an item ID, which takes precedence over a key with the
+   * same value; the lookup order is the item ID, then the live item with that key,
+   * then the most recently deleted one. `wait` is ignored for a deleted item or
+   * vault.
+   */
+  include_deleted?: boolean;
+
+  /**
    * Query param: Long-poll for new events for up to this many seconds.
    */
   wait?: number;
@@ -4542,6 +4591,7 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordPollAccessVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordDisconnectVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.UpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
@@ -4894,6 +4944,18 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: '1pw_recover';
+  }
+
+  export interface OnePasswordDisconnectVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_disconnect';
   }
 
   export interface OnePasswordUpdateAccessTokenVaultItemOperationRequest {

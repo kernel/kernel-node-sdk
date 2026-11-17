@@ -203,6 +203,21 @@ export {
   type ProxyIPsOffsetPagination,
 } from './proxy-ips';
 export {
+  ReportTypes,
+  type ReportType,
+  type ReportTypeSummary,
+  type ReportTypeVersionSummary,
+  type ReportTypeListParams,
+  type ReportTypeSummariesOffsetPagination,
+} from './report-types/report-types';
+export {
+  Reports,
+  type Report,
+  type ReportCreateParams,
+  type ReportListParams,
+  type ReportsOffsetPagination,
+} from './reports';
+export {
   SearchResource,
   type Attempt,
   type ProviderTarget,
@@ -214,6 +229,15 @@ export {
   type Warning,
   type SearchCreateParams,
 } from './search/search';
+export {
+  Tasks,
+  type Task,
+  type TaskMetadata,
+  type TaskCreateParams,
+  type TaskListParams,
+  type TaskLinkBrowsersParams,
+  type TasksOffsetPagination,
+} from './tasks';
 export { Telemetry } from './telemetry/telemetry';
 export {
   VaultProviderConfigs,
