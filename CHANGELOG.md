@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.149.0](https://github.com/kernel/kernel-node-sdk/compare/v0.148.0...v0.149.0) (2026-11-17)
+
+
+### Features
+
+* Add reports API and report type discovery ([73a9a6b](https://github.com/kernel/kernel-node-sdk/commit/73a9a6be92f7ea9692a25541ce767354760184d1))
+* Add tasks API: create, list, get, and link browsers ([67da753](https://github.com/kernel/kernel-node-sdk/commit/67da753f985726dd2600c8cd11275dc6820292cb))
+* Add the 1pw_disconnect operation ([6bf4425](https://github.com/kernel/kernel-node-sdk/commit/6bf44250c0befd954176b4bd116b34a9a95e4aec))
+* Let vault item events be read after the item or vault is deleted ([908bc54](https://github.com/kernel/kernel-node-sdk/commit/908bc54b4c8559847abd9fee93ae7eade374bca7))
+* Revoke 1Password connections on account and vault delete ([1915950](https://github.com/kernel/kernel-node-sdk/commit/1915950f177d7aa22d19048ec3c22d29adb2641d))
+
 ## [0.148.0](https://github.com/kernel/kernel-node-sdk/compare/v0.147.0...v0.148.0) (2026-11-12)
 
 
