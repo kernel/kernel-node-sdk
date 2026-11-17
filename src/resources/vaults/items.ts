@@ -913,6 +913,7 @@ export namespace CredentialAccountVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -1295,6 +1296,7 @@ export namespace CredentialVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -2212,8 +2214,8 @@ export interface OnePasswordCredentialAccountState {
   provider: '1password';
 
   /**
-   * revoking means the account was deleted and Kernel is waiting for 1Password to
-   * confirm the revoke; it cannot be used and Kernel keeps retrying.
+   * revoking means the account was deleted or disconnected and Kernel is waiting for
+   * 1Password to confirm the revoke; it cannot be used and Kernel keeps retrying.
    */
   status: 'pending_authorization' | 'connected' | 'reconnect_required' | 'declined' | 'revoking';
 
@@ -2747,6 +2749,7 @@ export namespace PaymentRequestVaultItem {
       | '1pw_access_request_status'
       | '1pw_fill'
       | '1pw_recover'
+      | '1pw_disconnect'
       | '1pw_update_access_token'
       | 'update_access_token'
       | 'webmcp_invoke'
@@ -3482,6 +3485,7 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3582,6 +3586,7 @@ export namespace VaultItem {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3774,6 +3779,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -3874,6 +3880,7 @@ export namespace VaultItemOperationResponse {
         | '1pw_access_request_status'
         | '1pw_fill'
         | '1pw_recover'
+        | '1pw_disconnect'
         | '1pw_update_access_token'
         | 'update_access_token'
         | 'webmcp_invoke'
@@ -4584,6 +4591,7 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.OnePasswordPollAccessVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordFillVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordRecoverVaultItemOperationRequest
+  | ItemPerformOperationParams.OnePasswordDisconnectVaultItemOperationRequest
   | ItemPerformOperationParams.OnePasswordUpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.UpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
@@ -4936,6 +4944,18 @@ export declare namespace ItemPerformOperationParams {
      * Body param
      */
     type: '1pw_recover';
+  }
+
+  export interface OnePasswordDisconnectVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: '1pw_disconnect';
   }
 
   export interface OnePasswordUpdateAccessTokenVaultItemOperationRequest {
