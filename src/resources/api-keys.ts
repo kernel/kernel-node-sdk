@@ -12,8 +12,13 @@ import { path } from '../internal/utils/path';
  */
 export class APIKeys extends APIResource {
   /**
-   * Create a new API key. API keys may be scoped by project and may include a
-   * policy.
+   * Create a personal API key, or link a key to an organization-owned service
+   * account. Service-account keys require an organization administrator, explicit
+   * project and nonempty policy. An optional `policy` scopes the key to its listed
+   * actions and resources, and each statement may carry a `condition`. A `source_ip`
+   * condition restricts the statement to requests whose client address falls inside
+   * its CIDR networks, so a key limited to your egress IP ranges only works from
+   * your network, even if its secret leaks.
    *
    * @example
    * ```ts
@@ -44,13 +49,18 @@ export class APIKeys extends APIResource {
   }
 
   /**
-   * Update an API key's name.
+   * Update an API key's name, or replace its permissions by attaching a new policy
+   * in place: the key's credential never changes, so consumers keep the same secret.
+   * The replacement policy may carry `source_ip` conditions, so you can add, change,
+   * or remove IP allowlisting on an existing key without rotating its credential. A
+   * present `policy` fully replaces the key's policy and takes effect for new
+   * requests within the authorization cache; requests from outside a condition's
+   * networks get `403` and are recorded in the audit log with the client address.
+   * Requires api_keys:write to rename; api_keys:set_policy to replace permissions.
    *
    * @example
    * ```ts
-   * const apiKey = await client.apiKeys.update('id', {
-   *   name: 'new-api-name',
-   * });
+   * const apiKey = await client.apiKeys.update('id');
    * ```
    */
   update(id: string, body: APIKeyUpdateParams, options?: RequestOptions): APIPromise<APIKey> {
@@ -99,7 +109,9 @@ export class APIKeys extends APIResource {
    * expire_in_days set to 0, browser sessions attributed to the old key are ended
    * asynchronously and unsaved profile changes are discarded. Grace-period and
    * natural expiry do not end existing browsers. If cleanup cannot be registered, an
-   * immediate rotation is not committed.
+   * immediate rotation is not committed. Service-account keys retain their service
+   * principal and policy; the rotating administrator is recorded separately for
+   * audit.
    *
    * @example
    * ```ts
@@ -128,7 +140,11 @@ export interface APIKey {
    */
   created_at: string;
 
-  created_by: APIKey.CreatedBy;
+  /**
+   * Human audit creator, or null after creator deletion. Not the service
+   * credential's principal.
+   */
+  created_by: APIKey.CreatedBy | null;
 
   /**
    * When the API key was deleted (soft-deleted). Null for keys that have not been
@@ -174,9 +190,20 @@ export interface APIKey {
    * unrestricted access within its organization or project.
    */
   policy?: APIKey.Policy | null;
+
+  principal?: APIKey.Principal;
+
+  /**
+   * Organization-owned service principal, when linked.
+   */
+  service_account_id?: string;
 }
 
 export namespace APIKey {
+  /**
+   * Human audit creator, or null after creator deletion. Not the service
+   * credential's principal.
+   */
   export interface CreatedBy {
     /**
      * Kernel user ID of the creator.
@@ -217,7 +244,45 @@ export namespace APIKey {
        * Wildcards are supported.
        */
       resource: string;
+
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      condition?: Statement.Condition;
     }
+
+    export namespace Statement {
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      export interface Condition {
+        /**
+         * Request attribute the condition constrains. `source_ip` restricts the statement
+         * to requests whose client address falls inside one of `values`.
+         */
+        key: 'source_ip';
+
+        /**
+         * Comparison the condition applies between the request attribute and values.
+         */
+        operator: 'in';
+
+        /**
+         * Values the request attribute must match. For `source_ip`, CIDR networks: a bare
+         * address without a mask is rejected, and so are an entry with host bits set and
+         * an IPv4 network written in IPv6 notation.
+         */
+        values: Array<string>;
+      }
+    }
+  }
+
+  export interface Principal {
+    id: string;
+
+    type: 'user' | 'service_account';
   }
 }
 
@@ -251,7 +316,8 @@ export interface APIKeyCreateParams {
 
   /**
    * Issue a scoped key that may only perform the listed actions on the listed
-   * resources.
+   * resources. A statement may carry a condition; a `source_ip` condition restricts
+   * the statement to requests from inside its CIDR networks.
    */
   policy?: APIKeyCreateParams.Policy;
 
@@ -259,12 +325,19 @@ export interface APIKeyCreateParams {
    * Unique project identifier
    */
   project_id?: string | null;
+
+  /**
+   * Link to an active same-organization service account. Requires an organization
+   * administrator, explicit project and nonempty policy. Omit for a personal key.
+   */
+  service_account_id?: string;
 }
 
 export namespace APIKeyCreateParams {
   /**
    * Issue a scoped key that may only perform the listed actions on the listed
-   * resources.
+   * resources. A statement may carry a condition; a `source_ip` condition restricts
+   * the statement to requests from inside its CIDR networks.
    */
   export interface Policy {
     /**
@@ -285,6 +358,38 @@ export namespace APIKeyCreateParams {
        * Wildcards are supported.
        */
       resource: string;
+
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      condition?: Statement.Condition;
+    }
+
+    export namespace Statement {
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      export interface Condition {
+        /**
+         * Request attribute the condition constrains. `source_ip` restricts the statement
+         * to requests whose client address falls inside one of `values`.
+         */
+        key: 'source_ip';
+
+        /**
+         * Comparison the condition applies between the request attribute and values.
+         */
+        operator: 'in';
+
+        /**
+         * Values the request attribute must match. For `source_ip`, CIDR networks: a bare
+         * address without a mask is rejected, and so are an entry with host bits set and
+         * an IPv4 network written in IPv6 notation.
+         */
+        values: Array<string>;
+      }
     }
   }
 }
@@ -301,7 +406,81 @@ export interface APIKeyUpdateParams {
   /**
    * New API key name
    */
-  name: string;
+  name?: string;
+
+  /**
+   * Permissions that fully replace the key's policy. Attaching a policy to a key
+   * without one makes the key scoped: every action and resource the policy does not
+   * list is denied. The key's credential, name, project, and expiry are unchanged,
+   * so consumers never need the key redistributed. A `source_ip` condition adds or
+   * changes IP allowlisting without rotating the credential. Requires
+   * api_keys:set_policy on the key.
+   */
+  policy?: APIKeyUpdateParams.Policy;
+}
+
+export namespace APIKeyUpdateParams {
+  /**
+   * Permissions that fully replace the key's policy. Attaching a policy to a key
+   * without one makes the key scoped: every action and resource the policy does not
+   * list is denied. The key's credential, name, project, and expiry are unchanged,
+   * so consumers never need the key redistributed. A `source_ip` condition adds or
+   * changes IP allowlisting without rotating the credential. Requires
+   * api_keys:set_policy on the key.
+   */
+  export interface Policy {
+    /**
+     * Allow statements. Every action and resource not listed is denied.
+     */
+    statements: Array<Policy.Statement>;
+  }
+
+  export namespace Policy {
+    export interface Statement {
+      /**
+       * Permitted action, such as browsers:use or vaults:read.
+       */
+      action: string;
+
+      /**
+       * Resource the action applies to, in the format projects/{project_id}/{kind}/{id}.
+       * Wildcards are supported.
+       */
+      resource: string;
+
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      condition?: Statement.Condition;
+    }
+
+    export namespace Statement {
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      export interface Condition {
+        /**
+         * Request attribute the condition constrains. `source_ip` restricts the statement
+         * to requests whose client address falls inside one of `values`.
+         */
+        key: 'source_ip';
+
+        /**
+         * Comparison the condition applies between the request attribute and values.
+         */
+        operator: 'in';
+
+        /**
+         * Values the request attribute must match. For `source_ip`, CIDR networks: a bare
+         * address without a mask is rejected, and so are an entry with host bits set and
+         * an IPv4 network written in IPv6 notation.
+         */
+        values: Array<string>;
+      }
+    }
+  }
 }
 
 export interface APIKeyListParams extends OffsetPaginationParams {

@@ -419,13 +419,23 @@ export interface BrowserAllowlistState {
 }
 
 /**
+ * Automatic CAPTCHA solving configuration.
+ */
+export interface BrowserCaptchaSolver {
+  /**
+   * Whether the browser automatically solves CAPTCHAs.
+   */
+  enabled: boolean;
+}
+
+/**
  * Overrides for browser attributes presented to websites.
  */
 export interface BrowserFingerprint {
   /**
    * Operating system the browser reports to websites.
    */
-  os: 'macos';
+  os: 'linux' | 'macos';
 }
 
 export interface BrowserLocation {
@@ -683,10 +693,10 @@ export interface BrowserProxy {
   id?: string;
 
   /**
-   * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
-   * the browser's stealth-derived default: Kernel's default stealth proxy when
-   * stealth=true, or direct egress when stealth=false. default is primarily useful
-   * on browser update to restore the browser default after selected-proxy egress.
+   * Proxy egress mode. direct forces no proxy. default uses Kernel's default stealth
+   * proxy for browsers with CAPTCHA solving enabled, including stealth browsers, or
+   * direct egress otherwise. default is primarily useful on browser update to
+   * restore the browser default after selected-proxy egress.
    */
   mode?: BrowserProxyMode;
 
@@ -698,16 +708,15 @@ export interface BrowserProxy {
 
 /**
  * Browser proxy configuration. Provide exactly one of mode, id, or name; an empty
- * object is invalid. Set mode to direct for no proxy regardless of stealth. Set
- * mode to default to use the browser's stealth-derived default: Kernel's default
- * stealth proxy when stealth=true, or direct egress when stealth=false. Select id
- * or name to use that proxy regardless of stealth. The selected proxy must be in
- * the same project as the browser. Names must match exactly one active proxy; use
- * id for stable references. Proxy configuration changes only egress and does not
- * change stealth or CAPTCHA solver behavior. A stealth browser using mode=direct
- * still runs in stealth mode with the CAPTCHA solver enabled. When proxy is
- * omitted on browser creation, stealth browsers use Kernel's default stealth proxy
- * and non-stealth browsers use direct egress. When omitted on update, the current
+ * object is invalid. Set mode to direct for no proxy. Set mode to default to use
+ * Kernel's default stealth proxy for browsers with CAPTCHA solving enabled,
+ * including stealth browsers, or direct egress otherwise. Select id or name to use
+ * that proxy. The selected proxy must be in the same project as the browser. Names
+ * must match exactly one active proxy; use id for stable references. Proxy
+ * configuration changes only egress and does not change CAPTCHA solver behavior. A
+ * browser using mode=direct keeps the CAPTCHA solver if it was enabled. When proxy
+ * is omitted on browser creation, stealth browsers use Kernel's default stealth
+ * proxy and other browsers use direct egress. When omitted on update, the current
  * configuration is unchanged.
  */
 export interface BrowserProxyConfig {
@@ -717,10 +726,10 @@ export interface BrowserProxyConfig {
   id?: string;
 
   /**
-   * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
-   * the browser's stealth-derived default: Kernel's default stealth proxy when
-   * stealth=true, or direct egress when stealth=false. default is primarily useful
-   * on browser update to restore the browser default after selected-proxy egress.
+   * Proxy egress mode. direct forces no proxy. default uses Kernel's default stealth
+   * proxy for browsers with CAPTCHA solving enabled, including stealth browsers, or
+   * direct egress otherwise. default is primarily useful on browser update to
+   * restore the browser default after selected-proxy egress.
    */
   mode?: BrowserProxyMode;
 
@@ -731,10 +740,10 @@ export interface BrowserProxyConfig {
 }
 
 /**
- * Proxy egress mode. direct forces no proxy regardless of stealth. default uses
- * the browser's stealth-derived default: Kernel's default stealth proxy when
- * stealth=true, or direct egress when stealth=false. default is primarily useful
- * on browser update to restore the browser default after selected-proxy egress.
+ * Proxy egress mode. direct forces no proxy. default uses Kernel's default stealth
+ * proxy for browsers with CAPTCHA solving enabled, including stealth browsers, or
+ * direct egress otherwise. default is primarily useful on browser update to
+ * restore the browser default after selected-proxy egress.
  */
 export type BrowserProxyMode = 'direct' | 'default';
 
@@ -916,6 +925,11 @@ export interface VaultReference {
 
 export interface BrowserCreateResponse {
   /**
+   * Automatic CAPTCHA solving configuration.
+   */
+  captcha_solver: BrowserCaptchaSolver;
+
+  /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
    */
   cdp_ws_url: string;
@@ -946,7 +960,10 @@ export interface BrowserCreateResponse {
   session_id: string;
 
   /**
-   * Whether the browser session is running in stealth mode.
+   * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+   * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+   * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+   * favor of captcha_solver and proxy.
    */
   stealth: boolean;
 
@@ -982,6 +999,12 @@ export interface BrowserCreateResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Fingerprint applied to this browser session. Omitted when the session was
+   * created without one.
+   */
+  fingerprint?: BrowserFingerprint;
 
   /**
    * Whether GPU acceleration is enabled for the browser session (only supported for
@@ -1139,6 +1162,11 @@ export namespace BrowserCreateResponse {
 
 export interface BrowserRetrieveResponse {
   /**
+   * Automatic CAPTCHA solving configuration.
+   */
+  captcha_solver: BrowserCaptchaSolver;
+
+  /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
    */
   cdp_ws_url: string;
@@ -1169,7 +1197,10 @@ export interface BrowserRetrieveResponse {
   session_id: string;
 
   /**
-   * Whether the browser session is running in stealth mode.
+   * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+   * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+   * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+   * favor of captcha_solver and proxy.
    */
   stealth: boolean;
 
@@ -1205,6 +1236,12 @@ export interface BrowserRetrieveResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Fingerprint applied to this browser session. Omitted when the session was
+   * created without one.
+   */
+  fingerprint?: BrowserFingerprint;
 
   /**
    * Whether GPU acceleration is enabled for the browser session (only supported for
@@ -1362,6 +1399,11 @@ export namespace BrowserRetrieveResponse {
 
 export interface BrowserUpdateResponse {
   /**
+   * Automatic CAPTCHA solving configuration.
+   */
+  captcha_solver: BrowserCaptchaSolver;
+
+  /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
    */
   cdp_ws_url: string;
@@ -1392,7 +1434,10 @@ export interface BrowserUpdateResponse {
   session_id: string;
 
   /**
-   * Whether the browser session is running in stealth mode.
+   * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+   * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+   * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+   * favor of captcha_solver and proxy.
    */
   stealth: boolean;
 
@@ -1428,6 +1473,12 @@ export interface BrowserUpdateResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Fingerprint applied to this browser session. Omitted when the session was
+   * created without one.
+   */
+  fingerprint?: BrowserFingerprint;
 
   /**
    * Whether GPU acceleration is enabled for the browser session (only supported for
@@ -1585,6 +1636,11 @@ export namespace BrowserUpdateResponse {
 
 export interface BrowserListResponse {
   /**
+   * Automatic CAPTCHA solving configuration.
+   */
+  captcha_solver: BrowserCaptchaSolver;
+
+  /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
    */
   cdp_ws_url: string;
@@ -1615,7 +1671,10 @@ export interface BrowserListResponse {
   session_id: string;
 
   /**
-   * Whether the browser session is running in stealth mode.
+   * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+   * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+   * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+   * favor of captcha_solver and proxy.
    */
   stealth: boolean;
 
@@ -1651,6 +1710,12 @@ export interface BrowserListResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Fingerprint applied to this browser session. Omitted when the session was
+   * created without one.
+   */
+  fingerprint?: BrowserFingerprint;
 
   /**
    * Whether GPU acceleration is enabled for the browser session (only supported for
@@ -1833,6 +1898,13 @@ export interface BrowserCurlResponse {
 
 export interface BrowserCreateParams {
   /**
+   * Automatic CAPTCHA solving. Disabled by default. Enabling it does not select a
+   * proxy: when proxy is omitted, the browser uses direct egress unless
+   * stealth=true.
+   */
+  captcha_solver?: BrowserCaptchaSolver;
+
+  /**
    * Custom Chrome enterprise policy overrides applied to this browser session. Keys
    * are Chrome enterprise policy names; values must match their expected types.
    * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
@@ -1848,8 +1920,9 @@ export interface BrowserCreateParams {
   /**
    * Closed beta: contact Kernel to enable fingerprint overrides for your
    * organization. Overrides browser attributes presented to websites for this
-   * session. Currently supports macos and requires stealth=true, headless=false,
-   * gpu=false, and default memory. Omit to preserve the default browser behavior.
+   * session. Supports linux and macos and requires captcha_solver.enabled=true,
+   * headless=false, gpu=false, and default memory. Omit to preserve the default
+   * browser behavior.
    */
   fingerprint?: BrowserFingerprint;
 
@@ -1910,12 +1983,11 @@ export interface BrowserCreateParams {
 
   /**
    * Proxy configuration for the browser session. Cannot be combined with proxy_id.
-   * Omit to use the browser default: stealth browsers use Kernel's default stealth
-   * proxy, while non-stealth browsers use direct egress. Set mode to direct to force
-   * direct egress regardless of stealth. Set mode to default to explicitly use the
-   * browser default: Kernel's default stealth proxy when stealth=true, or direct
-   * egress when stealth=false. Select id or name to use that proxy regardless of
-   * stealth. Proxy selection does not change stealth or CAPTCHA solver behavior.
+   * Omit to use direct egress, or Kernel's default stealth proxy when stealth=true.
+   * Set mode to direct to force direct egress. Set mode to default to use Kernel's
+   * default stealth proxy when captcha_solver.enabled=true, or direct egress
+   * otherwise. Select id or name to use that proxy. Proxy selection does not change
+   * CAPTCHA solver behavior.
    */
   proxy?: BrowserProxyConfig;
 
@@ -1945,11 +2017,10 @@ export interface BrowserCreateParams {
   start_url?: string;
 
   /**
-   * If true, launches the browser in stealth mode and enables the CAPTCHA solver.
-   * Defaults to false. When proxy is omitted, stealth browsers use Kernel's default
-   * stealth proxy and non-stealth browsers use direct egress. An explicit proxy
-   * configuration changes only egress; it does not enable or disable stealth or the
-   * CAPTCHA solver.
+   * @deprecated If true, enables the CAPTCHA solver and, when proxy is omitted, uses
+   * Kernel's default stealth proxy. Defaults to false. Equivalent to
+   * captcha_solver.enabled=true with proxy.mode=default. Cannot be combined with
+   * captcha_solver.enabled=false. Deprecated in favor of captcha_solver and proxy.
    */
   stealth?: boolean;
 
@@ -2164,10 +2235,9 @@ export interface BrowserUpdateParams {
   /**
    * Proxy configuration to apply. Omit to leave the current configuration unchanged.
    * Cannot be combined with proxy_id or disable_default_proxy. Set mode to direct to
-   * switch to direct egress regardless of stealth. Set mode to default to restore
-   * the browser default after using a selected proxy: Kernel's default stealth proxy
-   * for a stealth browser, or direct egress for a non-stealth browser. Updating
-   * proxy does not change stealth or CAPTCHA solver behavior.
+   * switch to direct egress. Set mode to default to use Kernel's default stealth
+   * proxy for a browser with CAPTCHA solving enabled, or direct egress otherwise.
+   * Updating proxy does not change CAPTCHA solver behavior.
    */
   proxy?: BrowserProxyConfig;
 
@@ -2462,6 +2532,7 @@ Browsers.Webmcp = Webmcp;
 export declare namespace Browsers {
   export {
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserCaptchaSolver as BrowserCaptchaSolver,
     type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,

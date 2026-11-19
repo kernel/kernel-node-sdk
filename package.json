@@ -1,6 +1,6 @@
 {
   "name": "@onkernel/sdk",
-  "version": "0.149.0",
+  "version": "0.150.0",
   "description": "The official TypeScript library for the Kernel API",
   "author": "Kernel <>",
   "types": "dist/index.d.ts",
@@ -50,6 +50,14 @@
     "tslib": "^2.8.1",
     "typescript": "5.8.3",
     "typescript-eslint": "8.31.1"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-sts": ">=3.935.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-sts": {
+      "optional": true
+    }
   },
   "overrides": {
     "minimatch": "^9.0.5"

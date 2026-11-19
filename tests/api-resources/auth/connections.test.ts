@@ -31,6 +31,7 @@ describe('resource connections', () => {
       allowed_domains: ['login.netflix.com', 'auth.netflix.com'],
       auto_reauth: true,
       browser: {
+        captcha_solver: { enabled: true },
         location: { locale: 'sv-SE' },
         proxy: {
           id: 'x',
@@ -203,6 +204,7 @@ describe('resource connections', () => {
         'id',
         {
           browser: {
+            captcha_solver: { enabled: true },
             location: { locale: 'sv-SE' },
             proxy: {
               id: 'x',

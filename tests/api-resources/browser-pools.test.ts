@@ -24,6 +24,7 @@ describe('resource browserPools', () => {
   test.skip('create: required and optional params', async () => {
     const response = await client.browserPools.create({
       size: 10,
+      captcha_solver: { enabled: true },
       chrome_policy: { foo: 'bar' },
       extensions: [{ id: 'id', name: 'name' }],
       fill_rate_per_minute: 0,

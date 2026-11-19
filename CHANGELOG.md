@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.150.0](https://github.com/kernel/kernel-node-sdk/compare/v0.149.0...v0.150.0) (2026-11-19)
+
+
+### Features
+
+* Accept `browser_id` when authorizing a Kernel card: Evervault alias cards route that browser through the card vault's proxy as soon as the cardholder enters a fresh CVC ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Add `captcha_solver` to browser creation; `stealth` is deprecated in favor of `captcha_solver` and `proxy` ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Add `BrowserFingerprint` records to browsers, applied at claim time ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Add `line_items` to AgentCard card specs, passed through to checkout authorizations ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Add workload identity, the effective policy and the service account principal to the auth context ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Add the `source_ip` condition to API key policies ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Replace an API key's permissions in place with `PATCH /org/api_keys/{id}`, and link API keys to service accounts ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* add workload identity federation credentials ([f6f0ad7](https://github.com/kernel/kernel-node-sdk/commit/f6f0ad7cb0))
+* Document conditions in the API key reference descriptions ([98a3c38](https://github.com/kernel/kernel-node-sdk/commit/98a3c38eabb6836f5c592292b36eefed1c06df22))
+* Route VGS reveal-session payment windows through their own session in egress ([b5011d9](https://github.com/kernel/kernel-node-sdk/commit/b5011d977b102d4998afc49e5133c62a3f999de7))
+
 ## [0.149.0](https://github.com/kernel/kernel-node-sdk/compare/v0.148.0...v0.149.0) (2026-11-17)
 
 

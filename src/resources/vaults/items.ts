@@ -434,8 +434,13 @@ export interface ArmPasskeyVaultItemOperationRequest {
  * merchant origin. Once approval has been requested, browser_id and page_url are
  * ignored and authorize only re-checks the request. Browser and checkout
  * inspection errors occur before any provider request and can be retried once the
- * browser is on the checkout page. Kernel cards do not accept browser_id or
- * page_url.
+ * browser is on the checkout page. Kernel cards accept browser_id but not
+ * page_url: browser_id names the browser that will pay, which must have this vault
+ * attached. For cards whose cardholder enters a fresh CVC on an encrypting card
+ * form, Kernel tries to route that browser through the card vault's proxy as soon
+ * as the CVC is entered, so authorize before the browser opens the payment step
+ * and retrieve the card until fill is advertised before opening it. Other cards,
+ * and any card whose routing fails, are routed at their first fill.
  */
 export interface AuthorizeVaultItemOperationRequest {
   type: 'authorize';
@@ -638,6 +643,79 @@ export namespace CardVaultItemSpec {
      * whole spec, so an update that omits it removes it.
      */
     checkout_origin?: string;
+
+    /**
+     * Discount as a positive number of minor currency units; 500 takes 5.00 off.
+     * Requires line_items.
+     */
+    discount?: number;
+
+    /**
+     * What the next checkout buys, listed on the cardholder's approval screen above
+     * the total. Display only: the cardholder approves amount, or the amount the
+     * processor charges, and a line total that disagrees with it changes nothing they
+     * pay. Amounts are in minor units of currency. Sent only for checkouts without a
+     * preparation; omitted, the approval screen shows the merchant and amount alone.
+     * Card updates replace the whole spec, so set the cart again for each checkout.
+     */
+    line_items?: Array<AgentCardCardVaultItemSpec.LineItem>;
+
+    /**
+     * Shipping charge in minor currency units. Requires line_items.
+     */
+    shipping?: number;
+
+    /**
+     * Cart subtotal in minor currency units. Requires line_items.
+     */
+    subtotal?: number;
+
+    /**
+     * Tax in minor currency units. Requires line_items.
+     */
+    tax?: number;
+  }
+
+  export namespace AgentCardCardVaultItemSpec {
+    /**
+     * One product on the AgentCard approval screen.
+     */
+    export interface LineItem {
+      quantity: number;
+
+      /**
+       * The product's name as the store shows it.
+       */
+      title: string;
+
+      /**
+       * The line's total in minor currency units. Shown instead of unit_amount times
+       * quantity when both are set; a line with neither shows without a price.
+       */
+      amount?: number;
+
+      /**
+       * Shown beside the title.
+       */
+      brand?: string;
+
+      /**
+       * https URL of the product's picture. AgentCard shows pictures only from the image
+       * hosts it allows and shows the line without one otherwise.
+       */
+      image_url?: string;
+
+      /**
+       * The options the shopper chose, such as "Size S · Pink".
+       */
+      options?: string;
+
+      /**
+       * Price of one, in minor currency units. The line shows unit_amount times
+       * quantity.
+       */
+      unit_amount?: number;
+    }
   }
 }
 
