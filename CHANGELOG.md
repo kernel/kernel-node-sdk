@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.150.0](https://github.com/kernel/kernel-node-sdk/compare/v0.149.0...v0.150.0) (2026-11-19)
+
+
+### Features
+
+* chore(stlc): re-anchor Go and TypeScript custom-code tracking ([b481712](https://github.com/kernel/kernel-node-sdk/commit/b48171224adac023bb7e95b7d6a2afacca8bf628))
+* Document conditions in the API key reference descriptions ([98a3c38](https://github.com/kernel/kernel-node-sdk/commit/98a3c38eabb6836f5c592292b36eefed1c06df22))
+* Route VGS reveal-session payment windows through their own session in egress ([b5011d9](https://github.com/kernel/kernel-node-sdk/commit/b5011d977b102d4998afc49e5133c62a3f999de7))
+
 ## [0.149.0](https://github.com/kernel/kernel-node-sdk/compare/v0.148.0...v0.149.0) (2026-11-17)
 
 
