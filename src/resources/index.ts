@@ -4,6 +4,7 @@ export * from './shared';
 export {
   APIKeys,
   type APIKey,
+  type APIKeyPrincipal,
   type CreatedAPIKey,
   type APIKeyCreateParams,
   type APIKeyRetrieveParams,
@@ -231,6 +232,15 @@ export {
   type SearchCreateParams,
 } from './search/search';
 export {
+  ServiceAccounts,
+  type ServiceAccount,
+  type ServiceAccountConfig,
+  type ServiceAccountCreateParams,
+  type ServiceAccountUpdateParams,
+  type ServiceAccountListParams,
+  type ServiceAccountsOffsetPagination,
+} from './service-accounts';
+export {
   Tasks,
   type Task,
   type TaskMetadata,
@@ -256,3 +266,34 @@ export {
   type VaultUpsertParams,
   type VaultsOffsetPagination,
 } from './vaults/vaults';
+export {
+  WorkloadIdentityAuthenticationEvents,
+  type WorkloadIdentityAuthenticationEvent,
+  type WorkloadIdentityAuthenticationEventListParams,
+  type WorkloadIdentityAuthenticationEventsOffsetPagination,
+} from './workload-identity-authentication-events';
+export {
+  WorkloadIdentityFederationRules,
+  type WorkloadIdentityAuthorization,
+  type WorkloadIdentityFederationRule,
+  type WorkloadIdentityFederationRuleConfig,
+  type WorkloadIdentityMatch,
+  type WorkloadIdentityTarget,
+  type WorkloadIdentityFederationRuleCreateParams,
+  type WorkloadIdentityFederationRuleUpdateParams,
+  type WorkloadIdentityFederationRuleListParams,
+  type WorkloadIdentityFederationRulesOffsetPagination,
+} from './workload-identity-federation-rules';
+export {
+  WorkloadIdentityIssuers,
+  type WorkloadIdentityIssuer,
+  type WorkloadIdentityIssuerConfig,
+  type WorkloadIdentityIssuerKeyCheck,
+  type WorkloadIdentityKeySource,
+  type WorkloadIdentityPresetType,
+  type WorkloadIdentityTokenValidation,
+  type WorkloadIdentityIssuerCreateParams,
+  type WorkloadIdentityIssuerUpdateParams,
+  type WorkloadIdentityIssuerListParams,
+  type WorkloadIdentityIssuersOffsetPagination,
+} from './workload-identity-issuers';

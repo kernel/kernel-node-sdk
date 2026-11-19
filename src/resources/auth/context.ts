@@ -39,7 +39,7 @@ export interface AuthContext {
 
   principal: AuthContext.Principal;
 
-  workload_identity?: AuthContext.WorkloadIdentity;
+  workload_identity?: AuthContextWorkloadIdentity;
 }
 
 export namespace AuthContext {
@@ -184,20 +184,20 @@ export namespace AuthContext {
      */
     type: 'api_key' | 'user' | 'service_account';
   }
+}
 
-  export interface WorkloadIdentity {
-    /**
-     * Digest of the verified external subject. Never the original assertion or
-     * arbitrary claims.
-     */
-    external_subject_digest: string;
+export interface AuthContextWorkloadIdentity {
+  /**
+   * Digest of the verified external subject. Never the original assertion or
+   * arbitrary claims.
+   */
+  external_subject_digest: string;
 
-    federation_rule_id: string;
+  federation_rule_id: string;
 
-    issuer_id: string;
-  }
+  issuer_id: string;
 }
 
 export declare namespace Context {
-  export { type AuthContext as AuthContext };
+  export { type AuthContext as AuthContext, type AuthContextWorkloadIdentity as AuthContextWorkloadIdentity };
 }

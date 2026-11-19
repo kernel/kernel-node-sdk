@@ -94,11 +94,15 @@ describe('resource apiKeys', () => {
     await expect(
       client.apiKeys.list(
         {
+          created_by: 'created_by',
           include_deleted: true,
           limit: 100,
           name: 'name',
           offset: 0,
+          principal_type: 'user',
+          project_id: 'project_id',
           query: 'query',
+          service_account_id: 'service_account_id',
           sort_by: 'created_at',
           sort_direction: 'asc',
           status: 'active',
