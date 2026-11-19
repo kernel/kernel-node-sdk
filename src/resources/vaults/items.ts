@@ -2708,6 +2708,18 @@ export interface OnePasswordOAuthAction {
    * 1Password-hosted OAuth authorization URL for the human to open.
    */
   url: string;
+
+  /**
+   * 1Password connect link for the same authorization, for the person to open on
+   * their own device. In 1Password for iOS or Android it opens the app to approve
+   * the connection. Anywhere else it opens 1Password in the browser, where someone
+   * without 1Password can sign up; if the account is still pending afterwards, they
+   * connect with url. Also offer url to people who already use 1Password on a
+   * computer. Whichever link the person answers first settles the authorization and
+   * the other stops working. Expires with the account's expires_at; repeat the
+   * upsert for fresh links. Absent on a recovery link.
+   */
+  connect_url?: string;
 }
 
 /**
