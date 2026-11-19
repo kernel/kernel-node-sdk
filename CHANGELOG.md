@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.152.0](https://github.com/kernel/kernel-node-sdk/compare/v0.151.0...v0.152.0) (2026-11-19)
+
+
+### Features
+
+* Add `connect_url` to `OnePasswordOAuthAction`: a 1Password connect link for the same authorization, for the person to open on their own device ([299047d](https://github.com/kernel/kernel-node-sdk/commit/299047d7d3bb71ed18ae2bc1a5945b71b8e43ea0))
+
 ## [0.151.0](https://github.com/kernel/kernel-node-sdk/compare/v0.150.0...v0.151.0) (2026-11-19)
 
 
