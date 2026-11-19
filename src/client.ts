@@ -290,6 +290,8 @@ import {
   parseLogLevel,
 } from './internal/utils/log';
 import { isEmptyObj } from './internal/utils/values';
+import { ClientAuth } from './lib/credentials/client-auth';
+import type { AccessTokenProvider } from './lib/credentials/types';
 
 const environments = {
   production: 'https://api.onkernel.com/',
@@ -302,6 +304,19 @@ export interface ClientOptions {
    * Defaults to process.env['KERNEL_API_KEY'].
    */
   apiKey?: string | undefined;
+
+  /**
+   * Workload identity credentials: a function that returns a short-lived
+   * access token, such as `oidcFederationProvider(...)` from
+   * `@onkernel/sdk/lib/credentials`. The client caches the token, refreshes it
+   * before it expires, and replaces it when a request is rejected with a 401.
+   *
+   * Mutually exclusive with `apiKey`. When neither is set and `KERNEL_API_KEY`
+   * is missing, the client reads `KERNEL_FEDERATION_RULE_ID` and an identity
+   * token source from the environment. A client that authenticates this way
+   * has an empty `apiKey`.
+   */
+  credentials?: AccessTokenProvider | null | undefined;
 
   projectID?: string | null | undefined;
 
@@ -406,6 +421,7 @@ export class Kernel {
   protected idempotencyHeader?: string;
   private _options: ClientOptions;
   public browserRouteCache: BrowserRouteCache;
+  #auth: ClientAuth;
 
   /**
    * API Client for interfacing with the Kernel API.
@@ -441,9 +457,11 @@ export class Kernel {
       );
     }
 
+    const auth = ClientAuth.resolve(arguments[0], apiKey);
+    if (auth.usesCredentials) apiKey = '';
     if (apiKey === undefined) {
       throw new Errors.KernelError(
-        "The KERNEL_API_KEY environment variable is missing or empty; either provide it, or instantiate the Kernel client with an apiKey option, like new Kernel({ apiKey: 'My API Key' }).",
+        "The KERNEL_API_KEY environment variable is missing or empty; either provide it, or instantiate the Kernel client with an apiKey option, like new Kernel({ apiKey: 'My API Key' }). To use workload identity federation instead, set KERNEL_FEDERATION_RULE_ID and an identity token source, or pass the credentials option.",
       );
     }
 
@@ -481,6 +499,7 @@ export class Kernel {
       subresources: browserRoutingSubresourcesFromEnv(),
       cache: this.browserRouteCache,
     });
+    this.#auth = auth.bind(this, this.rawFetch);
     this.#encoder = Opts.FallbackEncoder;
 
     const customHeadersEnv = readEnv('KERNEL_CUSTOM_HEADERS');
@@ -521,6 +540,7 @@ export class Kernel {
       projectID: this.projectID,
       project: this.project,
       ...options,
+      ...this.#auth.cloneOptions(options),
     });
     client.browserRouteCache = this.browserRouteCache;
     client.fetch = createRoutingFetch(client.rawFetch, {
@@ -547,6 +567,9 @@ export class Kernel {
   }
 
   protected async authHeaders(opts: FinalRequestOptions): Promise<NullableHeaders | undefined> {
+    this.#auth = this.#auth.bind(this, this.rawFetch);
+    const bearerAuth = await this.#auth.bearerAuth();
+    if (bearerAuth) return buildHeaders([bearerAuth]);
     return buildHeaders([{ Authorization: `Bearer ${this.apiKey}` }]);
   }
 
@@ -743,6 +766,18 @@ export class Kernel {
     } with status ${response.status} in ${headersTime - startTime}ms`;
 
     if (!response.ok) {
+      if (
+        response.status === 401 &&
+        this.#auth.refreshAfter401(
+          options,
+          { requestID: retryOfRequestLogID ?? requestLogID, url, headers: req.headers },
+          response,
+        )
+      ) {
+        await Shims.CancelReadableStream(response.body);
+        loggerFor(this).info(`${responseInfo} - retrying with a fresh access token`);
+        return this.makeRequest(options, retriesRemaining, retryOfRequestLogID ?? requestLogID);
+      }
       const shouldRetry = await this.shouldRetry(response);
       if (retriesRemaining && shouldRetry) {
         const retryMessage = `retrying, ${retriesRemaining} attempts remaining`;

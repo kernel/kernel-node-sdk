@@ -51,6 +51,14 @@
     "typescript": "5.8.3",
     "typescript-eslint": "8.31.1"
   },
+  "peerDependencies": {
+    "@aws-sdk/client-sts": ">=3.935.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-sts": {
+      "optional": true
+    }
+  },
   "overrides": {
     "minimatch": "^9.0.5"
   },
