@@ -443,6 +443,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/auth/context.ts">AuthContext</a></code>
+- <code><a href="./src/resources/auth/context.ts">AuthContextWorkloadIdentity</a></code>
 
 Methods:
 
@@ -796,6 +797,7 @@ Methods:
 Types:
 
 - <code><a href="./src/resources/api-keys.ts">APIKey</a></code>
+- <code><a href="./src/resources/api-keys.ts">APIKeyPrincipal</a></code>
 - <code><a href="./src/resources/api-keys.ts">CreatedAPIKey</a></code>
 
 Methods:
@@ -806,6 +808,69 @@ Methods:
 - <code title="get /org/api_keys">client.apiKeys.<a href="./src/resources/api-keys.ts">list</a>({ ...params }) -> APIKeysOffsetPagination</code>
 - <code title="delete /org/api_keys/{id}">client.apiKeys.<a href="./src/resources/api-keys.ts">delete</a>(id) -> void</code>
 - <code title="post /org/api_keys/{id}/rotate">client.apiKeys.<a href="./src/resources/api-keys.ts">rotate</a>(id, { ...params }) -> CreatedAPIKey</code>
+
+# ServiceAccounts
+
+Types:
+
+- <code><a href="./src/resources/service-accounts.ts">ServiceAccount</a></code>
+- <code><a href="./src/resources/service-accounts.ts">ServiceAccountConfig</a></code>
+
+Methods:
+
+- <code title="post /org/service_accounts">client.serviceAccounts.<a href="./src/resources/service-accounts.ts">create</a>({ ...params }) -> ServiceAccount</code>
+- <code title="get /org/service_accounts/{id}">client.serviceAccounts.<a href="./src/resources/service-accounts.ts">retrieve</a>(id) -> ServiceAccount</code>
+- <code title="patch /org/service_accounts/{id}">client.serviceAccounts.<a href="./src/resources/service-accounts.ts">update</a>(id, { ...params }) -> ServiceAccount</code>
+- <code title="get /org/service_accounts">client.serviceAccounts.<a href="./src/resources/service-accounts.ts">list</a>({ ...params }) -> ServiceAccountsOffsetPagination</code>
+- <code title="delete /org/service_accounts/{id}">client.serviceAccounts.<a href="./src/resources/service-accounts.ts">delete</a>(id) -> void</code>
+
+# WorkloadIdentityIssuers
+
+Types:
+
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityIssuer</a></code>
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityIssuerConfig</a></code>
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityIssuerKeyCheck</a></code>
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityKeySource</a></code>
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityPresetType</a></code>
+- <code><a href="./src/resources/workload-identity-issuers.ts">WorkloadIdentityTokenValidation</a></code>
+
+Methods:
+
+- <code title="post /org/workload_identity_issuers">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">create</a>({ ...params }) -> WorkloadIdentityIssuer</code>
+- <code title="get /org/workload_identity_issuers/{id}">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">retrieve</a>(id) -> WorkloadIdentityIssuer</code>
+- <code title="patch /org/workload_identity_issuers/{id}">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">update</a>(id, { ...params }) -> WorkloadIdentityIssuer</code>
+- <code title="get /org/workload_identity_issuers">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">list</a>({ ...params }) -> WorkloadIdentityIssuersOffsetPagination</code>
+- <code title="delete /org/workload_identity_issuers/{id}">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">delete</a>(id) -> void</code>
+- <code title="post /org/workload_identity_issuers/{id}/verify">client.workloadIdentityIssuers.<a href="./src/resources/workload-identity-issuers.ts">verify</a>(id) -> WorkloadIdentityIssuerKeyCheck</code>
+
+# WorkloadIdentityFederationRules
+
+Types:
+
+- <code><a href="./src/resources/workload-identity-federation-rules.ts">WorkloadIdentityAuthorization</a></code>
+- <code><a href="./src/resources/workload-identity-federation-rules.ts">WorkloadIdentityFederationRule</a></code>
+- <code><a href="./src/resources/workload-identity-federation-rules.ts">WorkloadIdentityFederationRuleConfig</a></code>
+- <code><a href="./src/resources/workload-identity-federation-rules.ts">WorkloadIdentityMatch</a></code>
+- <code><a href="./src/resources/workload-identity-federation-rules.ts">WorkloadIdentityTarget</a></code>
+
+Methods:
+
+- <code title="post /org/workload_identity_federation_rules">client.workloadIdentityFederationRules.<a href="./src/resources/workload-identity-federation-rules.ts">create</a>({ ...params }) -> WorkloadIdentityFederationRule</code>
+- <code title="get /org/workload_identity_federation_rules/{id}">client.workloadIdentityFederationRules.<a href="./src/resources/workload-identity-federation-rules.ts">retrieve</a>(id) -> WorkloadIdentityFederationRule</code>
+- <code title="patch /org/workload_identity_federation_rules/{id}">client.workloadIdentityFederationRules.<a href="./src/resources/workload-identity-federation-rules.ts">update</a>(id, { ...params }) -> WorkloadIdentityFederationRule</code>
+- <code title="get /org/workload_identity_federation_rules">client.workloadIdentityFederationRules.<a href="./src/resources/workload-identity-federation-rules.ts">list</a>({ ...params }) -> WorkloadIdentityFederationRulesOffsetPagination</code>
+- <code title="delete /org/workload_identity_federation_rules/{id}">client.workloadIdentityFederationRules.<a href="./src/resources/workload-identity-federation-rules.ts">delete</a>(id) -> void</code>
+
+# WorkloadIdentityAuthenticationEvents
+
+Types:
+
+- <code><a href="./src/resources/workload-identity-authentication-events.ts">WorkloadIdentityAuthenticationEvent</a></code>
+
+Methods:
+
+- <code title="get /org/workload_identity_authentication_events">client.workloadIdentityAuthenticationEvents.<a href="./src/resources/workload-identity-authentication-events.ts">list</a>({ ...params }) -> WorkloadIdentityAuthenticationEventsOffsetPagination</code>
 
 # CredentialProviders
 

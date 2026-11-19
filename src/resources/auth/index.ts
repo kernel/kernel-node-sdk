@@ -22,4 +22,4 @@ export {
   type ManagedAuthsOffsetPagination,
   type ManagedAuthTimelineEventsOffsetPagination,
 } from './connections';
-export { Context, type AuthContext } from './context';
+export { Context, type AuthContext, type AuthContextWorkloadIdentity } from './context';

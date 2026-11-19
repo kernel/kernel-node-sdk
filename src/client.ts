@@ -29,6 +29,7 @@ import {
   APIKey,
   APIKeyCreateParams,
   APIKeyListParams,
+  APIKeyPrincipal,
   APIKeyRetrieveParams,
   APIKeyRotateParams,
   APIKeyUpdateParams,
@@ -151,6 +152,15 @@ import {
   ReportsOffsetPagination,
 } from './resources/reports';
 import {
+  ServiceAccount,
+  ServiceAccountConfig,
+  ServiceAccountCreateParams,
+  ServiceAccountListParams,
+  ServiceAccountUpdateParams,
+  ServiceAccounts,
+  ServiceAccountsOffsetPagination,
+} from './resources/service-accounts';
+import {
   Task,
   TaskCreateParams,
   TaskLinkBrowsersParams,
@@ -167,6 +177,37 @@ import {
   VaultProviderConfigs,
   VaultProviderConfigsOffsetPagination,
 } from './resources/vault-provider-configs';
+import {
+  WorkloadIdentityAuthenticationEvent,
+  WorkloadIdentityAuthenticationEventListParams,
+  WorkloadIdentityAuthenticationEvents,
+  WorkloadIdentityAuthenticationEventsOffsetPagination,
+} from './resources/workload-identity-authentication-events';
+import {
+  WorkloadIdentityAuthorization,
+  WorkloadIdentityFederationRule,
+  WorkloadIdentityFederationRuleConfig,
+  WorkloadIdentityFederationRuleCreateParams,
+  WorkloadIdentityFederationRuleListParams,
+  WorkloadIdentityFederationRuleUpdateParams,
+  WorkloadIdentityFederationRules,
+  WorkloadIdentityFederationRulesOffsetPagination,
+  WorkloadIdentityMatch,
+  WorkloadIdentityTarget,
+} from './resources/workload-identity-federation-rules';
+import {
+  WorkloadIdentityIssuer,
+  WorkloadIdentityIssuerConfig,
+  WorkloadIdentityIssuerCreateParams,
+  WorkloadIdentityIssuerKeyCheck,
+  WorkloadIdentityIssuerListParams,
+  WorkloadIdentityIssuerUpdateParams,
+  WorkloadIdentityIssuers,
+  WorkloadIdentityIssuersOffsetPagination,
+  WorkloadIdentityKeySource,
+  WorkloadIdentityPresetType,
+  WorkloadIdentityTokenValidation,
+} from './resources/workload-identity-issuers';
 import {
   AuditLogEntriesPageTokenPagination,
   AuditLogEntry,
@@ -1204,6 +1245,12 @@ export class Kernel {
    * Create and manage API keys for organization and project-scoped access.
    */
   apiKeys: API.APIKeys = new API.APIKeys(this);
+  serviceAccounts: API.ServiceAccounts = new API.ServiceAccounts(this);
+  workloadIdentityIssuers: API.WorkloadIdentityIssuers = new API.WorkloadIdentityIssuers(this);
+  workloadIdentityFederationRules: API.WorkloadIdentityFederationRules =
+    new API.WorkloadIdentityFederationRules(this);
+  workloadIdentityAuthenticationEvents: API.WorkloadIdentityAuthenticationEvents =
+    new API.WorkloadIdentityAuthenticationEvents(this);
   /**
    * Configure external credential providers like 1Password.
    */
@@ -1236,6 +1283,10 @@ Kernel.Projects = Projects;
 Kernel.Organization = Organization;
 Kernel.AuditLogs = AuditLogs;
 Kernel.APIKeys = APIKeys;
+Kernel.ServiceAccounts = ServiceAccounts;
+Kernel.WorkloadIdentityIssuers = WorkloadIdentityIssuers;
+Kernel.WorkloadIdentityFederationRules = WorkloadIdentityFederationRules;
+Kernel.WorkloadIdentityAuthenticationEvents = WorkloadIdentityAuthenticationEvents;
 Kernel.CredentialProviders = CredentialProviders;
 Kernel.SearchResource = SearchResource;
 
@@ -1495,6 +1546,7 @@ export declare namespace Kernel {
   export {
     APIKeys as APIKeys,
     type APIKey as APIKey,
+    type APIKeyPrincipal as APIKeyPrincipal,
     type CreatedAPIKey as CreatedAPIKey,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
@@ -1502,6 +1554,50 @@ export declare namespace Kernel {
     type APIKeyUpdateParams as APIKeyUpdateParams,
     type APIKeyListParams as APIKeyListParams,
     type APIKeyRotateParams as APIKeyRotateParams,
+  };
+
+  export {
+    ServiceAccounts as ServiceAccounts,
+    type ServiceAccount as ServiceAccount,
+    type ServiceAccountConfig as ServiceAccountConfig,
+    type ServiceAccountsOffsetPagination as ServiceAccountsOffsetPagination,
+    type ServiceAccountCreateParams as ServiceAccountCreateParams,
+    type ServiceAccountUpdateParams as ServiceAccountUpdateParams,
+    type ServiceAccountListParams as ServiceAccountListParams,
+  };
+
+  export {
+    WorkloadIdentityIssuers as WorkloadIdentityIssuers,
+    type WorkloadIdentityIssuer as WorkloadIdentityIssuer,
+    type WorkloadIdentityIssuerConfig as WorkloadIdentityIssuerConfig,
+    type WorkloadIdentityIssuerKeyCheck as WorkloadIdentityIssuerKeyCheck,
+    type WorkloadIdentityKeySource as WorkloadIdentityKeySource,
+    type WorkloadIdentityPresetType as WorkloadIdentityPresetType,
+    type WorkloadIdentityTokenValidation as WorkloadIdentityTokenValidation,
+    type WorkloadIdentityIssuersOffsetPagination as WorkloadIdentityIssuersOffsetPagination,
+    type WorkloadIdentityIssuerCreateParams as WorkloadIdentityIssuerCreateParams,
+    type WorkloadIdentityIssuerUpdateParams as WorkloadIdentityIssuerUpdateParams,
+    type WorkloadIdentityIssuerListParams as WorkloadIdentityIssuerListParams,
+  };
+
+  export {
+    WorkloadIdentityFederationRules as WorkloadIdentityFederationRules,
+    type WorkloadIdentityAuthorization as WorkloadIdentityAuthorization,
+    type WorkloadIdentityFederationRule as WorkloadIdentityFederationRule,
+    type WorkloadIdentityFederationRuleConfig as WorkloadIdentityFederationRuleConfig,
+    type WorkloadIdentityMatch as WorkloadIdentityMatch,
+    type WorkloadIdentityTarget as WorkloadIdentityTarget,
+    type WorkloadIdentityFederationRulesOffsetPagination as WorkloadIdentityFederationRulesOffsetPagination,
+    type WorkloadIdentityFederationRuleCreateParams as WorkloadIdentityFederationRuleCreateParams,
+    type WorkloadIdentityFederationRuleUpdateParams as WorkloadIdentityFederationRuleUpdateParams,
+    type WorkloadIdentityFederationRuleListParams as WorkloadIdentityFederationRuleListParams,
+  };
+
+  export {
+    WorkloadIdentityAuthenticationEvents as WorkloadIdentityAuthenticationEvents,
+    type WorkloadIdentityAuthenticationEvent as WorkloadIdentityAuthenticationEvent,
+    type WorkloadIdentityAuthenticationEventsOffsetPagination as WorkloadIdentityAuthenticationEventsOffsetPagination,
+    type WorkloadIdentityAuthenticationEventListParams as WorkloadIdentityAuthenticationEventListParams,
   };
 
   export {

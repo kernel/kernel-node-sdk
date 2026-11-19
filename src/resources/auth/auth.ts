@@ -24,7 +24,7 @@ import {
   SubmitFieldsResponse,
 } from './connections';
 import * as ContextAPI from './context';
-import { AuthContext, Context } from './context';
+import { AuthContext, AuthContextWorkloadIdentity, Context } from './context';
 
 export class Auth extends APIResource {
   context: ContextAPI.Context = new ContextAPI.Context(this._client);
@@ -35,7 +35,11 @@ Auth.Context = Context;
 Auth.Connections = Connections;
 
 export declare namespace Auth {
-  export { Context as Context, type AuthContext as AuthContext };
+  export {
+    Context as Context,
+    type AuthContext as AuthContext,
+    type AuthContextWorkloadIdentity as AuthContextWorkloadIdentity,
+  };
 
   export {
     Connections as Connections,

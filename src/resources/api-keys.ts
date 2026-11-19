@@ -191,7 +191,7 @@ export interface APIKey {
    */
   policy?: APIKey.Policy | null;
 
-  principal?: APIKey.Principal;
+  principal?: APIKeyPrincipal;
 
   /**
    * Organization-owned service principal, when linked.
@@ -278,12 +278,12 @@ export namespace APIKey {
       }
     }
   }
+}
 
-  export interface Principal {
-    id: string;
+export interface APIKeyPrincipal {
+  id: string;
 
-    type: 'user' | 'service_account';
-  }
+  type: 'user' | 'service_account';
 }
 
 /**
@@ -485,6 +485,12 @@ export namespace APIKeyUpdateParams {
 
 export interface APIKeyListParams extends OffsetPaginationParams {
   /**
+   * Return only keys created by this user ID. This is the same person the key's
+   * created_by field describes.
+   */
+  created_by?: string;
+
+  /**
    * Deprecated: use status=all instead. When true, include deleted (soft-deleted)
    * API keys in the results for audit purposes.
    */
@@ -499,10 +505,26 @@ export interface APIKeyListParams extends OffsetPaginationParams {
   name?: string;
 
   /**
+   * Return only keys that act as a user, or only keys that act as a service account.
+   */
+  principal_type?: 'user' | 'service_account';
+
+  /**
+   * Return only keys scoped to this project ID. The value "org" returns keys that
+   * are not scoped to a project.
+   */
+  project_id?: string;
+
+  /**
    * Case-insensitive substring match against API key name, creator, and project. API
    * key identifiers and masked keys match by exact value or prefix.
    */
   query?: string;
+
+  /**
+   * Return only keys that belong to this service account.
+   */
+  service_account_id?: string;
 
   /**
    * Field to sort API keys by. Keys with no expiry or no recorded use sort last for
@@ -516,11 +538,11 @@ export interface APIKeyListParams extends OffsetPaginationParams {
   sort_direction?: 'asc' | 'desc';
 
   /**
-   * Filter API keys by status. "active" returns keys that are not deleted (default;
-   * expired-but-not-deleted keys are still included), "deleted" returns only
-   * soft-deleted keys, "all" returns both.
+   * Filter API keys by status. "active" returns keys that are neither deleted nor
+   * expired (default), "expired" returns keys that are not deleted and whose expiry
+   * has passed, "deleted" returns only soft-deleted keys, "all" returns every key.
    */
-  status?: 'active' | 'deleted' | 'all';
+  status?: 'active' | 'expired' | 'deleted' | 'all';
 }
 
 export interface APIKeyRotateParams {
@@ -540,6 +562,7 @@ export interface APIKeyRotateParams {
 export declare namespace APIKeys {
   export {
     type APIKey as APIKey,
+    type APIKeyPrincipal as APIKeyPrincipal,
     type CreatedAPIKey as CreatedAPIKey,
     type APIKeysOffsetPagination as APIKeysOffsetPagination,
     type APIKeyCreateParams as APIKeyCreateParams,
