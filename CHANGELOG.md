@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.151.0](https://github.com/kernel/kernel-node-sdk/compare/v0.150.0...v0.151.0) (2026-11-19)
+
+
+### Features
+
+* Implement workload identity federation and service account credentials ([e6f9e6a](https://github.com/kernel/kernel-node-sdk/commit/e6f9e6a6fde3d8c29c1775a65f1774dec2b10f85))
+
 ## [0.150.0](https://github.com/kernel/kernel-node-sdk/compare/v0.149.0...v0.150.0) (2026-11-19)
 
 
