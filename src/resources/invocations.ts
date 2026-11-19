@@ -449,6 +449,11 @@ export interface InvocationListBrowsersResponse {
 export namespace InvocationListBrowsersResponse {
   export interface Browser {
     /**
+     * Automatic CAPTCHA solving configuration.
+     */
+    captcha_solver: BrowsersAPI.BrowserCaptchaSolver;
+
+    /**
      * Websocket URL for Chrome DevTools Protocol connections to the browser session
      */
     cdp_ws_url: string;
@@ -479,7 +484,10 @@ export namespace InvocationListBrowsersResponse {
     session_id: string;
 
     /**
-     * Whether the browser session is running in stealth mode.
+     * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+     * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+     * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+     * favor of captcha_solver and proxy.
      */
     stealth: boolean;
 
@@ -515,6 +523,12 @@ export namespace InvocationListBrowsersResponse {
      * When the browser session was soft-deleted. Only present for deleted sessions.
      */
     deleted_at?: string;
+
+    /**
+     * Fingerprint applied to this browser session. Omitted when the session was
+     * created without one.
+     */
+    fingerprint?: BrowsersAPI.BrowserFingerprint;
 
     /**
      * Whether GPU acceleration is enabled for the browser session (only supported for

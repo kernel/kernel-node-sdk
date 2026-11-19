@@ -38,6 +38,8 @@ export interface AuthContext {
   organization: AuthContext.Organization;
 
   principal: AuthContext.Principal;
+
+  workload_identity?: AuthContext.WorkloadIdentity;
 }
 
 export namespace AuthContext {
@@ -74,6 +76,12 @@ export namespace AuthContext {
      * organization-wide scope.
      */
     effective_scope: Authorization.EffectiveScope;
+
+    /**
+     * Current effective paired policy for a service-account principal. Omitted for
+     * legacy human/client identities.
+     */
+    effective_policy?: Authorization.EffectivePolicy;
   }
 
   export namespace Authorization {
@@ -98,6 +106,64 @@ export namespace AuthContext {
        */
       project_id: string | null;
     }
+
+    /**
+     * Current effective paired policy for a service-account principal. Omitted for
+     * legacy human/client identities.
+     */
+    export interface EffectivePolicy {
+      /**
+       * Allow statements. Every action and resource not listed is denied.
+       */
+      statements: Array<EffectivePolicy.Statement>;
+    }
+
+    export namespace EffectivePolicy {
+      export interface Statement {
+        /**
+         * Permitted action, such as browsers:use or vaults:read.
+         */
+        action: string;
+
+        /**
+         * Resource the action applies to, in the format projects/{project_id}/{kind}/{id}.
+         * Wildcards are supported.
+         */
+        resource: string;
+
+        /**
+         * A condition narrows a policy statement to requests matching its constraint: the
+         * request attribute, a comparison operator, and that operator's values.
+         */
+        condition?: Statement.Condition;
+      }
+
+      export namespace Statement {
+        /**
+         * A condition narrows a policy statement to requests matching its constraint: the
+         * request attribute, a comparison operator, and that operator's values.
+         */
+        export interface Condition {
+          /**
+           * Request attribute the condition constrains. `source_ip` restricts the statement
+           * to requests whose client address falls inside one of `values`.
+           */
+          key: 'source_ip';
+
+          /**
+           * Comparison the condition applies between the request attribute and values.
+           */
+          operator: 'in';
+
+          /**
+           * Values the request attribute must match. For `source_ip`, CIDR networks: a bare
+           * address without a mask is rejected, and so are an entry with host bits set and
+           * an IPv4 network written in IPv6 notation.
+           */
+          values: Array<string>;
+        }
+      }
+    }
   }
 
   export interface Organization {
@@ -109,14 +175,26 @@ export namespace AuthContext {
 
   export interface Principal {
     /**
-     * The API key ID for API-key principals or user ID for user principals.
+     * The authenticated API key, user or organization-owned service-account ID.
      */
     id: string;
 
     /**
      * The kind of principal authenticated for the request.
      */
-    type: 'api_key' | 'user';
+    type: 'api_key' | 'user' | 'service_account';
+  }
+
+  export interface WorkloadIdentity {
+    /**
+     * Digest of the verified external subject. Never the original assertion or
+     * arbitrary claims.
+     */
+    external_subject_digest: string;
+
+    federation_rule_id: string;
+
+    issuer_id: string;
   }
 }
 

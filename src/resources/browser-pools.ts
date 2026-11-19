@@ -228,6 +228,11 @@ export namespace BrowserPool {
     size: number;
 
     /**
+     * Automatic CAPTCHA solving configuration.
+     */
+    captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
+
+    /**
      * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
      * Keys are Chrome enterprise policy names; values must match their expected types.
      * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
@@ -311,8 +316,10 @@ export namespace BrowserPool {
     start_url?: string;
 
     /**
-     * If true, launches the browser in stealth mode to reduce detection by anti-bot
-     * mechanisms.
+     * @deprecated Whether browsers in this pool use stealth mode, which is CAPTCHA
+     * solving with Kernel's default stealth proxy unless proxy_id is set. A pool with
+     * only captcha_solver enabled reports false. Deprecated in favor of captcha_solver
+     * and proxy_id.
      */
     stealth?: boolean;
 
@@ -370,6 +377,11 @@ export namespace BrowserPool {
 
 export interface BrowserPoolAcquireResponse {
   /**
+   * Automatic CAPTCHA solving configuration.
+   */
+  captcha_solver: BrowsersAPI.BrowserCaptchaSolver;
+
+  /**
    * Websocket URL for Chrome DevTools Protocol connections to the browser session
    */
   cdp_ws_url: string;
@@ -400,7 +412,10 @@ export interface BrowserPoolAcquireResponse {
   session_id: string;
 
   /**
-   * Whether the browser session is running in stealth mode.
+   * @deprecated Whether the browser session has CAPTCHA solving enabled, in which
+   * case proxy.mode=default uses Kernel's default stealth proxy. A browser created
+   * with only captcha_solver reports true with proxy.mode=direct. Deprecated in
+   * favor of captcha_solver and proxy.
    */
   stealth: boolean;
 
@@ -436,6 +451,12 @@ export interface BrowserPoolAcquireResponse {
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
+
+  /**
+   * Fingerprint applied to this browser session. Omitted when the session was
+   * created without one.
+   */
+  fingerprint?: BrowsersAPI.BrowserFingerprint;
 
   /**
    * Whether GPU acceleration is enabled for the browser session (only supported for
@@ -600,6 +621,13 @@ export interface BrowserPoolCreateParams {
   size: number;
 
   /**
+   * Automatic CAPTCHA solving for browsers in this pool. Disabled by default.
+   * Enabling it does not select a proxy: when proxy_id is omitted, browsers use
+   * direct egress unless stealth=true.
+   */
+  captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
+
+  /**
    * Custom Chrome enterprise policy overrides applied to all browsers in this pool.
    * Keys are Chrome enterprise policy names; values must match their expected types.
    * Blocked: kernel-managed policies (extensions, proxy, CDP/automation). See
@@ -693,8 +721,10 @@ export interface BrowserPoolCreateParams {
   start_url?: string;
 
   /**
-   * If true, launches the browser in stealth mode to reduce detection by anti-bot
-   * mechanisms. Defaults to false.
+   * @deprecated If true, enables the CAPTCHA solver and, when proxy_id is omitted,
+   * uses Kernel's default stealth proxy. Defaults to false. Cannot be combined with
+   * captcha_solver.enabled=false. Deprecated in favor of captcha_solver and
+   * proxy_id.
    */
   stealth?: boolean;
 
@@ -864,6 +894,13 @@ export namespace BrowserPoolCreateParams {
 
 export interface BrowserPoolUpdateParams {
   /**
+   * If provided, replaces whether browsers in this pool automatically solve
+   * CAPTCHAs. Enabling it on a pool with direct egress keeps direct egress unless
+   * proxy_id or stealth=true is also set.
+   */
+  captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
+
+  /**
    * If provided, replaces the custom Chrome enterprise policy overrides applied to
    * all browsers in this pool. Empty object clears any previously-set policy. Keys
    * are Chrome enterprise policy names; values must match their expected types.
@@ -991,7 +1028,10 @@ export interface BrowserPoolUpdateParams {
   start_url?: string;
 
   /**
-   * If provided, replaces whether browsers launch in stealth mode.
+   * @deprecated If provided, replaces whether browsers launch in stealth mode.
+   * stealth=true without proxy_id moves a pool on direct egress to Kernel's default
+   * stealth proxy. Cannot be combined with captcha_solver.enabled=false. Deprecated
+   * in favor of captcha_solver and proxy_id.
    */
   stealth?: boolean;
 

@@ -27,9 +27,20 @@ describe('resource apiKeys', () => {
       days_to_expire: 30,
       expires_at: '2025-01-15T09:00:00Z',
       policy: {
-        statements: [{ action: 'browsers:use', resource: 'projects/proj_abc123/browsers/br_abc123' }],
+        statements: [
+          {
+            action: 'browsers:use',
+            resource: 'projects/proj_abc123/browsers/br_abc123',
+            condition: {
+              key: 'source_ip',
+              operator: 'in',
+              values: ['203.0.113.0/24'],
+            },
+          },
+        ],
       },
       project_id: 'proj_abc123',
+      service_account_id: 'x',
     });
   });
 
@@ -54,8 +65,8 @@ describe('resource apiKeys', () => {
   });
 
   // Mock server tests are disabled
-  test.skip('update: only required params', async () => {
-    const responsePromise = client.apiKeys.update('id', { name: 'new-api-name' });
+  test.skip('update', async () => {
+    const responsePromise = client.apiKeys.update('id', {});
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -63,11 +74,6 @@ describe('resource apiKeys', () => {
     const dataAndResponse = await responsePromise.withResponse();
     expect(dataAndResponse.data).toBe(response);
     expect(dataAndResponse.response).toBe(rawResponse);
-  });
-
-  // Mock server tests are disabled
-  test.skip('update: required and optional params', async () => {
-    const response = await client.apiKeys.update('id', { name: 'new-api-name' });
   });
 
   // Mock server tests are disabled

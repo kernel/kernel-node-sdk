@@ -177,6 +177,7 @@ import {
 import { Auth } from './resources/auth/auth';
 import {
   BrowserAllowlistState,
+  BrowserCaptchaSolver,
   BrowserCreateParams,
   BrowserCreateResponse,
   BrowserCurlParams,
@@ -1314,6 +1315,7 @@ export declare namespace Kernel {
   export {
     Browsers as Browsers,
     type BrowserAllowlistState as BrowserAllowlistState,
+    type BrowserCaptchaSolver as BrowserCaptchaSolver,
     type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,

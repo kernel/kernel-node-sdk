@@ -944,6 +944,16 @@ export namespace ManagedAuth {
  */
 export interface ManagedAuthBrowserConfig {
   /**
+   * Automatic CAPTCHA solving for managed auth browser sessions. When provided
+   * without stealth, stealth no longer defaults to true. Enabling it does not select
+   * a proxy: a connection on direct egress stays there; set proxy.mode=default for
+   * Kernel's default stealth proxy. Turning it off on a connection that uses
+   * Kernel's default stealth proxy moves it to direct egress. Omit on update to keep
+   * the current setting, or on login to inherit it.
+   */
+  captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
+
+  /**
    * Browser locale for the connection's login, reauthentication, and health-check
    * sessions. Set on create or update; not supported on login.
    */
@@ -964,8 +974,13 @@ export interface ManagedAuthBrowserConfig {
   region?: 'us-east' | 'us-west' | 'eu-west' | 'ap-southeast';
 
   /**
-   * Whether managed auth browser sessions use stealth mode. Defaults to true when
-   * omitted.
+   * @deprecated Whether managed auth browser sessions use stealth mode: CAPTCHA
+   * solving with Kernel's default stealth proxy unless proxy is set. Defaults to
+   * true when neither stealth nor captcha_solver is provided. Cannot be combined
+   * with captcha_solver.enabled=false. Setting it does not change an existing proxy,
+   * including direct egress; use proxy.mode=default for Kernel's default stealth
+   * proxy. Reports true for a connection with only captcha_solver enabled; proxy
+   * shows its egress. Deprecated in favor of captcha_solver and proxy.
    */
   stealth?: boolean;
 

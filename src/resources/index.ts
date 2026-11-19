@@ -41,6 +41,7 @@ export {
 export {
   Browsers,
   type BrowserAllowlistState,
+  type BrowserCaptchaSolver,
   type BrowserFingerprint,
   type BrowserLocation,
   type BrowserLocationRequest,

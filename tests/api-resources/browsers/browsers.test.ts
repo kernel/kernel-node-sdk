@@ -26,6 +26,7 @@ describe('resource browsers', () => {
     await expect(
       client.browsers.create(
         {
+          captcha_solver: { enabled: true },
           chrome_policy: { foo: 'bar' },
           extensions: [{ id: 'id', name: 'name' }],
           fingerprint: { os: 'macos' },
