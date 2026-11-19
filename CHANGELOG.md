@@ -5,7 +5,9 @@
 
 ### Features
 
-* Implement workload identity federation and service account credentials ([e6f9e6a](https://github.com/kernel/kernel-node-sdk/commit/e6f9e6a6fde3d8c29c1775a65f1774dec2b10f85))
+* Add service account, workload identity issuer, federation rule and authentication event resources. They require a signed-in session; API keys get 403 ([e6f9e6a](https://github.com/kernel/kernel-node-sdk/commit/e6f9e6a6fde3d8c29c1775a65f1774dec2b10f85))
+* Add `service_account_id`, `principal_type`, `created_by` and `project_id` filters and the `expired` status to API key listing. `status=active`, the default, no longer returns expired keys ([e6f9e6a](https://github.com/kernel/kernel-node-sdk/commit/e6f9e6a6fde3d8c29c1775a65f1774dec2b10f85))
+* Rename two types that 0.150.0 introduced: `APIKey.Principal` is now `APIKeyPrincipal`, and `AuthContext.WorkloadIdentity` is now `AuthContextWorkloadIdentity` ([e6f9e6a](https://github.com/kernel/kernel-node-sdk/commit/e6f9e6a6fde3d8c29c1775a65f1774dec2b10f85))
 
 ## [0.150.0](https://github.com/kernel/kernel-node-sdk/compare/v0.149.0...v0.150.0) (2026-11-19)
 
