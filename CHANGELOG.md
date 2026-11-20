@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.154.0](https://github.com/kernel/kernel-node-sdk/compare/v0.153.0...v0.154.0) (2026-11-20)
+
+
+### Features
+
+* Add macOS browsers: request contract and Hypeman allocation ([b2556f8](https://github.com/kernel/kernel-node-sdk/commit/b2556f8c4f8ac779e2e9c05ebaada8d371ca2082))
+* Link balance: report balance amounts and add link_balance_setup ([896df53](https://github.com/kernel/kernel-node-sdk/commit/896df53bc34ef0a00be3d45264a700ea9b000a5b))
+* Make browser cost opt-in with include_cost on browser detail ([11700e7](https://github.com/kernel/kernel-node-sdk/commit/11700e7d53acedec804049c9e4b37f69be4826be))
+
 ## [0.153.0](https://github.com/kernel/kernel-node-sdk/compare/v0.152.0...v0.153.0) (2026-11-20)
 
 
