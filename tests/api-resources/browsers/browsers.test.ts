@@ -47,6 +47,7 @@ describe('resource browsers', () => {
               },
             ],
           },
+          platform: { os: 'linux' },
           profile: {
             id: 'id',
             name: 'name',

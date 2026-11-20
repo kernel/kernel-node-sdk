@@ -689,6 +689,21 @@ export interface BrowserNetworkUpdate {
 }
 
 /**
+ * Operating system of the browser's host.
+ */
+export type BrowserOs = 'linux' | 'macos';
+
+/**
+ * Host platform settings for the browser session.
+ */
+export interface BrowserPlatform {
+  /**
+   * Operating system of the browser's host.
+   */
+  os: BrowserOs;
+}
+
+/**
  * Browser pool this session was acquired from, if any.
  */
 export interface BrowserPoolRef {
@@ -1067,6 +1082,11 @@ export interface BrowserCreateResponse {
   network?: BrowserNetworkConfig;
 
   /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -1308,6 +1328,11 @@ export interface BrowserRetrieveResponse {
    * session has no network configuration.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -1553,6 +1578,11 @@ export interface BrowserUpdateResponse {
   network?: BrowserNetworkConfig;
 
   /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -1796,6 +1826,11 @@ export interface BrowserListResponse {
   network?: BrowserNetworkConfig;
 
   /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowserPoolRef;
@@ -2018,6 +2053,18 @@ export interface BrowserCreateParams {
    * after creation, with PATCH /browsers/{id_or_name}.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser. Omit it, or set `os` to `linux`, for a Linux
+   * browser. This is the operating system the browser runs on; `fingerprint.os` only
+   * changes what a Linux browser reports to websites. macOS browsers are not
+   * available yet: requests for them return 503 `platform_unavailable`. macOS
+   * browsers are headful and run only in `us-east`. A macOS request that sets
+   * `headless: true`, `memory`, `gpu`, `video_memory`, `profile`, `location`,
+   * `fingerprint`, or a region other than `us-east` returns 400
+   * `unsupported_configuration`, listing those fields in `unsupported_fields`.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Profile selection for the browser session. Provide either id or name. If
@@ -2588,6 +2635,8 @@ export declare namespace Browsers {
     type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserNetworkUpdate as BrowserNetworkUpdate,
+    type BrowserOs as BrowserOs,
+    type BrowserPlatform as BrowserPlatform,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,
     type BrowserProxyConfig as BrowserProxyConfig,

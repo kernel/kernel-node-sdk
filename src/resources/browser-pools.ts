@@ -498,6 +498,11 @@ export interface BrowserPoolAcquireResponse {
   network?: BrowsersAPI.BrowserNetworkConfig;
 
   /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowsersAPI.BrowserPlatform;
+
+  /**
    * Browser pool this session was acquired from, if any.
    */
   pool?: BrowsersAPI.BrowserPoolRef;

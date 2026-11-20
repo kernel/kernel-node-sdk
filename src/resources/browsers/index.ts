@@ -14,6 +14,8 @@ export {
   type BrowserMemoryRequest,
   type BrowserNetworkConfig,
   type BrowserNetworkUpdate,
+  type BrowserOs,
+  type BrowserPlatform,
   type BrowserPoolRef,
   type BrowserProxy,
   type BrowserProxyConfig,
