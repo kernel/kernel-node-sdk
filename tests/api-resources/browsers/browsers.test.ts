@@ -121,7 +121,7 @@ describe('resource browsers', () => {
     await expect(
       client.browsers.retrieve(
         'htzv5orfit78e1m2biiifpbv',
-        { include_deleted: true },
+        { include_cost: true, include_deleted: true },
         { path: '/_stainless_unknown_path' },
       ),
     ).rejects.toThrow(Kernel.NotFoundError);

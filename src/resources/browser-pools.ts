@@ -448,8 +448,9 @@ export interface BrowserPoolAcquireResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowsersAPI.BrowserCost;
 

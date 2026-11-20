@@ -1032,8 +1032,9 @@ export interface BrowserCreateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1280,8 +1281,9 @@ export interface BrowserRetrieveResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1528,8 +1530,9 @@ export interface BrowserUpdateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1776,8 +1779,9 @@ export interface BrowserListResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -2282,6 +2286,11 @@ export namespace BrowserCreateParams {
 }
 
 export interface BrowserRetrieveParams {
+  /**
+   * When true, includes the session's provisional usage cost in the response.
+   */
+  include_cost?: boolean;
+
   /**
    * When true, includes soft-deleted browser sessions in the lookup.
    */
