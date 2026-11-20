@@ -428,6 +428,27 @@ export interface BrowserCaptchaSolver {
   enabled: boolean;
 }
 
+export interface BrowserCost {
+  /**
+   * Pending means the billing checkpoint or rate calculation is not ready;
+   * unavailable means the session cannot currently be priced safely.
+   */
+  status: 'provisional' | 'pending' | 'unavailable';
+
+  /**
+   * Time of the live uptime read or durable billing checkpoint. A running or
+   * recently deleted session may accrue additional usage.
+   */
+  as_of?: string;
+
+  /**
+   * Gross provisional USD browser-meter cost before credits, subscriptions, tax, and
+   * adjustments. Present only with provisional status, including zero for a
+   * completed zero-uptime session. Not an invoice total.
+   */
+  estimated_usage_spend_usd?: string;
+}
+
 /**
  * Overrides for browser attributes presented to websites.
  */
@@ -996,6 +1017,12 @@ export interface BrowserCreateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
+   * Provisional browser-session usage cost on GET detail responses. Omitted from
+   * list and other browser responses.
+   */
+  cost?: BrowserCost;
+
+  /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
@@ -1231,6 +1258,12 @@ export interface BrowserRetrieveResponse {
    * names.
    */
   chrome_policy?: { [key: string]: unknown };
+
+  /**
+   * Provisional browser-session usage cost on GET detail responses. Omitted from
+   * list and other browser responses.
+   */
+  cost?: BrowserCost;
 
   /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
@@ -1470,6 +1503,12 @@ export interface BrowserUpdateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
+   * Provisional browser-session usage cost on GET detail responses. Omitted from
+   * list and other browser responses.
+   */
+  cost?: BrowserCost;
+
+  /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
    */
   deleted_at?: string;
@@ -1705,6 +1744,12 @@ export interface BrowserListResponse {
    * names.
    */
   chrome_policy?: { [key: string]: unknown };
+
+  /**
+   * Provisional browser-session usage cost on GET detail responses. Omitted from
+   * list and other browser responses.
+   */
+  cost?: BrowserCost;
 
   /**
    * When the browser session was soft-deleted. Only present for deleted sessions.
@@ -2533,6 +2578,7 @@ export declare namespace Browsers {
   export {
     type BrowserAllowlistState as BrowserAllowlistState,
     type BrowserCaptchaSolver as BrowserCaptchaSolver,
+    type BrowserCost as BrowserCost,
     type BrowserFingerprint as BrowserFingerprint,
     type BrowserLocation as BrowserLocation,
     type BrowserLocationRequest as BrowserLocationRequest,
