@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.153.0](https://github.com/kernel/kernel-node-sdk/compare/v0.152.0...v0.153.0) (2026-11-20)
+
+
+### Features
+
+* Expose provisional browser cost on detail ([3701d3f](https://github.com/kernel/kernel-node-sdk/commit/3701d3fad65e1cf1bb32d477722ef3935b500216))
+
 ## [0.152.0](https://github.com/kernel/kernel-node-sdk/compare/v0.151.0...v0.152.0) (2026-11-19)
 
 
