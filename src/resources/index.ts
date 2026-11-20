@@ -43,6 +43,7 @@ export {
   Browsers,
   type BrowserAllowlistState,
   type BrowserCaptchaSolver,
+  type BrowserCost,
   type BrowserFingerprint,
   type BrowserLocation,
   type BrowserLocationRequest,

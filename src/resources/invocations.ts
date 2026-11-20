@@ -520,6 +520,12 @@ export namespace InvocationListBrowsersResponse {
     chrome_policy?: { [key: string]: unknown };
 
     /**
+     * Provisional browser-session usage cost on GET detail responses. Omitted from
+     * list and other browser responses.
+     */
+    cost?: BrowsersAPI.BrowserCost;
+
+    /**
      * When the browser session was soft-deleted. Only present for deleted sessions.
      */
     deleted_at?: string;
