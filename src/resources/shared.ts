@@ -143,6 +143,11 @@ export interface ErrorModel {
   details?: Array<ErrorDetail>;
 
   inner_error?: ErrorDetail;
+
+  /**
+   * Request fields that are incompatible with the requested browser platform.
+   */
+  unsupported_fields?: Array<string>;
 }
 
 /**

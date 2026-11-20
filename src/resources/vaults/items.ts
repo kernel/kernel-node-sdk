@@ -996,7 +996,8 @@ export namespace CredentialAccountVaultItem {
       | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
-      | 'remove_payment_method';
+      | 'remove_payment_method'
+      | 'link_balance_setup';
   }
 }
 
@@ -1379,7 +1380,8 @@ export namespace CredentialVaultItem {
       | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
-      | 'remove_payment_method';
+      | 'remove_payment_method'
+      | 'link_balance_setup';
   }
 
   export interface OnePasswordAccessApprovalAction {
@@ -1983,6 +1985,50 @@ export interface KernelWalletState {
  */
 export interface KernelWalletVaultItemSpec {
   provider: 'kernel';
+}
+
+/**
+ * Get the Link page where the user sets up Link balance, adds money to it, and
+ * chooses an approval threshold for this wallet's Link client. Kernel does not yet
+ * create spend requests under that approval policy, so cards from this wallet
+ * still require the user's approval even when they are paid from the balance.
+ * Available on connected Link wallets. Kernel first reads Link's user info and
+ * returns 409 unless Link reports eligible_for_balance as true, which depends on
+ * both the user and the wallet's Link client. Both amounts are suggestions the
+ * page prefills; the user makes the final choice. Send only what needs to change:
+ * desired_balance_amount to ask for money to be added, desired_transaction_limit
+ * to set or change the threshold, or both for first-time setup.
+ */
+export interface LinkBalanceSetupVaultItemOperationRequest {
+  type: 'link_balance_setup';
+
+  /**
+   * Balance, in cents, the user should end up with. The page prefills the amount to
+   * add to reach it and skips adding money when the balance already covers it. Whole
+   * dollars only. Link refuses links that ask the user to add more than $150 at
+   * once.
+   */
+  desired_balance_amount?: number;
+
+  /**
+   * Approval threshold, in cents, to prefill. Link skips approval only for spend
+   * requests created under its approval policy, which Kernel cards do not use yet.
+   * Whole dollars, at most $500 because a single spend request cannot exceed $500.
+   * When set the page always shows the threshold step; when omitted it skips it.
+   */
+  desired_transaction_limit?: number;
+}
+
+/**
+ * Share url with the user; only the user can complete the page. It does not expire
+ * and is the same for first-time setup, adding money and changing the threshold.
+ * Observe the result through the payment_methods expansion (a method with type
+ * balance and its balance.available) rather than assuming the user finished.
+ */
+export interface LinkBalanceSetupVaultItemOperationResult {
+  type: 'link_balance_setup';
+
+  url: string;
 }
 
 /**
@@ -2844,7 +2890,8 @@ export namespace PaymentRequestVaultItem {
       | 'update_access_token'
       | 'webmcp_invoke'
       | 'add_payment_method'
-      | 'remove_payment_method';
+      | 'remove_payment_method'
+      | 'link_balance_setup';
   }
 }
 
@@ -3580,7 +3627,8 @@ export namespace VaultItem {
         | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
-        | 'remove_payment_method';
+        | 'remove_payment_method'
+        | 'link_balance_setup';
     }
 
     /**
@@ -3681,7 +3729,8 @@ export namespace VaultItem {
         | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
-        | 'remove_payment_method';
+        | 'remove_payment_method'
+        | 'link_balance_setup';
     }
   }
 }
@@ -3768,7 +3817,8 @@ export interface VaultItemEvent {
  * Authorization and preparation return the existing item shape. Fill and passkey
  * operations return value-free results; WebMCP invocation returns the tool's
  * output. None persist transient outcomes on the item. Payment-method operations
- * return the affected wallet payment method.
+ * return the affected wallet payment method. link_balance_setup returns the Link
+ * balance setup URL.
  */
 export type VaultItemOperationResponse =
   | VaultItemOperationResponse.WalletVaultItem
@@ -3781,7 +3831,8 @@ export type VaultItemOperationResponse =
   | OnePasswordFillVaultItemOperationResult
   | WebmcpInvokeVaultItemOperationResult
   | AddPaymentMethodVaultItemOperationResult
-  | RemovePaymentMethodVaultItemOperationResult;
+  | RemovePaymentMethodVaultItemOperationResult
+  | LinkBalanceSetupVaultItemOperationResult;
 
 export namespace VaultItemOperationResponse {
   export interface WalletVaultItem {
@@ -3874,7 +3925,8 @@ export namespace VaultItemOperationResponse {
         | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
-        | 'remove_payment_method';
+        | 'remove_payment_method'
+        | 'link_balance_setup';
     }
 
     /**
@@ -3975,7 +4027,8 @@ export namespace VaultItemOperationResponse {
         | 'update_access_token'
         | 'webmcp_invoke'
         | 'add_payment_method'
-        | 'remove_payment_method';
+        | 'remove_payment_method'
+        | 'link_balance_setup';
     }
   }
 }
@@ -4015,6 +4068,14 @@ export interface VaultPaymentMethod {
    * to from its backend; Kernel never receives the card number or CVC.
    */
   action?: VaultPaymentMethod.Action;
+
+  /**
+   * Present on stored-value payment methods, such as a Link balance (type
+   * `balance`). `available` is the amount available to spend, absent when the
+   * provider did not report it. Read live from the provider on every request and
+   * never stored by Kernel.
+   */
+  balance?: VaultPaymentMethodBalance;
 
   /**
    * Expiry of a pending enrollment link or ingest URL.
@@ -4091,6 +4152,28 @@ export namespace VaultPaymentMethod {
      */
     capture_token?: string;
   }
+}
+
+export interface VaultPaymentMethodAmount {
+  /**
+   * Amount in the currency's smallest unit, for example cents for USD.
+   */
+  amount: number;
+
+  /**
+   * Lowercase ISO 4217 currency code.
+   */
+  currency: string;
+}
+
+/**
+ * Present on stored-value payment methods, such as a Link balance (type
+ * `balance`). `available` is the amount available to spend, absent when the
+ * provider did not report it. Read live from the provider on every request and
+ * never stored by Kernel.
+ */
+export interface VaultPaymentMethodBalance {
+  available?: VaultPaymentMethodAmount;
 }
 
 export interface VaultWebmcpBinding {
@@ -4686,7 +4769,8 @@ export type ItemPerformOperationParams =
   | ItemPerformOperationParams.UpdateAccessTokenVaultItemOperationRequest
   | ItemPerformOperationParams.WebmcpInvokeVaultItemOperationRequest
   | ItemPerformOperationParams.AddPaymentMethodVaultItemOperationRequest
-  | ItemPerformOperationParams.RemovePaymentMethodVaultItemOperationRequest;
+  | ItemPerformOperationParams.RemovePaymentMethodVaultItemOperationRequest
+  | ItemPerformOperationParams.LinkBalanceSetupVaultItemOperationRequest;
 
 export declare namespace ItemPerformOperationParams {
   export interface AuthorizeVaultItemOperationRequest {
@@ -5168,6 +5252,35 @@ export declare namespace ItemPerformOperationParams {
      */
     type: 'remove_payment_method';
   }
+
+  export interface LinkBalanceSetupVaultItemOperationRequest {
+    /**
+     * Path param
+     */
+    id_or_name: string;
+
+    /**
+     * Body param
+     */
+    type: 'link_balance_setup';
+
+    /**
+     * Body param: Balance, in cents, the user should end up with. The page prefills
+     * the amount to add to reach it and skips adding money when the balance already
+     * covers it. Whole dollars only. Link refuses links that ask the user to add more
+     * than $150 at once.
+     */
+    desired_balance_amount?: number;
+
+    /**
+     * Body param: Approval threshold, in cents, to prefill. Link skips approval only
+     * for spend requests created under its approval policy, which Kernel cards do not
+     * use yet. Whole dollars, at most $500 because a single spend request cannot
+     * exceed $500. When set the page always shows the threshold step; when omitted it
+     * skips it.
+     */
+    desired_transaction_limit?: number;
+  }
 }
 
 export type ItemUpsertParams =
@@ -5511,6 +5624,8 @@ export declare namespace Items {
     type KernelSingleUseCard as KernelSingleUseCard,
     type KernelWalletState as KernelWalletState,
     type KernelWalletVaultItemSpec as KernelWalletVaultItemSpec,
+    type LinkBalanceSetupVaultItemOperationRequest as LinkBalanceSetupVaultItemOperationRequest,
+    type LinkBalanceSetupVaultItemOperationResult as LinkBalanceSetupVaultItemOperationResult,
     type LinkShippingAddress as LinkShippingAddress,
     type LinkUserInfo as LinkUserInfo,
     type ManagedAuthCredentialVaultField as ManagedAuthCredentialVaultField,
@@ -5551,6 +5666,8 @@ export declare namespace Items {
     type VaultItemEvent as VaultItemEvent,
     type VaultItemOperationResponse as VaultItemOperationResponse,
     type VaultPaymentMethod as VaultPaymentMethod,
+    type VaultPaymentMethodAmount as VaultPaymentMethodAmount,
+    type VaultPaymentMethodBalance as VaultPaymentMethodBalance,
     type VaultWebmcpBinding as VaultWebmcpBinding,
     type VgsCardInput as VgsCardInput,
     type VgsCardState as VgsCardState,

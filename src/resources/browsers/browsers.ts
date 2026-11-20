@@ -689,6 +689,21 @@ export interface BrowserNetworkUpdate {
 }
 
 /**
+ * Operating system of the browser's host.
+ */
+export type BrowserOs = 'linux' | 'macos';
+
+/**
+ * Host platform settings for the browser session.
+ */
+export interface BrowserPlatform {
+  /**
+   * Operating system of the browser's host.
+   */
+  os: BrowserOs;
+}
+
+/**
  * Browser pool this session was acquired from, if any.
  */
 export interface BrowserPoolRef {
@@ -1017,8 +1032,9 @@ export interface BrowserCreateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1065,6 +1081,11 @@ export interface BrowserCreateResponse {
    * session has no network configuration.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -1260,8 +1281,9 @@ export interface BrowserRetrieveResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1308,6 +1330,11 @@ export interface BrowserRetrieveResponse {
    * session has no network configuration.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -1503,8 +1530,9 @@ export interface BrowserUpdateResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1551,6 +1579,11 @@ export interface BrowserUpdateResponse {
    * session has no network configuration.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -1746,8 +1779,9 @@ export interface BrowserListResponse {
   chrome_policy?: { [key: string]: unknown };
 
   /**
-   * Provisional browser-session usage cost on GET detail responses. Omitted from
-   * list and other browser responses.
+   * Provisional browser-session usage cost. Present only on GET detail responses
+   * requested with include_cost=true; omitted otherwise and from list and other
+   * browser responses.
    */
   cost?: BrowserCost;
 
@@ -1794,6 +1828,11 @@ export interface BrowserListResponse {
    * session has no network configuration.
    */
   network?: BrowserNetworkConfig;
+
+  /**
+   * Host platform for the browser session. Absent means linux.
+   */
+  platform?: BrowserPlatform;
 
   /**
    * Browser pool this session was acquired from, if any.
@@ -2020,6 +2059,18 @@ export interface BrowserCreateParams {
   network?: BrowserNetworkConfig;
 
   /**
+   * Host platform for the browser. Omit it, or set `os` to `linux`, for a Linux
+   * browser. This is the operating system the browser runs on; `fingerprint.os` only
+   * changes what a Linux browser reports to websites. macOS browsers are not
+   * available yet: requests for them return 503 `platform_unavailable`. macOS
+   * browsers are headful and run only in `us-east`. A macOS request that sets
+   * `headless: true`, `memory`, `gpu`, `video_memory`, `profile`, `location`,
+   * `fingerprint`, or a region other than `us-east` returns 400
+   * `unsupported_configuration`, listing those fields in `unsupported_fields`.
+   */
+  platform?: BrowserPlatform;
+
+  /**
    * Profile selection for the browser session. Provide either id or name. If
    * specified, the matching profile will be loaded into the browser session.
    * Profiles must be created beforehand.
@@ -2235,6 +2286,11 @@ export namespace BrowserCreateParams {
 }
 
 export interface BrowserRetrieveParams {
+  /**
+   * When true, includes the session's provisional usage cost in the response.
+   */
+  include_cost?: boolean;
+
   /**
    * When true, includes soft-deleted browser sessions in the lookup.
    */
@@ -2588,6 +2644,8 @@ export declare namespace Browsers {
     type BrowserMemoryRequest as BrowserMemoryRequest,
     type BrowserNetworkConfig as BrowserNetworkConfig,
     type BrowserNetworkUpdate as BrowserNetworkUpdate,
+    type BrowserOs as BrowserOs,
+    type BrowserPlatform as BrowserPlatform,
     type BrowserPoolRef as BrowserPoolRef,
     type BrowserProxy as BrowserProxy,
     type BrowserProxyConfig as BrowserProxyConfig,
