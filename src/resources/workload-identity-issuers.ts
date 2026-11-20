@@ -179,6 +179,8 @@ export type WorkloadIdentityPresetType =
 export interface WorkloadIdentityTokenValidation {
   /**
    * Maximum incoming signed exp minus iat, independent of outgoing token lifetime.
+   * At most 172800 (48 hours), which covers Azure managed identity tokens that live
+   * slightly over 24 hours.
    */
   max_lifetime_seconds?: number;
 

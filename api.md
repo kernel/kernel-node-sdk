@@ -631,6 +631,8 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">KernelSingleUseCard</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletState</a></code>
 - <code><a href="./src/resources/vaults/items.ts">KernelWalletVaultItemSpec</a></code>
+- <code><a href="./src/resources/vaults/items.ts">LinkBalanceSetupVaultItemOperationRequest</a></code>
+- <code><a href="./src/resources/vaults/items.ts">LinkBalanceSetupVaultItemOperationResult</a></code>
 - <code><a href="./src/resources/vaults/items.ts">LinkShippingAddress</a></code>
 - <code><a href="./src/resources/vaults/items.ts">LinkUserInfo</a></code>
 - <code><a href="./src/resources/vaults/items.ts">ManagedAuthCredentialVaultField</a></code>
@@ -671,6 +673,8 @@ Types:
 - <code><a href="./src/resources/vaults/items.ts">VaultItemEvent</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultItemOperationResponse</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethod</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethodAmount</a></code>
+- <code><a href="./src/resources/vaults/items.ts">VaultPaymentMethodBalance</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VaultWebmcpBinding</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VgsCardInput</a></code>
 - <code><a href="./src/resources/vaults/items.ts">VgsCardState</a></code>
