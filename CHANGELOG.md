@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.155.0](https://github.com/kernel/kernel-node-sdk/compare/v0.154.0...v0.155.0) (2026-11-25)
+
+
+### Features
+
+* Accept a proxy object on browser pools ([b7f679f](https://github.com/kernel/kernel-node-sdk/commit/b7f679fa80ad4eb68dd0cf4739cb59eb8622e4a9))
+* Let alias Kernel cards record a merchant outcome ([5df7d77](https://github.com/kernel/kernel-node-sdk/commit/5df7d7704bbf3f821355c99b5f3b1482cef446e7))
+
 ## [0.154.0](https://github.com/kernel/kernel-node-sdk/compare/v0.153.0...v0.154.0) (2026-11-20)
 
 
