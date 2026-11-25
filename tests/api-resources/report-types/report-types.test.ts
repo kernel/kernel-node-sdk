@@ -38,6 +38,7 @@ describe('resource reportTypes', () => {
       task_id: 'task_id',
       limit: 1,
       offset: 0,
+      query: 'query',
     });
   });
 });

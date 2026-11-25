@@ -2299,6 +2299,13 @@ export interface BrowserRetrieveParams {
 
 export interface BrowserUpdateParams {
   /**
+   * Enable or disable the stealth browser's CAPTCHA solver immediately, without
+   * restarting the browser or interrupting the current page. Omit to leave the
+   * solver unchanged. Only available for stealth browsers.
+   */
+  captcha_solver_enabled?: boolean;
+
+  /**
    * @deprecated If true, stealth browsers connect directly instead of using the
    * default stealth proxy. Deprecated in favor of proxy.mode.
    */
@@ -2510,6 +2517,9 @@ export interface BrowserListParams extends OffsetPaginationParams {
 
   /**
    * Search browsers by name, session ID, profile name or ID, proxy ID, or pool name.
+   * With `status=deleted` or `status=all`, only browsers created in the last 24
+   * hours are searched, including active ones; use `status=active` to search all
+   * active browsers.
    */
   query?: string;
 
@@ -2527,7 +2537,9 @@ export interface BrowserListParams extends OffsetPaginationParams {
   /**
    * Filter sessions by tag key-value pairs using deepObject style, e.g.
    * ?tags[team]=backend&tags[env]=staging. Multiple pairs are ANDed: a session must
-   * match every supplied pair exactly.
+   * match every supplied pair exactly. With `status=deleted` or `status=all`, only
+   * browsers created in the last 24 hours are matched; use `status=active` to match
+   * all active browsers.
    */
   tags?: { [key: string]: string };
 }

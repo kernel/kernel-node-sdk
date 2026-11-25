@@ -536,6 +536,21 @@ export interface DeploymentCreateParams {
   region?: 'aws.us-east-1a';
 
   /**
+   * Permissions for each invocation's injected API key. Send this multipart field as
+   * JSON. Requires scoped deployment enablement. The policy must stay within the
+   * deployment's project, be a subset of the caller's permissions when the caller
+   * has a policy, and grant container-wide invocations:write for runtime callbacks.
+   * It cannot include api_keys:issue_beyond_expiry. Exact resource IDs must exist.
+   * The policy outlives the deploying credential; each invocation gets a fresh key
+   * valid for 65 minutes from issuance. When the caller has a policy, omission
+   * grants only project-wide invocations:write for runtime callbacks. A supplied
+   * policy must explicitly include that permission; it is never added automatically.
+   * Callers without a policy keep an unrestricted runtime key when this field is
+   * omitted. Scoped invokers must cover the runtime policy.
+   */
+  runtime_policy?: DeploymentCreateParams.RuntimePolicy;
+
+  /**
    * Source from which to fetch application code.
    */
   source?: DeploymentCreateParams.Source;
@@ -547,6 +562,81 @@ export interface DeploymentCreateParams {
 }
 
 export namespace DeploymentCreateParams {
+  /**
+   * Permissions for each invocation's injected API key. Send this multipart field as
+   * JSON. Requires scoped deployment enablement. The policy must stay within the
+   * deployment's project, be a subset of the caller's permissions when the caller
+   * has a policy, and grant container-wide invocations:write for runtime callbacks.
+   * It cannot include api_keys:issue_beyond_expiry. Exact resource IDs must exist.
+   * The policy outlives the deploying credential; each invocation gets a fresh key
+   * valid for 65 minutes from issuance. When the caller has a policy, omission
+   * grants only project-wide invocations:write for runtime callbacks. A supplied
+   * policy must explicitly include that permission; it is never added automatically.
+   * Callers without a policy keep an unrestricted runtime key when this field is
+   * omitted. Scoped invokers must cover the runtime policy.
+   */
+  export interface RuntimePolicy {
+    /**
+     * Allow statements. Every action and resource not listed is denied.
+     */
+    statements: Array<RuntimePolicy.Statement>;
+  }
+
+  export namespace RuntimePolicy {
+    export interface Statement {
+      /**
+       * Permitted action, such as browsers:use or vaults:read. When creating an API key
+       * or replacing its policy, `*` may replace whole components as shorthand:
+       * browsers:_ names every browsers action, _:delete every delete action the
+       * resource can carry, and _:_ every action the resource can carry. The stored
+       * policy lists the concrete actions, so actions added later are not granted, and
+       * api_keys:issue_beyond_expiry must always be listed explicitly. Partial
+       * components such as brow*:use and a bare * are rejected. Other policies, such as
+       * workload identity rules and deployment runtime policies, accept only exact
+       * actions.
+       */
+      action: string;
+
+      /**
+       * Resource the action applies to, in the format projects/{project_id}/{kind}/{id}.
+       * Wildcards are supported.
+       */
+      resource: string;
+
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      condition?: Statement.Condition;
+    }
+
+    export namespace Statement {
+      /**
+       * A condition narrows a policy statement to requests matching its constraint: the
+       * request attribute, a comparison operator, and that operator's values.
+       */
+      export interface Condition {
+        /**
+         * Request attribute the condition constrains. `source_ip` restricts the statement
+         * to requests whose client address falls inside one of `values`.
+         */
+        key: 'source_ip';
+
+        /**
+         * Comparison the condition applies between the request attribute and values.
+         */
+        operator: 'in';
+
+        /**
+         * Values the request attribute must match. For `source_ip`, CIDR networks: a bare
+         * address without a mask is rejected, and so are an entry with host bits set and
+         * an IPv4 network written in IPv6 notation.
+         */
+        values: Array<string>;
+      }
+    }
+  }
+
   /**
    * Source from which to fetch application code.
    */

@@ -43,6 +43,11 @@ describe('resource browserPools', () => {
         ],
       },
       profile: { id: 'id', name: 'name' },
+      proxy: {
+        id: 'x',
+        mode: 'direct',
+        name: 'x',
+      },
       proxy_id: 'proxy_id',
       refresh_on_profile_update: true,
       region: 'us-east',
