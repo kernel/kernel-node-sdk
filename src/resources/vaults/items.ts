@@ -869,12 +869,12 @@ export interface CollectVaultItemOperationRequest {
 }
 
 /**
- * Report a real merchant transaction outcome for an issued Kernel Visa or Shop Pay
- * credential. Shop Pay accepts PURCHASE, AUTHORIZATION and CAPTURE. Never infer
- * success from filling checkout or receiving a credential. Supply the observed
- * status, transaction type, actual amount, currency and timestamp. Unknown
- * outcomes require manual reconciliation, not retry. Each purchase accepts one
- * report.
+ * Report a real merchant transaction outcome for an issued Kernel card or Shop Pay
+ * credential. Kernel alias cards record the outcome without contacting the issuer.
+ * Shop Pay accepts PURCHASE, AUTHORIZATION and CAPTURE. Never infer success from
+ * filling checkout or receiving a credential. Supply the observed status,
+ * transaction type, actual amount, currency and timestamp. Unknown outcomes
+ * require manual reconciliation, not retry. Each purchase accepts one report.
  */
 export interface ConfirmTransactionVaultItemOperationRequest {
   /**
@@ -909,20 +909,20 @@ export interface ConfirmTransactionVaultItemOperationRequest {
   /**
    * Why the purchase did not succeed, for any other outcome, such as 3ds_challenge,
    * captcha, login_required, timeout or site_error. payment_declined goes only with
-   * DECLINED, which takes no other code. Shop Pay reports it; other providers ignore
-   * it.
+   * DECLINED, which takes no other code. Shop Pay reports it to Shop Pay; Kernel
+   * cards store it with the purchase without reporting it.
    */
   failure_code?: string;
 
   /**
-   * The merchant's order number, for an APPROVED outcome. Shop Pay reports it; other
-   * providers ignore it.
+   * The merchant's order number, for an APPROVED outcome. Shop Pay reports it to
+   * Shop Pay; Kernel cards store it with the purchase without reporting it.
    */
   order_id?: string;
 
   /**
-   * The merchant's https order page, for an APPROVED outcome. Shop Pay reports it;
-   * other providers ignore it.
+   * The merchant's https order page, for an APPROVED outcome. Shop Pay reports it to
+   * Shop Pay; Kernel cards store it with the purchase without reporting it.
    */
   order_url?: string;
 }
@@ -4898,20 +4898,22 @@ export declare namespace ItemPerformOperationParams {
     /**
      * Body param: Why the purchase did not succeed, for any other outcome, such as
      * 3ds_challenge, captcha, login_required, timeout or site_error. payment_declined
-     * goes only with DECLINED, which takes no other code. Shop Pay reports it; other
-     * providers ignore it.
+     * goes only with DECLINED, which takes no other code. Shop Pay reports it to Shop
+     * Pay; Kernel cards store it with the purchase without reporting it.
      */
     failure_code?: string;
 
     /**
      * Body param: The merchant's order number, for an APPROVED outcome. Shop Pay
-     * reports it; other providers ignore it.
+     * reports it to Shop Pay; Kernel cards store it with the purchase without
+     * reporting it.
      */
     order_id?: string;
 
     /**
      * Body param: The merchant's https order page, for an APPROVED outcome. Shop Pay
-     * reports it; other providers ignore it.
+     * reports it to Shop Pay; Kernel cards store it with the purchase without
+     * reporting it.
      */
     order_url?: string;
   }
