@@ -116,6 +116,14 @@ export interface ReportTypeListParams extends OffsetPaginationParams {
    * Task the agent is finding a report type for.
    */
   task_id: string;
+
+  /**
+   * What the agent wants to report, in its own words. Types are ranked by how
+   * closely their meaning matches, most relevant first; they need not share any
+   * words. Only this text affects the ranking, not the task. Without it, or if
+   * ranking is unavailable, types are listed by name.
+   */
+  query?: string;
 }
 
 ReportTypes.Versions = Versions;

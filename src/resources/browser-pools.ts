@@ -289,8 +289,13 @@ export namespace BrowserPool {
     profile?: BrowserPoolConfig.Profile;
 
     /**
-     * Optional proxy associated to the browser session. References a proxy in the same
-     * project as the browser session.
+     * Resolved proxy configuration for browsers in this pool.
+     */
+    proxy?: BrowsersAPI.BrowserProxy;
+
+    /**
+     * @deprecated ID of the proxy associated with browsers in this pool, if any.
+     * Deprecated in favor of proxy.
      */
     proxy_id?: string;
 
@@ -317,9 +322,9 @@ export namespace BrowserPool {
 
     /**
      * @deprecated Whether browsers in this pool use stealth mode, which is CAPTCHA
-     * solving with Kernel's default stealth proxy unless proxy_id is set. A pool with
+     * solving with Kernel's default stealth proxy unless a proxy is set. A pool with
      * only captcha_solver enabled reports false. Deprecated in favor of captcha_solver
-     * and proxy_id.
+     * and proxy.
      */
     stealth?: boolean;
 
@@ -634,8 +639,9 @@ export interface BrowserPoolCreateParams {
 
   /**
    * Automatic CAPTCHA solving for browsers in this pool. Disabled by default.
-   * Enabling it does not select a proxy: when proxy_id is omitted, browsers use
-   * direct egress unless stealth=true.
+   * Enabling it does not select a proxy: when proxy and proxy_id are omitted,
+   * browsers use direct egress unless stealth=true. Set proxy.mode=default for
+   * Kernel's default stealth proxy.
    */
   captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
 
@@ -699,8 +705,19 @@ export interface BrowserPoolCreateParams {
   profile?: BrowserPoolCreateParams.Profile;
 
   /**
-   * Optional proxy to associate to the browser session. Must reference a proxy in
-   * the same project as the browser session.
+   * Proxy configuration for browsers in this pool. Cannot be combined with proxy_id.
+   * Omit to use direct egress, or Kernel's default stealth proxy when stealth=true.
+   * Set mode to direct to force direct egress. Set mode to default to use Kernel's
+   * default stealth proxy when captcha_solver.enabled=true, or direct egress
+   * otherwise. Select id or name to use that proxy. Proxy selection does not change
+   * CAPTCHA solver behavior.
+   */
+  proxy?: BrowsersAPI.BrowserProxyConfig;
+
+  /**
+   * @deprecated Optional proxy to associate to browsers in this pool. Must reference
+   * a proxy in the same project as the pool. Cannot be combined with proxy.
+   * Deprecated in favor of proxy.
    */
   proxy_id?: string;
 
@@ -733,10 +750,10 @@ export interface BrowserPoolCreateParams {
   start_url?: string;
 
   /**
-   * @deprecated If true, enables the CAPTCHA solver and, when proxy_id is omitted,
-   * uses Kernel's default stealth proxy. Defaults to false. Cannot be combined with
-   * captcha_solver.enabled=false. Deprecated in favor of captcha_solver and
-   * proxy_id.
+   * @deprecated If true, enables the CAPTCHA solver and, when proxy and proxy_id are
+   * omitted, uses Kernel's default stealth proxy. Defaults to false. Cannot be
+   * combined with captcha_solver.enabled=false. Deprecated in favor of
+   * captcha_solver and proxy.
    */
   stealth?: boolean;
 
@@ -908,7 +925,7 @@ export interface BrowserPoolUpdateParams {
   /**
    * If provided, replaces whether browsers in this pool automatically solve
    * CAPTCHAs. Enabling it on a pool with direct egress keeps direct egress unless
-   * proxy_id or stealth=true is also set.
+   * proxy, proxy_id, or stealth=true is also set.
    */
   captcha_solver?: BrowsersAPI.BrowserCaptchaSolver;
 
@@ -1005,8 +1022,18 @@ export interface BrowserPoolUpdateParams {
   profile?: BrowserPoolUpdateParams.Profile;
 
   /**
-   * Empty string clears the previously-selected proxy. Omit this field to leave the
-   * proxy unchanged.
+   * Proxy configuration to apply to browsers warmed after the update. Omit to leave
+   * the current configuration unchanged. Cannot be combined with proxy_id. Set mode
+   * to direct to switch to direct egress. Set mode to default to use Kernel's
+   * default stealth proxy for a pool with CAPTCHA solving enabled, or direct egress
+   * otherwise. Updating proxy does not change CAPTCHA solver behavior.
+   */
+  proxy?: BrowsersAPI.BrowserProxyConfig;
+
+  /**
+   * @deprecated Empty string clears the previously-selected proxy. Omit this field
+   * to leave the proxy unchanged. Cannot be combined with proxy. Deprecated in favor
+   * of proxy.
    */
   proxy_id?: string;
 
@@ -1041,9 +1068,9 @@ export interface BrowserPoolUpdateParams {
 
   /**
    * @deprecated If provided, replaces whether browsers launch in stealth mode.
-   * stealth=true without proxy_id moves a pool on direct egress to Kernel's default
-   * stealth proxy. Cannot be combined with captcha_solver.enabled=false. Deprecated
-   * in favor of captcha_solver and proxy_id.
+   * stealth=true without proxy or proxy_id moves a pool on direct egress to Kernel's
+   * default stealth proxy. Cannot be combined with captcha_solver.enabled=false.
+   * Deprecated in favor of captcha_solver and proxy.
    */
   stealth?: boolean;
 

@@ -98,7 +98,15 @@ export namespace WorkloadIdentityAuthorization {
   export namespace Policy {
     export interface Statement {
       /**
-       * Permitted action, such as browsers:use or vaults:read.
+       * Permitted action, such as browsers:use or vaults:read. When creating an API key
+       * or replacing its policy, `*` may replace whole components as shorthand:
+       * browsers:_ names every browsers action, _:delete every delete action the
+       * resource can carry, and _:_ every action the resource can carry. The stored
+       * policy lists the concrete actions, so actions added later are not granted, and
+       * api_keys:issue_beyond_expiry must always be listed explicitly. Partial
+       * components such as brow*:use and a bare * are rejected. Other policies, such as
+       * workload identity rules and deployment runtime policies, accept only exact
+       * actions.
        */
       action: string;
 
